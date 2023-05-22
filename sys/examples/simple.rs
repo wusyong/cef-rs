@@ -1,19 +1,34 @@
-use std::{ptr::*, ffi::{CString, c_char}, mem::size_of};
 use cef_sys::*;
-use winit::{event_loop::EventLoop, window::Window, platform::x11::WindowExtX11};
+use std::{
+    ffi::{c_char, CString},
+    mem::size_of,
+    ptr::*,
+};
+use winit::{event_loop::EventLoop, platform::x11::WindowExtX11, window::Window};
 
 fn main() {
-    unsafe{
-        let args = std::env::args().map(|arg| CString::new(arg).unwrap() ).collect::<Vec<CString>>();
+    unsafe {
+        let args = std::env::args()
+            .map(|arg| CString::new(arg).unwrap())
+            .collect::<Vec<CString>>();
         // convert the strings to raw pointers
-        let mut c_args = args.iter().map(|arg| arg.as_ptr()).collect::<Vec<*const c_char>>();
+        let mut c_args = args
+            .iter()
+            .map(|arg| arg.as_ptr())
+            .collect::<Vec<*const c_char>>();
         let arg = cef_main_args_t {
             argc: c_args.len() as i32,
             argv: c_args.as_mut_ptr() as *mut *mut _,
         };
 
         let mut app = cef_app_t {
-            base: _cef_base_ref_counted_t { size: size_of::<_cef_base_ref_counted_t>(), add_ref: None, release: None, has_one_ref: None, has_at_least_one_ref: None },
+            base: _cef_base_ref_counted_t {
+                size: size_of::<_cef_base_ref_counted_t>(),
+                add_ref: None,
+                release: None,
+                has_one_ref: None,
+                has_at_least_one_ref: None,
+            },
             on_before_command_line_processing: None,
             on_register_custom_schemes: None,
             get_resource_bundle_handler: None,
@@ -89,7 +104,6 @@ fn main() {
         dbg!(cef_string_utf8_to_utf16(url.into_raw(), len, &mut cef_url));
         dbg!(cef_url);
 
-
         let setting = cef_browser_settings_t {
             size: size_of::<cef_browser_settings_t>(),
             windowless_frame_rate: 0,
@@ -122,7 +136,13 @@ fn main() {
         };
 
         let mut client = cef_client_t {
-            base: _cef_base_ref_counted_t { size: size_of::<_cef_base_ref_counted_t>(), add_ref: None, release: None, has_one_ref: None, has_at_least_one_ref: None },
+            base: _cef_base_ref_counted_t {
+                size: size_of::<_cef_base_ref_counted_t>(),
+                add_ref: None,
+                release: None,
+                has_one_ref: None,
+                has_at_least_one_ref: None,
+            },
             get_audio_handler: None,
             get_command_handler: None,
             get_context_menu_handler: None,
@@ -144,7 +164,14 @@ fn main() {
             on_process_message_received: None,
         };
 
-        let _browser = dbg!(cef_browser_host_create_browser(&window_info, &mut client, &cef_url, &setting, null_mut(), null_mut()));
+        let _browser = dbg!(cef_browser_host_create_browser(
+            &window_info,
+            &mut client,
+            &cef_url,
+            &setting,
+            null_mut(),
+            null_mut()
+        ));
         dbg!(&window_info);
         el.run(|event, _el, control| {
             control.set_wait();
@@ -153,11 +180,9 @@ fn main() {
                 winit::event::Event::NewEvents(winit::event::StartCause::Init) => {
                     // cef_run_message_loop();
                     // cef_shutdown();
-
-                },
-                _ => ()
+                }
+                _ => (),
             }
-
         });
     }
 }

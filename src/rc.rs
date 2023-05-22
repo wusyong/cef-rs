@@ -1,4 +1,7 @@
-use std::ops::Deref;
+use std::{
+    ops::Deref,
+    sync::atomic::{fence, AtomicUsize, Ordering},
+};
 
 use cef_sys::cef_base_ref_counted_t;
 
@@ -75,7 +78,7 @@ macro_rules! impl_rc {
             }
 
             fn as_base(&self) -> &cef_base_ref_counted_t {
-                unsafe { &*(self as *const _ as *const cef_base_ref_counted_t) }
+                &self.base
             }
         }
     };
@@ -99,16 +102,12 @@ pub struct RefGuard<T: Rc> {
 }
 
 impl<T: Rc> RefGuard<T> {
-    pub(crate) fn from_raw(ptr: *mut T) -> RefGuard<T> {
-        RefGuard {
-            object: ptr,
-        }
+    pub fn from_raw(ptr: *mut T) -> RefGuard<T> {
+        RefGuard { object: ptr }
     }
 
-    pub(crate) fn from_raw_add_ref(ptr: *mut T) -> RefGuard<T> {
-        let guard = RefGuard {
-            object: ptr,
-        };
+    pub fn from_raw_add_ref(ptr: *mut T) -> RefGuard<T> {
+        let guard = RefGuard { object: ptr };
 
         guard.add_ref();
 
@@ -150,5 +149,76 @@ impl<T: Rc> Deref for RefGuard<T> {
 impl<T: Rc> Drop for RefGuard<T> {
     fn drop(&mut self) {
         self.release();
+    }
+}
+
+/// There are some types require users to implement one their own in Rust and then create a raw type around it to
+/// pass to sys level api. This is the wrapper type for it.
+#[repr(C)]
+pub struct RcImpl<T, I> {
+    /// Raw cef types
+    cef_object: T,
+    /// Rust interface of such type
+    interface: I,
+    ref_count: AtomicUsize,
+}
+
+impl<T, I> RcImpl<T, I> {
+    pub fn new(mut cef_object: T, interface: I) -> *mut RcImpl<T, I> {
+        let base = unsafe { &mut *(&mut cef_object as *mut T as *mut cef_base_ref_counted_t) };
+
+        base.size = std::mem::size_of::<T>();
+        base.add_ref = Some(add_ref::<T, I>);
+        base.has_one_ref = Some(has_one_ref::<T, I>);
+        base.has_at_least_one_ref = Some(has_at_least_one_ref::<T, I>);
+        base.release = Some(release::<T, I>);
+
+        Box::into_raw(Box::new(RcImpl {
+            cef_object,
+            interface,
+            ref_count: AtomicUsize::new(1),
+        }))
+    }
+
+    pub fn get<'a>(ptr: *mut T) -> &'a mut RcImpl<T, I> {
+        unsafe { &mut *(ptr as *mut RcImpl<T, I>) }
+    }
+}
+
+extern "C" fn add_ref<T, I>(this: *mut cef_base_ref_counted_t) {
+    let obj = RcImpl::<T, I>::get(this as *mut T);
+
+    obj.ref_count.fetch_add(1, Ordering::Relaxed);
+}
+
+extern "C" fn has_one_ref<T, I>(this: *mut cef_base_ref_counted_t) -> i32 {
+    let obj = RcImpl::<T, I>::get(this as *mut T);
+
+    if obj.ref_count.load(Ordering::Relaxed) == 1 {
+        1
+    } else {
+        0
+    }
+}
+
+extern "C" fn has_at_least_one_ref<T, I>(this: *mut cef_base_ref_counted_t) -> i32 {
+    let obj = RcImpl::<T, I>::get(this as *mut T);
+
+    if obj.ref_count.load(Ordering::Relaxed) >= 1 {
+        1
+    } else {
+        0
+    }
+}
+
+pub extern "C" fn release<T, I>(this: *mut cef_base_ref_counted_t) -> i32 {
+    let obj = RcImpl::<T, I>::get(this as *mut T);
+
+    if obj.ref_count.fetch_sub(1, Ordering::Release) != 1 {
+        0
+    } else {
+        fence(Ordering::Acquire);
+        let _ = unsafe { Box::from_raw(this as *mut RcImpl<T, I>) };
+        1
     }
 }

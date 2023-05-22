@@ -1,6 +1,6 @@
 #[cfg(not(feature = "dox"))]
 fn main() {
-    let path = "";
+    let path = "/home/wuyuwei/Desktop/fec";
     println!("cargo:rustc-link-lib=cef");
     println!("cargo:rustc-link-search={path}");
     println!("cargo:rustc-env=LD_LIBRARY_PATH={path}");

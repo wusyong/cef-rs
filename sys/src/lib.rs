@@ -13,7 +13,11 @@ pub use bindings::*;
 
 impl Default for _cef_string_utf16_t {
     fn default() -> Self {
-        Self { str_: null_mut(), length: 0, dtor: None }
+        Self {
+            str_: null_mut(),
+            length: 0,
+            dtor: None,
+        }
     }
 }
 

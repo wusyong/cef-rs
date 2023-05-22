@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::ptr::null_mut;
 use widestring::U16CString;
 
-/// Helper type to deal with Cef string. It's essentially an U16 C string.
+/// Helper type to deal with Cef string. It's essentially an Utf-16 C string.
 #[derive(Debug, Clone)]
 pub struct CefString(pub U16CString);
 
