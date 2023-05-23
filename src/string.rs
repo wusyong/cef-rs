@@ -6,7 +6,7 @@ use std::ptr::null_mut;
 use widestring::U16CString;
 
 /// Helper type to deal with Cef string. It's essentially an Utf-16 C string.
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct CefString(pub U16CString);
 
 impl CefString {

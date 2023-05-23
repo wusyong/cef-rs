@@ -1,6 +1,8 @@
 use cef_sys::{cef_app_t, cef_command_line_t, cef_main_args_t, cef_string_t};
 
-use crate::{args::Args, command_line::CommandLine, rc::RcImpl, string::CefString};
+use crate::{
+    args::Args, command_line::CommandLine, rc::RcImpl, settings::Settings, string::CefString,
+};
 
 /// Implement this trait to provide handler implementations. Methods will be
 /// called by the process and/or thread indicated.
@@ -39,6 +41,22 @@ pub fn execute_process<T: App>(args: Option<&Args>, app: Option<T>) -> i32 {
         .unwrap_or(std::ptr::null_mut());
 
     unsafe { cef_sys::cef_execute_process(args, app, std::ptr::null_mut()) }
+}
+
+/// This function should be called on the main application thread to initialize
+/// the CEF browser process. The |application| parameter may be NULL. A return
+/// value of true (1) indicates that it succeeded and false (0) indicates that
+/// it failed.
+pub fn initialize<T: App>(args: Option<&Args>, settings: Settings, app: Option<T>) -> i32 {
+    let args = args
+        .map(|args| &args.to_raw() as *const _)
+        .unwrap_or(std::ptr::null());
+    let settings = &settings.into_raw() as *const _;
+    let app = app
+        .map(|app| crate::app::to_raw(&app))
+        .unwrap_or(std::ptr::null_mut());
+
+    unsafe { cef_sys::cef_initialize(args, settings, app, std::ptr::null_mut()) }
 }
 
 pub fn to_raw<I: App>(interface: &I) -> *mut cef_app_t {
