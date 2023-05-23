@@ -1,4 +1,6 @@
-use cef_sys::{cef_string_list_t, cef_string_map_t, cef_string_utf16_t};
+use cef_sys::{
+    cef_string_list_t, cef_string_map_t, cef_string_userfree_utf16_t, cef_string_utf16_t,
+};
 use std::collections::HashMap;
 use std::ptr::null_mut;
 use widestring::U16CString;
@@ -8,21 +10,28 @@ use widestring::U16CString;
 pub struct CefString(pub U16CString);
 
 impl CefString {
-    pub fn from_str(s: &str) -> Self {
+    pub fn new(s: &str) -> Self {
         Self(U16CString::from_str(s).expect("Failed to create CefString from str."))
     }
 
-    pub fn from_raw(ptr: *const cef_string_utf16_t) -> CefString {
-        // It's a pointer, so CEF retains ownership and will call the dtor
-        unsafe {
-            CefString(
+    /// Create a `CefString` from raw `cef_string_utf16_t` pointer. If the pointer is null or it fails
+    /// to convert to `U16CString`, this method will returns `None`.
+    pub fn from_raw(ptr: *const cef_string_utf16_t) -> Option<CefString> {
+        if ptr.is_null() {
+            return None;
+        } else {
+            // It's a smart pointer, so cef retains ownership and will call the dtor
+            unsafe {
                 U16CString::from_ptr((*ptr).str_, (*ptr).length)
-                    .expect("Failed to create CefString from cef_string_utf16_t"),
-            )
+                    .ok()
+                    .map(|x| CefString(x))
+            }
         }
     }
 
-    pub fn from_userfree_cef(ptr: *mut cef_string_utf16_t) -> CefString {
+    /// Create a `CefString` from raw `cef_string_userfree_utf16_t` pointer. If the pointer is null or it fails
+    /// to convert to `U16CString`, this method will returns `None`.
+    pub fn from_userfree_cef(ptr: cef_string_userfree_utf16_t) -> Option<CefString> {
         let res = Self::from_raw(ptr);
         unsafe {
             cef_sys::cef_string_userfree_utf16_free(ptr);
@@ -55,7 +64,7 @@ impl ToString for CefString {
 }
 
 pub fn str_to_cef(s: &str) -> cef_string_utf16_t {
-    CefString::from_str(s).into_raw()
+    CefString::new(s).into_raw()
 }
 
 pub unsafe fn parse_string_list(ptr: cef_string_list_t) -> Vec<String> {
@@ -64,7 +73,7 @@ pub unsafe fn parse_string_list(ptr: cef_string_list_t) -> Vec<String> {
     for i in 0..count {
         let value = null_mut();
         if cef_sys::cef_string_list_value(ptr, i, value) > 0 {
-            res.push(CefString::from_raw(value).to_string());
+            CefString::from_raw(value).map(|v| res.push(v.to_string()));
         }
     }
     res
@@ -79,10 +88,8 @@ pub unsafe fn parse_string_map(ptr: cef_string_map_t) -> HashMap<String, String>
         cef_sys::cef_string_map_key(ptr, i, key);
         cef_sys::cef_string_map_value(ptr, i, value);
 
-        res.insert(
-            CefString::from_raw(key).to_string(),
-            CefString::from_raw(value).to_string(),
-        );
+        CefString::from_raw(key)
+            .map(|k| CefString::from_raw(value).map(|v| res.insert(k.to_string(), v.to_string())));
     }
     res
 }

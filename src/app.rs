@@ -1,19 +1,65 @@
-use cef_sys::cef_app_t;
+use cef_sys::{cef_app_t, cef_command_line_t, cef_main_args_t, cef_string_t};
 
-use crate::rc::RcImpl;
+use crate::{args::Args, command_line::CommandLine, rc::RcImpl, string::CefString};
 
-pub trait App {
-    fn foo();
+/// Implement this trait to provide handler implementations. Methods will be
+/// called by the process and/or thread indicated.
+pub trait App: Clone {
+    /// Provides an opportunity to view and/or modify command-line arguments
+    /// before processing by CEF and Chromium. The `process_type` value will be
+    /// `None` for the browser process. Do not keep a reference to the
+    /// `cef_command_line_t` object passed to this function. The
+    /// `cef_settings_t.command_line_args_disabled` value can be used to start with
+    /// an NULL command-line object. Any values specified in CefSettings that
+    /// equate to command-line arguments will be set before this function is
+    /// called. Be cautious when using this function to modify command-line
+    /// arguments for non-browser processes as this may result in undefined
+    /// behavior including crashes.
+    fn on_before_command_line_processing(
+        &self,
+        process_type: Option<CefString>,
+        command_line: Option<CommandLine>,
+    );
 }
 
-pub fn into_raw(interface: impl App) -> *mut cef_app_t {
+/// This function should be called from the application entry point function to
+/// execute a secondary process. It can be used to run secondary processes from
+/// the browser client executable (default behavior) or from a separate
+/// executable specified by the `cef_settings_t.browser_subprocess_path` value. If
+/// called for the browser process (identified by no "type" command-line value)
+/// it will return immediately with a value of -1. If called for a recognized
+/// secondary process it will block until the process should exit and then
+/// return the process exit code. The `application` parameter may be `None`.
+pub fn execute_process<T: App>(args: Option<&Args>, app: Option<T>) -> i32 {
+    let args = args
+        .map(|args| &args.to_raw() as *const _)
+        .unwrap_or(std::ptr::null());
+    let app = app
+        .map(|app| crate::app::to_raw(&app))
+        .unwrap_or(std::ptr::null_mut());
+
+    unsafe { cef_sys::cef_execute_process(args, app, std::ptr::null_mut()) }
+}
+
+pub fn to_raw<I: App>(interface: &I) -> *mut cef_app_t {
     let mut object: cef_app_t = unsafe { std::mem::zeroed() };
 
-    // object.get_render_process_handler = Some(get_render_process_handler::<T>);
-    // object.get_browser_process_handler = Some(get_browser_process_handler::<T>);
-    // object.on_before_command_line_processing = Some(on_before_command_line_processing::<T>);
+    object.on_before_command_line_processing = Some(on_before_command_line_processing::<I>);
 
-    let rc = RcImpl::new(object, interface);
+    let rc = RcImpl::new(object, interface.clone());
 
     Box::into_raw(Box::new(rc)) as *mut _
+}
+
+extern "C" fn on_before_command_line_processing<I: App>(
+    this: *mut cef_app_t,
+    process_type: *const cef_string_t,
+    command_line: *mut cef_command_line_t,
+) {
+    let obj: &mut RcImpl<_, I> = RcImpl::get(this);
+    let process_type = CefString::from_raw(process_type);
+    let cmd = CommandLine::from_raw(command_line);
+
+    obj.interface
+        .on_before_command_line_processing(process_type, cmd);
 }

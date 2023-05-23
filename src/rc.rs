@@ -85,6 +85,8 @@ macro_rules! impl_rc {
 }
 
 impl_rc!(cef_browser_t);
+impl_rc!(cef_command_line_t);
+
 impl_rc!(cef_frame_t);
 impl_rc!(cef_browser_host_t);
 impl_rc!(cef_v8context_t);
@@ -157,9 +159,9 @@ impl<T: Rc> Drop for RefGuard<T> {
 #[repr(C)]
 pub struct RcImpl<T, I> {
     /// Raw cef types
-    cef_object: T,
+    pub cef_object: T,
     /// Rust interface of such type
-    interface: I,
+    pub interface: I,
     ref_count: AtomicUsize,
 }
 
