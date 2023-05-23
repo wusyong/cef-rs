@@ -1,4 +1,4 @@
-use cef_sys::{cef_app_t, cef_command_line_t, cef_main_args_t, cef_string_t};
+use cef_sys::{cef_app_t, cef_command_line_t, cef_string_t};
 
 use crate::{
     args::Args, command_line::CommandLine, rc::RcImpl, settings::Settings, string::CefString,
@@ -22,6 +22,19 @@ pub trait App: Clone {
         process_type: Option<CefString>,
         command_line: Option<CommandLine>,
     );
+
+    /// Create cef raw types for internal usafe. The reason for `Clone` requirement is because
+    /// these types have ref counted object. User can decide to wrap your own type with `Arc` or
+    /// perform deep clone.
+    fn to_raw(&self) -> *mut cef_app_t {
+        let mut object: cef_app_t = unsafe { std::mem::zeroed() };
+
+        object.on_before_command_line_processing = Some(on_before_command_line_processing::<Self>);
+
+        let rc = RcImpl::new(object, self.clone());
+
+        Box::into_raw(Box::new(rc)) as *mut _
+    }
 }
 
 /// This function should be called from the application entry point function to
@@ -36,9 +49,7 @@ pub fn execute_process<T: App>(args: Option<&Args>, app: Option<T>) -> i32 {
     let args = args
         .map(|args| &args.to_raw() as *const _)
         .unwrap_or(std::ptr::null());
-    let app = app
-        .map(|app| crate::app::to_raw(&app))
-        .unwrap_or(std::ptr::null_mut());
+    let app = app.map(|app| app.to_raw()).unwrap_or(std::ptr::null_mut());
 
     unsafe { cef_sys::cef_execute_process(args, app, std::ptr::null_mut()) }
 }
@@ -52,21 +63,9 @@ pub fn initialize<T: App>(args: Option<&Args>, settings: Settings, app: Option<T
         .map(|args| &args.to_raw() as *const _)
         .unwrap_or(std::ptr::null());
     let settings = &settings.into_raw() as *const _;
-    let app = app
-        .map(|app| crate::app::to_raw(&app))
-        .unwrap_or(std::ptr::null_mut());
+    let app = app.map(|app| app.to_raw()).unwrap_or(std::ptr::null_mut());
 
     unsafe { cef_sys::cef_initialize(args, settings, app, std::ptr::null_mut()) }
-}
-
-pub fn to_raw<I: App>(interface: &I) -> *mut cef_app_t {
-    let mut object: cef_app_t = unsafe { std::mem::zeroed() };
-
-    object.on_before_command_line_processing = Some(on_before_command_line_processing::<I>);
-
-    let rc = RcImpl::new(object, interface.clone());
-
-    Box::into_raw(Box::new(rc)) as *mut _
 }
 
 extern "C" fn on_before_command_line_processing<I: App>(

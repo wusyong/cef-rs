@@ -73,6 +73,8 @@ fn main() {
 
         let el = EventLoop::new();
         let window = Window::new(&el).unwrap();
+        let xid = window.xlib_window().unwrap();
+        dbg!(xid);
 
         let window_info = cef_window_info_t {
             window_name: cef_string_t {
@@ -86,12 +88,12 @@ fn main() {
                 width: window.inner_size().width as i32,
                 height: window.inner_size().height as i32,
             },
-            // parent_window: 0,
-            parent_window: window.xlib_window().unwrap(),
+            parent_window: 0,
+            // parent_window: window.xlib_window().unwrap(),
             windowless_rendering_enabled: 0,
             shared_texture_enabled: 0,
             external_begin_frame_enabled: 0,
-            window: 0,
+            window: xid,
         };
 
         let url = CString::new("https://www.google.com").unwrap();

@@ -1,8 +1,8 @@
 use std::ffi::c_int;
 
-use cef_sys::{cef_color_t, cef_log_severity_t, cef_settings_t};
+use cef_sys::{cef_color_t, cef_settings_t};
 
-use crate::string::CefString;
+use crate::{string::CefString, LogSeverity};
 
 /// Initialization settings. Specify `None` or 0 to get the recommended default
 /// values. Many of these and other settings can also configured using command-
@@ -186,7 +186,7 @@ pub struct Settings {
     /// chrome://inspect page in Google Chrome. Port numbers 9222 and 9229 are
     /// discoverable by default. Other port numbers may need to be configured via
     /// "Discover network targets" on the Devices tab.
-    pub remote_debugging_port: usize,
+    pub remote_debugging_port: u32,
 
     /// The number of stack trace frames to capture for uncaught exceptions.
     /// Specify a positive value to enable the
@@ -194,7 +194,7 @@ pub struct Settings {
     /// (default value) and OnUncaughtException() will not be called. Also
     /// configurable using the "uncaught-exception-stack-size" command-line
     /// switch.
-    pub uncaught_exception_stack_size: usize,
+    pub uncaught_exception_stack_size: u32,
 
     /// Background color used for the browser before a document is loaded and when
     /// no document color is specified. The alpha component must be either fully
@@ -204,7 +204,7 @@ pub struct Settings {
     /// default value of opaque white be used. If the alpha component is fully
     /// transparent for a windowless (off-screen) browser then transparent
     /// painting will be enabled.
-    pub background_color: usize,
+    pub background_color: u32,
 
     /// Comma delimited ordered list of language codes without any whitespace that
     /// will be used in the "Accept-Language" HTTP header. May be overridden on a
@@ -229,7 +229,7 @@ pub struct Settings {
 }
 
 impl Settings {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             no_sandbox: true,
             remote_debugging_port: 5566,
@@ -272,5 +272,3 @@ impl Settings {
         }
     }
 }
-
-pub type LogSeverity = cef_log_severity_t;
