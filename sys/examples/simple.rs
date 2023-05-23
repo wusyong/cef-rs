@@ -75,7 +75,6 @@ fn main() {
         let window = Window::new(&el).unwrap();
         let xid = window.xlib_window().unwrap();
         dbg!(xid);
-
         let window_info = cef_window_info_t {
             window_name: cef_string_t {
                 str_: null_mut(),
@@ -85,15 +84,15 @@ fn main() {
             bounds: cef_rect_t {
                 x: 0,
                 y: 0,
-                width: window.inner_size().width as i32,
-                height: window.inner_size().height as i32,
+                width: 1280,
+                height: 720,
             },
             parent_window: 0,
             // parent_window: window.xlib_window().unwrap(),
             windowless_rendering_enabled: 0,
             shared_texture_enabled: 0,
             external_begin_frame_enabled: 0,
-            window: xid,
+            window: 0,
         };
 
         let url = CString::new("https://www.google.com").unwrap();
@@ -175,6 +174,7 @@ fn main() {
             null_mut()
         ));
         dbg!(&window_info);
+
         el.run(|event, _el, control| {
             control.set_wait();
             // cef_do_message_loop_work();

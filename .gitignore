@@ -1,2 +1,4 @@
+**/DawnCache
+**/GPUCache
 /target
 /Cargo.lock

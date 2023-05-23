@@ -2,28 +2,28 @@ use std::ffi::{c_char, CString};
 
 use cef_sys::cef_main_args_t;
 
-pub struct Args(pub Vec<CString>);
+pub struct Args {
+    source: Vec<CString>,
+    argv: Vec<*const c_char>,
+}
 
 impl Args {
-    pub fn new() -> Self {
-        Self(
-            std::env::args()
-                .map(|arg| CString::new(arg).unwrap())
-                .collect::<Vec<CString>>(),
-        )
-    }
-
-    pub fn to_raw(&self) -> cef_main_args_t {
-        // convert the strings to raw pointers
-        let mut c_args = self
-            .0
+    pub fn new<T: IntoIterator<Item = String>>(args: T) -> Self {
+        let source = args
+            .into_iter()
+            .map(|arg| CString::new(arg).unwrap())
+            .collect::<Vec<CString>>();
+        let argv = source
             .iter()
             .map(|arg| arg.as_ptr())
             .collect::<Vec<*const c_char>>();
+        Self { source, argv }
+    }
 
+    pub fn to_raw(&self) -> cef_main_args_t {
         cef_main_args_t {
-            argc: c_args.len() as i32,
-            argv: c_args.as_mut_ptr() as *mut *mut _,
+            argc: self.argv.len() as i32,
+            argv: self.argv.as_ptr() as *mut *mut _,
         }
     }
 }

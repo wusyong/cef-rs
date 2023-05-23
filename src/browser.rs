@@ -1,8 +1,8 @@
-use std::ffi::c_int;
+use std::{ffi::c_int, ptr::null_mut};
 
-use cef_sys::cef_browser_settings_t;
+use cef_sys::{_cef_base_ref_counted_t, cef_browser_settings_t, cef_client_t};
 
-use crate::{string::CefString, State};
+use crate::{client::Client, string::CefString, window::WindowInfo, State};
 
 /// Browser initialization settings. Specify NULL or 0 to get the recommended
 /// default values. The consequences of using custom values may not be well
@@ -185,5 +185,33 @@ impl BrowserSettings {
             accept_language_list: self.accept_language_list.into_raw(),
             chrome_status_bubble: self.chrome_status_bubble,
         }
+    }
+}
+
+/// Create a new browser using the window parameters specified by |windowInfo|.
+/// All values will be copied internally and the actual window (if any) will be
+/// created on the UI thread. If |request_context| is NULL the global request
+/// context will be used. This function can be called on any browser process
+/// thread and will not block. The optional |extra_info| parameter provides an
+/// opportunity to specify extra information specific to the created browser
+/// that will be passed to cef_render_process_handler_t::on_browser_created() in
+/// the render process.
+pub fn create_browser<T: Client>(
+    window_info: WindowInfo,
+    client: Option<T>,
+    url: CefString,
+    settings: BrowserSettings,
+) -> i32 {
+    let client = client.map(|c| c.to_raw()).unwrap_or(null_mut());
+
+    unsafe {
+        cef_sys::cef_browser_host_create_browser(
+            &window_info.into_raw(),
+            client,
+            &url.into_raw(),
+            &settings.into_raw(),
+            null_mut(),
+            null_mut(),
+        )
     }
 }

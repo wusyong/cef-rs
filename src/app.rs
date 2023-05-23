@@ -1,4 +1,9 @@
-use cef_sys::{cef_app_t, cef_command_line_t, cef_string_t};
+use std::{
+    ffi::{c_char, CString},
+    ptr::null,
+};
+
+use cef_sys::{cef_app_t, cef_command_line_t, cef_main_args_t, cef_string_t};
 
 use crate::{
     args::Args, command_line::CommandLine, rc::RcImpl, settings::Settings, string::CefString,
@@ -19,9 +24,10 @@ pub trait App: Clone {
     /// behavior including crashes.
     fn on_before_command_line_processing(
         &self,
-        process_type: Option<CefString>,
-        command_line: Option<CommandLine>,
-    );
+        _process_type: Option<CefString>,
+        _command_line: Option<CommandLine>,
+    ) {
+    }
 
     /// Create cef raw types for internal usafe. The reason for `Clone` requirement is because
     /// these types have ref counted object. User can decide to wrap your own type with `Arc` or
@@ -31,9 +37,7 @@ pub trait App: Clone {
 
         object.on_before_command_line_processing = Some(on_before_command_line_processing::<Self>);
 
-        let rc = RcImpl::new(object, self.clone());
-
-        Box::into_raw(Box::new(rc)) as *mut _
+        RcImpl::new(object, self.clone()) as *mut _
     }
 }
 
@@ -45,27 +49,23 @@ pub trait App: Clone {
 /// it will return immediately with a value of -1. If called for a recognized
 /// secondary process it will block until the process should exit and then
 /// return the process exit code. The `application` parameter may be `None`.
-pub fn execute_process<T: App>(args: Option<&Args>, app: Option<T>) -> i32 {
-    let args = args
-        .map(|args| &args.to_raw() as *const _)
-        .unwrap_or(std::ptr::null());
+pub fn execute_process<T: App>(args: &Args, app: Option<T>) -> i32 {
+    let args = args.to_raw();
     let app = app.map(|app| app.to_raw()).unwrap_or(std::ptr::null_mut());
 
-    unsafe { cef_sys::cef_execute_process(args, app, std::ptr::null_mut()) }
+    unsafe { cef_sys::cef_execute_process(&args, app, std::ptr::null_mut()) }
 }
 
 /// This function should be called on the main application thread to initialize
 /// the CEF browser process. The |application| parameter may be NULL. A return
 /// value of true (1) indicates that it succeeded and false (0) indicates that
 /// it failed.
-pub fn initialize<T: App>(args: Option<&Args>, settings: Settings, app: Option<T>) -> i32 {
-    let args = args
-        .map(|args| &args.to_raw() as *const _)
-        .unwrap_or(std::ptr::null());
+pub fn initialize<T: App>(args: &Args, settings: Settings, app: Option<T>) -> i32 {
+    let args = args.to_raw();
     let settings = &settings.into_raw() as *const _;
     let app = app.map(|app| app.to_raw()).unwrap_or(std::ptr::null_mut());
 
-    unsafe { cef_sys::cef_initialize(args, settings, app, std::ptr::null_mut()) }
+    unsafe { cef_sys::cef_initialize(&args, settings, app, std::ptr::null_mut()) }
 }
 
 extern "C" fn on_before_command_line_processing<I: App>(
