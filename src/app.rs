@@ -1,9 +1,4 @@
-use std::{
-    ffi::{c_char, CString},
-    ptr::null,
-};
-
-use cef_sys::{cef_app_t, cef_command_line_t, cef_main_args_t, cef_string_t};
+use cef_sys::{cef_app_t, cef_command_line_t, cef_string_t};
 
 use crate::{
     args::Args, command_line::CommandLine, rc::RcImpl, settings::Settings, string::CefString,

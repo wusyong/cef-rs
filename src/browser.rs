@@ -1,6 +1,6 @@
 use std::{ffi::c_int, ptr::null_mut};
 
-use cef_sys::{_cef_base_ref_counted_t, cef_browser_settings_t, cef_client_t};
+use cef_sys::cef_browser_settings_t;
 
 use crate::{client::Client, string::CefString, window::WindowInfo, State};
 

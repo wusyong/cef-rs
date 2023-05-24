@@ -3,21 +3,21 @@ use std::ffi::{c_char, CString};
 use cef_sys::cef_main_args_t;
 
 pub struct Args {
-    source: Vec<CString>,
+    _source: Vec<CString>,
     argv: Vec<*const c_char>,
 }
 
 impl Args {
     pub fn new<T: IntoIterator<Item = String>>(args: T) -> Self {
-        let source = args
+        let _source = args
             .into_iter()
             .map(|arg| CString::new(arg).unwrap())
             .collect::<Vec<CString>>();
-        let argv = source
+        let argv = _source
             .iter()
             .map(|arg| arg.as_ptr())
             .collect::<Vec<*const c_char>>();
-        Self { source, argv }
+        Self { _source, argv }
     }
 
     pub fn to_raw(&self) -> cef_main_args_t {
