@@ -1,3 +1,47 @@
+//! Reference counted module
+//!
+//! Many cef types are reference counted, this module is the building block to create them. Users
+//! typically don't need to uses these types, but anyone who want to add feaures and
+//! implementations to this crate will need to understand them.
+//!
+//! In order to create a new Rust type for a raw cef type, simply create a module for it first. And
+//! then work on the implementations based on following conditions:
+//!  
+//! ## If raw cef type is a simple struct with basic fields
+//! For example like [`cef_settings_t`], just create a struct like [`Settings`] and define a method
+//! `into_raw` that can convert to raw cef type.
+//!
+//! ## If raw cef type has [`cef_base_ref_counted_t`]
+//! For example like [`cef_app_t`], it should implement [`Rc`] trait.
+//! There's a private macro `impl_rc` in this module for you to implement it. And for the Rust
+//! type...
+//!
+//! ### if it's a type we should create in Rust and pass to C API
+//!
+//! Define a trait with [`Clone`] trait bound like [`App`] for it.
+//! We need [`Clone`] trait because users will define a reference counted type based on it.
+//! Each field of this kind of cef type usually is a callback like `Option<unsafe extern "C" fn(...)>`.
+//! We define a trampoline function with  the same signature, and then define a trait method like
+//! [`App::on_before_command_line_processing`]. Finally, define a trait method [`to_raw`] that can
+//! create raw cef type with reference counted. In the implementation of [`to_raw`], create the raw
+//! cef type by `unsafe { std::mem::zeroed }` first. And then fill each field by adding the
+//! trampoline function. Return the value by calling [`RcImpl::new`]. This is the wrapper to add
+//! [`cef_base_ref_counted_t`] to the type, so the trampoline function can call [`RcImpl::get`] to
+//! retreive rust type and use it.
+//!
+//! ### if it's type we sould get from C API
+//!
+//! Define a new type like [`CommandLine`] to wrap the raw type with [`RefGuard`], and then define
+//! a method called `from_raw`.
+//!
+//! [`cef_settings_t`]: cef_sys::cef_settings_t
+//! [`cef_app_t`]: cef_sys::cef_app_t
+//! [`Settings`]: crate::Settings
+//! [`App`]: crate::App
+//! [`App::on_before_command_line_processing`]: crate::App::on_before_command_line_processing
+//! [`to_raw`]: crate::App::to_raw
+//! [`CommandLine`]: crate::CommandLine
+
 use std::{
     ops::Deref,
     sync::atomic::{fence, AtomicUsize, Ordering},
@@ -5,7 +49,7 @@ use std::{
 
 use cef_sys::cef_base_ref_counted_t;
 
-/// Reference counted trait for types has `cef_base_ref_counted_t`.
+/// Reference counted trait for types has [`cef_base_ref_counted_t`].
 pub trait Rc {
     fn add_ref(&self);
     fn has_one_ref(&self) -> bool;

@@ -1,3 +1,16 @@
+//! String module
+//!
+//!
+//! cef-rs defines its own type [`CefString`] which is a new
+//! type of [`widestring::U16CString`] to handle everything around strings.
+//! Including converting from/to raw [`cef_string_utf16_t`],
+//! converting from/to Rust string types. Every cef-rs types should also use [`CefString`] as
+//! interface in most of the cases. Raw cef string [`cef_string_utf16_t`] is a UTF-16 C String,
+//! but it also has a version [`cef_string_userfree_utf16_t`] that users are responsible
+//! for free it manually.
+//!
+//! There's also [`str_to_cef`] function to convert rust string to cef string directly.
+
 use cef_sys::{
     cef_string_list_t, cef_string_map_t, cef_string_userfree_utf16_t, cef_string_utf16_t,
 };
@@ -5,7 +18,7 @@ use std::collections::HashMap;
 use std::ptr::null_mut;
 use widestring::U16CString;
 
-/// Helper type to deal with Cef string. It's essentially an Utf-16 C string.
+/// Helper type to deal with Cef string. It's essentially an UTF-16 C string.
 #[derive(Debug, Default, Clone)]
 pub struct CefString(pub U16CString);
 
