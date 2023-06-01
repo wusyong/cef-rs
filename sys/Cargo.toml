@@ -1,7 +1,12 @@
 [package]
-name = "cef-sys"
-version = "0.1.0"
+name = "libcef-sys"
+version = "1.0.0"
 edition = "2021"
+license = "Apache-2.0 OR MIT"
+description = "cef-rs sys crate"
+
+[lib]
+name = "cef_sys"
 
 [features]
 dox = []
