@@ -32,6 +32,6 @@ Like many FFI crates, there are two crates in this repo: `cef-rs` in root and `c
 
 There are a few types we recommend you learn first before adding any implementation. This could help you understand the interface of CEF better. We also welcome everyone who can add tests for these types:
 
-- `CefString`
-- `rc` module
+- [`cef::string`](https://docs.rs/cef/latest/cef/rc/index.html)
+- [`cef::rc`](https://docs.rs/cef/latest/cef/string/index.html)
 
