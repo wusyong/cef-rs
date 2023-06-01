@@ -55,12 +55,12 @@ pub fn execute_process<T: App>(args: &Args, app: Option<T>) -> i32 {
 /// the CEF browser process. The |application| parameter may be NULL. A return
 /// value of true (1) indicates that it succeeded and false (0) indicates that
 /// it failed.
-pub fn initialize<T: App>(args: &Args, settings: Settings, app: Option<T>) -> i32 {
+pub fn initialize<T: App>(args: &Args, settings: Settings, app: Option<T>) -> bool {
     let args = args.to_raw();
     let settings = &settings.into_raw() as *const _;
     let app = app.map(|app| app.to_raw()).unwrap_or(std::ptr::null_mut());
 
-    unsafe { cef_sys::cef_initialize(&args, settings, app, std::ptr::null_mut()) }
+    unsafe { cef_sys::cef_initialize(&args, settings, app, std::ptr::null_mut()) == 1 }
 }
 
 extern "C" fn on_before_command_line_processing<I: App>(

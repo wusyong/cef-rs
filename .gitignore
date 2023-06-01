@@ -1,4 +1,7 @@
-**/DawnCache
-**/GPUCache
 /target
 /Cargo.lock
+**/DawnCache
+**/GPUCache
+build
+.flatpak-builder
+cargo-sources.json

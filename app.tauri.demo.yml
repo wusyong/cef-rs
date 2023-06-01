@@ -1,0 +1,37 @@
+id: app.tauri.demo
+runtime: app.tauri.Platform
+runtime-version: '22.08'
+sdk: app.tauri.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=pulseaudio
+  - --socket=system-bus
+  - --socket=session-bus
+  - --share=network
+  - --device=dri
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    CARGO_HOME: /run/build/uwu/cargo
+    FLATPAK: '1'
+command: run.sh
+modules:
+  - name: uwu
+    buildsystem: simple
+    build-commands:
+      - cargo --offline fetch --manifest-path Cargo.toml --verbose
+      - cargo --offline build --example demo --verbose
+      - install -Dm755 ./target/debug/examples/demo -t /app/bin/
+      - install -Dm755 ./run.sh -t /app/bin/
+    sources:
+      - cargo-sources.json
+      - type: dir
+        path: .
+      - type: script
+        dest-filename: run.sh
+        commands:
+          - LD_LIBRARY_PATH=/usr/lib demo "$@"
+

@@ -1,9 +1,20 @@
 #[cfg(not(feature = "dox"))]
 fn main() {
-    let path = "";
+    let path = match std::env::var("FLATPAK") {
+        Ok(_) => String::from("/usr/lib"),
+        Err(_) => match std::env::var("HOME") {
+            Ok(mut val) => {
+                // TODO better path formatting
+                val.push_str(
+                    "/.local/share/flatpak/runtime/app.tauri.Platform/x86_64/22.08/active/files/lib",
+                );
+                val
+            }
+            Err(e) => panic!("Couldn't get the path of shared library: {e}"),
+        },
+    };
     println!("cargo:rustc-link-lib=cef");
     println!("cargo:rustc-link-search={path}");
-    println!("cargo:rustc-env=LD_LIBRARY_PATH={path}");
 }
 
 #[cfg(feature = "dox")]

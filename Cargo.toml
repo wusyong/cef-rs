@@ -3,6 +3,12 @@ name = "cef"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+dox = ["cef-sys/dox"]
+
+[package.metadata.docs.rs]
+features = [ "dox" ]
+
 [workspace]
 members = [
  "sys",
