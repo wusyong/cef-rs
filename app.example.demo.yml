@@ -1,7 +1,7 @@
-id: app.tauri.demo
-runtime: app.tauri.Platform
+id: app.example.demo
+runtime: dev.crabnebula.Platform
 runtime-version: '22.08'
-sdk: app.tauri.Sdk
+sdk: dev.crabnebula.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.rust-stable
 finish-args:

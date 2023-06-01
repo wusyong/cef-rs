@@ -1,5 +1,5 @@
 use cef::{
-    app::App, args::Args, browser::BrowserSettings, client::Client, settings::Settings,
+    App, args::Args, browser::BrowserSettings, client::Client, Settings,
     string::CefString, window::WindowInfo,
 };
 
@@ -17,10 +17,10 @@ fn main() {
     unsafe {
         let args = Args::new(std::env::args());
         let app = Application;
-        dbg!(cef::app::execute_process(&args, Some(app)));
+        dbg!(cef::execute_process(&args, Some(app)));
 
         let settings = Settings::new();
-        dbg!(cef::app::initialize(&args, settings, Some(app)));
+        dbg!(cef::initialize(&args, settings, Some(app)));
 
         let window_info = WindowInfo::new();
         let browser_settings = BrowserSettings::new();
