@@ -18,8 +18,9 @@
 //!
 //! ### if it's a type we should create in Rust and pass to C API
 //!
-//! Define a trait with [`Clone`] trait bound like [`App`] for it.
-//! We need [`Clone`] trait because users will define a reference counted type based on it.
+//! Define a trait like [`App`] with trait bound of [`Clone`], [`Send`],and [`Sync`].
+//! We need [`Clone`] trait because this will be a reference counted type, and users can decide
+//! how to clone the value of the type. We need [`Send`] and [`Sync`] to make sure it's thread safe.
 //! Each field of this kind of cef type usually is a callback like `Option<unsafe extern "C" fn(...)>`.
 //! We define a trampoline function with  the same signature, and then define a trait method like
 //! [`App::on_before_command_line_processing`]. Finally, define a trait method [`to_raw`] that can

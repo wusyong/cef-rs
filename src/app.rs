@@ -6,7 +6,7 @@ use crate::{
 
 /// Implement this trait to provide handler implementations. Methods will be
 /// called by the process and/or thread indicated.
-pub trait App: Clone {
+pub trait App: Clone + Send + Sync {
     /// Provides an opportunity to view and/or modify command-line arguments
     /// before processing by CEF and Chromium. The `process_type` value will be
     /// `None` for the browser process. Do not keep a reference to the
