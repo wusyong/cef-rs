@@ -1093,7 +1093,7 @@ pub enum cef_state_t {
 }
 #[doc = "\n Initialization settings. Specify NULL or 0 to get the recommended default\n values. Many of these and other settings can also configured using command-\n line switches.\n"]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Copy, Clone)]
 pub struct _cef_settings_t {
     #[doc = "\n Size of this structure.\n"]
     pub size: usize,
@@ -23792,4 +23792,2822 @@ extern "C" {
 extern "C" {
     #[doc = "\n Quit the CEF message loop that was started by calling\n cef_run_message_loop(). This function should only be called on the main\n application thread and only if cef_run_message_loop() was used.\n"]
     pub fn cef_quit_message_loop();
+}
+#[doc = "\n Implement this structure to handle view events. All size and position values\n are in density independent pixels (DIP) unless otherwise indicated. The\n functions of this structure will be called on the browser process UI thread\n unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_view_delegate_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_base_ref_counted_t,
+    #[doc = "\n Return the preferred size for |view|. The Layout will use this information\n to determine the display size.\n"]
+    pub get_preferred_size: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_delegate_t,
+            view: *mut _cef_view_t,
+        ) -> cef_size_t,
+    >,
+    #[doc = "\n Return the minimum size for |view|.\n"]
+    pub get_minimum_size: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_delegate_t,
+            view: *mut _cef_view_t,
+        ) -> cef_size_t,
+    >,
+    #[doc = "\n Return the maximum size for |view|.\n"]
+    pub get_maximum_size: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_delegate_t,
+            view: *mut _cef_view_t,
+        ) -> cef_size_t,
+    >,
+    #[doc = "\n Return the height necessary to display |view| with the provided |width|.\n If not specified the result of get_preferred_size().height will be used by\n default. Override if |view|'s preferred height depends upon the width (for\n example, with Labels).\n"]
+    pub get_height_for_width: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_delegate_t,
+            view: *mut _cef_view_t,
+            width: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Called when the parent of |view| has changed. If |view| is being added to\n |parent| then |added| will be true (1). If |view| is being removed from\n |parent| then |added| will be false (0). If |view| is being reparented the\n remove notification will be sent before the add notification. Do not\n modify the view hierarchy in this callback.\n"]
+    pub on_parent_view_changed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_delegate_t,
+            view: *mut _cef_view_t,
+            added: ::std::os::raw::c_int,
+            parent: *mut _cef_view_t,
+        ),
+    >,
+    #[doc = "\n Called when a child of |view| has changed. If |child| is being added to\n |view| then |added| will be true (1). If |child| is being removed from\n |view| then |added| will be false (0). If |child| is being reparented the\n remove notification will be sent to the old parent before the add\n notification is sent to the new parent. Do not modify the view hierarchy\n in this callback.\n"]
+    pub on_child_view_changed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_delegate_t,
+            view: *mut _cef_view_t,
+            added: ::std::os::raw::c_int,
+            child: *mut _cef_view_t,
+        ),
+    >,
+    #[doc = "\n Called when |view| is added or removed from the cef_window_t.\n"]
+    pub on_window_changed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_delegate_t,
+            view: *mut _cef_view_t,
+            added: ::std::os::raw::c_int,
+        ),
+    >,
+    #[doc = "\n Called when the layout of |view| has changed.\n"]
+    pub on_layout_changed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_delegate_t,
+            view: *mut _cef_view_t,
+            new_bounds: *const cef_rect_t,
+        ),
+    >,
+    #[doc = "\n Called when |view| gains focus.\n"]
+    pub on_focus: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_delegate_t, view: *mut _cef_view_t),
+    >,
+    #[doc = "\n Called when |view| loses focus.\n"]
+    pub on_blur: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_delegate_t, view: *mut _cef_view_t),
+    >,
+}
+#[test]
+fn bindgen_test_layout__cef_view_delegate_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_view_delegate_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_view_delegate_t>(),
+        120usize,
+        concat!("Size of: ", stringify!(_cef_view_delegate_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_view_delegate_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_view_delegate_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(base)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_preferred_size) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(get_preferred_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_minimum_size) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(get_minimum_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_maximum_size) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(get_maximum_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_height_for_width) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(get_height_for_width)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_parent_view_changed) as usize - ptr as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(on_parent_view_changed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_child_view_changed) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(on_child_view_changed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_window_changed) as usize - ptr as usize },
+        88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(on_window_changed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_layout_changed) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(on_layout_changed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_focus) as usize - ptr as usize },
+        104usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(on_focus)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_blur) as usize - ptr as usize },
+        112usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_delegate_t),
+            "::",
+            stringify!(on_blur)
+        )
+    );
+}
+#[doc = "\n Implement this structure to handle view events. All size and position values\n are in density independent pixels (DIP) unless otherwise indicated. The\n functions of this structure will be called on the browser process UI thread\n unless otherwise indicated.\n"]
+pub type cef_view_delegate_t = _cef_view_delegate_t;
+#[doc = "\n Implement this structure to handle BrowserView events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_browser_view_delegate_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_delegate_t,
+    #[doc = "\n Called when |browser| associated with |browser_view| is created. This\n function will be called after cef_life_span_handler_t::on_after_created()\n is called for |browser| and before on_popup_browser_view_created() is\n called for |browser|'s parent delegate if |browser| is a popup.\n"]
+    pub on_browser_created: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+            browser: *mut _cef_browser_t,
+        ),
+    >,
+    #[doc = "\n Called when |browser| associated with |browser_view| is destroyed. Release\n all references to |browser| and do not attempt to execute any functions on\n |browser| after this callback returns. This function will be called before\n cef_life_span_handler_t::on_before_close() is called for |browser|.\n"]
+    pub on_browser_destroyed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+            browser: *mut _cef_browser_t,
+        ),
+    >,
+    #[doc = "\n Called before a new popup BrowserView is created. The popup originated\n from |browser_view|. |settings| and |client| are the values returned from\n cef_life_span_handler_t::on_before_popup(). |is_devtools| will be true (1)\n if the popup will be a DevTools browser. Return the delegate that will be\n used for the new popup BrowserView.\n"]
+    pub get_delegate_for_popup_browser_view: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+            settings: *const _cef_browser_settings_t,
+            client: *mut _cef_client_t,
+            is_devtools: ::std::os::raw::c_int,
+        ) -> *mut _cef_browser_view_delegate_t,
+    >,
+    #[doc = "\n Called after |popup_browser_view| is created. This function will be called\n after cef_life_span_handler_t::on_after_created() and on_browser_created()\n are called for the new popup browser. The popup originated from\n |browser_view|. |is_devtools| will be true (1) if the popup is a DevTools\n browser. Optionally add |popup_browser_view| to the views hierarchy\n yourself and return true (1). Otherwise return false (0) and a default\n cef_window_t will be created for the popup.\n"]
+    pub on_popup_browser_view_created: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+            popup_browser_view: *mut _cef_browser_view_t,
+            is_devtools: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns the Chrome toolbar type that will be available via\n cef_browser_view_t::get_chrome_toolbar(). See that function for related\n documentation.\n"]
+    pub get_chrome_toolbar_type: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_browser_view_delegate_t) -> cef_chrome_toolbar_type_t,
+    >,
+}
+#[test]
+fn bindgen_test_layout__cef_browser_view_delegate_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_browser_view_delegate_t> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_browser_view_delegate_t>(),
+        160usize,
+        concat!("Size of: ", stringify!(_cef_browser_view_delegate_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_browser_view_delegate_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_browser_view_delegate_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_delegate_t),
+            "::",
+            stringify!(base)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_browser_created) as usize - ptr as usize },
+        120usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_delegate_t),
+            "::",
+            stringify!(on_browser_created)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_browser_destroyed) as usize - ptr as usize },
+        128usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_delegate_t),
+            "::",
+            stringify!(on_browser_destroyed)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            ::std::ptr::addr_of!((*ptr).get_delegate_for_popup_browser_view) as usize - ptr as usize
+        },
+        136usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_delegate_t),
+            "::",
+            stringify!(get_delegate_for_popup_browser_view)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            ::std::ptr::addr_of!((*ptr).on_popup_browser_view_created) as usize - ptr as usize
+        },
+        144usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_delegate_t),
+            "::",
+            stringify!(on_popup_browser_view_created)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_chrome_toolbar_type) as usize - ptr as usize },
+        152usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_delegate_t),
+            "::",
+            stringify!(get_chrome_toolbar_type)
+        )
+    );
+}
+#[doc = "\n Implement this structure to handle BrowserView events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+pub type cef_browser_view_delegate_t = _cef_browser_view_delegate_t;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_button_t {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_scroll_view_t {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_textfield_t {
+    _unused: [u8; 0],
+}
+#[doc = "\n A View is a rectangle within the views View hierarchy. It is the base\n structure for all Views. All size and position values are in density\n independent pixels (DIP) unless otherwise indicated. Methods must be called\n on the browser process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_view_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_base_ref_counted_t,
+    #[doc = "\n Returns this View as a BrowserView or NULL if this is not a BrowserView.\n"]
+    pub as_browser_view: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> *mut _cef_browser_view_t,
+    >,
+    #[doc = "\n Returns this View as a Button or NULL if this is not a Button.\n"]
+    pub as_button:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> *mut _cef_button_t>,
+    #[doc = "\n Returns this View as a Panel or NULL if this is not a Panel.\n"]
+    pub as_panel:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> *mut _cef_panel_t>,
+    #[doc = "\n Returns this View as a ScrollView or NULL if this is not a ScrollView.\n"]
+    pub as_scroll_view: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> *mut _cef_scroll_view_t,
+    >,
+    #[doc = "\n Returns this View as a Textfield or NULL if this is not a Textfield.\n"]
+    pub as_textfield: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> *mut _cef_textfield_t,
+    >,
+    #[doc = "\n Returns the type of this View as a string. Used primarily for testing\n purposes.\n"]
+    pub get_type_string: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_string_userfree_t,
+    >,
+    #[doc = "\n Returns a string representation of this View which includes the type and\n various type-specific identifying attributes. If |include_children| is\n true (1) any child Views will also be included. Used primarily for testing\n purposes.\n"]
+    pub to_string: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            include_children: ::std::os::raw::c_int,
+        ) -> cef_string_userfree_t,
+    >,
+    #[doc = "\n Returns true (1) if this View is valid.\n"]
+    pub is_valid: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns true (1) if this View is currently attached to another View. A\n View can only be attached to one View at a time.\n"]
+    pub is_attached: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns true (1) if this View is the same as |that| View.\n"]
+    pub is_same: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            that: *mut _cef_view_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns the delegate associated with this View, if any.\n"]
+    pub get_delegate: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> *mut _cef_view_delegate_t,
+    >,
+    #[doc = "\n Returns the top-level Window hosting this View, if any.\n"]
+    pub get_window:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> *mut _cef_window_t>,
+    #[doc = "\n Returns the ID for this View.\n"]
+    pub get_id: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Sets the ID for this View. ID should be unique within the subtree that you\n intend to search for it. 0 is the default ID for views.\n"]
+    pub set_id: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t, id: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns the group id of this View, or -1 if not set.\n"]
+    pub get_group_id: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n A group id is used to tag Views which are part of the same logical group.\n Focus can be moved between views with the same group using the arrow keys.\n The group id is immutable once it's set.\n"]
+    pub set_group_id: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t, group_id: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns the View that contains this View, if any.\n"]
+    pub get_parent_view:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> *mut _cef_view_t>,
+    #[doc = "\n Recursively descends the view tree starting at this View, and returns the\n first child that it encounters with the given ID. Returns NULL if no\n matching child view is found.\n"]
+    pub get_view_for_id: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            id: ::std::os::raw::c_int,
+        ) -> *mut _cef_view_t,
+    >,
+    #[doc = "\n Sets the bounds (size and position) of this View. |bounds| is in parent\n coordinates, or DIP screen coordinates if there is no parent.\n"]
+    pub set_bounds: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t, bounds: *const cef_rect_t),
+    >,
+    #[doc = "\n Returns the bounds (size and position) of this View in parent coordinates,\n or DIP screen coordinates if there is no parent.\n"]
+    pub get_bounds:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_rect_t>,
+    #[doc = "\n Returns the bounds (size and position) of this View in DIP screen\n coordinates.\n"]
+    pub get_bounds_in_screen:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_rect_t>,
+    #[doc = "\n Sets the size of this View without changing the position. |size| in parent\n coordinates, or DIP screen coordinates if there is no parent.\n"]
+    pub set_size: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t, size: *const cef_size_t),
+    >,
+    #[doc = "\n Returns the size of this View in parent coordinates, or DIP screen\n coordinates if there is no parent.\n"]
+    pub get_size:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_size_t>,
+    #[doc = "\n Sets the position of this View without changing the size. |position| is in\n parent coordinates, or DIP screen coordinates if there is no parent.\n"]
+    pub set_position: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t, position: *const cef_point_t),
+    >,
+    #[doc = "\n Returns the position of this View. Position is in parent coordinates, or\n DIP screen coordinates if there is no parent.\n"]
+    pub get_position:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_point_t>,
+    #[doc = "\n Sets the insets for this View. |insets| is in parent coordinates, or DIP\n screen coordinates if there is no parent.\n"]
+    pub set_insets: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t, insets: *const cef_insets_t),
+    >,
+    #[doc = "\n Returns the insets for this View in parent coordinates, or DIP screen\n coordinates if there is no parent.\n"]
+    pub get_insets:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_insets_t>,
+    #[doc = "\n Returns the size this View would like to be if enough space is available.\n Size is in parent coordinates, or DIP screen coordinates if there is no\n parent.\n"]
+    pub get_preferred_size:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_size_t>,
+    #[doc = "\n Size this View to its preferred size. Size is in parent coordinates, or\n DIP screen coordinates if there is no parent.\n"]
+    pub size_to_preferred_size:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t)>,
+    #[doc = "\n Returns the minimum size for this View. Size is in parent coordinates, or\n DIP screen coordinates if there is no parent.\n"]
+    pub get_minimum_size:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_size_t>,
+    #[doc = "\n Returns the maximum size for this View. Size is in parent coordinates, or\n DIP screen coordinates if there is no parent.\n"]
+    pub get_maximum_size:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_size_t>,
+    #[doc = "\n Returns the height necessary to display this View with the provided width.\n"]
+    pub get_height_for_width: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            width: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Indicate that this View and all parent Views require a re-layout. This\n ensures the next call to layout() will propagate to this View even if the\n bounds of parent Views do not change.\n"]
+    pub invalidate_layout: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t)>,
+    #[doc = "\n Sets whether this View is visible. Windows are hidden by default and other\n views are visible by default. This View and any parent views must be set\n as visible for this View to be drawn in a Window. If this View is set as\n hidden then it and any child views will not be drawn and, if any of those\n views currently have focus, then focus will also be cleared. Painting is\n scheduled as needed. If this View is a Window then calling this function\n is equivalent to calling the Window show() and hide() functions.\n"]
+    pub set_visible: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t, visible: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns whether this View is visible. A view may be visible but still not\n drawn in a Window if any parent views are hidden. If this View is a Window\n then a return value of true (1) indicates that this Window is currently\n visible to the user on-screen. If this View is not a Window then call\n is_drawn() to determine whether this View and all parent views are visible\n and will be drawn.\n"]
+    pub is_visible: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns whether this View is visible and drawn in a Window. A view is\n drawn if it and all parent views are visible. If this View is a Window\n then calling this function is equivalent to calling is_visible().\n Otherwise, to determine if the containing Window is visible to the user\n on-screen call is_visible() on the Window.\n"]
+    pub is_drawn: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Set whether this View is enabled. A disabled View does not receive\n keyboard or mouse inputs. If |enabled| differs from the current value the\n View will be repainted. Also, clears focus if the focused View is\n disabled.\n"]
+    pub set_enabled: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t, enabled: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns whether this View is enabled.\n"]
+    pub is_enabled: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Sets whether this View is capable of taking focus. It will clear focus if\n the focused View is set to be non-focusable. This is false (0) by default\n so that a View used as a container does not get the focus.\n"]
+    pub set_focusable: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t, focusable: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns true (1) if this View is focusable, enabled and drawn.\n"]
+    pub is_focusable: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Return whether this View is focusable when the user requires full keyboard\n access, even though it may not be normally focusable.\n"]
+    pub is_accessibility_focusable: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Request keyboard focus. If this View is focusable it will become the\n focused View.\n"]
+    pub request_focus: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t)>,
+    #[doc = "\n Sets the background color for this View.\n"]
+    pub set_background_color:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t, color: cef_color_t)>,
+    #[doc = "\n Returns the background color for this View.\n"]
+    pub get_background_color:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_view_t) -> cef_color_t>,
+    #[doc = "\n Convert |point| from this View's coordinate system to DIP screen\n coordinates. This View must belong to a Window when calling this function.\n Returns true (1) if the conversion is successful or false (0) otherwise.\n Use cef_display_t::convert_point_to_pixels() after calling this function\n if further conversion to display-specific pixel coordinates is desired.\n"]
+    pub convert_point_to_screen: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            point: *mut cef_point_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Convert |point| to this View's coordinate system from DIP screen\n coordinates. This View must belong to a Window when calling this function.\n Returns true (1) if the conversion is successful or false (0) otherwise.\n Use cef_display_t::convert_point_from_pixels() before calling this\n function if conversion from display-specific pixel coordinates is\n necessary.\n"]
+    pub convert_point_from_screen: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            point: *mut cef_point_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Convert |point| from this View's coordinate system to that of the Window.\n This View must belong to a Window when calling this function. Returns true\n (1) if the conversion is successful or false (0) otherwise.\n"]
+    pub convert_point_to_window: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            point: *mut cef_point_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Convert |point| to this View's coordinate system from that of the Window.\n This View must belong to a Window when calling this function. Returns true\n (1) if the conversion is successful or false (0) otherwise.\n"]
+    pub convert_point_from_window: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            point: *mut cef_point_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Convert |point| from this View's coordinate system to that of |view|.\n |view| needs to be in the same Window but not necessarily the same view\n hierarchy. Returns true (1) if the conversion is successful or false (0)\n otherwise.\n"]
+    pub convert_point_to_view: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            view: *mut _cef_view_t,
+            point: *mut cef_point_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Convert |point| to this View's coordinate system from that |view|. |view|\n needs to be in the same Window but not necessarily the same view\n hierarchy. Returns true (1) if the conversion is successful or false (0)\n otherwise.\n"]
+    pub convert_point_from_view: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_view_t,
+            view: *mut _cef_view_t,
+            point: *mut cef_point_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+}
+#[test]
+fn bindgen_test_layout__cef_view_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_view_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_view_t>(),
+        440usize,
+        concat!("Size of: ", stringify!(_cef_view_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_view_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_view_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(base)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_browser_view) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(as_browser_view)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_button) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(as_button)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_panel) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(as_panel)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_scroll_view) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(as_scroll_view)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_textfield) as usize - ptr as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(as_textfield)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_type_string) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_type_string)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).to_string) as usize - ptr as usize },
+        88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(to_string)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_valid) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(is_valid)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_attached) as usize - ptr as usize },
+        104usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(is_attached)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_same) as usize - ptr as usize },
+        112usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(is_same)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_delegate) as usize - ptr as usize },
+        120usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_delegate)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_window) as usize - ptr as usize },
+        128usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_window)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_id) as usize - ptr as usize },
+        136usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_id) as usize - ptr as usize },
+        144usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_group_id) as usize - ptr as usize },
+        152usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_group_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_group_id) as usize - ptr as usize },
+        160usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_group_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_parent_view) as usize - ptr as usize },
+        168usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_parent_view)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_view_for_id) as usize - ptr as usize },
+        176usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_view_for_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_bounds) as usize - ptr as usize },
+        184usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_bounds)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_bounds) as usize - ptr as usize },
+        192usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_bounds)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_bounds_in_screen) as usize - ptr as usize },
+        200usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_bounds_in_screen)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_size) as usize - ptr as usize },
+        208usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_size) as usize - ptr as usize },
+        216usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_position) as usize - ptr as usize },
+        224usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_position)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_position) as usize - ptr as usize },
+        232usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_position)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_insets) as usize - ptr as usize },
+        240usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_insets)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_insets) as usize - ptr as usize },
+        248usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_insets)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_preferred_size) as usize - ptr as usize },
+        256usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_preferred_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).size_to_preferred_size) as usize - ptr as usize },
+        264usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(size_to_preferred_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_minimum_size) as usize - ptr as usize },
+        272usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_minimum_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_maximum_size) as usize - ptr as usize },
+        280usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_maximum_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_height_for_width) as usize - ptr as usize },
+        288usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_height_for_width)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).invalidate_layout) as usize - ptr as usize },
+        296usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(invalidate_layout)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_visible) as usize - ptr as usize },
+        304usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_visible)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_visible) as usize - ptr as usize },
+        312usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(is_visible)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_drawn) as usize - ptr as usize },
+        320usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(is_drawn)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_enabled) as usize - ptr as usize },
+        328usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_enabled)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_enabled) as usize - ptr as usize },
+        336usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(is_enabled)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_focusable) as usize - ptr as usize },
+        344usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_focusable)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_focusable) as usize - ptr as usize },
+        352usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(is_focusable)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_accessibility_focusable) as usize - ptr as usize },
+        360usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(is_accessibility_focusable)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).request_focus) as usize - ptr as usize },
+        368usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(request_focus)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_background_color) as usize - ptr as usize },
+        376usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(set_background_color)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_background_color) as usize - ptr as usize },
+        384usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(get_background_color)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).convert_point_to_screen) as usize - ptr as usize },
+        392usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(convert_point_to_screen)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).convert_point_from_screen) as usize - ptr as usize },
+        400usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(convert_point_from_screen)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).convert_point_to_window) as usize - ptr as usize },
+        408usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(convert_point_to_window)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).convert_point_from_window) as usize - ptr as usize },
+        416usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(convert_point_from_window)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).convert_point_to_view) as usize - ptr as usize },
+        424usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(convert_point_to_view)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).convert_point_from_view) as usize - ptr as usize },
+        432usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_view_t),
+            "::",
+            stringify!(convert_point_from_view)
+        )
+    );
+}
+#[doc = "\n A View is a rectangle within the views View hierarchy. It is the base\n structure for all Views. All size and position values are in density\n independent pixels (DIP) unless otherwise indicated. Methods must be called\n on the browser process UI thread unless otherwise indicated.\n"]
+pub type cef_view_t = _cef_view_t;
+#[doc = "\n A View hosting a cef_browser_t instance. Methods must be called on the\n browser process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_browser_view_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_t,
+    #[doc = "\n Returns the cef_browser_t hosted by this BrowserView. Will return NULL if\n the browser has not yet been created or has already been destroyed.\n"]
+    pub get_browser: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_browser_view_t) -> *mut _cef_browser_t,
+    >,
+    #[doc = "\n Returns the Chrome toolbar associated with this BrowserView. Only\n supported when using the Chrome runtime. The cef_browser_view_delegate_t::\n get_chrome_toolbar_type() function must return a value other than\n CEF_CTT_NONE and the toolbar will not be available until after this\n BrowserView is added to a cef_window_t and\n cef_view_delegate_t::on_window_changed() has been called.\n"]
+    pub get_chrome_toolbar: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_browser_view_t) -> *mut _cef_view_t,
+    >,
+    #[doc = "\n Sets whether accelerators registered with cef_window_t::SetAccelerator are\n triggered before or after the event is sent to the cef_browser_t. If\n |prefer_accelerators| is true (1) then the matching accelerator will be\n triggered immediately and the event will not be sent to the cef_browser_t.\n If |prefer_accelerators| is false (0) then the matching accelerator will\n only be triggered if the event is not handled by web content or by\n cef_keyboard_handler_t. The default value is false (0).\n"]
+    pub set_prefer_accelerators: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_t,
+            prefer_accelerators: ::std::os::raw::c_int,
+        ),
+    >,
+}
+#[test]
+fn bindgen_test_layout__cef_browser_view_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_browser_view_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_browser_view_t>(),
+        464usize,
+        concat!("Size of: ", stringify!(_cef_browser_view_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_browser_view_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_browser_view_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_t),
+            "::",
+            stringify!(base)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_browser) as usize - ptr as usize },
+        440usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_t),
+            "::",
+            stringify!(get_browser)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_chrome_toolbar) as usize - ptr as usize },
+        448usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_t),
+            "::",
+            stringify!(get_chrome_toolbar)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_prefer_accelerators) as usize - ptr as usize },
+        456usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_browser_view_t),
+            "::",
+            stringify!(set_prefer_accelerators)
+        )
+    );
+}
+#[doc = "\n A View hosting a cef_browser_t instance. Methods must be called on the\n browser process UI thread unless otherwise indicated.\n"]
+pub type cef_browser_view_t = _cef_browser_view_t;
+extern "C" {
+    #[doc = "\n Create a new BrowserView. The underlying cef_browser_t will not be created\n until this view is added to the views hierarchy. The optional |extra_info|\n parameter provides an opportunity to specify extra information specific to\n the created browser that will be passed to\n cef_render_process_handler_t::on_browser_created() in the render process.\n"]
+    pub fn cef_browser_view_create(
+        client: *mut _cef_client_t,
+        url: *const cef_string_t,
+        settings: *const _cef_browser_settings_t,
+        extra_info: *mut _cef_dictionary_value_t,
+        request_context: *mut _cef_request_context_t,
+        delegate: *mut _cef_browser_view_delegate_t,
+    ) -> *mut cef_browser_view_t;
+}
+extern "C" {
+    #[doc = "\n Returns the BrowserView associated with |browser|.\n"]
+    pub fn cef_browser_view_get_for_browser(
+        browser: *mut _cef_browser_t,
+    ) -> *mut cef_browser_view_t;
+}
+#[doc = "\n This structure typically, but not always, corresponds to a physical display\n connected to the system. A fake Display may exist on a headless system, or a\n Display may correspond to a remote, virtual display. All size and position\n values are in density independent pixel (DIP) coordinates unless otherwise\n indicated. Methods must be called on the browser process UI thread unless\n otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_display_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_base_ref_counted_t,
+    #[doc = "\n Returns the unique identifier for this Display.\n"]
+    pub get_id: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_display_t) -> int64>,
+    #[doc = "\n Returns this Display's device pixel scale factor. This specifies how much\n the UI should be scaled when the actual output has more pixels than\n standard displays (which is around 100~120dpi). The potential return\n values differ by platform.\n"]
+    pub get_device_scale_factor:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_display_t) -> f32>,
+    #[doc = "\n Convert |point| from DIP coordinates to pixel coordinates using this\n Display's device scale factor.\n"]
+    pub convert_point_to_pixels: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_display_t, point: *mut cef_point_t),
+    >,
+    #[doc = "\n Convert |point| from pixel coordinates to DIP coordinates using this\n Display's device scale factor.\n"]
+    pub convert_point_from_pixels: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_display_t, point: *mut cef_point_t),
+    >,
+    #[doc = "\n Returns this Display's bounds in DIP screen coordinates. This is the full\n size of the display.\n"]
+    pub get_bounds:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_display_t) -> cef_rect_t>,
+    #[doc = "\n Returns this Display's work area in DIP screen coordinates. This excludes\n areas of the display that are occupied with window manager toolbars, etc.\n"]
+    pub get_work_area:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_display_t) -> cef_rect_t>,
+    #[doc = "\n Returns this Display's rotation in degrees.\n"]
+    pub get_rotation: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_display_t) -> ::std::os::raw::c_int,
+    >,
+}
+#[test]
+fn bindgen_test_layout__cef_display_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_display_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_display_t>(),
+        96usize,
+        concat!("Size of: ", stringify!(_cef_display_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_display_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_display_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_display_t),
+            "::",
+            stringify!(base)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_id) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_display_t),
+            "::",
+            stringify!(get_id)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_device_scale_factor) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_display_t),
+            "::",
+            stringify!(get_device_scale_factor)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).convert_point_to_pixels) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_display_t),
+            "::",
+            stringify!(convert_point_to_pixels)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).convert_point_from_pixels) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_display_t),
+            "::",
+            stringify!(convert_point_from_pixels)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_bounds) as usize - ptr as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_display_t),
+            "::",
+            stringify!(get_bounds)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_work_area) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_display_t),
+            "::",
+            stringify!(get_work_area)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_rotation) as usize - ptr as usize },
+        88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_display_t),
+            "::",
+            stringify!(get_rotation)
+        )
+    );
+}
+#[doc = "\n This structure typically, but not always, corresponds to a physical display\n connected to the system. A fake Display may exist on a headless system, or a\n Display may correspond to a remote, virtual display. All size and position\n values are in density independent pixel (DIP) coordinates unless otherwise\n indicated. Methods must be called on the browser process UI thread unless\n otherwise indicated.\n"]
+pub type cef_display_t = _cef_display_t;
+extern "C" {
+    #[doc = "\n Returns the primary Display.\n"]
+    pub fn cef_display_get_primary() -> *mut cef_display_t;
+}
+extern "C" {
+    #[doc = "\n Returns the Display nearest |point|. Set |input_pixel_coords| to true (1) if\n |point| is in pixel screen coordinates instead of DIP screen coordinates.\n"]
+    pub fn cef_display_get_nearest_point(
+        point: *const cef_point_t,
+        input_pixel_coords: ::std::os::raw::c_int,
+    ) -> *mut cef_display_t;
+}
+extern "C" {
+    #[doc = "\n Returns the Display that most closely intersects |bounds|.  Set\n |input_pixel_coords| to true (1) if |bounds| is in pixel screen coordinates\n instead of DIP screen coordinates.\n"]
+    pub fn cef_display_get_matching_bounds(
+        bounds: *const cef_rect_t,
+        input_pixel_coords: ::std::os::raw::c_int,
+    ) -> *mut cef_display_t;
+}
+extern "C" {
+    #[doc = "\n Returns the total number of Displays. Mirrored displays are excluded; this\n function is intended to return the number of distinct, usable displays.\n"]
+    pub fn cef_display_get_count() -> usize;
+}
+extern "C" {
+    #[doc = "\n Returns all Displays. Mirrored displays are excluded; this function is\n intended to return distinct, usable displays.\n"]
+    pub fn cef_display_get_alls(displaysCount: *mut usize, displays: *mut *mut cef_display_t);
+}
+extern "C" {
+    #[doc = "\n Convert |point| from DIP screen coordinates to pixel screen coordinates.\n This function is only used on Windows.\n"]
+    pub fn cef_display_convert_screen_point_to_pixels(point: *const cef_point_t) -> cef_point_t;
+}
+extern "C" {
+    #[doc = "\n Convert |point| from pixel screen coordinates to DIP screen coordinates.\n This function is only used on Windows.\n"]
+    pub fn cef_display_convert_screen_point_from_pixels(point: *const cef_point_t) -> cef_point_t;
+}
+extern "C" {
+    #[doc = "\n Convert |rect| from DIP screen coordinates to pixel screen coordinates. This\n function is only used on Windows.\n"]
+    pub fn cef_display_convert_screen_rect_to_pixels(rect: *const cef_rect_t) -> cef_rect_t;
+}
+extern "C" {
+    #[doc = "\n Convert |rect| from pixel screen coordinates to DIP screen coordinates. This\n function is only used on Windows.\n"]
+    pub fn cef_display_convert_screen_rect_from_pixels(rect: *const cef_rect_t) -> cef_rect_t;
+}
+#[doc = "\n Controller for an overlay that contains a contents View added via\n cef_window_t::AddOverlayView. Methods exposed by this controller should be\n called in preference to functions of the same name exposed by the contents\n View unless otherwise indicated. Methods must be called on the browser\n process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_overlay_controller_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_base_ref_counted_t,
+    #[doc = "\n Returns true (1) if this object is valid.\n"]
+    pub is_valid: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns true (1) if this object is the same as |that| object.\n"]
+    pub is_same: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_overlay_controller_t,
+            that: *mut _cef_overlay_controller_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns the contents View for this overlay.\n"]
+    pub get_contents_view: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> *mut _cef_view_t,
+    >,
+    #[doc = "\n Returns the top-level Window hosting this overlay. Use this function\n instead of calling get_window() on the contents View.\n"]
+    pub get_window: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> *mut _cef_window_t,
+    >,
+    #[doc = "\n Returns the docking mode for this overlay.\n"]
+    pub get_docking_mode: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> cef_docking_mode_t,
+    >,
+    #[doc = "\n Destroy this overlay.\n"]
+    pub destroy: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t)>,
+    #[doc = "\n Sets the bounds (size and position) of this overlay. This will set the\n bounds of the contents View to match and trigger a re-layout if necessary.\n |bounds| is in parent coordinates and any insets configured on this\n overlay will be ignored. Use this function only for overlays created with\n a docking mode value of CEF_DOCKING_MODE_CUSTOM. With other docking modes\n modify the insets of this overlay and/or layout of the contents View and\n call size_to_preferred_size() instead to calculate the new size and re-\n position the overlay if necessary.\n"]
+    pub set_bounds: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t, bounds: *const cef_rect_t),
+    >,
+    #[doc = "\n Returns the bounds (size and position) of this overlay in parent\n coordinates.\n"]
+    pub get_bounds: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> cef_rect_t,
+    >,
+    #[doc = "\n Returns the bounds (size and position) of this overlay in DIP screen\n coordinates.\n"]
+    pub get_bounds_in_screen: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> cef_rect_t,
+    >,
+    #[doc = "\n Sets the size of this overlay without changing the position. This will set\n the size of the contents View to match and trigger a re-layout if\n necessary. |size| is in parent coordinates and any insets configured on\n this overlay will be ignored. Use this function only for overlays created\n with a docking mode value of CEF_DOCKING_MODE_CUSTOM. With other docking\n modes modify the insets of this overlay and/or layout of the contents View\n and call size_to_preferred_size() instead to calculate the new size and\n re-position the overlay if necessary.\n"]
+    pub set_size: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t, size: *const cef_size_t),
+    >,
+    #[doc = "\n Returns the size of this overlay in parent coordinates.\n"]
+    pub get_size: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> cef_size_t,
+    >,
+    #[doc = "\n Sets the position of this overlay without changing the size. |position| is\n in parent coordinates and any insets configured on this overlay will be\n ignored. Use this function only for overlays created with a docking mode\n value of CEF_DOCKING_MODE_CUSTOM. With other docking modes modify the\n insets of this overlay and/or layout of the contents View and call\n size_to_preferred_size() instead to calculate the new size and re-position\n the overlay if necessary.\n"]
+    pub set_position: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t, position: *const cef_point_t),
+    >,
+    #[doc = "\n Returns the position of this overlay in parent coordinates.\n"]
+    pub get_position: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> cef_point_t,
+    >,
+    #[doc = "\n Sets the insets for this overlay. |insets| is in parent coordinates. Use\n this function only for overlays created with a docking mode value other\n than CEF_DOCKING_MODE_CUSTOM.\n"]
+    pub set_insets: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t, insets: *const cef_insets_t),
+    >,
+    #[doc = "\n Returns the insets for this overlay in parent coordinates.\n"]
+    pub get_insets: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> cef_insets_t,
+    >,
+    #[doc = "\n Size this overlay to its preferred size and trigger a re-layout if\n necessary. The position of overlays created with a docking mode value of\n CEF_DOCKING_MODE_CUSTOM will not be modified by calling this function.\n With other docking modes this function may re-position the overlay if\n necessary to accommodate the new size and any insets configured on the\n contents View.\n"]
+    pub size_to_preferred_size:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t)>,
+    #[doc = "\n Sets whether this overlay is visible. Overlays are hidden by default. If\n this overlay is hidden then it and any child Views will not be drawn and,\n if any of those Views currently have focus, then focus will also be\n cleared. Painting is scheduled as needed.\n"]
+    pub set_visible: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t, visible: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns whether this overlay is visible. A View may be visible but still\n not drawn in a Window if any parent Views are hidden. Call is_drawn() to\n determine whether this overlay and all parent Views are visible and will\n be drawn.\n"]
+    pub is_visible: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns whether this overlay is visible and drawn in a Window. A View is\n drawn if it and all parent Views are visible. To determine if the\n containing Window is visible to the user on-screen call is_visible() on\n the Window.\n"]
+    pub is_drawn: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_overlay_controller_t) -> ::std::os::raw::c_int,
+    >,
+}
+#[test]
+fn bindgen_test_layout__cef_overlay_controller_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_overlay_controller_t> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_overlay_controller_t>(),
+        192usize,
+        concat!("Size of: ", stringify!(_cef_overlay_controller_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_overlay_controller_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_overlay_controller_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(base)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_valid) as usize - ptr as usize },
+        40usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(is_valid)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_same) as usize - ptr as usize },
+        48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(is_same)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_contents_view) as usize - ptr as usize },
+        56usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(get_contents_view)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_window) as usize - ptr as usize },
+        64usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(get_window)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_docking_mode) as usize - ptr as usize },
+        72usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(get_docking_mode)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).destroy) as usize - ptr as usize },
+        80usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(destroy)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_bounds) as usize - ptr as usize },
+        88usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(set_bounds)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_bounds) as usize - ptr as usize },
+        96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(get_bounds)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_bounds_in_screen) as usize - ptr as usize },
+        104usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(get_bounds_in_screen)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_size) as usize - ptr as usize },
+        112usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(set_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_size) as usize - ptr as usize },
+        120usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(get_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_position) as usize - ptr as usize },
+        128usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(set_position)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_position) as usize - ptr as usize },
+        136usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(get_position)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_insets) as usize - ptr as usize },
+        144usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(set_insets)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_insets) as usize - ptr as usize },
+        152usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(get_insets)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).size_to_preferred_size) as usize - ptr as usize },
+        160usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(size_to_preferred_size)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_visible) as usize - ptr as usize },
+        168usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(set_visible)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_visible) as usize - ptr as usize },
+        176usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(is_visible)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_drawn) as usize - ptr as usize },
+        184usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_overlay_controller_t),
+            "::",
+            stringify!(is_drawn)
+        )
+    );
+}
+#[doc = "\n Controller for an overlay that contains a contents View added via\n cef_window_t::AddOverlayView. Methods exposed by this controller should be\n called in preference to functions of the same name exposed by the contents\n View unless otherwise indicated. Methods must be called on the browser\n process UI thread unless otherwise indicated.\n"]
+pub type cef_overlay_controller_t = _cef_overlay_controller_t;
+#[doc = "\n Implement this structure to handle Panel events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_panel_delegate_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_delegate_t,
+}
+#[test]
+fn bindgen_test_layout__cef_panel_delegate_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_panel_delegate_t> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_panel_delegate_t>(),
+        120usize,
+        concat!("Size of: ", stringify!(_cef_panel_delegate_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_panel_delegate_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_panel_delegate_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_delegate_t),
+            "::",
+            stringify!(base)
+        )
+    );
+}
+#[doc = "\n Implement this structure to handle Panel events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+pub type cef_panel_delegate_t = _cef_panel_delegate_t;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_box_layout_t {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_fill_layout_t {
+    _unused: [u8; 0],
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_layout_t {
+    _unused: [u8; 0],
+}
+#[doc = "\n A Panel is a container in the views hierarchy that can contain other Views\n as children. Methods must be called on the browser process UI thread unless\n otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_panel_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_t,
+    #[doc = "\n Returns this Panel as a Window or NULL if this is not a Window.\n"]
+    pub as_window:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_panel_t) -> *mut _cef_window_t>,
+    #[doc = "\n Set this Panel's Layout to FillLayout and return the FillLayout object.\n"]
+    pub set_to_fill_layout: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_panel_t) -> *mut _cef_fill_layout_t,
+    >,
+    #[doc = "\n Set this Panel's Layout to BoxLayout and return the BoxLayout object.\n"]
+    pub set_to_box_layout: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_panel_t,
+            settings: *const cef_box_layout_settings_t,
+        ) -> *mut _cef_box_layout_t,
+    >,
+    #[doc = "\n Get the Layout.\n"]
+    pub get_layout:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_panel_t) -> *mut _cef_layout_t>,
+    #[doc = "\n Lay out the child Views (set their bounds based on sizing heuristics\n specific to the current Layout).\n"]
+    pub layout: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_panel_t)>,
+    #[doc = "\n Add a child View.\n"]
+    pub add_child_view: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_panel_t, view: *mut _cef_view_t),
+    >,
+    #[doc = "\n Add a child View at the specified |index|. If |index| matches the result\n of GetChildCount() then the View will be added at the end.\n"]
+    pub add_child_view_at: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_panel_t,
+            view: *mut _cef_view_t,
+            index: ::std::os::raw::c_int,
+        ),
+    >,
+    #[doc = "\n Move the child View to the specified |index|. A negative value for |index|\n will move the View to the end.\n"]
+    pub reorder_child_view: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_panel_t,
+            view: *mut _cef_view_t,
+            index: ::std::os::raw::c_int,
+        ),
+    >,
+    #[doc = "\n Remove a child View. The View can then be added to another Panel.\n"]
+    pub remove_child_view: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_panel_t, view: *mut _cef_view_t),
+    >,
+    #[doc = "\n Remove all child Views. The removed Views will be deleted if the client\n holds no references to them.\n"]
+    pub remove_all_child_views:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_panel_t)>,
+    #[doc = "\n Returns the number of child Views.\n"]
+    pub get_child_view_count:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_panel_t) -> usize>,
+    #[doc = "\n Returns the child View at the specified |index|.\n"]
+    pub get_child_view_at: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_panel_t,
+            index: ::std::os::raw::c_int,
+        ) -> *mut _cef_view_t,
+    >,
+}
+#[test]
+fn bindgen_test_layout__cef_panel_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_panel_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_panel_t>(),
+        536usize,
+        concat!("Size of: ", stringify!(_cef_panel_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_panel_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_panel_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(base)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).as_window) as usize - ptr as usize },
+        440usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(as_window)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_to_fill_layout) as usize - ptr as usize },
+        448usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(set_to_fill_layout)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_to_box_layout) as usize - ptr as usize },
+        456usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(set_to_box_layout)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_layout) as usize - ptr as usize },
+        464usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(get_layout)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).layout) as usize - ptr as usize },
+        472usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(layout)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).add_child_view) as usize - ptr as usize },
+        480usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(add_child_view)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).add_child_view_at) as usize - ptr as usize },
+        488usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(add_child_view_at)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).reorder_child_view) as usize - ptr as usize },
+        496usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(reorder_child_view)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).remove_child_view) as usize - ptr as usize },
+        504usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(remove_child_view)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).remove_all_child_views) as usize - ptr as usize },
+        512usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(remove_all_child_views)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_child_view_count) as usize - ptr as usize },
+        520usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(get_child_view_count)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_child_view_at) as usize - ptr as usize },
+        528usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_panel_t),
+            "::",
+            stringify!(get_child_view_at)
+        )
+    );
+}
+#[doc = "\n A Panel is a container in the views hierarchy that can contain other Views\n as children. Methods must be called on the browser process UI thread unless\n otherwise indicated.\n"]
+pub type cef_panel_t = _cef_panel_t;
+extern "C" {
+    #[doc = "\n Create a new Panel.\n"]
+    pub fn cef_panel_create(delegate: *mut _cef_panel_delegate_t) -> *mut cef_panel_t;
+}
+#[doc = "\n Implement this structure to handle window events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_window_delegate_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_panel_delegate_t,
+    #[doc = "\n Called when |window| is created.\n"]
+    pub on_window_created: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_delegate_t, window: *mut _cef_window_t),
+    >,
+    #[doc = "\n Called when |window| is closing.\n"]
+    pub on_window_closing: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_delegate_t, window: *mut _cef_window_t),
+    >,
+    #[doc = "\n Called when |window| is destroyed. Release all references to |window| and\n do not attempt to execute any functions on |window| after this callback\n returns.\n"]
+    pub on_window_destroyed: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_delegate_t, window: *mut _cef_window_t),
+    >,
+    #[doc = "\n Called when |window| is activated or deactivated.\n"]
+    pub on_window_activation_changed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+            active: ::std::os::raw::c_int,
+        ),
+    >,
+    #[doc = "\n Called when |window| bounds have changed. |new_bounds| will be in DIP\n screen coordinates.\n"]
+    pub on_window_bounds_changed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+            new_bounds: *const cef_rect_t,
+        ),
+    >,
+    #[doc = "\n Return the parent for |window| or NULL if the |window| does not have a\n parent. Windows with parents will not get a taskbar button. Set |is_menu|\n to true (1) if |window| will be displayed as a menu, in which case it will\n not be clipped to the parent window bounds. Set |can_activate_menu| to\n false (0) if |is_menu| is true (1) and |window| should not be activated\n (given keyboard focus) when displayed.\n"]
+    pub get_parent_window: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+            is_menu: *mut ::std::os::raw::c_int,
+            can_activate_menu: *mut ::std::os::raw::c_int,
+        ) -> *mut _cef_window_t,
+    >,
+    #[doc = "\n Return the initial bounds for |window| in density independent pixel (DIP)\n coordinates. If this function returns an NULL CefRect then\n get_preferred_size() will be called to retrieve the size, and the window\n will be placed on the screen with origin (0,0). This function can be used\n in combination with cef_view_t::get_bounds_in_screen() to restore the\n previous window bounds.\n"]
+    pub get_initial_bounds: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+        ) -> cef_rect_t,
+    >,
+    #[doc = "\n Return the initial show state for |window|.\n"]
+    pub get_initial_show_state: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+        ) -> cef_show_state_t,
+    >,
+    #[doc = "\n Return true (1) if |window| should be created without a frame or title\n bar. The window will be resizable if can_resize() returns true (1). Use\n cef_window_t::set_draggable_regions() to specify draggable regions.\n"]
+    pub is_frameless: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Return true (1) if |window| should be created with standard window buttons\n like close, minimize and zoom.\n"]
+    pub with_standard_window_buttons: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Return whether the titlebar height should be overridden, and sets the\n height of the titlebar in |titlebar_height|. On macOS, it can also be used\n to adjust the vertical position of the traffic light buttons in frameless\n windows. The buttons will be positioned halfway down the titlebar at a\n height of |titlebar_height| / 2.\n"]
+    pub get_titlebar_height: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+            titlebar_height: *mut f32,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Return true (1) if |window| can be resized.\n"]
+    pub can_resize: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Return true (1) if |window| can be maximized.\n"]
+    pub can_maximize: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Return true (1) if |window| can be minimized.\n"]
+    pub can_minimize: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Return true (1) if |window| can be closed. This will be called for user-\n initiated window close actions and when cef_window_t::close() is called.\n"]
+    pub can_close: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Called when a keyboard accelerator registered with\n cef_window_t::SetAccelerator is triggered. Return true (1) if the\n accelerator was handled or false (0) otherwise.\n"]
+    pub on_accelerator: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+            command_id: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Called after all other controls in the window have had a chance to handle\n the event. |event| contains information about the keyboard event. Return\n true (1) if the keyboard event was handled or false (0) otherwise.\n"]
+    pub on_key_event: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_delegate_t,
+            window: *mut _cef_window_t,
+            event: *const cef_key_event_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+}
+#[test]
+fn bindgen_test_layout__cef_window_delegate_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_window_delegate_t> =
+        ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_window_delegate_t>(),
+        256usize,
+        concat!("Size of: ", stringify!(_cef_window_delegate_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_window_delegate_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_window_delegate_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(base)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_window_created) as usize - ptr as usize },
+        120usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(on_window_created)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_window_closing) as usize - ptr as usize },
+        128usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(on_window_closing)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_window_destroyed) as usize - ptr as usize },
+        136usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(on_window_destroyed)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            ::std::ptr::addr_of!((*ptr).on_window_activation_changed) as usize - ptr as usize
+        },
+        144usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(on_window_activation_changed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_window_bounds_changed) as usize - ptr as usize },
+        152usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(on_window_bounds_changed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_parent_window) as usize - ptr as usize },
+        160usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(get_parent_window)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_initial_bounds) as usize - ptr as usize },
+        168usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(get_initial_bounds)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_initial_show_state) as usize - ptr as usize },
+        176usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(get_initial_show_state)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_frameless) as usize - ptr as usize },
+        184usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(is_frameless)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            ::std::ptr::addr_of!((*ptr).with_standard_window_buttons) as usize - ptr as usize
+        },
+        192usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(with_standard_window_buttons)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_titlebar_height) as usize - ptr as usize },
+        200usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(get_titlebar_height)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).can_resize) as usize - ptr as usize },
+        208usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(can_resize)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).can_maximize) as usize - ptr as usize },
+        216usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(can_maximize)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).can_minimize) as usize - ptr as usize },
+        224usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(can_minimize)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).can_close) as usize - ptr as usize },
+        232usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(can_close)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_accelerator) as usize - ptr as usize },
+        240usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(on_accelerator)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).on_key_event) as usize - ptr as usize },
+        248usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_delegate_t),
+            "::",
+            stringify!(on_key_event)
+        )
+    );
+}
+#[doc = "\n Implement this structure to handle window events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+pub type cef_window_delegate_t = _cef_window_delegate_t;
+#[doc = "\n A Window is a top-level Window/widget in the Views hierarchy. By default it\n will have a non-client area with title bar, icon and buttons that supports\n moving and resizing. All size and position values are in density independent\n pixels (DIP) unless otherwise indicated. Methods must be called on the\n browser process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_window_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_panel_t,
+    #[doc = "\n Show the Window.\n"]
+    pub show: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Hide the Window.\n"]
+    pub hide: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Sizes the Window to |size| and centers it in the current display.\n"]
+    pub center_window: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t, size: *const cef_size_t),
+    >,
+    #[doc = "\n Close the Window.\n"]
+    pub close: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Returns true (1) if the Window has been closed.\n"]
+    pub is_closed: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Activate the Window, assuming it already exists and is visible.\n"]
+    pub activate: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Deactivate the Window, making the next Window in the Z order the active\n Window.\n"]
+    pub deactivate: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Returns whether the Window is the currently active Window.\n"]
+    pub is_active: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Bring this Window to the top of other Windows in the Windowing system.\n"]
+    pub bring_to_top: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Set the Window to be on top of other Windows in the Windowing system.\n"]
+    pub set_always_on_top: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t, on_top: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns whether the Window has been set to be on top of other Windows in\n the Windowing system.\n"]
+    pub is_always_on_top: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Maximize the Window.\n"]
+    pub maximize: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Minimize the Window.\n"]
+    pub minimize: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Restore the Window.\n"]
+    pub restore: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Set fullscreen Window state.\n"]
+    pub set_fullscreen: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t, fullscreen: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns true (1) if the Window is maximized.\n"]
+    pub is_maximized: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns true (1) if the Window is minimized.\n"]
+    pub is_minimized: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns true (1) if the Window is fullscreen.\n"]
+    pub is_fullscreen: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Set the Window title.\n"]
+    pub set_title: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t, title: *const cef_string_t),
+    >,
+    #[doc = "\n Get the Window title.\n"]
+    pub get_title: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t) -> cef_string_userfree_t,
+    >,
+    #[doc = "\n Set the Window icon. This should be a 16x16 icon suitable for use in the\n Windows's title bar.\n"]
+    pub set_window_icon: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t, image: *mut _cef_image_t),
+    >,
+    #[doc = "\n Get the Window icon.\n"]
+    pub get_window_icon:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t) -> *mut _cef_image_t>,
+    #[doc = "\n Set the Window App icon. This should be a larger icon for use in the host\n environment app switching UI. On Windows, this is the ICON_BIG used in\n Alt-Tab list and Windows taskbar. The Window icon will be used by default\n if no Window App icon is specified.\n"]
+    pub set_window_app_icon: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t, image: *mut _cef_image_t),
+    >,
+    #[doc = "\n Get the Window App icon.\n"]
+    pub get_window_app_icon:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t) -> *mut _cef_image_t>,
+    #[doc = "\n Add a View that will be overlayed on the Window contents with absolute\n positioning and high z-order. Positioning is controlled by |docking_mode|\n as described below. The returned cef_overlay_controller_t object is used\n to control the overlay. Overlays are hidden by default.\n\n With CEF_DOCKING_MODE_CUSTOM:\n   1. The overlay is initially hidden, sized to |view|'s preferred size,\n      and positioned in the top-left corner.\n   2. Optionally change the overlay position and/or size by calling\n      CefOverlayController methods.\n   3. Call CefOverlayController::SetVisible(true) to show the overlay.\n   4. The overlay will be automatically re-sized if |view|'s layout\n      changes. Optionally change the overlay position and/or size when\n      OnLayoutChanged is called on the Window's delegate to indicate a\n      change in Window bounds.\n\n With other docking modes:\n   1. The overlay is initially hidden, sized to |view|'s preferred size,\n      and positioned based on |docking_mode|.\n   2. Call CefOverlayController::SetVisible(true) to show the overlay.\n   3. The overlay will be automatically re-sized if |view|'s layout changes\n      and re-positioned as appropriate when the Window resizes.\n\n Overlays created by this function will receive a higher z-order then any\n child Views added previously. It is therefore recommended to call this\n function last after all other child Views have been added so that the\n overlay displays as the top-most child of the Window.\n"]
+    pub add_overlay_view: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_t,
+            view: *mut _cef_view_t,
+            docking_mode: cef_docking_mode_t,
+        ) -> *mut _cef_overlay_controller_t,
+    >,
+    #[doc = "\n Show a menu with contents |menu_model|. |screen_point| specifies the menu\n position in screen coordinates. |anchor_position| specifies how the menu\n will be anchored relative to |screen_point|.\n"]
+    pub show_menu: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_t,
+            menu_model: *mut _cef_menu_model_t,
+            screen_point: *const cef_point_t,
+            anchor_position: cef_menu_anchor_position_t,
+        ),
+    >,
+    #[doc = "\n Cancel the menu that is currently showing, if any.\n"]
+    pub cancel_menu: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+    #[doc = "\n Returns the Display that most closely intersects the bounds of this\n Window. May return NULL if this Window is not currently displayed.\n"]
+    pub get_display: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t) -> *mut _cef_display_t,
+    >,
+    #[doc = "\n Returns the bounds (size and position) of this Window's client area.\n Position is in screen coordinates.\n"]
+    pub get_client_area_bounds_in_screen:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t) -> cef_rect_t>,
+    #[doc = "\n Set the regions where mouse events will be intercepted by this Window to\n support drag operations. Call this function with an NULL vector to clear\n the draggable regions. The draggable region bounds should be in window\n coordinates.\n"]
+    pub set_draggable_regions: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_t,
+            regionsCount: usize,
+            regions: *const cef_draggable_region_t,
+        ),
+    >,
+    #[doc = "\n Retrieve the platform window handle for this Window.\n"]
+    pub get_window_handle: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t) -> ::std::os::raw::c_ulong,
+    >,
+    #[doc = "\n Simulate a key press. |key_code| is the VKEY_* value from Chromium's\n ui/events/keycodes/keyboard_codes.h header (VK_* values on Windows).\n |event_flags| is some combination of EVENTFLAG_SHIFT_DOWN,\n EVENTFLAG_CONTROL_DOWN and/or EVENTFLAG_ALT_DOWN. This function is exposed\n primarily for testing purposes.\n"]
+    pub send_key_press: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_t,
+            key_code: ::std::os::raw::c_int,
+            event_flags: uint32,
+        ),
+    >,
+    #[doc = "\n Simulate a mouse move. The mouse cursor will be moved to the specified\n (screen_x, screen_y) position. This function is exposed primarily for\n testing purposes.\n"]
+    pub send_mouse_move: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_t,
+            screen_x: ::std::os::raw::c_int,
+            screen_y: ::std::os::raw::c_int,
+        ),
+    >,
+    #[doc = "\n Simulate mouse down and/or mouse up events. |button| is the mouse button\n type. If |mouse_down| is true (1) a mouse down event will be sent. If\n |mouse_up| is true (1) a mouse up event will be sent. If both are true (1)\n a mouse down event will be sent followed by a mouse up event (equivalent\n to clicking the mouse button). The events will be sent using the current\n cursor position so make sure to call send_mouse_move() first to position\n the mouse. This function is exposed primarily for testing purposes.\n"]
+    pub send_mouse_events: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_t,
+            button: cef_mouse_button_type_t,
+            mouse_down: ::std::os::raw::c_int,
+            mouse_up: ::std::os::raw::c_int,
+        ),
+    >,
+    #[doc = "\n Set the keyboard accelerator for the specified |command_id|. |key_code|\n can be any virtual key or character value.\n cef_window_delegate_t::OnAccelerator will be called if the keyboard\n combination is triggered while this window has focus.\n"]
+    pub set_accelerator: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_window_t,
+            command_id: ::std::os::raw::c_int,
+            key_code: ::std::os::raw::c_int,
+            shift_pressed: ::std::os::raw::c_int,
+            ctrl_pressed: ::std::os::raw::c_int,
+            alt_pressed: ::std::os::raw::c_int,
+        ),
+    >,
+    #[doc = "\n Remove the keyboard accelerator for the specified |command_id|.\n"]
+    pub remove_accelerator: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_window_t, command_id: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Remove all keyboard accelerators.\n"]
+    pub remove_all_accelerators:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_window_t)>,
+}
+#[test]
+fn bindgen_test_layout__cef_window_t() {
+    const UNINIT: ::std::mem::MaybeUninit<_cef_window_t> = ::std::mem::MaybeUninit::uninit();
+    let ptr = UNINIT.as_ptr();
+    assert_eq!(
+        ::std::mem::size_of::<_cef_window_t>(),
+        832usize,
+        concat!("Size of: ", stringify!(_cef_window_t))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<_cef_window_t>(),
+        8usize,
+        concat!("Alignment of ", stringify!(_cef_window_t))
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).base) as usize - ptr as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(base)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).show) as usize - ptr as usize },
+        536usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(show)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).hide) as usize - ptr as usize },
+        544usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(hide)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).center_window) as usize - ptr as usize },
+        552usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(center_window)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).close) as usize - ptr as usize },
+        560usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(close)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_closed) as usize - ptr as usize },
+        568usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(is_closed)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).activate) as usize - ptr as usize },
+        576usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(activate)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).deactivate) as usize - ptr as usize },
+        584usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(deactivate)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_active) as usize - ptr as usize },
+        592usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(is_active)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).bring_to_top) as usize - ptr as usize },
+        600usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(bring_to_top)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_always_on_top) as usize - ptr as usize },
+        608usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(set_always_on_top)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_always_on_top) as usize - ptr as usize },
+        616usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(is_always_on_top)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).maximize) as usize - ptr as usize },
+        624usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(maximize)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).minimize) as usize - ptr as usize },
+        632usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(minimize)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).restore) as usize - ptr as usize },
+        640usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(restore)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_fullscreen) as usize - ptr as usize },
+        648usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(set_fullscreen)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_maximized) as usize - ptr as usize },
+        656usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(is_maximized)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_minimized) as usize - ptr as usize },
+        664usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(is_minimized)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).is_fullscreen) as usize - ptr as usize },
+        672usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(is_fullscreen)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_title) as usize - ptr as usize },
+        680usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(set_title)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_title) as usize - ptr as usize },
+        688usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(get_title)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_window_icon) as usize - ptr as usize },
+        696usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(set_window_icon)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_window_icon) as usize - ptr as usize },
+        704usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(get_window_icon)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_window_app_icon) as usize - ptr as usize },
+        712usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(set_window_app_icon)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_window_app_icon) as usize - ptr as usize },
+        720usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(get_window_app_icon)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).add_overlay_view) as usize - ptr as usize },
+        728usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(add_overlay_view)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).show_menu) as usize - ptr as usize },
+        736usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(show_menu)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).cancel_menu) as usize - ptr as usize },
+        744usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(cancel_menu)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_display) as usize - ptr as usize },
+        752usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(get_display)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            ::std::ptr::addr_of!((*ptr).get_client_area_bounds_in_screen) as usize - ptr as usize
+        },
+        760usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(get_client_area_bounds_in_screen)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_draggable_regions) as usize - ptr as usize },
+        768usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(set_draggable_regions)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).get_window_handle) as usize - ptr as usize },
+        776usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(get_window_handle)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).send_key_press) as usize - ptr as usize },
+        784usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(send_key_press)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).send_mouse_move) as usize - ptr as usize },
+        792usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(send_mouse_move)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).send_mouse_events) as usize - ptr as usize },
+        800usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(send_mouse_events)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).set_accelerator) as usize - ptr as usize },
+        808usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(set_accelerator)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).remove_accelerator) as usize - ptr as usize },
+        816usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(remove_accelerator)
+        )
+    );
+    assert_eq!(
+        unsafe { ::std::ptr::addr_of!((*ptr).remove_all_accelerators) as usize - ptr as usize },
+        824usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(_cef_window_t),
+            "::",
+            stringify!(remove_all_accelerators)
+        )
+    );
+}
+#[doc = "\n A Window is a top-level Window/widget in the Views hierarchy. By default it\n will have a non-client area with title bar, icon and buttons that supports\n moving and resizing. All size and position values are in density independent\n pixels (DIP) unless otherwise indicated. Methods must be called on the\n browser process UI thread unless otherwise indicated.\n"]
+pub type cef_window_t = _cef_window_t;
+extern "C" {
+    #[doc = "\n Create a new Window.\n"]
+    pub fn cef_window_create_top_level(delegate: *mut _cef_window_delegate_t) -> *mut cef_window_t;
 }
