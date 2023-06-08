@@ -13,6 +13,25 @@ Use CEF in Rust.
 
 ### Linux
 
+#### Manual Install
+
+- [Download](https://cef-builds.spotifycdn.com/index.html#linux64) Linux-64bit build.
+
+- Copy files to `.local`:
+
+```
+cp -r Resources/* ~/.local/share/cef
+cp -r Release/* ~/.local/share/cef
+```
+
+- Build and run the application with `LD_LIBRARY_PATH`:
+
+```
+LD_LIBRARY_PATH=~/.local/share/cef cargo r --example demo
+```
+
+#### Flatpak
+
 - Install flatpak runtime & sdk:
 
 ```
@@ -40,7 +59,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Roadmap
 
-Cef-rs is looking for the best approach to use CEF. On Linux, this is achived by using same flatpak runtime. So every application can share the same library. We are looking for the similar methods on macOS and Windows. Welcome to open feature requests if the feature you look for isn't listed below. But please understand that some requests might result into not planned.
+Cef-rs is looking for the best approach to use CEF. On Linux, this is achived by using same local share directory or same flatpak runtime. So every application can share the same library. We are looking for the similar methods on macOS and Windows. Welcome to open feature requests if the feature you look for isn't listed below. But please understand that some requests might result into not planned.
 
 ### Planned
 

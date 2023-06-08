@@ -4,10 +4,8 @@ fn main() {
         Ok(_) => String::from("/usr/lib"),
         Err(_) => match std::env::var("HOME") {
             Ok(mut val) => {
-                // TODO better path formatting
                 val.push_str(
-                    // "/.local/share/flatpak/runtime/dev.crabnebula.Platform/x86_64/22.08/active/files/lib",
-                    "/Desktop/fec",
+                    "/.local/share/cef",
                 );
                 val
             }
