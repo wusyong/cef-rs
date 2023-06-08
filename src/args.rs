@@ -2,6 +2,7 @@ use std::ffi::{c_char, CString};
 
 use cef_sys::cef_main_args_t;
 
+#[derive(Debug, Clone)]
 pub struct Args {
     _source: Vec<CString>,
     argv: Vec<*const c_char>,

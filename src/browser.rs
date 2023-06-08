@@ -1,8 +1,8 @@
 use std::{ffi::c_int, ptr::null_mut};
 
-use cef_sys::cef_browser_settings_t;
+use cef_sys::{cef_browser_settings_t, cef_browser_view_t};
 
-use crate::{client::Client, string::CefString, window::WindowInfo, State};
+use crate::{client::Client, rc::RefGuard, string::CefString, window::WindowInfo, State, View};
 
 /// Browser initialization settings. Specify NULL or 0 to get the recommended
 /// default values. The consequences of using custom values may not be well
@@ -214,4 +214,40 @@ pub fn create_browser<T: Client>(
             null_mut(),
         )
     }
+}
+
+/// Create a new BrowserView. The underlying cef_browser_t will not be created
+/// until this view is added to the views hierarchy. The optional |extra_info|
+/// parameter provides an opportunity to specify extra information specific to
+/// the created browser that will be passed to
+/// cef_render_process_handler_t::on_browser_created() in the render process.
+#[derive(Debug, Clone)]
+pub struct BrowserView(RefGuard<cef_browser_view_t>);
+
+impl BrowserView {
+    pub fn as_view(&self) -> View {
+        unsafe { View(self.0.clone().convert()) }
+    }
+}
+
+pub fn create_browser_view<T: Client>(
+    client: Option<T>,
+    url: CefString,
+    settings: BrowserSettings,
+    // TODO delegate: *mut _cef_browser_view_delegate_t,
+) -> BrowserView {
+    let client = client.map(|c| c.to_raw()).unwrap_or(null_mut());
+
+    let view = unsafe {
+        cef_sys::cef_browser_view_create(
+            client,
+            &url.into_raw(),
+            &settings.into_raw(),
+            null_mut(),
+            null_mut(),
+            null_mut(),
+        )
+    };
+
+    BrowserView(RefGuard::from_raw(view))
 }

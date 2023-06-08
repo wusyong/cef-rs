@@ -22,3 +22,6 @@ members = [
 cef-sys = { package = "libcef-sys", version = "1.0", path = "sys" }
 widestring = "1.0"
 
+[dev-dependencies]
+winit = "0.28"
+

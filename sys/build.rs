@@ -6,7 +6,8 @@ fn main() {
             Ok(mut val) => {
                 // TODO better path formatting
                 val.push_str(
-                    "/.local/share/flatpak/runtime/dev.crabnebula.Platform/x86_64/22.08/active/files/lib",
+                    // "/.local/share/flatpak/runtime/dev.crabnebula.Platform/x86_64/22.08/active/files/lib",
+                    "/Desktop/fec",
                 );
                 val
             }

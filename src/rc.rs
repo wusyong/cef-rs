@@ -11,14 +11,11 @@
 //! For example like [`cef_settings_t`], just create a struct like [`Settings`] and define a method
 //! `into_raw` that can convert to raw cef type.
 //!
-//! ## If raw cef type has [`cef_base_ref_counted_t`]
-//! For example like [`cef_app_t`], it should implement [`Rc`] trait.
-//! There's a private macro `impl_rc` in this module for you to implement it. And for the Rust
-//! type...
+//! ## If raw cef type has [`cef_base_ref_counted_t`]...
 //!
-//! ### if it's a type we should create in Rust and pass to C API
+//! ## ...and it's a type we should create in Rust and pass to C API
 //!
-//! Define a trait like [`App`] with trait bound of [`Clone`], [`Send`],and [`Sync`].
+//! For example like [`cef_app_t`], Define a trait like [`App`] with trait bound of [`Clone`], [`Send`],and [`Sync`].
 //! We need [`Clone`] trait because this will be a reference counted type, and users can decide
 //! how to clone the value of the type. We need [`Send`] and [`Sync`] to make sure it's thread safe.
 //! Each field of this kind of cef type usually is a callback like `Option<unsafe extern "C" fn(...)>`.
@@ -30,10 +27,11 @@
 //! [`cef_base_ref_counted_t`] to the type, so the trampoline function can call [`RcImpl::get`] to
 //! retreive rust type and use it.
 //!
-//! ### if it's type we sould get from C API
-//!
-//! Define a new type like [`CommandLine`] to wrap the raw type with [`RefGuard`], and then define
-//! a method called `from_raw`.
+//! ### ... and if it's a type we sould get from C API
+//! For example like [`cef_command_line_t`], it should implement [`Rc`] trait fisrt.
+//! There are some private macros `impl_rc` in this module for you to implement it.
+//! And then define a new type like [`CommandLine`] to wrap the raw type with [`RefGuard`].
+//! Finally, define a method called `from_raw`.
 //!
 //! [`cef_settings_t`]: cef_sys::cef_settings_t
 //! [`cef_app_t`]: cef_sys::cef_app_t
@@ -41,6 +39,7 @@
 //! [`App`]: crate::App
 //! [`App::on_before_command_line_processing`]: crate::App::on_before_command_line_processing
 //! [`to_raw`]: crate::App::to_raw
+//! [`cef_command_line_t`]: cef_sys::cef_command_line_t
 //! [`CommandLine`]: crate::CommandLine
 
 use std::{
@@ -52,10 +51,22 @@ use cef_sys::cef_base_ref_counted_t;
 
 /// Reference counted trait for types has [`cef_base_ref_counted_t`].
 pub trait Rc {
-    fn add_ref(&self);
-    fn has_one_ref(&self) -> bool;
-    fn has_at_least_one_ref(&self) -> bool;
-    fn release(&self) -> bool;
+    fn add_ref(&self) {
+        self.as_base().add_ref();
+    }
+
+    fn has_one_ref(&self) -> bool {
+        self.as_base().has_one_ref()
+    }
+
+    fn has_at_least_one_ref(&self) -> bool {
+        self.as_base().has_at_least_one_ref()
+    }
+
+    fn release(&self) -> bool {
+        self.as_base().release()
+    }
+
     fn as_base(&self) -> &cef_base_ref_counted_t;
 }
 
@@ -106,22 +117,6 @@ impl Rc for cef_base_ref_counted_t {
 macro_rules! impl_rc {
     ($name:ident) => {
         impl Rc for cef_sys::$name {
-            fn add_ref(&self) {
-                self.as_base().add_ref();
-            }
-
-            fn has_one_ref(&self) -> bool {
-                self.as_base().has_one_ref()
-            }
-
-            fn has_at_least_one_ref(&self) -> bool {
-                self.as_base().has_at_least_one_ref()
-            }
-
-            fn release(&self) -> bool {
-                self.as_base().release()
-            }
-
             fn as_base(&self) -> &cef_base_ref_counted_t {
                 &self.base
             }
@@ -131,6 +126,7 @@ macro_rules! impl_rc {
 
 impl_rc!(cef_browser_t);
 impl_rc!(cef_command_line_t);
+impl_rc!(cef_view_t);
 
 impl_rc!(cef_frame_t);
 impl_rc!(cef_browser_host_t);
@@ -143,7 +139,33 @@ impl_rc!(cef_task_runner_t);
 impl_rc!(cef_context_menu_params_t);
 impl_rc!(cef_menu_model_t);
 
+macro_rules! impl_rc2 {
+    ($name:ident) => {
+        impl Rc for cef_sys::$name {
+            fn as_base(&self) -> &cef_base_ref_counted_t {
+                &self.base.base
+            }
+        }
+    };
+}
+
+impl_rc2!(cef_browser_view_t);
+impl_rc2!(cef_panel_t);
+
+macro_rules! impl_rc3 {
+    ($name:ident) => {
+        impl Rc for cef_sys::$name {
+            fn as_base(&self) -> &cef_base_ref_counted_t {
+                &self.base.base.base
+            }
+        }
+    };
+}
+
+impl_rc3!(cef_window_t);
+
 /// A smart pointer for types from cef library.
+#[derive(Debug)]
 pub struct RefGuard<T: Rc> {
     object: *mut T,
 }
@@ -171,9 +193,14 @@ impl<T: Rc> RefGuard<T> {
     pub unsafe fn get_raw(&self) -> *mut T {
         self.object
     }
+
+    pub unsafe fn convert<U: Rc>(self) -> RefGuard<U> {
+        RefGuard::from_raw(self.object as *mut _)
+    }
 }
 
 unsafe impl<T: Rc> Send for RefGuard<T> {}
+unsafe impl<T: Rc> Sync for RefGuard<T> {}
 
 impl<T: Rc> Clone for RefGuard<T> {
     fn clone(&self) -> RefGuard<T> {
