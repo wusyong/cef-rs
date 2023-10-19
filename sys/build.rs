@@ -4,9 +4,7 @@ fn main() {
         Ok(_) => String::from("/usr/lib"),
         Err(_) => match std::env::var("HOME") {
             Ok(mut val) => {
-                val.push_str(
-                    "/.local/share/cef",
-                );
+                val.push_str("/.local/share/cef");
                 val
             }
             Err(e) => panic!("Couldn't get the path of shared library: {e}"),

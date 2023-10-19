@@ -44,13 +44,12 @@ fn main() {
             framework_dir_path: cef_string_t::default(),
             main_bundle_path: cef_string_t::default(),
             chrome_runtime: 0,
-            multi_threaded_message_loop: 1,
+            multi_threaded_message_loop: 0,
             external_message_pump: 0,
             windowless_rendering_enabled: 0,
             command_line_args_disabled: 0,
             cache_path: cef_string_t::default(),
             root_cache_path: cef_string_t::default(),
-            user_data_path: cef_string_t::default(),
             persist_session_cookies: 0,
             persist_user_preferences: 0,
             user_agent: cef_string_t::default(),
@@ -68,13 +67,14 @@ fn main() {
             accept_language_list: cef_string_t::default(),
             cookieable_schemes_list: cef_string_t::default(),
             cookieable_schemes_exclude_defaults: 0,
+            log_items: cef_log_items_t::LOG_ITEMS_NONE,
         };
         dbg!(cef_initialize(&arg, &settings, &mut app, null_mut()));
 
         let el = EventLoop::new();
-        let window = Window::new(&el).unwrap();
-        let xid = window.xlib_window().unwrap();
-        dbg!(xid);
+        // let window = Window::new(&el).unwrap();
+        // let xid = window.xlib_window().unwrap();
+        // dbg!(xid);
         let window_info = cef_window_info_t {
             window_name: cef_string_t {
                 str_: null_mut(),
@@ -175,16 +175,16 @@ fn main() {
         ));
         dbg!(&window_info);
 
-        el.run(|event, _el, control| {
-            control.set_wait();
-            // cef_do_message_loop_work();
-            match event {
-                winit::event::Event::NewEvents(winit::event::StartCause::Init) => {
-                    // cef_run_message_loop();
-                    // cef_shutdown();
-                }
-                _ => (),
-            }
-        });
+        cef_run_message_loop();
+        // el.run(|event, _el, control| {
+        //     control.set_wait();
+        //     match event {
+        //         winit::event::Event::NewEvents(winit::event::StartCause::Init) => {
+        //             // cef_run_message_loop();
+        //             // cef_shutdown();
+        //         }
+        //         _ => (),
+        //     }
+        // });
     }
 }
