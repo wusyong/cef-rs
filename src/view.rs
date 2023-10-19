@@ -2,17 +2,11 @@ use cef_sys::{cef_view_delegate_t, cef_view_t};
 
 use crate::rc::{RcImpl, RefGuard};
 
-/// A View is a rectangle within the views View hierarchy. It is the base
-/// structure for all Views. All size and position values are in density
-/// independent pixels (DIP) unless otherwise indicated. Methods must be called
-/// on the browser process UI thread unless otherwise indicated.
+/// See [cef_view_t] for more documentation.
 #[derive(Debug, Clone)]
 pub struct View(pub(crate) RefGuard<cef_view_t>);
 
-/// Implement this structure to handle view events. All size and position values
-/// are in density independent pixels (DIP) unless otherwise indicated. The
-/// functions of this structure will be called on the browser process UI thread
-/// unless otherwise indicated.
+/// See [cef_view_delegate_t] for more documentation.
 pub trait ViewDelegate: Clone + Send + Sync {
     /// Create cef raw types for internal usage. The reason for `Clone` requirement is because
     /// these types have ref counted object. User can decide how to clone the value.

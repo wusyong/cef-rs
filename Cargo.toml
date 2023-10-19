@@ -1,6 +1,6 @@
 [package]
 name = "cef"
-version = "0.1.2"
+version = "117.2.5"
 edition = "2021"
 license = "Apache-2.0 OR MIT"
 description = "Use cef in Rust"
@@ -19,7 +19,7 @@ members = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cef-sys = { package = "libcef-sys", version = "1.0", path = "sys" }
+cef-sys = { package = "libcef-sys", version = "117.2.5", path = "sys" }
 widestring = "1.0"
 
 [dev-dependencies]

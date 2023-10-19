@@ -2,7 +2,7 @@ use cef_sys::cef_client_t;
 
 use crate::rc::RcImpl;
 
-/// Implement this structure to provide handler implementations.
+/// See [cef_client_t] for more documentation.
 pub trait Client: Clone + Send + Sync {
     // TODO draw the rest owl
     /// Create cef raw types for internal usafe. The reason for `Clone` requirement is because

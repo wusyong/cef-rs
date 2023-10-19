@@ -1,6 +1,5 @@
 //! String module
 //!
-//!
 //! cef-rs defines its own type [`CefString`] which is a new
 //! type of [`widestring::U16CString`] to handle everything around strings.
 //! Including converting from/to raw [`cef_string_utf16_t`],

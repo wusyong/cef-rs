@@ -6,9 +6,7 @@ use crate::{
     ViewDelegate,
 };
 
-/// A Panel is a container in the views hierarchy that can contain other Views
-/// as children. Methods must be called on the browser process UI thread unless
-/// otherwise indicated.
+/// See [cef_panel_t] for more documentation.
 #[derive(Debug, Clone)]
 pub struct Panel(pub(crate) RefGuard<cef_panel_t>);
 
@@ -20,9 +18,7 @@ impl Panel {
     }
 }
 
-/// Implement this structure to handle Panel events. The functions of this
-/// structure will be called on the browser process UI thread unless otherwise
-/// indicated.
+/// See [cef_panel_delegate_t] for more documentation.
 pub trait PanelDelegate: ViewDelegate + Clone + Send + Sync {
     /// Create cef raw types for internal usage. The reason for `Clone` requirement is because
     /// these types have ref counted object. User can decide how to clone the value.

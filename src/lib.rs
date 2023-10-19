@@ -19,5 +19,6 @@ pub use view::{View, ViewDelegate};
 pub use window::{create_top_level_window, Window, WindowDelegate, WindowInfo};
 
 pub type LogSeverity = cef_sys::cef_log_severity_t;
+pub type LogItems = cef_sys::cef_log_items_t;
 pub type Rect = cef_sys::cef_rect_t;
 pub type State = cef_sys::cef_state_t;

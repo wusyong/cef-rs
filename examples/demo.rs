@@ -1,6 +1,6 @@
 use cef::{
     args::Args, client::Client, string::CefString, App, BrowserSettings, BrowserView,
-    PanelDelegate, Settings, ViewDelegate, Window, WindowDelegate,
+    PanelDelegate, Settings, ViewDelegate, Window, WindowDelegate, WindowInfo,
 };
 
 #[derive(Debug, Copy, Clone)]
@@ -41,28 +41,28 @@ fn main() {
         let settings = Settings::new();
         dbg!(cef::initialize(&args, settings, Some(app)));
 
-        // let window_info = WindowInfo::new();
+        let window_info = WindowInfo::new();
         let browser_settings = BrowserSettings::new();
         let client = DemoClient;
         let url = CefString::new("https://www.google.com");
 
-        let browser_view = dbg!(cef::create_browser_view(
-            Some(client),
-            url,
-            browser_settings
-        ));
-        let delegate = DemoWindow {
-            browser_view,
-            window: None,
-        };
-        dbg!(cef::create_top_level_window(delegate));
-
-        // dbg!(cef::create_browser(
-        //     window_info,
+        // let browser_view = dbg!(cef::create_browser_view(
         //     Some(client),
         //     url,
         //     browser_settings
         // ));
+        // let delegate = DemoWindow {
+        //     browser_view,
+        //     window: None,
+        // };
+        // dbg!(cef::create_top_level_window(delegate));
+
+        dbg!(cef::create_browser(
+            window_info,
+            Some(client),
+            url,
+            browser_settings
+        ));
 
         cef_sys::cef_run_message_loop();
     }

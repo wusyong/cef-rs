@@ -27,6 +27,12 @@ impl Default for cef_log_severity_t {
     }
 }
 
+impl Default for cef_log_items_t {
+    fn default() -> Self {
+        Self::LOG_ITEMS_DEFAULT
+    }
+}
+
 #[test]
 fn test_init() {
     use std::ptr::*;
