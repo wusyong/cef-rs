@@ -7,7 +7,7 @@ Use CEF in Rust.
 | Target | Linux | macOS | Windows |
 | ------ | ----- | ----- | ------- |
 | x86_64 | ✅    | ❎     | ❎      |
-| ARM64  | ❎    | ❎     | ❎      |
+| ARM64  | ✅    | ❎     | ❎      |
 
 ## Usage
 
