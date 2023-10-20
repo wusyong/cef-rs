@@ -1,9 +1,12 @@
 [package]
 name = "cef"
-version = "117.2.5"
+version = "117.2.6"
 edition = "2021"
 license = "Apache-2.0 OR MIT"
+authors = ["Wu Yu Wei <yuweiwu@pm.me>"]
 description = "Use cef in Rust"
+repository = "https://github.com/wusyong/cef-rs"
+readme = "README.md"
 
 [features]
 dox = ["cef-sys/dox"]

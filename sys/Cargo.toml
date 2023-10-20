@@ -1,9 +1,11 @@
 [package]
 name = "libcef-sys"
-version = "117.2.5"
+version = "117.2.6"
 edition = "2021"
 license = "Apache-2.0 OR MIT"
+authors = ["Wu Yu Wei <yuweiwu@pm.me>"]
 description = "cef-rs sys crate"
+repository = "https://github.com/wusyong/cef-rs"
 
 [lib]
 name = "cef_sys"
