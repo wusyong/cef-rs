@@ -1,5 +1,7 @@
 # cef-rs changelog
 
+- Update crate documentation.
+
 ## 117.2.6
 
 - Add more manifest to Cargo.toml
