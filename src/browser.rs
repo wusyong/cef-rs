@@ -5,7 +5,13 @@ use cef_sys::{
     cef_browser_view_t,
 };
 
-use crate::{client::Client, rc::RefGuard, string::CefString, window::WindowInfo, State, View};
+use crate::{
+    client::Client,
+    rc::{Rc, RefGuard},
+    string::CefString,
+    window::WindowInfo,
+    State, View,
+};
 
 /// See [cef_browser_settings_t] for more documentation.
 #[derive(Debug, Clone)]
@@ -119,7 +125,7 @@ pub fn create_browser<T: Client>(
     url: CefString,
     settings: BrowserSettings,
 ) -> i32 {
-    let client = client.map(|c| c.to_raw()).unwrap_or(null_mut());
+    let client = client.map(|c| c.into_raw()).unwrap_or(null_mut());
 
     unsafe {
         cef_browser_host_create_browser(
@@ -139,7 +145,7 @@ pub struct BrowserView(RefGuard<cef_browser_view_t>);
 
 impl BrowserView {
     pub fn as_view(&self) -> View {
-        unsafe { View(self.0.clone().convert()) }
+        unsafe { View(self.0.convert()) }
     }
 }
 
@@ -150,7 +156,7 @@ pub fn create_browser_view<T: Client>(
     settings: BrowserSettings,
     // TODO delegate: *mut _cef_browser_view_delegate_t,
 ) -> BrowserView {
-    let client = client.map(|c| c.to_raw()).unwrap_or(null_mut());
+    let client = client.map(|c| c.into_raw()).unwrap_or(null_mut());
 
     let view = unsafe {
         cef_browser_view_create(

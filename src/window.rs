@@ -67,7 +67,7 @@ pub struct Window(RefGuard<cef_window_t>);
 
 impl Window {
     pub fn as_panel(&self) -> Panel {
-        unsafe { Panel(self.0.clone().convert()) }
+        unsafe { Panel(self.0.convert()) }
     }
 
     pub fn show(&self) {
@@ -75,28 +75,26 @@ impl Window {
             self.0.show.map(|f| f(self.0.get_raw()));
         }
     }
-
-    pub fn from_raw(raw: *mut cef_window_t) -> Option<Window> {
-        if raw.is_null() {
-            None
-        } else {
-            Some(Window(RefGuard::from_raw(raw)))
-        }
-    }
 }
 
 /// See [cef_window_delegate_t] for more documentation.
-pub trait WindowDelegate: PanelDelegate + Clone + Send + Sync {
+pub trait WindowDelegate: PanelDelegate {
     fn on_window_created(&mut self, _window: &Window) {}
+    fn on_window_closing(&mut self, _window: &Window) {}
+    fn on_window_destroyed(&mut self, _window: &Window) {}
+    fn can_close(&mut self, _window: &Window) -> bool {
+        true
+    }
 
-    /// Create cef raw types for internal usage. The reason for `Clone` requirement is because
-    /// these types have ref counted object. User can decide how to clone the value.
-    fn to_raw(&self) -> *mut cef_window_delegate_t {
+    fn into_raw(self) -> *mut cef_window_delegate_t {
         let mut object: cef_window_delegate_t = unsafe { std::mem::zeroed() };
 
         object.on_window_created = Some(on_window_created::<Self>);
+        object.on_window_closing = Some(on_window_closing::<Self>);
+        object.on_window_destroyed = Some(on_window_destroyed::<Self>);
+        object.can_close = Some(can_close::<Self>);
 
-        RcImpl::new(object, self.clone()) as *mut _
+        RcImpl::new(object, self) as *mut _
     }
 }
 
@@ -110,7 +108,38 @@ extern "C" fn on_window_created<I: WindowDelegate>(
     window.0.into_raw();
 }
 
+extern "C" fn on_window_closing<I: WindowDelegate>(
+    this: *mut cef_window_delegate_t,
+    window: *mut cef_window_t,
+) {
+    let obj: &mut RcImpl<_, I> = RcImpl::get(this);
+    let window = Window(RefGuard::from_raw(window));
+    obj.interface.on_window_closing(&window);
+    window.0.into_raw();
+}
+
+extern "C" fn on_window_destroyed<I: WindowDelegate>(
+    this: *mut cef_window_delegate_t,
+    window: *mut cef_window_t,
+) {
+    let obj: &mut RcImpl<_, I> = RcImpl::get(this);
+    let window = Window(RefGuard::from_raw(window));
+    obj.interface.on_window_destroyed(&window);
+    window.0.into_raw();
+}
+
+extern "C" fn can_close<I: WindowDelegate>(
+    this: *mut cef_window_delegate_t,
+    window: *mut cef_window_t,
+) -> i32 {
+    let obj: &mut RcImpl<_, I> = RcImpl::get(this);
+    let window = Window(RefGuard::from_raw(window));
+    let result = obj.interface.can_close(&window);
+    window.0.into_raw();
+    result as i32
+}
+
 pub fn create_top_level_window(delegate: impl WindowDelegate) -> Window {
-    let window = unsafe { cef_window_create_top_level(WindowDelegate::to_raw(&delegate)) };
-    Window::from_raw(window).expect("Failed to create window.")
+    let window = unsafe { cef_window_create_top_level(WindowDelegate::into_raw(delegate)) };
+    Window(RefGuard::from_raw(window))
 }

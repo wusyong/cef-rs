@@ -71,8 +71,10 @@ pub struct Settings {
 impl Settings {
     pub fn new() -> Self {
         Self {
-            no_sandbox: true,
+            // no_sandbox: true,
             remote_debugging_port: 5566,
+            // log_severity: LogSeverity::LOGSEVERITY_VERBOSE,
+            // log_items: LogItems::LOG_ITEMS_DEFAULT,
             ..Default::default()
         }
     }

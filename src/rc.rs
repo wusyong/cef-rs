@@ -15,13 +15,10 @@
 //!
 //! ## ...and it's a type we should create in Rust and pass to C API
 //!
-//! For example like [`cef_app_t`], Define a trait like [`App`] with trait bound of [`Clone`], [`Send`],and [`Sync`].
-//! We need [`Clone`] trait because this will be a reference counted type, and users can decide
-//! how to clone the value of the type. We need [`Send`] and [`Sync`] to make sure it's thread safe.
-//! Each field of this kind of cef type usually is a callback like `Option<unsafe extern "C" fn(...)>`.
-//! We define a trampoline function with  the same signature, and then define a trait method like
-//! [`App::on_before_command_line_processing`]. Finally, define a trait method [`to_raw`] that can
-//! create raw cef type with reference counted. In the implementation of [`to_raw`], create the raw
+//! For example like [`cef_app_t`], Define a trait like [`App`] with trait bound of [`Sized`].
+//! We define a trampoline function withthe same signature, and then define a trait method like
+//! [`App::on_before_command_line_processing`]. Finally, define a trait method [`into_raw`] that can
+//! create raw cef type with reference counted. In the implementation of [`into_raw`], create the raw
 //! cef type by `unsafe { std::mem::zeroed }` first. And then fill each field by adding the
 //! trampoline function. Return the value by calling [`RcImpl::new`]. This is the wrapper to add
 //! [`cef_base_ref_counted_t`] to the type, so the trampoline function can call [`RcImpl::get`] to
@@ -183,7 +180,6 @@ impl<T: Rc> RefGuard<T> {
         guard
     }
 
-    /// clone value
     pub fn into_raw(self) -> *mut T {
         let ptr = unsafe { self.get_raw() };
         std::mem::forget(self);
@@ -194,8 +190,9 @@ impl<T: Rc> RefGuard<T> {
         self.object
     }
 
-    pub unsafe fn convert<U: Rc>(self) -> RefGuard<U> {
-        RefGuard::from_raw(self.object as *mut _)
+    /// Convert will add the reference count since it will create another type that has ownership.
+    pub unsafe fn convert<U: Rc>(&self) -> RefGuard<U> {
+        RefGuard::from_raw_add_ref(self.get_raw() as *mut _)
     }
 }
 

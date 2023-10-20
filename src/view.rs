@@ -7,12 +7,10 @@ use crate::rc::{RcImpl, RefGuard};
 pub struct View(pub(crate) RefGuard<cef_view_t>);
 
 /// See [cef_view_delegate_t] for more documentation.
-pub trait ViewDelegate: Clone + Send + Sync {
-    /// Create cef raw types for internal usage. The reason for `Clone` requirement is because
-    /// these types have ref counted object. User can decide how to clone the value.
-    fn to_raw(&self) -> *mut cef_view_delegate_t {
+pub trait ViewDelegate: Sized {
+    fn into_raw(self) -> *mut cef_view_delegate_t {
         let object: cef_view_delegate_t = unsafe { std::mem::zeroed() };
 
-        RcImpl::new(object, self.clone()) as *mut _
+        RcImpl::new(object, self) as *mut _
     }
 }
