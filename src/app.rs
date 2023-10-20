@@ -1,4 +1,4 @@
-use cef_sys::{cef_app_t, cef_command_line_t, cef_execute_process, cef_initialize, cef_string_t};
+use cef_sys::{cef_app_t, cef_command_line_t, cef_execute_process, cef_initialize, cef_string_t, cef_shutdown, cef_run_message_loop};
 
 use crate::{
     args::Args, command_line::CommandLine, rc::RcImpl, settings::Settings, string::CefString,
@@ -40,6 +40,16 @@ pub fn initialize<T: App>(args: &Args, settings: Settings, app: Option<T>) -> bo
     let app = app.map(|app| app.to_raw()).unwrap_or(std::ptr::null_mut());
 
     unsafe { cef_initialize(&args, settings, app, std::ptr::null_mut()) == 1 }
+}
+
+/// See [cef_run_message_loop] for more documentation.
+pub fn run_message_loop() {
+    unsafe { cef_run_message_loop() }
+}
+
+/// See [cef_shutdown] for more documentation.
+pub fn shutdown() {
+    unsafe { cef_shutdown() }
 }
 
 extern "C" fn on_before_command_line_processing<I: App>(

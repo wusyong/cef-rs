@@ -1,6 +1,7 @@
 # cef-rs changelog
 
 - Update crate documentation.
+- Add `run_message_loop` adn `shutdown`
 
 ## 117.2.6
 
