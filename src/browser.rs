@@ -135,7 +135,7 @@ pub fn create_browser<T: Client>(
 
 /// See [cef_browser_view_t] for more documentation.
 #[derive(Debug, Clone)]
-pub struct BrowserView(RefGuard<cef_browser_view_t>);
+pub struct BrowserView(pub(crate) RefGuard<cef_browser_view_t>);
 
 impl BrowserView {
     pub fn get_view(&self) -> View {

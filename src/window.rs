@@ -5,6 +5,7 @@ use cef_sys::{
 };
 
 use crate::{
+    add_view_delegate_methods,
     panel::{Panel, PanelDelegate},
     rc::{RcImpl, RefGuard},
     string::CefString,
@@ -63,7 +64,7 @@ impl WindowInfo {
 
 /// See [cef_window_t] for more documentation.
 #[derive(Debug, Clone)]
-pub struct Window(RefGuard<cef_window_t>);
+pub struct Window(pub RefGuard<cef_window_t>);
 
 impl Window {
     pub fn get_panel(&self) -> Panel {
@@ -95,12 +96,9 @@ pub trait WindowDelegate: PanelDelegate {
     fn into_raw(self) -> *mut cef_window_delegate_t {
         let mut object: cef_window_delegate_t = unsafe { std::mem::zeroed() };
 
-        // FIXME: We manually add this since not many types have deep inherency.
-        // But if this becomes tedious we need to DRY.
+        // Panal delegate doesn't have any methods. So we skip to view.
         let view = &mut object.base.base;
-        view.on_parent_view_changed = Some(crate::on_parent_view_changed::<Self>);
-        view.on_child_view_changed = Some(crate::on_child_view_changed::<Self>);
-        view.on_window_changed = Some(crate::on_window_changed::<Self>);
+        add_view_delegate_methods!(view);
 
         object.on_window_created = Some(on_window_created::<Self>);
         object.on_window_closing = Some(on_window_closing::<Self>);
