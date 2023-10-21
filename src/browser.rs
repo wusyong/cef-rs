@@ -138,7 +138,7 @@ pub fn create_browser<T: Client>(
 pub struct BrowserView(RefGuard<cef_browser_view_t>);
 
 impl BrowserView {
-    pub fn as_view(&self) -> View {
+    pub fn get_view(&self) -> View {
         unsafe { View(self.0.convert()) }
     }
 }

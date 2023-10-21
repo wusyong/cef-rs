@@ -88,6 +88,8 @@ pub mod string;
 mod view;
 mod window;
 
+pub use cef_sys as sys;
+
 pub use app::*;
 pub use browser::*;
 pub use command_line::*;

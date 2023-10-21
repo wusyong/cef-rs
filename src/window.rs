@@ -70,6 +70,12 @@ impl Window {
         unsafe { Panel(self.0.convert()) }
     }
 
+    pub fn close(&self) {
+        unsafe {
+            self.0.close.map(|f| f(self.0.get_raw()));
+        }
+    }
+
     pub fn show(&self) {
         unsafe {
             self.0.show.map(|f| f(self.0.get_raw()));
@@ -88,6 +94,13 @@ pub trait WindowDelegate: PanelDelegate {
 
     fn into_raw(self) -> *mut cef_window_delegate_t {
         let mut object: cef_window_delegate_t = unsafe { std::mem::zeroed() };
+
+        // FIXME: We manually add this since not many types have deep inherency.
+        // But if this becomes tedious we need to DRY.
+        let view = &mut object.base.base;
+        view.on_parent_view_changed = Some(crate::on_parent_view_changed::<Self>);
+        view.on_child_view_changed = Some(crate::on_child_view_changed::<Self>);
+        view.on_window_changed = Some(crate::on_window_changed::<Self>);
 
         object.on_window_created = Some(on_window_created::<Self>);
         object.on_window_closing = Some(on_window_closing::<Self>);

@@ -9,7 +9,7 @@
 //!  
 //! ## If raw cef type is a simple struct with basic fields
 //! For example like [`cef_settings_t`], just create a struct like [`Settings`] and define a method
-//! `into_raw` that can convert to raw cef type.
+//! `get_raw` that can create the raw cef type.
 //!
 //! ## If raw cef type has [`cef_base_ref_counted_t`]...
 //!
@@ -17,8 +17,8 @@
 //!
 //! For example like [`cef_app_t`], Define a trait like [`App`] with trait bound of [`Sized`].
 //! We define a trampoline function withthe same signature, and then define a trait method like
-//! [`App::on_before_command_line_processing`]. Finally, define a trait method [`into_raw`] that can
-//! create raw cef type with reference counted. In the implementation of [`into_raw`], create the raw
+//! [`App::on_before_command_line_processing`]. Finally, define a trait method [`get_raw`] that can
+//! create raw cef type with reference counted. In the implementation of [`get_raw`], create the raw
 //! cef type by `unsafe { std::mem::zeroed }` first. And then fill each field by adding the
 //! trampoline function. Return the value by calling [`RcImpl::new`]. This is the wrapper to add
 //! [`cef_base_ref_counted_t`] to the type, so the trampoline function can call [`RcImpl::get`] to
@@ -35,7 +35,7 @@
 //! [`Settings`]: crate::Settings
 //! [`App`]: crate::App
 //! [`App::on_before_command_line_processing`]: crate::App::on_before_command_line_processing
-//! [`to_raw`]: crate::App::to_raw
+//! [`get_raw`]: crate::App::get_raw
 //! [`cef_command_line_t`]: cef_sys::cef_command_line_t
 //! [`CommandLine`]: crate::CommandLine
 
