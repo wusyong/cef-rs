@@ -103,9 +103,8 @@ extern "C" fn on_window_created<I: WindowDelegate>(
     window: *mut cef_window_t,
 ) {
     let obj: &mut RcImpl<_, I> = RcImpl::get(this);
-    let window = Window(RefGuard::from_raw(window));
+    let window = Window(unsafe { RefGuard::from_raw(window) });
     obj.interface.on_window_created(&window);
-    window.0.into_raw();
 }
 
 extern "C" fn on_window_closing<I: WindowDelegate>(
@@ -113,9 +112,8 @@ extern "C" fn on_window_closing<I: WindowDelegate>(
     window: *mut cef_window_t,
 ) {
     let obj: &mut RcImpl<_, I> = RcImpl::get(this);
-    let window = Window(RefGuard::from_raw(window));
+    let window = Window(unsafe { RefGuard::from_raw(window) });
     obj.interface.on_window_closing(&window);
-    window.0.into_raw();
 }
 
 extern "C" fn on_window_destroyed<I: WindowDelegate>(
@@ -123,9 +121,8 @@ extern "C" fn on_window_destroyed<I: WindowDelegate>(
     window: *mut cef_window_t,
 ) {
     let obj: &mut RcImpl<_, I> = RcImpl::get(this);
-    let window = Window(RefGuard::from_raw(window));
+    let window = Window(unsafe { RefGuard::from_raw(window) });
     obj.interface.on_window_destroyed(&window);
-    window.0.into_raw();
 }
 
 extern "C" fn can_close<I: WindowDelegate>(
@@ -133,13 +130,12 @@ extern "C" fn can_close<I: WindowDelegate>(
     window: *mut cef_window_t,
 ) -> i32 {
     let obj: &mut RcImpl<_, I> = RcImpl::get(this);
-    let window = Window(RefGuard::from_raw(window));
+    let window = Window(unsafe { RefGuard::from_raw(window) });
     let result = obj.interface.can_close(&window);
-    window.0.into_raw();
     result as i32
 }
 
 pub fn create_top_level_window(delegate: impl WindowDelegate) -> Window {
     let window = unsafe { cef_window_create_top_level(WindowDelegate::into_raw(delegate)) };
-    Window(RefGuard::from_raw(window))
+    Window(unsafe { RefGuard::from_raw(window) })
 }

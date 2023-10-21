@@ -10,7 +10,7 @@ impl CommandLine {
         if raw.is_null() {
             None
         } else {
-            Some(CommandLine(RefGuard::from_raw(raw)))
+            Some(CommandLine(unsafe { RefGuard::from_raw(raw) }))
         }
     }
 

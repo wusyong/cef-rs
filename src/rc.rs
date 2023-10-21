@@ -168,11 +168,15 @@ pub struct RefGuard<T: Rc> {
 }
 
 impl<T: Rc> RefGuard<T> {
-    pub fn from_raw(ptr: *mut T) -> RefGuard<T> {
+    /// Create [RefGuard] from a raw C pointer. This should be used to get the return value of the
+    /// function that is passed by `Wrap`. This means we get the ownership of the value from function call.
+    pub unsafe fn from_raw(ptr: *mut T) -> RefGuard<T> {
         RefGuard { object: ptr }
     }
 
-    pub fn from_raw_add_ref(ptr: *mut T) -> RefGuard<T> {
+    /// Create [RefGuard] from a raw C pointer and increase a reference count. This should be used
+    /// when you want to copy the value and create another wrapper type.
+    pub unsafe fn from_raw_add_ref(ptr: *mut T) -> RefGuard<T> {
         let guard = RefGuard { object: ptr };
 
         guard.add_ref();
@@ -180,12 +184,17 @@ impl<T: Rc> RefGuard<T> {
         guard
     }
 
-    pub fn into_raw(self) -> *mut T {
+    /// Consume the [RefGuard] and return the raw pointer without decrease the reference count.
+    /// This should used when the paramter of the function is passed by `Unwrap`. This means we pass
+    /// the ownership of the value to the function call.
+    pub unsafe fn into_raw(self) -> *mut T {
         let ptr = unsafe { self.get_raw() };
         std::mem::forget(self);
         ptr
     }
 
+    // Get the raw pointer of [RefGuard]. This should be used when the parameter of the function is
+    // passed by `Get`. This means we pass the reference of the value.
     pub unsafe fn get_raw(&self) -> *mut T {
         self.object
     }

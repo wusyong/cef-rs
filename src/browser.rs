@@ -5,13 +5,7 @@ use cef_sys::{
     cef_browser_view_t,
 };
 
-use crate::{
-    client::Client,
-    rc::{Rc, RefGuard},
-    string::CefString,
-    window::WindowInfo,
-    State, View,
-};
+use crate::{client::Client, rc::RefGuard, string::CefString, window::WindowInfo, State, View};
 
 /// See [cef_browser_settings_t] for more documentation.
 #[derive(Debug, Clone)]
@@ -169,5 +163,5 @@ pub fn create_browser_view<T: Client>(
         )
     };
 
-    BrowserView(RefGuard::from_raw(view))
+    BrowserView(unsafe { RefGuard::from_raw(view) })
 }

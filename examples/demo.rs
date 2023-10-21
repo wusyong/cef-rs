@@ -1,5 +1,5 @@
 use cef::{
-    args::Args, client::Client, rc::Rc, string::CefString, App, BrowserSettings, BrowserView,
+    args::Args, client::Client, string::CefString, App, BrowserSettings, BrowserView,
     PanelDelegate, Settings, ViewDelegate, Window, WindowDelegate, WindowInfo,
 };
 
@@ -27,11 +27,13 @@ impl WindowDelegate for DemoWindow {
             .as_panel()
             .add_child_view(self.browser_view.as_view());
         window.show();
-        self.window = Some(window.clone());
+        // self.window = Some(window.clone());
     }
 
     fn on_window_destroyed(&mut self, _window: &cef::Window) {
-        self.window = None;
+        // self.window = None;
+        // dbg!(self.browser_view.0.has_one_ref());
+        unsafe { cef_sys::cef_quit_message_loop() };
     }
 }
 
@@ -58,7 +60,8 @@ fn main() {
         browser_view,
         window: None,
     };
-    dbg!(cef::create_top_level_window(delegate));
+
+    let x = dbg!(cef::create_top_level_window(delegate));
 
     // dbg!(cef::create_browser(
     //     window_info,
@@ -68,6 +71,7 @@ fn main() {
     // ));
 
     cef::run_message_loop();
+    // dbg!(x.0.has_one_ref());
 
     cef::shutdown();
 }
