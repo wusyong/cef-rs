@@ -48,9 +48,9 @@ impl WindowInfo {
         Self::default()
     }
 
-    pub fn into_raw(self) -> cef_window_info_t {
+    pub fn get_raw(self) -> cef_window_info_t {
         cef_window_info_t {
-            window_name: self.window_name.into_raw(),
+            window_name: self.window_name.get_raw(),
             bounds: self.bounds,
             parent_window: self.parent_window,
             windowless_rendering_enabled: self.windowless_rendering_enabled as c_int,
@@ -66,7 +66,7 @@ impl WindowInfo {
 pub struct Window(RefGuard<cef_window_t>);
 
 impl Window {
-    pub fn as_panel(&self) -> Panel {
+    pub fn get_panel(&self) -> Panel {
         unsafe { Panel(self.0.convert()) }
     }
 

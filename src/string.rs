@@ -14,6 +14,7 @@ use cef_sys::{
     cef_string_list_t, cef_string_map_t, cef_string_userfree_utf16_t, cef_string_utf16_t,
 };
 use std::collections::HashMap;
+use std::ops::Deref;
 use std::ptr::null_mut;
 use widestring::U16CString;
 
@@ -51,20 +52,13 @@ impl CefString {
         res
     }
 
-    pub fn into_raw(self) -> cef_string_utf16_t {
-        extern "C" fn free_str(ptr: *mut u16) {
-            if !ptr.is_null() {
-                unsafe {
-                    // Restore and drop
-                    let _ = U16CString::from_raw(ptr);
-                }
-            }
-        }
-
+    /// Get raw [cef_string_utf16_t] which doesn't have the ownership of the value.
+    /// This should be used when you need to pass the `*const cef_string_utf16_t` to the function.
+    pub fn get_raw(&self) -> cef_string_utf16_t {
         cef_string_utf16_t {
             length: self.0.len(),
-            str_: self.0.into_raw(),
-            dtor: Some(free_str),
+            str_: self.0.as_ptr() as *mut _,
+            dtor: None,
         }
     }
 }
@@ -75,33 +69,33 @@ impl ToString for CefString {
     }
 }
 
-pub fn str_to_cef(s: &str) -> cef_string_utf16_t {
-    CefString::new(s).into_raw()
-}
+// pub fn str_to_cef(s: &str) -> cef_string_utf16_t {
+//     CefString::new(s).get_raw()
+// }
 
-pub unsafe fn parse_string_list(ptr: cef_string_list_t) -> Vec<String> {
-    let count = cef_sys::cef_string_list_size(ptr);
-    let mut res = Vec::with_capacity(count);
-    for i in 0..count {
-        let value = null_mut();
-        if cef_sys::cef_string_list_value(ptr, i, value) > 0 {
-            CefString::from_raw(value).map(|v| res.push(v.to_string()));
-        }
-    }
-    res
-}
+// pub unsafe fn parse_string_list(ptr: cef_string_list_t) -> Vec<String> {
+//     let count = cef_sys::cef_string_list_size(ptr);
+//     let mut res = Vec::with_capacity(count);
+//     for i in 0..count {
+//         let value = null_mut();
+//         if cef_sys::cef_string_list_value(ptr, i, value) > 0 {
+//             CefString::from_raw(value).map(|v| res.push(v.to_string()));
+//         }
+//     }
+//     res
+// }
 
-pub unsafe fn parse_string_map(ptr: cef_string_map_t) -> HashMap<String, String> {
-    let count = cef_sys::cef_string_map_size(ptr);
-    let mut res = HashMap::with_capacity(count);
-    for i in 0..count {
-        let key = null_mut();
-        let value = null_mut();
-        cef_sys::cef_string_map_key(ptr, i, key);
-        cef_sys::cef_string_map_value(ptr, i, value);
+// pub unsafe fn parse_string_map(ptr: cef_string_map_t) -> HashMap<String, String> {
+//     let count = cef_sys::cef_string_map_size(ptr);
+//     let mut res = HashMap::with_capacity(count);
+//     for i in 0..count {
+//         let key = null_mut();
+//         let value = null_mut();
+//         cef_sys::cef_string_map_key(ptr, i, key);
+//         cef_sys::cef_string_map_value(ptr, i, value);
 
-        CefString::from_raw(key)
-            .map(|k| CefString::from_raw(value).map(|v| res.insert(k.to_string(), v.to_string())));
-    }
-    res
-}
+//         CefString::from_raw(key)
+//             .map(|k| CefString::from_raw(value).map(|v| res.insert(k.to_string(), v.to_string())));
+//     }
+//     res
+// }

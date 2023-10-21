@@ -36,14 +36,14 @@ pub fn execute_process<T: App>(args: &Args, app: Option<T>) -> i32 {
 }
 
 /// See [cef_initialize] for more documentation.
-pub fn initialize<T: App>(args: &Args, settings: Settings, app: Option<T>) -> bool {
+pub fn initialize<T: App>(args: &Args, settings: &Settings, app: Option<T>) -> bool {
     let args = args.to_raw();
-    let settings = &settings.into_raw() as *const _;
+    let settings = settings.get_raw();
     let app = app
         .map(|app| app.into_raw())
         .unwrap_or(std::ptr::null_mut());
 
-    unsafe { cef_initialize(&args, settings, app, std::ptr::null_mut()) == 1 }
+    unsafe { cef_initialize(&args, &settings, app, std::ptr::null_mut()) == 1 }
 }
 
 /// See [cef_run_message_loop] for more documentation.

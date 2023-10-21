@@ -78,21 +78,21 @@ impl BrowserSettings {
         Self::default()
     }
 
-    pub fn into_raw(self) -> cef_browser_settings_t {
+    pub fn get_raw(self) -> cef_browser_settings_t {
         cef_browser_settings_t {
             size: std::mem::size_of::<cef_browser_settings_t>(),
             windowless_frame_rate: self.windowless_frame_rate as c_int,
-            standard_font_family: self.standard_font_family.into_raw(),
-            fixed_font_family: self.fixed_font_family.into_raw(),
-            serif_font_family: self.serif_font_family.into_raw(),
-            sans_serif_font_family: self.sans_serif_font_family.into_raw(),
-            cursive_font_family: self.cursive_font_family.into_raw(),
-            fantasy_font_family: self.fantasy_font_family.into_raw(),
+            standard_font_family: self.standard_font_family.get_raw(),
+            fixed_font_family: self.fixed_font_family.get_raw(),
+            serif_font_family: self.serif_font_family.get_raw(),
+            sans_serif_font_family: self.sans_serif_font_family.get_raw(),
+            cursive_font_family: self.cursive_font_family.get_raw(),
+            fantasy_font_family: self.fantasy_font_family.get_raw(),
             default_font_size: self.default_font_size as c_int,
             default_fixed_font_size: self.default_fixed_font_size as c_int,
             minimum_font_size: self.minimum_font_size as c_int,
             minimum_logical_font_size: self.minimum_logical_font_size as c_int,
-            default_encoding: self.default_encoding.into_raw(),
+            default_encoding: self.default_encoding.get_raw(),
             remote_fonts: self.remote_fonts,
             javascript: self.javascript,
             javascript_close_windows: self.javascript_close_windows,
@@ -106,7 +106,7 @@ impl BrowserSettings {
             databases: self.databases,
             webgl: self.webgl,
             background_color: self.background_color,
-            accept_language_list: self.accept_language_list.into_raw(),
+            accept_language_list: self.accept_language_list.get_raw(),
             chrome_status_bubble: self.chrome_status_bubble,
         }
     }
@@ -123,10 +123,10 @@ pub fn create_browser<T: Client>(
 
     unsafe {
         cef_browser_host_create_browser(
-            &window_info.into_raw(),
+            &window_info.get_raw(),
             client,
-            &url.into_raw(),
-            &settings.into_raw(),
+            &url.get_raw(),
+            &settings.get_raw(),
             null_mut(),
             null_mut(),
         )
@@ -155,8 +155,8 @@ pub fn create_browser_view<T: Client>(
     let view = unsafe {
         cef_browser_view_create(
             client,
-            &url.into_raw(),
-            &settings.into_raw(),
+            &url.get_raw(),
+            &settings.get_raw(),
             null_mut(),
             null_mut(),
             null_mut(),
