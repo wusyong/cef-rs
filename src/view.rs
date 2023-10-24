@@ -3,6 +3,7 @@ use std::ffi::c_int;
 use cef_sys::{cef_view_delegate_t, cef_view_t};
 
 use crate::{
+    impl_rc,
     rc::{RcImpl, RefGuard},
     BrowserView, Panel,
 };
@@ -10,6 +11,8 @@ use crate::{
 /// See [cef_view_t] for more documentation.
 #[derive(Debug, Clone)]
 pub struct View(pub(crate) RefGuard<cef_view_t>);
+
+impl_rc!(View, cef_view_t);
 
 impl View {
     pub fn as_browser_view(&self) -> Option<BrowserView> {

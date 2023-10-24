@@ -1,6 +1,6 @@
 use cef::{
-    args::Args, client::Client, string::CefString, App, BrowserSettings, BrowserView,
-    PanelDelegate, Settings, ViewDelegate, WindowDelegate, rc::Rc,
+    args::Args, client::Client, rc::Rc, string::CefString, App, BrowserSettings, BrowserView,
+    PanelDelegate, Settings, ViewDelegate, WindowDelegate,
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -20,7 +20,7 @@ struct DemoWindow {
 
 impl ViewDelegate for DemoWindow {
     fn on_child_view_changed(&mut self, view: &cef::View, _added: bool, _child: &cef::View) {
-        view.as_panel().map(|x| x.as_window().map(|w| w.close()));
+        // view.as_panel().map(|x| x.as_window().map(|w| w.close()));
     }
 }
 impl PanelDelegate for DemoWindow {}
@@ -41,10 +41,10 @@ fn main() {
     let args = Args::new(std::env::args());
     // dbg!(&args);
     let app = Application;
-    dbg!(cef::execute_process(&args, Some(app)));
-
     let settings = Settings::new();
     dbg!(cef::initialize(&args, &settings, Some(app)));
+    dbg!(cef::execute_process(&args, Some(app)));
+
     // let window_info = WindowInfo::new();
     let browser_settings = BrowserSettings::new();
     let client = DemoClient;

@@ -5,7 +5,7 @@ use cef_sys::{
 };
 
 use crate::{
-    add_view_delegate_methods,
+    add_view_delegate_methods, impl_rc,
     panel::{Panel, PanelDelegate},
     rc::{RcImpl, RefGuard},
     string::CefString,
@@ -65,6 +65,8 @@ impl WindowInfo {
 /// See [cef_window_t] for more documentation.
 #[derive(Debug, Clone)]
 pub struct Window(pub RefGuard<cef_window_t>);
+
+impl_rc!(Window, cef_window_t, base, base);
 
 impl Window {
     pub fn get_panel(&self) -> Panel {

@@ -1,7 +1,7 @@
 use cef_sys::{cef_panel_delegate_t, cef_panel_t};
 
 use crate::{
-    add_view_delegate_methods,
+    add_view_delegate_methods, impl_rc,
     rc::{RcImpl, RefGuard},
     view::View,
     ViewDelegate, Window,
@@ -10,6 +10,8 @@ use crate::{
 /// See [cef_panel_t] for more documentation.
 #[derive(Debug, Clone)]
 pub struct Panel(pub(crate) RefGuard<cef_panel_t>);
+
+impl_rc!(Panel, cef_panel_t, base);
 
 impl Panel {
     pub fn add_child_view(&self, view: View) {
