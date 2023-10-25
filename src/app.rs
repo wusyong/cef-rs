@@ -12,7 +12,7 @@ pub trait App: Sized {
     fn on_before_command_line_processing(
         &self,
         _process_type: Option<CefString>,
-        _command_line: Option<CommandLine>,
+        _command_line: CommandLine,
     ) {
     }
 
@@ -68,7 +68,7 @@ extern "C" fn on_before_command_line_processing<I: App>(
 ) {
     let obj: &mut RcImpl<_, I> = RcImpl::get(this);
     let process_type = CefString::from_raw(process_type);
-    let cmd = CommandLine::from_raw(command_line);
+    let cmd = unsafe { CommandLine::from_raw(command_line) };
 
     obj.interface
         .on_before_command_line_processing(process_type, cmd);

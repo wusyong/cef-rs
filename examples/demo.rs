@@ -19,20 +19,20 @@ struct DemoWindow {
 }
 
 impl ViewDelegate for DemoWindow {
-    fn on_child_view_changed(&mut self, view: &cef::View, _added: bool, _child: &cef::View) {
+    fn on_child_view_changed(&self, view: cef::View, _added: bool, _child: cef::View) {
         // view.as_panel().map(|x| x.as_window().map(|w| w.close()));
     }
 }
 impl PanelDelegate for DemoWindow {}
 impl WindowDelegate for DemoWindow {
-    fn on_window_created(&mut self, window: &cef::Window) {
+    fn on_window_created(&self, window: cef::Window) {
         window
             .get_panel()
             .add_child_view(self.browser_view.get_view());
         window.show();
     }
 
-    fn on_window_destroyed(&mut self, _window: &cef::Window) {
+    fn on_window_destroyed(&self, _window: cef::Window) {
         cef::quit_message_loop();
     }
 }
@@ -66,7 +66,7 @@ fn main() {
     // ));
 
     cef::run_message_loop();
-    dbg!(x.0.has_one_ref());
+    dbg!(x.has_one_ref());
 
     cef::shutdown();
 }

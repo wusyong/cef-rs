@@ -6,7 +6,7 @@ use cef_sys::{
 };
 
 use crate::{
-    client::Client, impl_rc, rc::RefGuard, string::CefString, window::WindowInfo, State, View,
+    client::Client, rc::RefGuard, string::CefString, window::WindowInfo, wrapper, State, View,
 };
 
 /// See [cef_browser_settings_t] for more documentation.
@@ -135,11 +135,11 @@ pub fn create_browser<T: Client>(
     }
 }
 
-/// See [cef_browser_view_t] for more documentation.
-#[derive(Debug, Clone)]
-pub struct BrowserView(pub(crate) RefGuard<cef_browser_view_t>);
-
-impl_rc!(BrowserView, cef_browser_view_t, base);
+wrapper!(
+    #[doc = "See [cef_browser_view_t] for more documentation."]
+    #[derive(Debug, Clone)]
+    pub struct BrowserView(cef_browser_view_t);
+);
 
 impl BrowserView {
     pub fn get_view(&self) -> View {
@@ -167,5 +167,5 @@ pub fn create_browser_view<T: Client>(
         )
     };
 
-    BrowserView(unsafe { RefGuard::from_raw(view) })
+    unsafe { BrowserView::from_raw(view) }
 }

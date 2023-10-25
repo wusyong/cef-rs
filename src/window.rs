@@ -5,11 +5,11 @@ use cef_sys::{
 };
 
 use crate::{
-    add_view_delegate_methods, impl_rc,
+    add_view_delegate_methods,
     panel::{Panel, PanelDelegate},
     rc::{RcImpl, RefGuard},
     string::CefString,
-    Rect,
+    wrapper, Rect,
 };
 
 /// See [cef_window_info_t] for more documentation.
@@ -62,36 +62,26 @@ impl WindowInfo {
     }
 }
 
-/// See [cef_window_t] for more documentation.
-#[derive(Debug, Clone)]
-pub struct Window(pub RefGuard<cef_window_t>);
-
-impl_rc!(Window, cef_window_t, base, base);
+wrapper!(
+    #[doc = "See [cef_window_t] for more documentation."]
+    #[derive(Debug, Clone)]
+    pub struct Window(cef_window_t);
+    pub fn close(&self);
+    pub fn show(&self);
+);
 
 impl Window {
     pub fn get_panel(&self) -> Panel {
         unsafe { Panel(self.0.convert()) }
     }
-
-    pub fn close(&self) {
-        unsafe {
-            self.0.close.map(|f| f(self.0.get_raw()));
-        }
-    }
-
-    pub fn show(&self) {
-        unsafe {
-            self.0.show.map(|f| f(self.0.get_raw()));
-        }
-    }
 }
 
 /// See [cef_window_delegate_t] for more documentation.
 pub trait WindowDelegate: PanelDelegate {
-    fn on_window_created(&mut self, _window: &Window) {}
-    fn on_window_closing(&mut self, _window: &Window) {}
-    fn on_window_destroyed(&mut self, _window: &Window) {}
-    fn can_close(&mut self, _window: &Window) -> bool {
+    fn on_window_created(&self, _window: Window) {}
+    fn on_window_closing(&self, _window: Window) {}
+    fn on_window_destroyed(&self, _window: Window) {}
+    fn can_close(&mut self, _window: Window) -> bool {
         true
     }
 
@@ -115,9 +105,9 @@ extern "C" fn on_window_created<I: WindowDelegate>(
     this: *mut cef_window_delegate_t,
     window: *mut cef_window_t,
 ) {
-    let obj: &mut RcImpl<_, I> = RcImpl::get(this);
+    let obj: &RcImpl<_, I> = RcImpl::get(this);
     let window = Window(unsafe { RefGuard::from_raw(window) });
-    obj.interface.on_window_created(&window);
+    obj.interface.on_window_created(window);
 }
 
 extern "C" fn on_window_closing<I: WindowDelegate>(
@@ -126,7 +116,7 @@ extern "C" fn on_window_closing<I: WindowDelegate>(
 ) {
     let obj: &mut RcImpl<_, I> = RcImpl::get(this);
     let window = Window(unsafe { RefGuard::from_raw(window) });
-    obj.interface.on_window_closing(&window);
+    obj.interface.on_window_closing(window);
 }
 
 extern "C" fn on_window_destroyed<I: WindowDelegate>(
@@ -135,7 +125,7 @@ extern "C" fn on_window_destroyed<I: WindowDelegate>(
 ) {
     let obj: &mut RcImpl<_, I> = RcImpl::get(this);
     let window = Window(unsafe { RefGuard::from_raw(window) });
-    obj.interface.on_window_destroyed(&window);
+    obj.interface.on_window_destroyed(window);
 }
 
 extern "C" fn can_close<I: WindowDelegate>(
@@ -144,7 +134,7 @@ extern "C" fn can_close<I: WindowDelegate>(
 ) -> i32 {
     let obj: &mut RcImpl<_, I> = RcImpl::get(this);
     let window = Window(unsafe { RefGuard::from_raw(window) });
-    let result = obj.interface.can_close(&window);
+    let result = obj.interface.can_close(window);
     result as i32
 }
 

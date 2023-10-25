@@ -118,11 +118,46 @@ impl Rc for cef_base_ref_counted_t {
 }
 
 #[macro_export]
-macro_rules! impl_rc {
-    ($name:ident, $sys:ident $(,$field:ident)*) => {
-        impl crate::rc::Rc for cef_sys::$sys {
+macro_rules! gen_fn {
+    ($visibility:vis fn $method:ident(
+        $($arg:ident: $t:ty)*)
+    $(-> $($n:ident)?$value:ty)?) => {
+        $visibility fn $method(&self $(,$a: $t)*) $(-> $value)? {
+            unsafe {
+                let _result = self.0.$method.map(|f|
+                    f(self.0.get_raw() $(,crate::gen_fn!($c $arg))*)
+                );
+
+                $(crate::gen_fn!(return $($n)? _result))?
+            }
+        }
+    };
+    (into $arg:ident) => {
+        $arg.0.into_raw()
+    };
+    (return $result:ident) => {
+        $result
+            .filter(|p| p.is_null())
+            .map(|p| BrowserView(RefGuard::from_raw(p)))
+    }
+}
+
+#[macro_export]
+macro_rules! wrapper {
+    (
+    $(#[$attr:meta])*
+    pub struct $name:ident($sys:ident);
+    $($visibility:vis fn $method:ident(
+        &self
+        $(,$arg:ident: [$ref:ident] $type:ty)*)
+    $(->$value:ty)?;)*
+    ) => {
+        $(#[$attr])*
+        pub struct $name(pub(crate) crate::rc::RefGuard<$sys>);
+
+        impl crate::rc::Rc for $sys {
             fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
-                &self$(.$field)*.base
+                &self.base.as_base()
             }
         }
 
@@ -131,9 +166,24 @@ macro_rules! impl_rc {
                 self.0.as_base()
             }
         }
+
+        impl $name {
+            pub unsafe fn from_raw(ptr: *mut $sys) -> Self {
+                Self(RefGuard::from_raw(ptr))
+            }
+
+            pub unsafe fn into_raw(self) -> *mut $sys {
+                self.0.into_raw()
+            }
+
+            $(crate::gen_fn!($visibility fn $method(
+                $($arg: $ref $type)*
+            )$(-> $value)?);)*
+        }
     };
 }
-pub use impl_rc;
+pub use gen_fn;
+pub use wrapper;
 
 /// A smart pointer for types from cef library.
 #[derive(Debug)]
