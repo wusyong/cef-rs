@@ -20,8 +20,11 @@ Use CEF in Rust.
 - Copy files to `.local`:
 
 ```
+#need to flat Release and Resouces files.
+
 cp -r Resources ~/.local/share/cef
 cp -r Release ~/.local/share/cef
+
 ```
 
 - Build and run the application with `LD_LIBRARY_PATH` (or you can also add rpath to your cargo config or build script):

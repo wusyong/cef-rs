@@ -81,6 +81,7 @@ pub mod args;
 mod browser;
 pub mod client;
 mod command_line;
+mod keyboard;
 mod panel;
 pub mod rc;
 mod settings;

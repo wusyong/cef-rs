@@ -73,3 +73,9 @@ extern "C" fn on_before_command_line_processing<I: App>(
     obj.interface
         .on_before_command_line_processing(process_type, cmd);
 }
+
+
+#[derive(Debug, Clone, Copy)]
+pub struct CefApp;
+
+impl App for CefApp {}

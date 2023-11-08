@@ -1,0 +1,1 @@
+LD_LIBRARY_PATH=$HOME/.local/share/cef cargo r --example demo  -- -Z trace-macros

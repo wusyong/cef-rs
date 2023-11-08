@@ -66,13 +66,38 @@ wrapper!(
     #[doc = "See [cef_window_t] for more documentation."]
     #[derive(Debug, Clone)]
     pub struct Window(cef_window_t);
+    // method to close window
     pub fn close(&self);
+
     pub fn show(&self);
+    // method to hide window
+    pub fn hide(&self);
+
+    pub fn bring_to_top(&self);
+
+    /*  TODO: not work, to fixed */
+    //pub fn maximize(&self);
+
+    pub fn minimize(&self);
+
 );
 
 impl Window {
     pub fn get_panel(&self) -> Panel {
         unsafe { Panel(self.0.convert()) }
+    }
+
+    // implement _cef_window_t::set_fullscreen
+    pub fn set_fullscreen(&self) {
+        unsafe {
+            let cef_sys_win: RefGuard<cef_sys::_cef_window_t> = self.clone().0;
+            match cef_sys_win.set_fullscreen {
+                Some(cef_sys_fn)=>{
+                    cef_sys_fn(self.clone().into_raw(),1);
+                }
+                None=>{}
+            }
+        }
     }
 }
 

@@ -1,10 +1,13 @@
+#![feature(trace_macros)]
+#![feature(log_syntax)]
+
 use cef_sys::*;
 use std::{
     ffi::{c_char, CString},
     mem::size_of,
     ptr::*,
 };
-use winit::{event_loop::EventLoop, platform::x11::WindowExtX11, window::Window};
+use winit::{event_loop::EventLoop, platform::x11::WindowExtX11, window::{Window, Fullscreen}};
 
 fn main() {
     unsafe {
@@ -71,8 +74,9 @@ fn main() {
         };
         dbg!(cef_initialize(&arg, &settings, &mut app, null_mut()));
 
-        let el = EventLoop::new();
-        // let window = Window::new(&el).unwrap();
+        //let el = EventLoop::new();
+        //let window = Window::new(&el.unwrap()).unwrap();
+        //window.set_fullscreen(Some(Fullscreen::Borderless(None)));
         // let xid = window.xlib_window().unwrap();
         // dbg!(xid);
         let window_info = cef_window_info_t {
@@ -95,7 +99,7 @@ fn main() {
             window: 0,
         };
 
-        let url = CString::new("https://www.google.com").unwrap();
+        let url = CString::new("https://bing.com").unwrap();
         let len = url.as_bytes().len();
         let mut cef_url = cef_string_t {
             str_: null_mut(),
@@ -156,7 +160,7 @@ fn main() {
             get_frame_handler: None,
             get_permission_handler: None,
             get_jsdialog_handler: None,
-            get_keyboard_handler: None,
+            get_keyboard_handler: Some(get_keyboard_handler),
             get_life_span_handler: None,
             get_load_handler: None,
             get_print_handler: None,
