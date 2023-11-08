@@ -19,4 +19,4 @@ features = [ "dox" ]
 [dependencies]
 
 [dev-dependencies]
-winit = "0.28"
+winit = "0.29"

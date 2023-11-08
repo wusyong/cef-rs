@@ -1,12 +1,12 @@
 use std::{ffi::c_int, ptr::null_mut};
 
 use cef_sys::{
-    cef_browser_host_create_browser, cef_browser_settings_t, cef_browser_view_create,
-    cef_browser_view_t,
+    _cef_browser_host_t, _cef_browser_t, cef_browser_host_create_browser, cef_browser_host_t,
+    cef_browser_settings_t, cef_browser_t, cef_browser_view_create, cef_browser_view_t,
 };
 
 use crate::{
-    client::Client, rc::RefGuard, string::CefString, window::WindowInfo, wrapper, State, View,
+    client::ClientTrait, rc::RefGuard, string::CefString, window::WindowInfo, wrapper, State, View,
 };
 
 /// See [cef_browser_settings_t] for more documentation.
@@ -115,7 +115,7 @@ impl BrowserSettings {
 }
 
 /// See [cef_browser_host_create_browser] for more documentation.
-pub fn create_browser<T: Client>(
+pub fn create_browser<T: ClientTrait>(
     window_info: WindowInfo,
     client: Option<T>,
     url: CefString,
@@ -145,10 +145,35 @@ impl BrowserView {
     pub fn get_view(&self) -> View {
         unsafe { View(self.0.convert()) }
     }
+
+    pub fn get_browser(&self) -> Option<*mut cef_browser_t> {
+        unsafe {
+            let cef_sys_win: RefGuard<cef_sys::_cef_browser_view_t> = self.clone().0;
+            match cef_sys_win.get_browser {
+                Some(cef_sys_fn) => Some(cef_sys_fn(self.clone().0.into_raw())),
+                None => None,
+            }
+        }
+    }
+
+    pub fn get_host(&self) -> Option<*mut cef_browser_host_t> {
+        unsafe {
+            match self.get_browser() {
+                Some(brs) => match brs.as_ref() {
+                    Some(brv) => match brv.get_host {
+                        Some(cef_sys_fn) => Some(cef_sys_fn(brs)),
+                        None => None,
+                    },
+                    None => None,
+                },
+                None => None,
+            }
+        }
+    }
 }
 
 /// See [cef_browser_view_create] for more documentation.
-pub fn create_browser_view<T: Client>(
+pub fn create_browser_view<T: ClientTrait>(
     client: Option<T>,
     url: CefString,
     settings: BrowserSettings,
