@@ -37,8 +37,8 @@ pub struct BrowserSettings {
     pub databases: State,
     pub webgl: State,
     pub background_color: u32,
-    pub accept_language_list: CefString,
     pub chrome_status_bubble: State,
+    pub chrome_zoom_bubble: State,
 }
 
 impl Default for BrowserSettings {
@@ -69,8 +69,8 @@ impl Default for BrowserSettings {
             databases: State::STATE_DEFAULT,
             webgl: State::STATE_DEFAULT,
             background_color: Default::default(),
-            accept_language_list: Default::default(),
             chrome_status_bubble: State::STATE_DEFAULT,
+            chrome_zoom_bubble: State::STATE_DEFAULT,
         }
     }
 }
@@ -108,8 +108,8 @@ impl BrowserSettings {
             databases: self.databases,
             webgl: self.webgl,
             background_color: self.background_color,
-            accept_language_list: self.accept_language_list.get_raw(),
             chrome_status_bubble: self.chrome_status_bubble,
+            chrome_zoom_bubble: self.chrome_zoom_bubble,
         }
     }
 }
