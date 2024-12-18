@@ -30,7 +30,8 @@ fn main() -> Result<()> {
 
     println!("cef: {}", sys_bindings.display());
     println!("sys: {}", cef_bindings.display());
-    parse_tree::parse_bindings(&sys_bindings)?;
+    let tree = parse_tree::parse_bindings(&sys_bindings)?;
+    println!("\n{tree}");
 
     Ok(())
 }
