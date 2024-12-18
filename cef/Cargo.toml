@@ -1,6 +1,6 @@
 [package]
-name = "libcef-sys"
-description = "cef-rs sys crate"
+name = "cef"
+description = "Use cef in Rust"
 
 version.workspace = true
 edition.workspace = true
@@ -8,15 +8,16 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 
-[lib]
-name = "cef_sys"
-doctest = false
-
 [features]
-dox = []
+dox = ["cef-sys/dox"]
 
 [package.metadata.docs.rs]
 features = [ "dox" ]
 
+[dependencies]
+cef-sys.workspace = true
+widestring.workspace = true
+
 [dev-dependencies]
 winit.workspace = true
+

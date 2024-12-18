@@ -1,30 +1,24 @@
-[package]
-name = "cef"
-version = "117.2.6"
-edition = "2021"
-license = "Apache-2.0 OR MIT"
-authors = ["Wu Yu Wei <yuweiwu@pm.me>"]
-description = "Use cef in Rust"
-repository = "https://github.com/wusyong/cef-rs"
-readme = "README.md"
-
-[features]
-dox = ["cef-sys/dox"]
-
-[package.metadata.docs.rs]
-features = [ "dox" ]
-
 [workspace]
+resolver = "2"
+
 members = [
- "sys",
+    "cef",
+    "sys",
+    "update-bindings",
 ]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace.package]
+version = "131.3.4"
+edition = "2021"
+license = "Apache-2.0 OR MIT"
+authors = [
+    "Wu Yu Wei <yuweiwu@pm.me>",
+    "Bill Avery <wravery@gmail.com>",
+]
+repository = "https://github.com/wusyong/cef-rs"
 
-[dependencies]
+[workspace.dependencies]
 cef-sys = { package = "libcef-sys", version = "131.3.4", path = "sys" }
 widestring = "1.0"
-
-[dev-dependencies]
 winit = "0.30"
 
