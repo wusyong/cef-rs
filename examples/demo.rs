@@ -19,7 +19,7 @@ struct DemoWindow {
 }
 
 impl ViewDelegate for DemoWindow {
-    fn on_child_view_changed(&self, view: cef::View, _added: bool, _child: cef::View) {
+    fn on_child_view_changed(&self, _view: cef::View, _added: bool, _child: cef::View) {
         // view.as_panel().map(|x| x.as_window().map(|w| w.close()));
     }
 }

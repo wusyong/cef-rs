@@ -1,7 +1,8 @@
 use std::ffi::c_int;
 
 use cef_sys::{
-    cef_window_create_top_level, cef_window_delegate_t, cef_window_info_t, cef_window_t,
+    cef_runtime_style_t, cef_window_create_top_level, cef_window_delegate_t, cef_window_info_t,
+    cef_window_t,
 };
 
 use crate::{
@@ -23,6 +24,7 @@ pub struct WindowInfo {
     pub shared_texture_enabled: bool,
     pub external_begin_frame_enabled: bool,
     pub window: u64,
+    pub runtime_style: cef_runtime_style_t,
 }
 
 impl Default for WindowInfo {
@@ -40,6 +42,7 @@ impl Default for WindowInfo {
             shared_texture_enabled: false,
             external_begin_frame_enabled: false,
             window: 0,
+            runtime_style: cef_runtime_style_t::CEF_RUNTIME_STYLE_DEFAULT,
         }
     }
 }
@@ -58,6 +61,7 @@ impl WindowInfo {
             shared_texture_enabled: self.shared_texture_enabled as c_int,
             external_begin_frame_enabled: self.external_begin_frame_enabled as c_int,
             window: self.window,
+            runtime_style: self.runtime_style,
         }
     }
 }

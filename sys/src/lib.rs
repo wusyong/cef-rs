@@ -33,11 +33,16 @@ impl Default for cef_log_items_t {
     }
 }
 
-#[test]
-fn test_init() {
-    use std::ptr::*;
+#[cfg(test)]
+mod test {
+    use super::*;
 
-    unsafe {
-        assert_eq!(cef_initialize(null(), null(), null_mut(), null_mut()), 0);
-    };
+    #[test]
+    fn test_init() {
+        use std::ptr::*;
+
+        unsafe {
+            assert_eq!(cef_initialize(null(), null(), null_mut(), null_mut()), 0);
+        };
+    }
 }

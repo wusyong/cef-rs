@@ -41,6 +41,7 @@
 //! [`Window`]: crate::Window
 
 use std::{
+    fmt::Debug,
     ops::Deref,
     sync::atomic::{fence, AtomicUsize, Ordering},
 };
@@ -186,9 +187,15 @@ pub use gen_fn;
 pub use wrapper;
 
 /// A smart pointer for types from cef library.
-#[derive(Debug)]
 pub struct RefGuard<T: Rc> {
     object: *mut T,
+}
+
+impl<T: Debug + Rc> Debug for RefGuard<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let object_ref = unsafe { self.object.as_ref() };
+        write!(f, "RefGuard({object_ref:#?})")
+    }
 }
 
 impl<T: Rc> RefGuard<T> {

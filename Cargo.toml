@@ -22,9 +22,9 @@ members = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cef-sys = { package = "libcef-sys", version = "117.2.5", path = "sys" }
+cef-sys = { package = "libcef-sys", version = "131.3.4", path = "sys" }
 widestring = "1.0"
 
 [dev-dependencies]
-winit = "0.28"
+winit = "0.30"
 
