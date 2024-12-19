@@ -4,6 +4,10 @@ pub fn get_manifest_dir() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
+pub fn get_out_dir() -> PathBuf {
+    PathBuf::from(env!("OUT_DIR"))
+}
+
 pub fn get_sys_dir() -> crate::Result<PathBuf> {
     let manifest_dir = get_manifest_dir();
     let mut bindings_dir = get_manifest_dir().parent().map_or_else(

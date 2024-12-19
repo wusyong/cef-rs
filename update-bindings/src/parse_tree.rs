@@ -3,12 +3,14 @@
 use convert_case::{Boundary, Case, Casing};
 use core::error;
 use quote::{quote, ToTokens};
+use regex::Regex;
 use std::{
     collections::{BTreeMap, VecDeque},
     fmt::{Debug, Display},
     fs,
     io::{Read, Write},
     path::{Path, PathBuf},
+    sync::OnceLock,
 };
 
 #[derive(Debug, Error)]
@@ -48,7 +50,7 @@ impl Display for MethodDeclaration {
                 if arg.name == "self_" {
                     String::from("&self")
                 } else {
-                    format!("{}: {}", arg.name, arg.ty)
+                    format!("{}: {}", make_snake_case_value_name(&arg.name), arg.ty)
                 }
             })
             .collect::<Vec<_>>()
@@ -210,20 +212,49 @@ struct ParseTree {
 
 impl Display for ParseTree {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "//! ParseTree")?;
-        for (alias_name, alias_ty) in &self.type_aliases {
-            writeln!(f, "type {} = {};", alias_name, alias_ty)?;
+        let header = quote::quote! {
+            use crate::{
+                rc::{RcImpl, RefGuard},
+                string::CefString,
+                wrapper,
+            };
         }
+        .to_string();
+        writeln!(f, "{}", header)?;
+
+        for (alias_name, alias_ty) in &self.type_aliases {
+            let alias_name = make_rust_type_name(&alias_name).unwrap_or_else(|| alias_name.clone());
+            let alias_ty = make_rust_type_name(&alias_ty).unwrap_or_else(|| alias_ty.clone());
+            if alias_name != alias_ty {
+                writeln!(f, "type {} = {};", alias_name, alias_ty)?;
+            }
+        }
+
+        let wrappers: BTreeMap<_, _> = self
+            .structs
+            .iter()
+            .map(|s| {
+                (
+                    s.name.clone(),
+                    make_rust_type_name(&s.name).unwrap_or_else(|| s.name.clone()),
+                )
+            })
+            .collect();
+
         for StructDeclaration {
             name,
             fields,
             methods,
         } in &self.structs
         {
+            let Some(rust_name) = wrappers.get(name) else {
+                continue;
+            };
+
             if fields.is_empty() {
-                writeln!(f, "struct {name};")?;
+                writeln!(f, "pub type {rust_name} = cef_sys::{name};")?;
             } else {
-                writeln!(f, "struct {name} {{")?;
+                writeln!(f, "struct {rust_name} {{")?;
                 for field in fields {
                     writeln!(f, "{field}")?;
                 }
@@ -231,7 +262,7 @@ impl Display for ParseTree {
             }
 
             if !methods.is_empty() {
-                writeln!(f, "impl {name} {{")?;
+                writeln!(f, "impl {rust_name} {{")?;
                 for method in methods {
                     writeln!(f, "{method}")?;
                 }
@@ -239,7 +270,10 @@ impl Display for ParseTree {
             }
         }
         for enum_name in &self.enums {
-            writeln!(f, "enum {enum_name};")?;
+            let Some(rust_name) = make_rust_type_name(enum_name) else {
+                continue;
+            };
+            writeln!(f, "pub type {rust_name} = cef_sys::{enum_name};")?;
         }
         Ok(())
     }
@@ -257,8 +291,8 @@ impl TryFrom<&syn::File> for ParseTree {
                     let alias_ty = type_to_string(&item_type.ty);
                     tree.type_aliases.insert(alias_name, alias_ty);
                 }
-                syn::Item::Struct(item_struct) => {
-                    if let syn::Fields::Named(fields) = &item_struct.fields {
+                syn::Item::Struct(item_struct) => match &item_struct.fields {
+                    syn::Fields::Named(fields) => {
                         let mut struct_decl = StructDeclaration::default();
                         struct_decl.name = item_struct.ident.to_string();
                         for field in fields.named.iter() {
@@ -270,7 +304,11 @@ impl TryFrom<&syn::File> for ParseTree {
                         }
                         tree.structs.push(struct_decl);
                     }
-                }
+                    syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
+                        tree.enums.push(item_struct.ident.to_string());
+                    }
+                    _ => {}
+                },
                 syn::Item::Enum(syn::ItemEnum { ident, .. }) => {
                     tree.enums.push(ident.to_string());
                 }
@@ -281,15 +319,18 @@ impl TryFrom<&syn::File> for ParseTree {
     }
 }
 
-pub fn parse_bindings(source_path: &Path) -> crate::Result<String> {
+pub fn generate_bindings(source_path: &Path) -> crate::Result<PathBuf> {
     let bindings = read_bindings(source_path)?;
     let parsed = syn::parse_file(&bindings)?;
     let parse_tree = ParseTree::try_from(&parsed)?;
-    Ok(parse_tree.to_string())
-}
 
-fn type_to_string(ty: &syn::Type) -> String {
-    ty.to_token_stream().to_string()
+    let mut out_file = crate::dirs::get_out_dir();
+    out_file.push("bindings.rs");
+    let mut bindings = std::fs::File::create(&out_file)?;
+    write!(bindings, "{}", parse_tree)?;
+    format_bindings(&out_file)?;
+
+    Ok(out_file)
 }
 
 fn read_bindings(source_path: &Path) -> crate::Result<String> {
@@ -304,4 +345,65 @@ fn format_bindings(source_path: &Path) -> crate::Result<()> {
     cmd.arg(source_path);
     cmd.output()?;
     Ok(())
+}
+
+fn type_to_string(ty: &syn::Type) -> String {
+    match ty {
+        syn::Type::Path(syn::TypePath { qself: None, path }) => {
+            let name = path.to_token_stream().to_string();
+            make_rust_type_name(&name).unwrap_or(name)
+        }
+        syn::Type::Tuple(syn::TypeTuple { elems, .. }) => {
+            let elems = elems
+                .iter()
+                .map(|elem| type_to_string(elem))
+                .collect::<Vec<_>>()
+                .join(", ");
+            format!("({elems})")
+        }
+        syn::Type::Array(syn::TypeArray { elem, len, .. }) => {
+            let elem = type_to_string(elem);
+            let len = len.to_token_stream().to_string();
+            format!("[{elem}; {len}]")
+        }
+        syn::Type::Slice(syn::TypeSlice { elem, .. }) => {
+            let elem = type_to_string(elem);
+            format!("[{elem}]")
+        }
+        syn::Type::Ptr(syn::TypePtr {
+            const_token, elem, ..
+        }) => {
+            let rust_name = match elem.as_ref() {
+                syn::Type::Path(syn::TypePath { qself: None, path }) => {
+                    let name = path.to_token_stream().to_string();
+                    make_rust_type_name(&name)
+                }
+                _ => None,
+            };
+
+            match (rust_name, const_token) {
+                (Some(rust_name), _) => rust_name,
+                (None, Some(_)) => format!("*const {}", type_to_string(elem.as_ref())),
+                (None, None) => format!("*mut {}", type_to_string(elem.as_ref())),
+            }
+        }
+        _ => ty.to_token_stream().to_string(),
+    }
+}
+
+fn make_rust_type_name(name: &str) -> Option<String> {
+    static PATTERN: OnceLock<Regex> = OnceLock::new();
+    let pattern = PATTERN.get_or_init(|| Regex::new(r"_?cef_(\w+)_t").unwrap());
+    pattern
+        .captures(name)
+        .and_then(|captures| captures.get(1))
+        .map(|name| {
+            name.as_str()
+                .from_case(Case::Snake)
+                .to_case(Case::UpperCamel)
+        })
+}
+
+fn make_snake_case_value_name(name: &str) -> String {
+    name.from_case(Case::Camel).to_case(Case::Snake)
 }
