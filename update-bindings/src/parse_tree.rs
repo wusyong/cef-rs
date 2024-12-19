@@ -44,7 +44,13 @@ impl Display for MethodDeclaration {
         let args = self
             .args
             .iter()
-            .map(|arg| format!("{}: {}", arg.name, arg.ty))
+            .map(|arg| {
+                if arg.name == "self_" {
+                    String::from("&self")
+                } else {
+                    format!("{}: {}", arg.name, arg.ty)
+                }
+            })
             .collect::<Vec<_>>()
             .join(", ");
         let output = self
@@ -143,7 +149,7 @@ impl TryFrom<&syn::Field> for MethodDeclaration {
                 {
                     Some(MethodArgument {
                         name: name.to_string(),
-                        ty: ty.to_token_stream().to_string(),
+                        ty: type_to_string(ty),
                     })
                 } else {
                     None
@@ -151,7 +157,7 @@ impl TryFrom<&syn::Field> for MethodDeclaration {
             })
             .collect();
         let output = match output {
-            syn::ReturnType::Type(_, ty) => Some(ty.to_token_stream().to_string()),
+            syn::ReturnType::Type(_, ty) => Some(type_to_string(ty)),
             _ => None,
         };
 
@@ -182,7 +188,7 @@ impl TryFrom<&syn::Field> for FieldDeclaration {
             .as_ref()
             .ok_or(Unrecognized::FieldType)?
             .to_string();
-        let ty = value.ty.to_token_stream().to_string();
+        let ty = type_to_string(&value.ty);
 
         Ok(Self { name, ty })
     }
@@ -248,7 +254,7 @@ impl TryFrom<&syn::File> for ParseTree {
             match item {
                 syn::Item::Type(item_type) => {
                     let alias_name = item_type.ident.to_string();
-                    let alias_ty = item_type.ty.to_token_stream().to_string();
+                    let alias_ty = type_to_string(&item_type.ty);
                     tree.type_aliases.insert(alias_name, alias_ty);
                 }
                 syn::Item::Struct(item_struct) => {
@@ -280,6 +286,10 @@ pub fn parse_bindings(source_path: &Path) -> crate::Result<String> {
     let parsed = syn::parse_file(&bindings)?;
     let parse_tree = ParseTree::try_from(&parsed)?;
     Ok(parse_tree.to_string())
+}
+
+fn type_to_string(ty: &syn::Type) -> String {
+    ty.to_token_stream().to_string()
 }
 
 fn read_bindings(source_path: &Path) -> crate::Result<String> {
