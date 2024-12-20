@@ -9,6 +9,7 @@ use std::{
     fmt::{Debug, Display},
     fs,
     io::{Read, Write},
+    iter::Iterator,
     path::{Path, PathBuf},
     sync::OnceLock,
 };
@@ -30,12 +31,14 @@ pub enum Unrecognized {
 #[derive(Debug)]
 struct MethodArgument {
     name: String,
+    rust_name: String,
     ty: String,
 }
 
 #[derive(Debug)]
 struct MethodDeclaration {
     name: String,
+    original_name: Option<String>,
     args: Vec<MethodArgument>,
     output: Option<String>,
 }
@@ -50,7 +53,7 @@ impl Display for MethodDeclaration {
                 if arg.name == "self_" {
                     String::from("&self")
                 } else {
-                    format!("{}: {}", make_snake_case_value_name(&arg.name), arg.ty)
+                    format!("{}: {}", arg.rust_name, arg.ty)
                 }
             })
             .collect::<Vec<_>>()
@@ -60,7 +63,7 @@ impl Display for MethodDeclaration {
             .as_deref()
             .map(|output| format!(" -> {output}"))
             .unwrap_or_default();
-        writeln!(f, "    fn {name}({args}){output} {{}}")
+        write!(f, "pub fn {name}({args}){output}")
     }
 }
 
@@ -149,9 +152,13 @@ impl TryFrom<&syn::Field> for MethodDeclaration {
                     ..
                 } = arg
                 {
+                    let name = name.to_string();
+                    let rust_name = make_snake_case_value_name(&name);
+                    let ty = type_to_string(ty);
                     Some(MethodArgument {
-                        name: name.to_string(),
-                        ty: type_to_string(ty),
+                        name,
+                        rust_name,
+                        ty,
                     })
                 } else {
                     None
@@ -163,21 +170,27 @@ impl TryFrom<&syn::Field> for MethodDeclaration {
             _ => None,
         };
 
-        Ok(Self { name, args, output })
+        Ok(Self {
+            name,
+            original_name: None,
+            args,
+            output,
+        })
     }
 }
 
 #[derive(Debug)]
 struct FieldDeclaration {
     name: String,
+    rust_name: String,
     ty: String,
 }
 
 impl Display for FieldDeclaration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = &self.name;
+        let rust_name = &self.rust_name;
         let ty = &self.ty;
-        write!(f, "    {name}: {ty},")
+        write!(f, "pub {rust_name}: {ty},")
     }
 }
 
@@ -190,17 +203,51 @@ impl TryFrom<&syn::Field> for FieldDeclaration {
             .as_ref()
             .ok_or(Unrecognized::FieldType)?
             .to_string();
+        let rust_name = make_snake_case_value_name(&name);
         let ty = type_to_string(&value.ty);
 
-        Ok(Self { name, ty })
+        Ok(Self {
+            name,
+            rust_name,
+            ty,
+        })
     }
 }
 
 #[derive(Debug, Default)]
 struct StructDeclaration {
     name: String,
+    rust_name: Option<String>,
     fields: Vec<FieldDeclaration>,
     methods: Vec<MethodDeclaration>,
+}
+
+struct BaseTypes(BTreeMap<String, String>);
+
+impl BaseTypes {
+    fn new<'a>(structs: impl Iterator<Item = &'a StructDeclaration>) -> Self {
+        Self(
+            structs
+                .filter_map(|s| {
+                    if s.fields.iter().map(|f| f.name.as_str()).eq(["base"]) {
+                        s.fields
+                            .get(0)
+                            .and_then(|f| s.rust_name.as_ref().map(|n| (n.clone(), f.ty.clone())))
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+        )
+    }
+
+    fn base(&self, name: &str) -> Option<&str> {
+        self.0.get(name).map(String::as_str)
+    }
+
+    fn root<'a: 'b, 'b>(&'a self, name: &'b str) -> &'b str {
+        self.base(name).map(|base| self.root(base)).unwrap_or(name)
+    }
 }
 
 #[derive(Debug, Default)]
@@ -208,6 +255,7 @@ struct ParseTree {
     type_aliases: BTreeMap<String, String>,
     enums: Vec<String>,
     structs: Vec<StructDeclaration>,
+    globals: Vec<MethodDeclaration>,
 }
 
 impl Display for ParseTree {
@@ -230,50 +278,75 @@ impl Display for ParseTree {
             }
         }
 
-        let wrappers: BTreeMap<_, _> = self
-            .structs
-            .iter()
-            .map(|s| {
-                (
-                    s.name.clone(),
-                    make_rust_type_name(&s.name).unwrap_or_else(|| s.name.clone()),
-                )
-            })
-            .collect();
+        let base_types = BaseTypes::new(self.structs.iter());
 
         for StructDeclaration {
             name,
+            rust_name,
             fields,
             methods,
         } in &self.structs
         {
-            let Some(rust_name) = wrappers.get(name) else {
+            let Some(rust_name) = rust_name.as_ref() else {
                 continue;
             };
+
+            let root = base_types.root(rust_name);
+            if root == "BaseRefCounted" {
+                if root != rust_name {
+                    writeln!(
+                        f,
+                        r#"
+                        wrapper!(
+                            #[doc("See [cef_sys::{name}] for more documentation.")]
+                            #[derive(Debug, Clone)]
+                            pub struct {rust_name}(cef_sys::{name});
+                        "#
+                    )?;
+                    for method in methods {
+                        writeln!(f, "    {method};")?;
+                    }
+                    writeln!(f, ");")?;
+                }
+
+                continue;
+            }
 
             if fields.is_empty() {
                 writeln!(f, "pub type {rust_name} = cef_sys::{name};")?;
             } else {
-                writeln!(f, "struct {rust_name} {{")?;
+                writeln!(f, "\nstruct {rust_name} {{")?;
                 for field in fields {
-                    writeln!(f, "{field}")?;
+                    writeln!(f, "    {field}")?;
                 }
                 writeln!(f, "}}")?;
             }
 
             if !methods.is_empty() {
-                writeln!(f, "impl {rust_name} {{")?;
+                write!(f, "\nimpl {rust_name} {{")?;
                 for method in methods {
-                    writeln!(f, "{method}")?;
+                    let output = if method.output.is_some() {
+                        String::from("Default::default()")
+                    } else {
+                        Default::default()
+                    };
+                    write!(f, "\n    {method} {{ {output} }}")?;
+                    writeln!(f, "\n}}")?;
                 }
-                writeln!(f, "}}")?;
             }
         }
+
+        writeln!(f, "\n// Enum aliases")?;
         for enum_name in &self.enums {
             let Some(rust_name) = make_rust_type_name(enum_name) else {
                 continue;
             };
             writeln!(f, "pub type {rust_name} = cef_sys::{enum_name};")?;
+        }
+
+        writeln!(f, "\n// Global function wrappers")?;
+        for global_fn in &self.globals {
+            writeln!(f, "{global_fn};")?;
         }
         Ok(())
     }
@@ -295,6 +368,7 @@ impl TryFrom<&syn::File> for ParseTree {
                     syn::Fields::Named(fields) => {
                         let mut struct_decl = StructDeclaration::default();
                         struct_decl.name = item_struct.ident.to_string();
+                        struct_decl.rust_name = make_rust_type_name(&struct_decl.name);
                         for field in fields.named.iter() {
                             if let Ok(field_decl) = MethodDeclaration::try_from(field) {
                                 struct_decl.methods.push(field_decl);
@@ -311,6 +385,67 @@ impl TryFrom<&syn::File> for ParseTree {
                 },
                 syn::Item::Enum(syn::ItemEnum { ident, .. }) => {
                     tree.enums.push(ident.to_string());
+                }
+                syn::Item::ForeignMod(syn::ItemForeignMod {
+                    unsafety: Some(_),
+                    abi:
+                        syn::Abi {
+                            name: Some(abi), ..
+                        },
+                    items,
+                    ..
+                }) if abi.value() == "C" => {
+                    for item in items {
+                        if let syn::ForeignItem::Fn(item_fn) = item {
+                            let original_name = item_fn.sig.ident.to_string();
+                            static PATTERN: OnceLock<Regex> = OnceLock::new();
+                            let pattern =
+                                PATTERN.get_or_init(|| Regex::new(r"^cef_(\w+)$").unwrap());
+                            let name = pattern
+                                .captures(&original_name)
+                                .and_then(|captures| captures.get(1))
+                                .map(|name| name.as_str().to_string());
+                            let (name, original_name) = match name {
+                                Some(name) => (name, Some(original_name)),
+                                None => (original_name, None),
+                            };
+                            let args = item_fn
+                                .sig
+                                .inputs
+                                .iter()
+                                .filter_map(|arg| {
+                                    let syn::FnArg::Typed(syn::PatType { pat, ty, .. }) = arg
+                                    else {
+                                        return None;
+                                    };
+
+                                    let syn::Pat::Ident(syn::PatIdent { ident, .. }) = pat.as_ref()
+                                    else {
+                                        return None;
+                                    };
+
+                                    let name = ident.to_string();
+                                    let rust_name = make_snake_case_value_name(&name);
+                                    let ty = type_to_string(ty.as_ref());
+                                    Some(MethodArgument {
+                                        name,
+                                        rust_name,
+                                        ty,
+                                    })
+                                })
+                                .collect();
+                            let output = match &item_fn.sig.output {
+                                syn::ReturnType::Type(_, ty) => Some(type_to_string(ty.as_ref())),
+                                _ => None,
+                            };
+                            tree.globals.push(MethodDeclaration {
+                                name,
+                                original_name,
+                                args,
+                                output,
+                            });
+                        }
+                    }
                 }
                 _ => {}
             }
@@ -393,14 +528,20 @@ fn type_to_string(ty: &syn::Type) -> String {
 
 fn make_rust_type_name(name: &str) -> Option<String> {
     static PATTERN: OnceLock<Regex> = OnceLock::new();
-    let pattern = PATTERN.get_or_init(|| Regex::new(r"_?cef_(\w+)_t").unwrap());
+    let pattern = PATTERN.get_or_init(|| Regex::new(r"^_?cef_(\w+)_t$").unwrap());
     pattern
         .captures(name)
         .and_then(|captures| captures.get(1))
         .map(|name| {
-            name.as_str()
+            let name = name
+                .as_str()
                 .from_case(Case::Snake)
-                .to_case(Case::UpperCamel)
+                .to_case(Case::UpperCamel);
+            if name.starts_with("String") {
+                format!("Cef{}", name)
+            } else {
+                name
+            }
         })
 }
 
