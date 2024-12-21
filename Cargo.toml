@@ -19,6 +19,5 @@ repository = "https://github.com/wusyong/cef-rs"
 
 [workspace.dependencies]
 cef-sys = { package = "libcef-sys", version = "131.3.4", path = "sys" }
-widestring = "1.0"
 winit = "0.30"
 

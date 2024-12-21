@@ -121,36 +121,30 @@ impl Rc for cef_base_ref_counted_t {
 #[macro_export]
 macro_rules! gen_fn {
     ($visibility:vis fn $method:ident(
-        $($arg:ident: $t:ty)*)
-    $(-> $($n:ident)?$value:ty)?) => {
-        $visibility fn $method(&self $(,$a: $t)*) $(-> $value)? {
+        $($arg:ident: $t:ty)*
+        $(,)?
+    )
+    $(-> $value:ty)?) => {
+        $visibility fn $method(&self $(,$arg: $t)*) $(-> $value)? {
             unsafe {
-                let _result = self.0.$method.map(|f|
-                    f(self.0.get_raw() $(,crate::gen_fn!($c $arg))*)
-                );
-
-                $(crate::gen_fn!(return $($n)? _result))?
-            }
+                self.0.$method.map(|f|
+                    f(self.0.get_raw() $(,$arg.into())*).into()
+                )
+            }.unwrap_or_default()
         }
     };
-    (into $arg:ident) => {
-        $arg.0.into_raw()
-    };
-    (return $result:ident) => {
-        $result
-            .filter(|p| p.is_null())
-            .map(|p| BrowserView(RefGuard::from_raw(p)))
-    }
 }
 
 #[macro_export]
 macro_rules! wrapper {
     (
     $(#[$attr:meta])*
-    pub struct $name:ident($sys:ident);
+    pub struct $name:ident($sys:ty);
     $($visibility:vis fn $method:ident(
         &self
-        $(,$arg:ident: [$ref:ident] $type:ty)*)
+        $(,$arg:ident: $type:ty)*
+        $(,)?
+    )
     $(->$value:ty)?;)*
     ) => {
         $(#[$attr])*
@@ -158,7 +152,7 @@ macro_rules! wrapper {
 
         impl crate::rc::Rc for $sys {
             fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
-                &self.base.as_base()
+                self.base.as_base()
             }
         }
 
@@ -178,8 +172,26 @@ macro_rules! wrapper {
             }
 
             $(crate::gen_fn!($visibility fn $method(
-                $($arg: $ref $type)*
+                $($arg: $type)*
             )$(-> $value)?);)*
+        }
+
+        impl Default for $name {
+            fn default() -> Self {
+                unsafe { std::mem::zeroed() }
+            }
+        }
+
+        impl Into<*mut $sys> for $name {
+            fn into(self) -> *mut $sys {
+                unsafe { self.into_raw() }
+            }
+        }
+
+        impl From<*mut $sys> for $name {
+            fn from(value: *mut $sys) -> Self {
+                unsafe { Self::from_raw(value) }
+            }
         }
     };
 }

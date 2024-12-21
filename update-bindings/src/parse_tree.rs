@@ -1,18 +1,30 @@
-#![allow(dead_code, unused_imports)]
-
-use convert_case::{Boundary, Case, Casing};
-use core::error;
+use convert_case::{Case, Casing};
 use quote::{quote, ToTokens};
 use regex::Regex;
 use std::{
-    collections::{BTreeMap, VecDeque},
-    fmt::{Debug, Display},
+    collections::BTreeMap,
+    fmt::{self, Debug, Display, Formatter},
     fs,
-    io::{Read, Write},
-    iter::Iterator,
+    io::Write,
+    iter::{self, Iterator},
     path::{Path, PathBuf},
+    process::Command,
     sync::OnceLock,
 };
+
+pub fn generate_bindings(source_path: &Path) -> crate::Result<PathBuf> {
+    let bindings = crate::read_bindings(source_path)?;
+    let parsed = syn::parse_file(&bindings)?;
+    let parse_tree = ParseTree::try_from(&parsed)?;
+
+    let mut out_file = crate::dirs::get_out_dir();
+    out_file.push("bindings.rs");
+    let mut bindings = fs::File::create(&out_file)?;
+    write!(bindings, "{}", parse_tree)?;
+    format_bindings(&out_file)?;
+
+    Ok(out_file)
+}
 
 #[derive(Debug, Error)]
 pub enum Unrecognized {
@@ -33,6 +45,7 @@ struct MethodArgument {
     name: String,
     rust_name: String,
     ty: String,
+    cef_type: String,
 }
 
 #[derive(Debug)]
@@ -41,10 +54,11 @@ struct MethodDeclaration {
     original_name: Option<String>,
     args: Vec<MethodArgument>,
     output: Option<String>,
+    original_output: Option<String>,
 }
 
 impl Display for MethodDeclaration {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let name = &self.name;
         let args = self
             .args
@@ -63,7 +77,7 @@ impl Display for MethodDeclaration {
             .as_deref()
             .map(|output| format!(" -> {output}"))
             .unwrap_or_default();
-        write!(f, "pub fn {name}({args}){output}")
+        write!(f, "fn {name}({args}){output}")
     }
 }
 
@@ -154,20 +168,25 @@ impl TryFrom<&syn::Field> for MethodDeclaration {
                 {
                     let name = name.to_string();
                     let rust_name = make_snake_case_value_name(&name);
+                    let cef_type = ty.to_token_stream().to_string();
                     let ty = type_to_string(ty);
                     Some(MethodArgument {
                         name,
                         rust_name,
                         ty,
+                        cef_type,
                     })
                 } else {
                     None
                 }
             })
             .collect();
-        let output = match output {
-            syn::ReturnType::Type(_, ty) => Some(type_to_string(ty)),
-            _ => None,
+        let (original_output, output) = match output {
+            syn::ReturnType::Type(_, ty) => (
+                Some(ty.to_token_stream().to_string()),
+                Some(type_to_string(ty)),
+            ),
+            _ => (None, None),
         };
 
         Ok(Self {
@@ -175,6 +194,7 @@ impl TryFrom<&syn::Field> for MethodDeclaration {
             original_name: None,
             args,
             output,
+            original_output,
         })
     }
 }
@@ -187,7 +207,7 @@ struct FieldDeclaration {
 }
 
 impl Display for FieldDeclaration {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let rust_name = &self.rust_name;
         let ty = &self.ty;
         write!(f, "pub {rust_name}: {ty},")
@@ -222,6 +242,7 @@ struct StructDeclaration {
     methods: Vec<MethodDeclaration>,
 }
 
+#[derive(Debug, Default)]
 struct BaseTypes(BTreeMap<String, String>);
 
 impl BaseTypes {
@@ -255,31 +276,38 @@ struct ParseTree {
     type_aliases: BTreeMap<String, String>,
     enums: Vec<String>,
     structs: Vec<StructDeclaration>,
+    base_types: BaseTypes,
     globals: Vec<MethodDeclaration>,
 }
 
-impl Display for ParseTree {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let header = quote::quote! {
+impl ParseTree {
+    pub fn write_prelude(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let header = quote! {
+            #![allow(dead_code, non_camel_case_types, unused_variables)]
             use crate::{
                 rc::{RcImpl, RefGuard},
-                string::CefString,
                 wrapper,
             };
+            use cef_sys::*;
         }
         .to_string();
-        writeln!(f, "{}", header)?;
+        writeln!(f, "{}", header)
+    }
 
+    pub fn write_aliases(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, "\n// Type aliases")?;
         for (alias_name, alias_ty) in &self.type_aliases {
             let alias_name = make_rust_type_name(&alias_name).unwrap_or_else(|| alias_name.clone());
             let alias_ty = make_rust_type_name(&alias_ty).unwrap_or_else(|| alias_ty.clone());
             if alias_name != alias_ty {
-                writeln!(f, "type {} = {};", alias_name, alias_ty)?;
+                writeln!(f, "pub type {} = {};", alias_name, alias_ty)?;
             }
         }
+        Ok(())
+    }
 
-        let base_types = BaseTypes::new(self.structs.iter());
-
+    pub fn write_structs(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, "\n// Struct wrappers")?;
         for StructDeclaration {
             name,
             rust_name,
@@ -291,64 +319,335 @@ impl Display for ParseTree {
                 continue;
             };
 
-            let root = base_types.root(rust_name);
-            if root == "BaseRefCounted" {
-                if root != rust_name {
+            let root = self.base_types.root(rust_name);
+            if root == "BaseRefCounted" && root != rust_name {
+                write!(
+                    f,
+                    r#"
+                        wrapper!(
+                            #[doc = "See [{name}] for more documentation."]
+                            #[derive(Clone)]
+                            pub struct {rust_name}({name});
+                    "#
+                )?;
+                for method in methods {
+                    write!(f, "\n    pub {method};")?;
+                }
+
+                let base_rust_name = self.base_types.base(rust_name);
+                let base_trait = base_rust_name
+                    .and_then(|base| {
+                        if base == root {
+                            Some(String::from(": Sized"))
+                        } else {
+                            Some(format!(": Impl{base}"))
+                        }
+                    })
+                    .unwrap_or_default();
+                write!(
+                    f,
+                    r#"
+                        );
+
+                        pub trait Impl{rust_name}{base_trait} {{
+                    "#
+                )?;
+
+                for method in methods {
+                    let output = method
+                        .output
+                        .as_deref()
+                        .map(|_| String::from(" Default::default() "))
+                        .unwrap_or_default();
+                    writeln!(f, "    {method} {{{output}}}")?;
+                }
+
+                let mut base_rust_name = base_rust_name;
+                let mut base_structs = vec![];
+                while let Some(next_base) =
+                    base_rust_name
+                        .filter(|base| *base != root)
+                        .and_then(|base| {
+                            self.structs
+                                .iter()
+                                .find(|s| s.rust_name.as_deref() == Some(base))
+                        })
+                {
+                    base_rust_name = next_base
+                        .rust_name
+                        .as_ref()
+                        .and_then(|name| self.base_types.base(name.as_str()));
+                    base_structs.push(next_base);
+                }
+
+                let init_bases = base_structs
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, base_struct)| {
+                        let name = &base_struct.name;
+                        let bases = iter::repeat_n("base", i + 1).collect::<Vec<_>>().join(".");
+                        format!(r#"impl{name}::init_methods::<Self>(&mut object.{bases});"#)
+                    })
+                    .collect::<Vec<_>>()
+                    .into_iter()
+                    .rev();
+
+                write!(
+                    f,
+                    r#"
+                            fn into_raw(self) -> *mut {name} {{
+                                let mut object: {name} = unsafe {{ std::mem::zeroed() }};"#
+                )?;
+
+                for init_base in init_bases {
+                    write!(f, "\n{init_base}")?;
+                }
+
+                write!(
+                    f,
+                    r#"
+                                impl{name}::init_methods::<Self>(&mut object);
+                                RcImpl::new(object, self) as *mut _
+                            }}
+                        }}
+
+                        mod impl{name} {{
+                            use super::*;
+
+                            pub fn init_methods<I: Impl{rust_name}>(object: &mut {name}) {{"#
+                )?;
+
+                for method in methods {
+                    let name = &method.name;
+                    write!(f, r#"object.{name} = Some({name}::<I>);"#)?;
+                }
+
+                writeln!(
+                    f,
+                    r#"
+                            }}
+                    "#
+                )?;
+
+                for method in methods {
+                    let name = &method.name;
+                    let args = method
+                        .args
+                        .iter()
+                        .map(|arg| format!("{}: {}", arg.rust_name, arg.cef_type))
+                        .collect::<Vec<_>>()
+                        .join(", ");
+                    let forward_args = method
+                        .args
+                        .iter()
+                        .skip(1)
+                        .map(|arg| format!("{}.into()", arg.rust_name))
+                        .collect::<Vec<_>>()
+                        .join(", ");
+                    let output = method
+                        .original_output
+                        .as_deref()
+                        .map(|output| format!(" -> {output}"))
+                        .unwrap_or_default();
+                    let forward_output = method
+                        .original_output
+                        .as_deref()
+                        .map(|_| String::from(".into()"))
+                        .unwrap_or_default();
                     writeln!(
                         f,
                         r#"
-                        wrapper!(
-                            #[doc("See [cef_sys::{name}] for more documentation.")]
-                            #[derive(Debug, Clone)]
-                            pub struct {rust_name}(cef_sys::{name});
+                            extern "C" fn {name}<I: Impl{rust_name}>({args}){output} {{
+                                let obj: &RcImpl<_, I> = RcImpl::get(self_);
+                                obj.interface.{name}({forward_args}){forward_output}
+                            }}
                         "#
                     )?;
-                    for method in methods {
-                        writeln!(f, "    {method};")?;
-                    }
-                    writeln!(f, ");")?;
                 }
 
-                continue;
-            }
+                writeln!(f, r#"}}"#)?;
+            } else if !methods.is_empty()
+                || fields.is_empty()
+                || fields.iter().map(|f| f.name.as_str()).eq(["_unused"])
+            {
+                write!(
+                    f,
+                    r#"
+                        /// See [{name}] for more documentation.
+                        pub struct {rust_name}({name});
 
-            if fields.is_empty() {
-                writeln!(f, "pub type {rust_name} = cef_sys::{name};")?;
+                        impl From<{name}> for {rust_name} {{
+                            fn from(value: {name}) -> Self {{
+                                Self(value)
+                            }}
+                        }}
+
+                        impl Into<{name}> for {rust_name} {{
+                            fn into(self) -> {name} {{
+                                self.0
+                            }}
+                        }}
+
+                        impl AsRef<{name}> for {rust_name} {{
+                            fn as_ref(&self) -> &{name} {{
+                                &self.0
+                            }}
+                        }}
+
+                        impl AsMut<{name}> for {rust_name} {{
+                            fn as_mut(&mut self) -> &mut {name} {{
+                                &mut self.0
+                            }}
+                        }}
+
+                        impl Default for {rust_name} {{
+                            fn default() -> Self {{
+                                unsafe {{ std::mem::zeroed() }}
+                            }}
+                        }}
+                    "#
+                )?;
             } else {
-                writeln!(f, "\nstruct {rust_name} {{")?;
+                writeln!(f, "\n/// See [{name}] for more documentation.")?;
+                writeln!(f, "pub struct {rust_name} {{")?;
                 for field in fields {
                     writeln!(f, "    {field}")?;
                 }
                 writeln!(f, "}}")?;
-            }
+                write!(
+                    f,
+                    r#"
+                        impl From<{name}> for {rust_name} {{
+                            fn from(value: {name}) -> Self {{
+                                Self {{"#
+                )?;
 
-            if !methods.is_empty() {
-                write!(f, "\nimpl {rust_name} {{")?;
-                for method in methods {
-                    let output = if method.output.is_some() {
-                        String::from("Default::default()")
-                    } else {
-                        Default::default()
-                    };
-                    write!(f, "\n    {method} {{ {output} }}")?;
-                    writeln!(f, "\n}}")?;
+                for field in fields {
+                    let name = &field.name;
+                    let rust_name = &field.rust_name;
+                    write!(f, "\n{rust_name}: value.{name}.into(),")?;
                 }
+
+                write!(
+                    f,
+                    r#"
+                                }}
+                            }}
+                        }}
+
+                        impl Into<{name}> for {rust_name} {{
+                            fn into(self) -> {name} {{
+                                {name} {{"#
+                )?;
+
+                for field in fields {
+                    let name = &field.name;
+                    let rust_name = &field.rust_name;
+                    write!(f, "\n{name}: self.{rust_name}.into(),")?;
+                }
+
+                write!(
+                    f,
+                    r#"
+                                }}
+                            }}
+                        }}
+
+                        impl Default for {rust_name} {{
+                            fn default() -> Self {{
+                                unsafe {{ std::mem::zeroed() }}
+                            }}
+                        }}
+                    "#
+                )?;
             }
-        }
-
-        writeln!(f, "\n// Enum aliases")?;
-        for enum_name in &self.enums {
-            let Some(rust_name) = make_rust_type_name(enum_name) else {
-                continue;
-            };
-            writeln!(f, "pub type {rust_name} = cef_sys::{enum_name};")?;
-        }
-
-        writeln!(f, "\n// Global function wrappers")?;
-        for global_fn in &self.globals {
-            writeln!(f, "{global_fn};")?;
         }
         Ok(())
+    }
+
+    pub fn write_enums(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, "\n// Enum aliases")?;
+        for name in &self.enums {
+            let Some(rust_name) = make_rust_type_name(name) else {
+                continue;
+            };
+            write!(
+                f,
+                r#"
+                    /// See [{name}] for more documentation.
+                    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+                    pub struct {rust_name}({name});
+
+                    impl AsRef<{name}> for {rust_name} {{
+                        fn as_ref(&self) -> &{name} {{
+                            &self.0
+                        }}
+                    }}
+
+                    impl AsMut<{name}> for {rust_name} {{
+                        fn as_mut(&mut self) -> &mut {name} {{
+                            &mut self.0
+                        }}
+                    }}
+
+                    impl From<{name}> for {rust_name} {{
+                        fn from(value: {name}) -> Self {{
+                            Self(value)
+                        }}
+                    }}
+
+                    impl Into<{name}> for {rust_name} {{
+                        fn into(self) -> {name} {{
+                            self.0
+                        }}
+                    }}
+
+                    impl Default for {rust_name} {{
+                        fn default() -> Self {{
+                            unsafe {{ std::mem::zeroed() }}
+                        }}
+                    }}
+                "#
+            )?;
+        }
+        Ok(())
+    }
+
+    pub fn write_globals(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        writeln!(f, "\n// Global function wrappers")?;
+        for global_fn in &self.globals {
+            let original_name = global_fn.original_name.as_ref().unwrap_or(&global_fn.name);
+            let args = global_fn
+                .args
+                .iter()
+                .map(|arg| format!("{}.into()", arg.rust_name))
+                .collect::<Vec<_>>()
+                .join(", ");
+            let output = global_fn
+                .output
+                .as_deref()
+                .map(|_| String::from(".into()"))
+                .unwrap_or_default();
+            writeln!(
+                f,
+                r#"
+                    pub {global_fn} {{
+                        unsafe {{ {original_name}({args}){output} }}
+                    }}
+                "#
+            )?;
+        }
+        Ok(())
+    }
+}
+
+impl Display for ParseTree {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.write_prelude(f)?;
+        self.write_aliases(f)?;
+        self.write_structs(f)?;
+        self.write_enums(f)?;
+        self.write_globals(f)
     }
 }
 
@@ -426,23 +725,29 @@ impl TryFrom<&syn::File> for ParseTree {
 
                                     let name = ident.to_string();
                                     let rust_name = make_snake_case_value_name(&name);
+                                    let cef_type = ty.to_token_stream().to_string();
                                     let ty = type_to_string(ty.as_ref());
                                     Some(MethodArgument {
                                         name,
                                         rust_name,
                                         ty,
+                                        cef_type,
                                     })
                                 })
                                 .collect();
-                            let output = match &item_fn.sig.output {
-                                syn::ReturnType::Type(_, ty) => Some(type_to_string(ty.as_ref())),
-                                _ => None,
+                            let (original_output, output) = match &item_fn.sig.output {
+                                syn::ReturnType::Type(_, ty) => (
+                                    Some(ty.to_token_stream().to_string()),
+                                    Some(type_to_string(ty.as_ref())),
+                                ),
+                                _ => (None, None),
                             };
                             tree.globals.push(MethodDeclaration {
                                 name,
                                 original_name,
                                 args,
                                 output,
+                                original_output,
                             });
                         }
                     }
@@ -450,33 +755,15 @@ impl TryFrom<&syn::File> for ParseTree {
                 _ => {}
             }
         }
+
+        tree.base_types = BaseTypes::new(tree.structs.iter());
+
         Ok(tree)
     }
 }
 
-pub fn generate_bindings(source_path: &Path) -> crate::Result<PathBuf> {
-    let bindings = read_bindings(source_path)?;
-    let parsed = syn::parse_file(&bindings)?;
-    let parse_tree = ParseTree::try_from(&parsed)?;
-
-    let mut out_file = crate::dirs::get_out_dir();
-    out_file.push("bindings.rs");
-    let mut bindings = std::fs::File::create(&out_file)?;
-    write!(bindings, "{}", parse_tree)?;
-    format_bindings(&out_file)?;
-
-    Ok(out_file)
-}
-
-fn read_bindings(source_path: &Path) -> crate::Result<String> {
-    let mut source_file = fs::File::open(source_path)?;
-    let mut updated = String::default();
-    source_file.read_to_string(&mut updated)?;
-    Ok(updated)
-}
-
 fn format_bindings(source_path: &Path) -> crate::Result<()> {
-    let mut cmd = ::std::process::Command::new("rustfmt");
+    let mut cmd = Command::new("rustfmt");
     cmd.arg(source_path);
     cmd.output()?;
     Ok(())

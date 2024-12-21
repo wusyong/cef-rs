@@ -1,6 +1,6 @@
 use std::ffi::{c_char, CString};
 
-use cef_sys::cef_main_args_t;
+use crate::MainArgs;
 
 #[derive(Debug, Clone)]
 pub struct Args {
@@ -21,8 +21,8 @@ impl Args {
         Self { _source, argv }
     }
 
-    pub fn to_raw(&self) -> cef_main_args_t {
-        cef_main_args_t {
+    pub fn to_raw(&self) -> MainArgs {
+        MainArgs {
             argc: self.argv.len() as i32,
             argv: self.argv.as_ptr() as *mut *mut _,
         }

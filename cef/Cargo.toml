@@ -16,7 +16,6 @@ features = [ "dox" ]
 
 [dependencies]
 cef-sys.workspace = true
-widestring.workspace = true
 
 [dev-dependencies]
 winit.workspace = true

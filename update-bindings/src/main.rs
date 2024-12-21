@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate thiserror;
 
+use std::{fs, io::Read, path::Path};
+
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Missing Parent")]
@@ -28,10 +30,21 @@ fn main() -> Result<()> {
     let mut cef_bindings = dirs::get_cef_dir()?;
     cef_bindings.push("src/bindings.rs");
 
-    println!("cef: {}", sys_bindings.display());
-    println!("sys: {}", cef_bindings.display());
     let bindings = parse_tree::generate_bindings(&sys_bindings)?;
-    println!("bindings.rs: {}", bindings.display());
+    let source = read_bindings(&bindings)?;
+    let dest = read_bindings(&cef_bindings).unwrap_or_default();
+
+    if source != dest {
+        fs::copy(&bindings, &cef_bindings)?;
+        println!("Updated: {}", cef_bindings.display());
+    }
 
     Ok(())
+}
+
+fn read_bindings(source_path: &Path) -> crate::Result<String> {
+    let mut source_file = fs::File::open(source_path)?;
+    let mut updated = String::default();
+    source_file.read_to_string(&mut updated)?;
+    Ok(updated)
 }
