@@ -2,6 +2,7 @@ use convert_case::{Case, Casing};
 use quote::{quote, ToTokens};
 use regex::Regex;
 use std::{
+    borrow::Cow,
     collections::BTreeMap,
     fmt::{self, Debug, Display, Formatter},
     fs,
@@ -57,8 +58,8 @@ struct MethodDeclaration {
     original_output: Option<String>,
 }
 
-impl Display for MethodDeclaration {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+impl MethodDeclaration {
+    fn write(&self, tree: Option<&ParseTree>, f: &mut Formatter<'_>) -> fmt::Result {
         let name = &self.name;
         let args = self
             .args
@@ -67,7 +68,12 @@ impl Display for MethodDeclaration {
                 if arg.name == "self_" {
                     String::from("&self")
                 } else {
-                    format!("{}: {}", arg.rust_name, arg.ty)
+                    let normalized_ty = normalize_rust_type(&arg.ty);
+                    let ty = match tree.map(|tree| tree.is_enum_type(&normalized_ty)) {
+                        Some(true) => normalized_ty,
+                        _ => Cow::from(&arg.ty),
+                    };
+                    format!("{}: {}", arg.rust_name, ty)
                 }
             })
             .collect::<Vec<_>>()
@@ -78,6 +84,12 @@ impl Display for MethodDeclaration {
             .map(|output| format!(" -> {output}"))
             .unwrap_or_default();
         write!(f, "fn {name}({args}){output}")
+    }
+}
+
+impl Display for MethodDeclaration {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.write(None, f)
     }
 }
 
@@ -170,6 +182,13 @@ impl TryFrom<&syn::Field> for MethodDeclaration {
                     let rust_name = make_snake_case_value_name(&name);
                     let cef_type = ty.to_token_stream().to_string();
                     let ty = type_to_string(ty);
+
+                    let ty = if ty != cef_type && cef_type.starts_with("cef_") {
+                        format!("&mut {ty}")
+                    } else {
+                        ty
+                    };
+
                     Some(MethodArgument {
                         name,
                         rust_name,
@@ -184,7 +203,7 @@ impl TryFrom<&syn::Field> for MethodDeclaration {
         let (original_output, output) = match output {
             syn::ReturnType::Type(_, ty) => (
                 Some(ty.to_token_stream().to_string()),
-                Some(type_to_string(ty)),
+                Some(normalize_rust_type(&type_to_string(ty)).to_string()),
             ),
             _ => (None, None),
         };
@@ -285,7 +304,7 @@ impl ParseTree {
         let header = quote! {
             #![allow(dead_code, non_camel_case_types, unused_variables)]
             use crate::{
-                rc::{RcImpl, RefGuard},
+                rc::{ConvertParam, RcImpl, RefGuard},
                 wrapper,
             };
             use cef_sys::*;
@@ -299,6 +318,7 @@ impl ParseTree {
         for (alias_name, alias_ty) in &self.type_aliases {
             let alias_name = make_rust_type_name(&alias_name).unwrap_or_else(|| alias_name.clone());
             let alias_ty = make_rust_type_name(&alias_ty).unwrap_or_else(|| alias_ty.clone());
+            let alias_ty = normalize_rust_type(&alias_ty);
             if alias_name != alias_ty {
                 writeln!(f, "pub type {} = {};", alias_name, alias_ty)?;
             }
@@ -307,6 +327,9 @@ impl ParseTree {
     }
 
     pub fn write_structs(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        //let lookup_cef_struct: BTreeMap<_, _> = self.structs.iter().map(|s| (&s.name, s)).collect();
+        let lookup_rust_struct = self.lookup_rust_struct();
+
         writeln!(f, "\n// Struct wrappers")?;
         for StructDeclaration {
             name,
@@ -331,7 +354,9 @@ impl ParseTree {
                     "#
                 )?;
                 for method in methods {
-                    write!(f, "\n    pub {method};")?;
+                    write!(f, "\n    pub ")?;
+                    method.write(Some(self), f)?;
+                    write!(f, ";")?;
                 }
 
                 let base_rust_name = self.base_types.base(rust_name);
@@ -359,19 +384,16 @@ impl ParseTree {
                         .as_deref()
                         .map(|_| String::from(" Default::default() "))
                         .unwrap_or_default();
-                    writeln!(f, "    {method} {{{output}}}")?;
+                    write!(f, "    ")?;
+                    method.write(Some(self), f)?;
+                    writeln!(f, " {{{output}}}")?;
                 }
 
                 let mut base_rust_name = base_rust_name;
                 let mut base_structs = vec![];
-                while let Some(next_base) =
-                    base_rust_name
-                        .filter(|base| *base != root)
-                        .and_then(|base| {
-                            self.structs
-                                .iter()
-                                .find(|s| s.rust_name.as_deref() == Some(base))
-                        })
+                while let Some(next_base) = base_rust_name
+                    .filter(|base| *base != root)
+                    .and_then(|base| lookup_rust_struct.get(base))
                 {
                     base_rust_name = next_base
                         .rust_name
@@ -441,7 +463,7 @@ impl ParseTree {
                         .args
                         .iter()
                         .skip(1)
-                        .map(|arg| format!("{}.into()", arg.rust_name))
+                        .map(|arg| arg.rust_name.as_str())
                         .collect::<Vec<_>>()
                         .join(", ");
                     let output = method
@@ -454,11 +476,37 @@ impl ParseTree {
                         .as_deref()
                         .map(|_| String::from(".into()"))
                         .unwrap_or_default();
-                    writeln!(
+                    write!(
                         f,
                         r#"
                             extern "C" fn {name}<I: Impl{rust_name}>({args}){output} {{
-                                let obj: &RcImpl<_, I> = RcImpl::get(self_);
+                                let obj: &RcImpl<_, I> = RcImpl::get(self_);"#
+                    )?;
+
+                    let wrapped_args = method
+                        .args
+                        .iter()
+                        .skip(1)
+                        .filter_map(|arg| {
+                            let arg_name = &arg.rust_name;
+                            let arg_ty = normalize_rust_type(&arg.ty).to_string();
+                            if arg_ty.starts_with("CefString") {
+                                let arg_ty = &arg.ty;
+                                Some(format!(r#"let {arg_name} = {arg_ty}::from({arg_name});"#))
+                            } else {
+                                lookup_rust_struct.get(arg_ty.as_str()).map(|_| {
+                                    let arg_ty = &arg.ty;
+                                    format!(r#"let {arg_name} = {arg_ty}(unsafe {{ RefGuard::from_raw_add_ref({arg_name}) }});"#)
+                                })
+                            }
+                        });
+                    for wrapped in wrapped_args {
+                        write!(f, "\n{wrapped}")?;
+                    }
+
+                    writeln!(
+                        f,
+                        r#"
                                 obj.interface.{name}({forward_args}){forward_output}
                             }}
                         "#
@@ -565,6 +613,12 @@ impl ParseTree {
         Ok(())
     }
 
+    fn is_enum_type(&self, rust_name: &str) -> bool {
+        self.enums
+            .iter()
+            .any(|enum_name| make_rust_type_name(enum_name).as_deref() == Some(rust_name))
+    }
+
     pub fn write_enums(&self, f: &mut Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n// Enum aliases")?;
         for name in &self.enums {
@@ -620,7 +674,7 @@ impl ParseTree {
             let args = global_fn
                 .args
                 .iter()
-                .map(|arg| format!("{}.into()", arg.rust_name))
+                .map(|arg| format!("{}.as_raw()", arg.rust_name))
                 .collect::<Vec<_>>()
                 .join(", ");
             let output = global_fn
@@ -638,6 +692,13 @@ impl ParseTree {
             )?;
         }
         Ok(())
+    }
+
+    fn lookup_rust_struct(&self) -> BTreeMap<&str, &StructDeclaration> {
+        self.structs
+            .iter()
+            .map(|s| (s.rust_name.as_deref().unwrap_or(&s.name), s))
+            .collect()
     }
 }
 
@@ -738,7 +799,10 @@ impl TryFrom<&syn::File> for ParseTree {
                             let (original_output, output) = match &item_fn.sig.output {
                                 syn::ReturnType::Type(_, ty) => (
                                     Some(ty.to_token_stream().to_string()),
-                                    Some(type_to_string(ty.as_ref())),
+                                    Some(
+                                        normalize_rust_type(&type_to_string(ty.as_ref()))
+                                            .to_string(),
+                                    ),
                                 ),
                                 _ => (None, None),
                             };
@@ -804,13 +868,20 @@ fn type_to_string(ty: &syn::Type) -> String {
             };
 
             match (rust_name, const_token) {
-                (Some(rust_name), _) => rust_name,
+                (Some(rust_name), Some(_)) => format!("&{rust_name}"),
+                (Some(rust_name), None) => format!("&mut {rust_name}"),
                 (None, Some(_)) => format!("*const {}", type_to_string(elem.as_ref())),
                 (None, None) => format!("*mut {}", type_to_string(elem.as_ref())),
             }
         }
         _ => ty.to_token_stream().to_string(),
     }
+}
+
+fn normalize_rust_type(name: &str) -> Cow<'_, str> {
+    static PATTERN: OnceLock<Regex> = OnceLock::new();
+    let pattern = PATTERN.get_or_init(|| Regex::new(r"^(&(mut\s)?\s*)*").unwrap());
+    pattern.replace(name, "")
 }
 
 fn make_rust_type_name(name: &str) -> Option<String> {

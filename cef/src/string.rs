@@ -6,8 +6,8 @@ use std::{
 };
 
 use crate::{
-    CefString, CefStringList, CefStringMap, CefStringMultimap, CefStringUtf16, CefStringUtf8,
-    CefStringWide,
+    rc::ConvertParam, CefString, CefStringList, CefStringMap, CefStringMultimap, CefStringUtf16,
+    CefStringUtf8, CefStringWide,
 };
 
 impl Drop for CefStringUtf8 {
@@ -30,6 +30,18 @@ impl From<&str> for CefStringUtf8 {
             );
             cef_string
         })
+    }
+}
+
+impl ConvertParam<*const cef_sys::_cef_string_utf8_t> for &CefStringUtf8 {
+    fn as_raw(self) -> *const cef_sys::_cef_string_utf8_t {
+        self.as_ref() as *const _
+    }
+}
+
+impl ConvertParam<*mut cef_sys::_cef_string_utf8_t> for &mut CefStringUtf8 {
+    fn as_raw(self) -> *mut cef_sys::_cef_string_utf8_t {
+        self.as_mut() as *mut _
     }
 }
 
@@ -125,6 +137,18 @@ impl Drop for CefStringUtf16 {
     }
 }
 
+impl ConvertParam<*const cef_sys::_cef_string_utf16_t> for &CefStringUtf16 {
+    fn as_raw(self) -> *const cef_sys::_cef_string_utf16_t {
+        self.as_ref() as *const _
+    }
+}
+
+impl ConvertParam<*mut cef_sys::_cef_string_utf16_t> for &mut CefStringUtf16 {
+    fn as_raw(self) -> *mut cef_sys::_cef_string_utf16_t {
+        self.as_mut() as *mut _
+    }
+}
+
 impl Into<cef_sys::cef_string_userfree_utf16_t> for CefStringUtf16 {
     fn into(self) -> cef_sys::cef_string_userfree_utf16_t {
         unsafe {
@@ -185,6 +209,18 @@ impl Drop for CefStringWide {
         unsafe {
             cef_sys::cef_string_wide_clear(self.as_mut());
         }
+    }
+}
+
+impl ConvertParam<*const cef_sys::_cef_string_wide_t> for &CefStringWide {
+    fn as_raw(self) -> *const cef_sys::_cef_string_wide_t {
+        self.as_ref() as *const _
+    }
+}
+
+impl ConvertParam<*mut cef_sys::_cef_string_wide_t> for &mut CefStringWide {
+    fn as_raw(self) -> *mut cef_sys::_cef_string_wide_t {
+        self.as_mut() as *mut _
     }
 }
 
@@ -251,6 +287,18 @@ impl Drop for CefStringList {
     }
 }
 
+impl ConvertParam<*const cef_sys::_cef_string_list_t> for &CefStringList {
+    fn as_raw(self) -> *const cef_sys::_cef_string_list_t {
+        self.as_ref() as *const _
+    }
+}
+
+impl ConvertParam<*mut cef_sys::_cef_string_list_t> for &mut CefStringList {
+    fn as_raw(self) -> *mut cef_sys::_cef_string_list_t {
+        self.as_mut() as *mut _
+    }
+}
+
 impl IntoIterator for CefStringList {
     type Item = String;
     type IntoIter = std::vec::IntoIter<Self::Item>;
@@ -275,6 +323,18 @@ impl Drop for CefStringMap {
         unsafe {
             cef_sys::cef_string_map_clear(self.as_mut() as *mut _);
         }
+    }
+}
+
+impl ConvertParam<*const cef_sys::_cef_string_map_t> for &CefStringMap {
+    fn as_raw(self) -> *const cef_sys::_cef_string_map_t {
+        self.as_ref() as *const _
+    }
+}
+
+impl ConvertParam<*mut cef_sys::_cef_string_map_t> for &mut CefStringMap {
+    fn as_raw(self) -> *mut cef_sys::_cef_string_map_t {
+        self.as_mut() as *mut _
     }
 }
 
@@ -310,5 +370,17 @@ impl Drop for CefStringMultimap {
         unsafe {
             cef_sys::cef_string_multimap_clear(self.as_mut() as *mut _);
         }
+    }
+}
+
+impl ConvertParam<*const cef_sys::_cef_string_multimap_t> for &CefStringMultimap {
+    fn as_raw(self) -> *const cef_sys::_cef_string_multimap_t {
+        self.as_ref() as *const _
+    }
+}
+
+impl ConvertParam<*mut cef_sys::_cef_string_multimap_t> for &mut CefStringMultimap {
+    fn as_raw(self) -> *mut cef_sys::_cef_string_multimap_t {
+        self.as_mut() as *mut _
     }
 }

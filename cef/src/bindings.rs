@@ -1,6 +1,6 @@
 #![allow(dead_code, non_camel_case_types, unused_variables)]
 use crate::{
-    rc::{RcImpl, RefGuard},
+    rc::{ConvertParam, RcImpl, RefGuard},
     wrapper,
 };
 use cef_sys::*;
@@ -1725,13 +1725,13 @@ wrapper!(
 
     pub fn on_dev_tools_message(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         message: *const ::std::os::raw::c_void,
         message_size: usize,
     ) -> ::std::os::raw::c_int;
     pub fn on_dev_tools_method_result(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         message_id: ::std::os::raw::c_int,
         success: ::std::os::raw::c_int,
         result: *const ::std::os::raw::c_void,
@@ -1739,19 +1739,19 @@ wrapper!(
     );
     pub fn on_dev_tools_event(
         &self,
-        browser: Browser,
-        method: CefString,
+        browser: &mut Browser,
+        method: &CefString,
         params: *const ::std::os::raw::c_void,
         params_size: usize,
     );
-    pub fn on_dev_tools_agent_attached(&self, browser: Browser);
-    pub fn on_dev_tools_agent_detached(&self, browser: Browser);
+    pub fn on_dev_tools_agent_attached(&self, browser: &mut Browser);
+    pub fn on_dev_tools_agent_detached(&self, browser: &mut Browser);
 );
 
 pub trait ImplDevToolsMessageObserver: Sized {
     fn on_dev_tools_message(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         message: *const ::std::os::raw::c_void,
         message_size: usize,
     ) -> ::std::os::raw::c_int {
@@ -1759,7 +1759,7 @@ pub trait ImplDevToolsMessageObserver: Sized {
     }
     fn on_dev_tools_method_result(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         message_id: ::std::os::raw::c_int,
         success: ::std::os::raw::c_int,
         result: *const ::std::os::raw::c_void,
@@ -1768,14 +1768,14 @@ pub trait ImplDevToolsMessageObserver: Sized {
     }
     fn on_dev_tools_event(
         &self,
-        browser: Browser,
-        method: CefString,
+        browser: &mut Browser,
+        method: &CefString,
         params: *const ::std::os::raw::c_void,
         params_size: usize,
     ) {
     }
-    fn on_dev_tools_agent_attached(&self, browser: Browser) {}
-    fn on_dev_tools_agent_detached(&self, browser: Browser) {}
+    fn on_dev_tools_agent_attached(&self, browser: &mut Browser) {}
+    fn on_dev_tools_agent_detached(&self, browser: &mut Browser) {}
 
     fn into_raw(self) -> *mut _cef_dev_tools_message_observer_t {
         let mut object: _cef_dev_tools_message_observer_t = unsafe { std::mem::zeroed() };
@@ -1804,8 +1804,9 @@ mod impl_cef_dev_tools_message_observer_t {
         message_size: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         obj.interface
-            .on_dev_tools_message(browser.into(), message.into(), message_size.into())
+            .on_dev_tools_message(browser, message, message_size)
             .into()
     }
 
@@ -1818,13 +1819,9 @@ mod impl_cef_dev_tools_message_observer_t {
         result_size: usize,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_dev_tools_method_result(
-            browser.into(),
-            message_id.into(),
-            success.into(),
-            result.into(),
-            result_size.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface
+            .on_dev_tools_method_result(browser, message_id, success, result, result_size)
     }
 
     extern "C" fn on_dev_tools_event<I: ImplDevToolsMessageObserver>(
@@ -1835,12 +1832,10 @@ mod impl_cef_dev_tools_message_observer_t {
         params_size: usize,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_dev_tools_event(
-            browser.into(),
-            method.into(),
-            params.into(),
-            params_size.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let method = &CefString::from(method);
+        obj.interface
+            .on_dev_tools_event(browser, method, params, params_size)
     }
 
     extern "C" fn on_dev_tools_agent_attached<I: ImplDevToolsMessageObserver>(
@@ -1848,7 +1843,8 @@ mod impl_cef_dev_tools_message_observer_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_dev_tools_agent_attached(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_dev_tools_agent_attached(browser)
     }
 
     extern "C" fn on_dev_tools_agent_detached<I: ImplDevToolsMessageObserver>(
@@ -1856,7 +1852,8 @@ mod impl_cef_dev_tools_message_observer_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_dev_tools_agent_detached(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_dev_tools_agent_detached(browser)
     }
 }
 
@@ -1868,8 +1865,8 @@ wrapper!(
     pub fn is_valid(&self) -> ::std::os::raw::c_int;
     pub fn is_owned(&self) -> ::std::os::raw::c_int;
     pub fn is_read_only(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: Value) -> ::std::os::raw::c_int;
-    pub fn is_equal(&self, that: Value) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut Value) -> ::std::os::raw::c_int;
+    pub fn is_equal(&self, that: &mut Value) -> ::std::os::raw::c_int;
     pub fn copy(&self) -> Value;
     pub fn get_type(&self) -> ValueType;
     pub fn get_bool(&self) -> ::std::os::raw::c_int;
@@ -1883,10 +1880,10 @@ wrapper!(
     pub fn set_bool(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
     pub fn set_int(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
     pub fn set_double(&self, value: f64) -> ::std::os::raw::c_int;
-    pub fn set_string(&self, value: CefString) -> ::std::os::raw::c_int;
-    pub fn set_binary(&self, value: BinaryValue) -> ::std::os::raw::c_int;
-    pub fn set_dictionary(&self, value: DictionaryValue) -> ::std::os::raw::c_int;
-    pub fn set_list(&self, value: ListValue) -> ::std::os::raw::c_int;
+    pub fn set_string(&self, value: &CefString) -> ::std::os::raw::c_int;
+    pub fn set_binary(&self, value: &mut BinaryValue) -> ::std::os::raw::c_int;
+    pub fn set_dictionary(&self, value: &mut DictionaryValue) -> ::std::os::raw::c_int;
+    pub fn set_list(&self, value: &mut ListValue) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplValue: Sized {
@@ -1899,10 +1896,10 @@ pub trait ImplValue: Sized {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: Value) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut Value) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_equal(&self, that: Value) -> ::std::os::raw::c_int {
+    fn is_equal(&self, that: &mut Value) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn copy(&self) -> Value {
@@ -1944,16 +1941,16 @@ pub trait ImplValue: Sized {
     fn set_double(&self, value: f64) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_string(&self, value: CefString) -> ::std::os::raw::c_int {
+    fn set_string(&self, value: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_binary(&self, value: BinaryValue) -> ::std::os::raw::c_int {
+    fn set_binary(&self, value: &mut BinaryValue) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_dictionary(&self, value: DictionaryValue) -> ::std::os::raw::c_int {
+    fn set_dictionary(&self, value: &mut DictionaryValue) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_list(&self, value: ListValue) -> ::std::os::raw::c_int {
+    fn set_list(&self, value: &mut ListValue) -> ::std::os::raw::c_int {
         Default::default()
     }
 
@@ -2012,7 +2009,8 @@ mod impl_cef_value_t {
         that: *mut _cef_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut Value(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn is_equal<I: ImplValue>(
@@ -2020,7 +2018,8 @@ mod impl_cef_value_t {
         that: *mut _cef_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_equal(that.into()).into()
+        let that = &mut Value(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_equal(that).into()
     }
 
     extern "C" fn copy<I: ImplValue>(self_: *mut _cef_value_t) -> *mut _cef_value_t {
@@ -2080,7 +2079,7 @@ mod impl_cef_value_t {
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_bool(value.into()).into()
+        obj.interface.set_bool(value).into()
     }
 
     extern "C" fn set_int<I: ImplValue>(
@@ -2088,7 +2087,7 @@ mod impl_cef_value_t {
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_int(value.into()).into()
+        obj.interface.set_int(value).into()
     }
 
     extern "C" fn set_double<I: ImplValue>(
@@ -2096,7 +2095,7 @@ mod impl_cef_value_t {
         value: f64,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_double(value.into()).into()
+        obj.interface.set_double(value).into()
     }
 
     extern "C" fn set_string<I: ImplValue>(
@@ -2104,7 +2103,8 @@ mod impl_cef_value_t {
         value: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_string(value.into()).into()
+        let value = &CefString::from(value);
+        obj.interface.set_string(value).into()
     }
 
     extern "C" fn set_binary<I: ImplValue>(
@@ -2112,7 +2112,8 @@ mod impl_cef_value_t {
         value: *mut _cef_binary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_binary(value.into()).into()
+        let value = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_binary(value).into()
     }
 
     extern "C" fn set_dictionary<I: ImplValue>(
@@ -2120,7 +2121,8 @@ mod impl_cef_value_t {
         value: *mut _cef_dictionary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_dictionary(value.into()).into()
+        let value = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_dictionary(value).into()
     }
 
     extern "C" fn set_list<I: ImplValue>(
@@ -2128,7 +2130,8 @@ mod impl_cef_value_t {
         value: *mut _cef_list_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_list(value.into()).into()
+        let value = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_list(value).into()
     }
 }
 
@@ -2139,8 +2142,8 @@ wrapper!(
 
     pub fn is_valid(&self) -> ::std::os::raw::c_int;
     pub fn is_owned(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: BinaryValue) -> ::std::os::raw::c_int;
-    pub fn is_equal(&self, that: BinaryValue) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut BinaryValue) -> ::std::os::raw::c_int;
+    pub fn is_equal(&self, that: &mut BinaryValue) -> ::std::os::raw::c_int;
     pub fn copy(&self) -> BinaryValue;
     pub fn get_raw_data(&self) -> *const ::std::os::raw::c_void;
     pub fn get_size(&self) -> usize;
@@ -2159,10 +2162,10 @@ pub trait ImplBinaryValue: Sized {
     fn is_owned(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: BinaryValue) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut BinaryValue) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_equal(&self, that: BinaryValue) -> ::std::os::raw::c_int {
+    fn is_equal(&self, that: &mut BinaryValue) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn copy(&self) -> BinaryValue {
@@ -2223,7 +2226,8 @@ mod impl_cef_binary_value_t {
         that: *mut _cef_binary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn is_equal<I: ImplBinaryValue>(
@@ -2231,7 +2235,8 @@ mod impl_cef_binary_value_t {
         that: *mut _cef_binary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_equal(that.into()).into()
+        let that = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_equal(that).into()
     }
 
     extern "C" fn copy<I: ImplBinaryValue>(
@@ -2261,7 +2266,7 @@ mod impl_cef_binary_value_t {
     ) -> usize {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_data(buffer.into(), buffer_size.into(), data_offset.into())
+            .get_data(buffer, buffer_size, data_offset)
             .into()
     }
 }
@@ -2274,32 +2279,36 @@ wrapper!(
     pub fn is_valid(&self) -> ::std::os::raw::c_int;
     pub fn is_owned(&self) -> ::std::os::raw::c_int;
     pub fn is_read_only(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: DictionaryValue) -> ::std::os::raw::c_int;
-    pub fn is_equal(&self, that: DictionaryValue) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut DictionaryValue) -> ::std::os::raw::c_int;
+    pub fn is_equal(&self, that: &mut DictionaryValue) -> ::std::os::raw::c_int;
     pub fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue;
     pub fn get_size(&self) -> usize;
     pub fn clear(&self) -> ::std::os::raw::c_int;
-    pub fn has_key(&self, key: CefString) -> ::std::os::raw::c_int;
-    pub fn get_keys(&self, keys: CefStringList) -> ::std::os::raw::c_int;
-    pub fn remove(&self, key: CefString) -> ::std::os::raw::c_int;
-    pub fn get_type(&self, key: CefString) -> ValueType;
-    pub fn get_value(&self, key: CefString) -> Value;
-    pub fn get_bool(&self, key: CefString) -> ::std::os::raw::c_int;
-    pub fn get_int(&self, key: CefString) -> ::std::os::raw::c_int;
-    pub fn get_double(&self, key: CefString) -> f64;
-    pub fn get_string(&self, key: CefString) -> CefStringUserfree;
-    pub fn get_binary(&self, key: CefString) -> BinaryValue;
-    pub fn get_dictionary(&self, key: CefString) -> DictionaryValue;
-    pub fn get_list(&self, key: CefString) -> ListValue;
-    pub fn set_value(&self, key: CefString, value: Value) -> ::std::os::raw::c_int;
-    pub fn set_null(&self, key: CefString) -> ::std::os::raw::c_int;
-    pub fn set_bool(&self, key: CefString, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-    pub fn set_int(&self, key: CefString, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-    pub fn set_double(&self, key: CefString, value: f64) -> ::std::os::raw::c_int;
-    pub fn set_string(&self, key: CefString, value: CefString) -> ::std::os::raw::c_int;
-    pub fn set_binary(&self, key: CefString, value: BinaryValue) -> ::std::os::raw::c_int;
-    pub fn set_dictionary(&self, key: CefString, value: DictionaryValue) -> ::std::os::raw::c_int;
-    pub fn set_list(&self, key: CefString, value: ListValue) -> ::std::os::raw::c_int;
+    pub fn has_key(&self, key: &CefString) -> ::std::os::raw::c_int;
+    pub fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int;
+    pub fn remove(&self, key: &CefString) -> ::std::os::raw::c_int;
+    pub fn get_type(&self, key: &CefString) -> ValueType;
+    pub fn get_value(&self, key: &CefString) -> Value;
+    pub fn get_bool(&self, key: &CefString) -> ::std::os::raw::c_int;
+    pub fn get_int(&self, key: &CefString) -> ::std::os::raw::c_int;
+    pub fn get_double(&self, key: &CefString) -> f64;
+    pub fn get_string(&self, key: &CefString) -> CefStringUserfree;
+    pub fn get_binary(&self, key: &CefString) -> BinaryValue;
+    pub fn get_dictionary(&self, key: &CefString) -> DictionaryValue;
+    pub fn get_list(&self, key: &CefString) -> ListValue;
+    pub fn set_value(&self, key: &CefString, value: &mut Value) -> ::std::os::raw::c_int;
+    pub fn set_null(&self, key: &CefString) -> ::std::os::raw::c_int;
+    pub fn set_bool(&self, key: &CefString, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+    pub fn set_int(&self, key: &CefString, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+    pub fn set_double(&self, key: &CefString, value: f64) -> ::std::os::raw::c_int;
+    pub fn set_string(&self, key: &CefString, value: &CefString) -> ::std::os::raw::c_int;
+    pub fn set_binary(&self, key: &CefString, value: &mut BinaryValue) -> ::std::os::raw::c_int;
+    pub fn set_dictionary(
+        &self,
+        key: &CefString,
+        value: &mut DictionaryValue,
+    ) -> ::std::os::raw::c_int;
+    pub fn set_list(&self, key: &CefString, value: &mut ListValue) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplDictionaryValue: Sized {
@@ -2312,10 +2321,10 @@ pub trait ImplDictionaryValue: Sized {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: DictionaryValue) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut DictionaryValue) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_equal(&self, that: DictionaryValue) -> ::std::os::raw::c_int {
+    fn is_equal(&self, that: &mut DictionaryValue) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue {
@@ -2327,67 +2336,71 @@ pub trait ImplDictionaryValue: Sized {
     fn clear(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn has_key(&self, key: CefString) -> ::std::os::raw::c_int {
+    fn has_key(&self, key: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_keys(&self, keys: CefStringList) -> ::std::os::raw::c_int {
+    fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn remove(&self, key: CefString) -> ::std::os::raw::c_int {
+    fn remove(&self, key: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_type(&self, key: CefString) -> ValueType {
+    fn get_type(&self, key: &CefString) -> ValueType {
         Default::default()
     }
-    fn get_value(&self, key: CefString) -> Value {
+    fn get_value(&self, key: &CefString) -> Value {
         Default::default()
     }
-    fn get_bool(&self, key: CefString) -> ::std::os::raw::c_int {
+    fn get_bool(&self, key: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_int(&self, key: CefString) -> ::std::os::raw::c_int {
+    fn get_int(&self, key: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_double(&self, key: CefString) -> f64 {
+    fn get_double(&self, key: &CefString) -> f64 {
         Default::default()
     }
-    fn get_string(&self, key: CefString) -> CefStringUserfree {
+    fn get_string(&self, key: &CefString) -> CefStringUserfree {
         Default::default()
     }
-    fn get_binary(&self, key: CefString) -> BinaryValue {
+    fn get_binary(&self, key: &CefString) -> BinaryValue {
         Default::default()
     }
-    fn get_dictionary(&self, key: CefString) -> DictionaryValue {
+    fn get_dictionary(&self, key: &CefString) -> DictionaryValue {
         Default::default()
     }
-    fn get_list(&self, key: CefString) -> ListValue {
+    fn get_list(&self, key: &CefString) -> ListValue {
         Default::default()
     }
-    fn set_value(&self, key: CefString, value: Value) -> ::std::os::raw::c_int {
+    fn set_value(&self, key: &CefString, value: &mut Value) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_null(&self, key: CefString) -> ::std::os::raw::c_int {
+    fn set_null(&self, key: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_bool(&self, key: CefString, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_bool(&self, key: &CefString, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_int(&self, key: CefString, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_int(&self, key: &CefString, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_double(&self, key: CefString, value: f64) -> ::std::os::raw::c_int {
+    fn set_double(&self, key: &CefString, value: f64) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_string(&self, key: CefString, value: CefString) -> ::std::os::raw::c_int {
+    fn set_string(&self, key: &CefString, value: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_binary(&self, key: CefString, value: BinaryValue) -> ::std::os::raw::c_int {
+    fn set_binary(&self, key: &CefString, value: &mut BinaryValue) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_dictionary(&self, key: CefString, value: DictionaryValue) -> ::std::os::raw::c_int {
+    fn set_dictionary(
+        &self,
+        key: &CefString,
+        value: &mut DictionaryValue,
+    ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_list(&self, key: CefString, value: ListValue) -> ::std::os::raw::c_int {
+    fn set_list(&self, key: &CefString, value: &mut ListValue) -> ::std::os::raw::c_int {
         Default::default()
     }
 
@@ -2459,7 +2472,8 @@ mod impl_cef_dictionary_value_t {
         that: *mut _cef_dictionary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn is_equal<I: ImplDictionaryValue>(
@@ -2467,7 +2481,8 @@ mod impl_cef_dictionary_value_t {
         that: *mut _cef_dictionary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_equal(that.into()).into()
+        let that = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_equal(that).into()
     }
 
     extern "C" fn copy<I: ImplDictionaryValue>(
@@ -2475,7 +2490,7 @@ mod impl_cef_dictionary_value_t {
         exclude_empty_children: ::std::os::raw::c_int,
     ) -> *mut _cef_dictionary_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.copy(exclude_empty_children.into()).into()
+        obj.interface.copy(exclude_empty_children).into()
     }
 
     extern "C" fn get_size<I: ImplDictionaryValue>(self_: *mut _cef_dictionary_value_t) -> usize {
@@ -2495,7 +2510,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.has_key(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.has_key(key).into()
     }
 
     extern "C" fn get_keys<I: ImplDictionaryValue>(
@@ -2503,7 +2519,8 @@ mod impl_cef_dictionary_value_t {
         keys: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_keys(keys.into()).into()
+        let keys = &mut CefStringList::from(keys);
+        obj.interface.get_keys(keys).into()
     }
 
     extern "C" fn remove<I: ImplDictionaryValue>(
@@ -2511,7 +2528,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.remove(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.remove(key).into()
     }
 
     extern "C" fn get_type<I: ImplDictionaryValue>(
@@ -2519,7 +2537,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> cef_value_type_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_type(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_type(key).into()
     }
 
     extern "C" fn get_value<I: ImplDictionaryValue>(
@@ -2527,7 +2546,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> *mut _cef_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_value(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_value(key).into()
     }
 
     extern "C" fn get_bool<I: ImplDictionaryValue>(
@@ -2535,7 +2555,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_bool(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_bool(key).into()
     }
 
     extern "C" fn get_int<I: ImplDictionaryValue>(
@@ -2543,7 +2564,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_int(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_int(key).into()
     }
 
     extern "C" fn get_double<I: ImplDictionaryValue>(
@@ -2551,7 +2573,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> f64 {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_double(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_double(key).into()
     }
 
     extern "C" fn get_string<I: ImplDictionaryValue>(
@@ -2559,7 +2582,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_string(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_string(key).into()
     }
 
     extern "C" fn get_binary<I: ImplDictionaryValue>(
@@ -2567,7 +2591,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> *mut _cef_binary_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_binary(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_binary(key).into()
     }
 
     extern "C" fn get_dictionary<I: ImplDictionaryValue>(
@@ -2575,7 +2600,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> *mut _cef_dictionary_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_dictionary(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_dictionary(key).into()
     }
 
     extern "C" fn get_list<I: ImplDictionaryValue>(
@@ -2583,7 +2609,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> *mut _cef_list_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_list(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_list(key).into()
     }
 
     extern "C" fn set_value<I: ImplDictionaryValue>(
@@ -2592,7 +2619,9 @@ mod impl_cef_dictionary_value_t {
         value: *mut _cef_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_value(key.into(), value.into()).into()
+        let key = &CefString::from(key);
+        let value = &mut Value(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_value(key, value).into()
     }
 
     extern "C" fn set_null<I: ImplDictionaryValue>(
@@ -2600,7 +2629,8 @@ mod impl_cef_dictionary_value_t {
         key: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_null(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.set_null(key).into()
     }
 
     extern "C" fn set_bool<I: ImplDictionaryValue>(
@@ -2609,7 +2639,8 @@ mod impl_cef_dictionary_value_t {
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_bool(key.into(), value.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.set_bool(key, value).into()
     }
 
     extern "C" fn set_int<I: ImplDictionaryValue>(
@@ -2618,7 +2649,8 @@ mod impl_cef_dictionary_value_t {
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_int(key.into(), value.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.set_int(key, value).into()
     }
 
     extern "C" fn set_double<I: ImplDictionaryValue>(
@@ -2627,7 +2659,8 @@ mod impl_cef_dictionary_value_t {
         value: f64,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_double(key.into(), value.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.set_double(key, value).into()
     }
 
     extern "C" fn set_string<I: ImplDictionaryValue>(
@@ -2636,7 +2669,9 @@ mod impl_cef_dictionary_value_t {
         value: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_string(key.into(), value.into()).into()
+        let key = &CefString::from(key);
+        let value = &CefString::from(value);
+        obj.interface.set_string(key, value).into()
     }
 
     extern "C" fn set_binary<I: ImplDictionaryValue>(
@@ -2645,7 +2680,9 @@ mod impl_cef_dictionary_value_t {
         value: *mut _cef_binary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_binary(key.into(), value.into()).into()
+        let key = &CefString::from(key);
+        let value = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_binary(key, value).into()
     }
 
     extern "C" fn set_dictionary<I: ImplDictionaryValue>(
@@ -2654,9 +2691,9 @@ mod impl_cef_dictionary_value_t {
         value: *mut _cef_dictionary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_dictionary(key.into(), value.into())
-            .into()
+        let key = &CefString::from(key);
+        let value = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_dictionary(key, value).into()
     }
 
     extern "C" fn set_list<I: ImplDictionaryValue>(
@@ -2665,7 +2702,9 @@ mod impl_cef_dictionary_value_t {
         value: *mut _cef_list_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_list(key.into(), value.into()).into()
+        let key = &CefString::from(key);
+        let value = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_list(key, value).into()
     }
 }
 
@@ -2677,8 +2716,8 @@ wrapper!(
     pub fn is_valid(&self) -> ::std::os::raw::c_int;
     pub fn is_owned(&self) -> ::std::os::raw::c_int;
     pub fn is_read_only(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: ListValue) -> ::std::os::raw::c_int;
-    pub fn is_equal(&self, that: ListValue) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut ListValue) -> ::std::os::raw::c_int;
+    pub fn is_equal(&self, that: &mut ListValue) -> ::std::os::raw::c_int;
     pub fn copy(&self) -> ListValue;
     pub fn set_size(&self, size: usize) -> ::std::os::raw::c_int;
     pub fn get_size(&self) -> usize;
@@ -2693,15 +2732,19 @@ wrapper!(
     pub fn get_binary(&self, index: usize) -> BinaryValue;
     pub fn get_dictionary(&self, index: usize) -> DictionaryValue;
     pub fn get_list(&self, index: usize) -> ListValue;
-    pub fn set_value(&self, index: usize, value: Value) -> ::std::os::raw::c_int;
+    pub fn set_value(&self, index: usize, value: &mut Value) -> ::std::os::raw::c_int;
     pub fn set_null(&self, index: usize) -> ::std::os::raw::c_int;
     pub fn set_bool(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
     pub fn set_int(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
     pub fn set_double(&self, index: usize, value: f64) -> ::std::os::raw::c_int;
-    pub fn set_string(&self, index: usize, value: CefString) -> ::std::os::raw::c_int;
-    pub fn set_binary(&self, index: usize, value: BinaryValue) -> ::std::os::raw::c_int;
-    pub fn set_dictionary(&self, index: usize, value: DictionaryValue) -> ::std::os::raw::c_int;
-    pub fn set_list(&self, index: usize, value: ListValue) -> ::std::os::raw::c_int;
+    pub fn set_string(&self, index: usize, value: &CefString) -> ::std::os::raw::c_int;
+    pub fn set_binary(&self, index: usize, value: &mut BinaryValue) -> ::std::os::raw::c_int;
+    pub fn set_dictionary(
+        &self,
+        index: usize,
+        value: &mut DictionaryValue,
+    ) -> ::std::os::raw::c_int;
+    pub fn set_list(&self, index: usize, value: &mut ListValue) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplListValue: Sized {
@@ -2714,10 +2757,10 @@ pub trait ImplListValue: Sized {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: ListValue) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut ListValue) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_equal(&self, that: ListValue) -> ::std::os::raw::c_int {
+    fn is_equal(&self, that: &mut ListValue) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn copy(&self) -> ListValue {
@@ -2762,7 +2805,7 @@ pub trait ImplListValue: Sized {
     fn get_list(&self, index: usize) -> ListValue {
         Default::default()
     }
-    fn set_value(&self, index: usize, value: Value) -> ::std::os::raw::c_int {
+    fn set_value(&self, index: usize, value: &mut Value) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn set_null(&self, index: usize) -> ::std::os::raw::c_int {
@@ -2777,16 +2820,16 @@ pub trait ImplListValue: Sized {
     fn set_double(&self, index: usize, value: f64) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_string(&self, index: usize, value: CefString) -> ::std::os::raw::c_int {
+    fn set_string(&self, index: usize, value: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_binary(&self, index: usize, value: BinaryValue) -> ::std::os::raw::c_int {
+    fn set_binary(&self, index: usize, value: &mut BinaryValue) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_dictionary(&self, index: usize, value: DictionaryValue) -> ::std::os::raw::c_int {
+    fn set_dictionary(&self, index: usize, value: &mut DictionaryValue) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_list(&self, index: usize, value: ListValue) -> ::std::os::raw::c_int {
+    fn set_list(&self, index: usize, value: &mut ListValue) -> ::std::os::raw::c_int {
         Default::default()
     }
 
@@ -2857,7 +2900,8 @@ mod impl_cef_list_value_t {
         that: *mut _cef_list_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn is_equal<I: ImplListValue>(
@@ -2865,7 +2909,8 @@ mod impl_cef_list_value_t {
         that: *mut _cef_list_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_equal(that.into()).into()
+        let that = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_equal(that).into()
     }
 
     extern "C" fn copy<I: ImplListValue>(self_: *mut _cef_list_value_t) -> *mut _cef_list_value_t {
@@ -2878,7 +2923,7 @@ mod impl_cef_list_value_t {
         size: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_size(size.into()).into()
+        obj.interface.set_size(size).into()
     }
 
     extern "C" fn get_size<I: ImplListValue>(self_: *mut _cef_list_value_t) -> usize {
@@ -2896,7 +2941,7 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.remove(index.into()).into()
+        obj.interface.remove(index).into()
     }
 
     extern "C" fn get_type<I: ImplListValue>(
@@ -2904,7 +2949,7 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> cef_value_type_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_type(index.into()).into()
+        obj.interface.get_type(index).into()
     }
 
     extern "C" fn get_value<I: ImplListValue>(
@@ -2912,7 +2957,7 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> *mut _cef_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_value(index.into()).into()
+        obj.interface.get_value(index).into()
     }
 
     extern "C" fn get_bool<I: ImplListValue>(
@@ -2920,7 +2965,7 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_bool(index.into()).into()
+        obj.interface.get_bool(index).into()
     }
 
     extern "C" fn get_int<I: ImplListValue>(
@@ -2928,12 +2973,12 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_int(index.into()).into()
+        obj.interface.get_int(index).into()
     }
 
     extern "C" fn get_double<I: ImplListValue>(self_: *mut _cef_list_value_t, index: usize) -> f64 {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_double(index.into()).into()
+        obj.interface.get_double(index).into()
     }
 
     extern "C" fn get_string<I: ImplListValue>(
@@ -2941,7 +2986,7 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_string(index.into()).into()
+        obj.interface.get_string(index).into()
     }
 
     extern "C" fn get_binary<I: ImplListValue>(
@@ -2949,7 +2994,7 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> *mut _cef_binary_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_binary(index.into()).into()
+        obj.interface.get_binary(index).into()
     }
 
     extern "C" fn get_dictionary<I: ImplListValue>(
@@ -2957,7 +3002,7 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> *mut _cef_dictionary_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_dictionary(index.into()).into()
+        obj.interface.get_dictionary(index).into()
     }
 
     extern "C" fn get_list<I: ImplListValue>(
@@ -2965,7 +3010,7 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> *mut _cef_list_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_list(index.into()).into()
+        obj.interface.get_list(index).into()
     }
 
     extern "C" fn set_value<I: ImplListValue>(
@@ -2974,7 +3019,8 @@ mod impl_cef_list_value_t {
         value: *mut _cef_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_value(index.into(), value.into()).into()
+        let value = &mut Value(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_value(index, value).into()
     }
 
     extern "C" fn set_null<I: ImplListValue>(
@@ -2982,7 +3028,7 @@ mod impl_cef_list_value_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_null(index.into()).into()
+        obj.interface.set_null(index).into()
     }
 
     extern "C" fn set_bool<I: ImplListValue>(
@@ -2991,7 +3037,7 @@ mod impl_cef_list_value_t {
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_bool(index.into(), value.into()).into()
+        obj.interface.set_bool(index, value).into()
     }
 
     extern "C" fn set_int<I: ImplListValue>(
@@ -3000,7 +3046,7 @@ mod impl_cef_list_value_t {
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_int(index.into(), value.into()).into()
+        obj.interface.set_int(index, value).into()
     }
 
     extern "C" fn set_double<I: ImplListValue>(
@@ -3009,7 +3055,7 @@ mod impl_cef_list_value_t {
         value: f64,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_double(index.into(), value.into()).into()
+        obj.interface.set_double(index, value).into()
     }
 
     extern "C" fn set_string<I: ImplListValue>(
@@ -3018,7 +3064,8 @@ mod impl_cef_list_value_t {
         value: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_string(index.into(), value.into()).into()
+        let value = &CefString::from(value);
+        obj.interface.set_string(index, value).into()
     }
 
     extern "C" fn set_binary<I: ImplListValue>(
@@ -3027,7 +3074,8 @@ mod impl_cef_list_value_t {
         value: *mut _cef_binary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_binary(index.into(), value.into()).into()
+        let value = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_binary(index, value).into()
     }
 
     extern "C" fn set_dictionary<I: ImplListValue>(
@@ -3036,9 +3084,8 @@ mod impl_cef_list_value_t {
         value: *mut _cef_dictionary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_dictionary(index.into(), value.into())
-            .into()
+        let value = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_dictionary(index, value).into()
     }
 
     extern "C" fn set_list<I: ImplListValue>(
@@ -3047,7 +3094,8 @@ mod impl_cef_list_value_t {
         value: *mut _cef_list_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_list(index.into(), value.into()).into()
+        let value = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_list(index, value).into()
     }
 }
 
@@ -3057,7 +3105,7 @@ wrapper!(
     pub struct Image(_cef_image_t);
 
     pub fn is_empty(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: Image) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut Image) -> ::std::os::raw::c_int;
     pub fn add_bitmap(
         &self,
         scale_factor: f32,
@@ -3119,7 +3167,7 @@ pub trait ImplImage: Sized {
     fn is_empty(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: Image) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut Image) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn add_bitmap(
@@ -3236,7 +3284,8 @@ mod impl_cef_image_t {
         that: *mut _cef_image_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut Image(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn add_bitmap<I: ImplImage>(
@@ -3252,13 +3301,13 @@ mod impl_cef_image_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
             .add_bitmap(
-                scale_factor.into(),
-                pixel_width.into(),
-                pixel_height.into(),
-                color_type.into(),
-                alpha_type.into(),
-                pixel_data.into(),
-                pixel_data_size.into(),
+                scale_factor,
+                pixel_width,
+                pixel_height,
+                color_type,
+                alpha_type,
+                pixel_data,
+                pixel_data_size,
             )
             .into()
     }
@@ -3271,7 +3320,7 @@ mod impl_cef_image_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .add_png(scale_factor.into(), png_data.into(), png_data_size.into())
+            .add_png(scale_factor, png_data, png_data_size)
             .into()
     }
 
@@ -3283,7 +3332,7 @@ mod impl_cef_image_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .add_jpeg(scale_factor.into(), jpeg_data.into(), jpeg_data_size.into())
+            .add_jpeg(scale_factor, jpeg_data, jpeg_data_size)
             .into()
     }
 
@@ -3302,7 +3351,7 @@ mod impl_cef_image_t {
         scale_factor: f32,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.has_representation(scale_factor.into()).into()
+        obj.interface.has_representation(scale_factor).into()
     }
 
     extern "C" fn remove_representation<I: ImplImage>(
@@ -3310,9 +3359,7 @@ mod impl_cef_image_t {
         scale_factor: f32,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .remove_representation(scale_factor.into())
-            .into()
+        obj.interface.remove_representation(scale_factor).into()
     }
 
     extern "C" fn get_representation_info<I: ImplImage>(
@@ -3324,12 +3371,7 @@ mod impl_cef_image_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_representation_info(
-                scale_factor.into(),
-                actual_scale_factor.into(),
-                pixel_width.into(),
-                pixel_height.into(),
-            )
+            .get_representation_info(scale_factor, actual_scale_factor, pixel_width, pixel_height)
             .into()
     }
 
@@ -3344,11 +3386,11 @@ mod impl_cef_image_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
             .get_as_bitmap(
-                scale_factor.into(),
-                color_type.into(),
-                alpha_type.into(),
-                pixel_width.into(),
-                pixel_height.into(),
+                scale_factor,
+                color_type,
+                alpha_type,
+                pixel_width,
+                pixel_height,
             )
             .into()
     }
@@ -3362,12 +3404,7 @@ mod impl_cef_image_t {
     ) -> *mut _cef_binary_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_as_png(
-                scale_factor.into(),
-                with_transparency.into(),
-                pixel_width.into(),
-                pixel_height.into(),
-            )
+            .get_as_png(scale_factor, with_transparency, pixel_width, pixel_height)
             .into()
     }
 
@@ -3380,12 +3417,7 @@ mod impl_cef_image_t {
     ) -> *mut _cef_binary_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_as_jpeg(
-                scale_factor.into(),
-                quality.into(),
-                pixel_width.into(),
-                pixel_height.into(),
-            )
+            .get_as_jpeg(scale_factor, quality, pixel_width, pixel_height)
             .into()
     }
 }
@@ -3444,7 +3476,7 @@ mod impl_cef_read_handler_t {
         n: usize,
     ) -> usize {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.read(ptr.into(), size.into(), n.into()).into()
+        obj.interface.read(ptr, size, n).into()
     }
 
     extern "C" fn seek<I: ImplReadHandler>(
@@ -3453,7 +3485,7 @@ mod impl_cef_read_handler_t {
         whence: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.seek(offset.into(), whence.into()).into()
+        obj.interface.seek(offset, whence).into()
     }
 
     extern "C" fn tell<I: ImplReadHandler>(self_: *mut _cef_read_handler_t) -> i64 {
@@ -3530,7 +3562,7 @@ mod impl_cef_stream_reader_t {
         n: usize,
     ) -> usize {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.read(ptr.into(), size.into(), n.into()).into()
+        obj.interface.read(ptr, size, n).into()
     }
 
     extern "C" fn seek<I: ImplStreamReader>(
@@ -3539,7 +3571,7 @@ mod impl_cef_stream_reader_t {
         whence: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.seek(offset.into(), whence.into()).into()
+        obj.interface.seek(offset, whence).into()
     }
 
     extern "C" fn tell<I: ImplStreamReader>(self_: *mut _cef_stream_reader_t) -> i64 {
@@ -3616,9 +3648,7 @@ mod impl_cef_write_handler_t {
         n: usize,
     ) -> usize {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .write(ptr.into(), size.into(), n.into())
-            .into()
+        obj.interface.write(ptr, size, n).into()
     }
 
     extern "C" fn seek<I: ImplWriteHandler>(
@@ -3627,7 +3657,7 @@ mod impl_cef_write_handler_t {
         whence: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.seek(offset.into(), whence.into()).into()
+        obj.interface.seek(offset, whence).into()
     }
 
     extern "C" fn tell<I: ImplWriteHandler>(self_: *mut _cef_write_handler_t) -> i64 {
@@ -3704,9 +3734,7 @@ mod impl_cef_stream_writer_t {
         n: usize,
     ) -> usize {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .write(ptr.into(), size.into(), n.into())
-            .into()
+        obj.interface.write(ptr, size, n).into()
     }
 
     extern "C" fn seek<I: ImplStreamWriter>(
@@ -3715,7 +3743,7 @@ mod impl_cef_stream_writer_t {
         whence: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.seek(offset.into(), whence.into()).into()
+        obj.interface.seek(offset, whence).into()
     }
 
     extern "C" fn tell<I: ImplStreamWriter>(self_: *mut _cef_stream_writer_t) -> i64 {
@@ -3755,17 +3783,17 @@ wrapper!(
     pub fn get_fragment_html(&self) -> CefStringUserfree;
     pub fn get_fragment_base_url(&self) -> CefStringUserfree;
     pub fn get_file_name(&self) -> CefStringUserfree;
-    pub fn get_file_contents(&self, writer: StreamWriter) -> usize;
-    pub fn get_file_names(&self, names: CefStringList) -> ::std::os::raw::c_int;
-    pub fn get_file_paths(&self, paths: CefStringList) -> ::std::os::raw::c_int;
-    pub fn set_link_url(&self, url: CefString);
-    pub fn set_link_title(&self, title: CefString);
-    pub fn set_link_metadata(&self, data: CefString);
-    pub fn set_fragment_text(&self, text: CefString);
-    pub fn set_fragment_html(&self, html: CefString);
-    pub fn set_fragment_base_url(&self, base_url: CefString);
+    pub fn get_file_contents(&self, writer: &mut StreamWriter) -> usize;
+    pub fn get_file_names(&self, names: &mut CefStringList) -> ::std::os::raw::c_int;
+    pub fn get_file_paths(&self, paths: &mut CefStringList) -> ::std::os::raw::c_int;
+    pub fn set_link_url(&self, url: &CefString);
+    pub fn set_link_title(&self, title: &CefString);
+    pub fn set_link_metadata(&self, data: &CefString);
+    pub fn set_fragment_text(&self, text: &CefString);
+    pub fn set_fragment_html(&self, html: &CefString);
+    pub fn set_fragment_base_url(&self, base_url: &CefString);
     pub fn reset_file_contents(&self);
-    pub fn add_file(&self, path: CefString, display_name: CefString);
+    pub fn add_file(&self, path: &CefString, display_name: &CefString);
     pub fn clear_filenames(&self);
     pub fn get_image(&self) -> Image;
     pub fn get_image_hotspot(&self) -> Point;
@@ -3809,23 +3837,23 @@ pub trait ImplDragData: Sized {
     fn get_file_name(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn get_file_contents(&self, writer: StreamWriter) -> usize {
+    fn get_file_contents(&self, writer: &mut StreamWriter) -> usize {
         Default::default()
     }
-    fn get_file_names(&self, names: CefStringList) -> ::std::os::raw::c_int {
+    fn get_file_names(&self, names: &mut CefStringList) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_file_paths(&self, paths: CefStringList) -> ::std::os::raw::c_int {
+    fn get_file_paths(&self, paths: &mut CefStringList) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_link_url(&self, url: CefString) {}
-    fn set_link_title(&self, title: CefString) {}
-    fn set_link_metadata(&self, data: CefString) {}
-    fn set_fragment_text(&self, text: CefString) {}
-    fn set_fragment_html(&self, html: CefString) {}
-    fn set_fragment_base_url(&self, base_url: CefString) {}
+    fn set_link_url(&self, url: &CefString) {}
+    fn set_link_title(&self, title: &CefString) {}
+    fn set_link_metadata(&self, data: &CefString) {}
+    fn set_fragment_text(&self, text: &CefString) {}
+    fn set_fragment_html(&self, html: &CefString) {}
+    fn set_fragment_base_url(&self, base_url: &CefString) {}
     fn reset_file_contents(&self) {}
-    fn add_file(&self, path: CefString, display_name: CefString) {}
+    fn add_file(&self, path: &CefString, display_name: &CefString) {}
     fn clear_filenames(&self) {}
     fn get_image(&self) -> Image {
         Default::default()
@@ -3960,7 +3988,8 @@ mod impl_cef_drag_data_t {
         writer: *mut _cef_stream_writer_t,
     ) -> usize {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_file_contents(writer.into()).into()
+        let writer = &mut StreamWriter(unsafe { RefGuard::from_raw_add_ref(writer) });
+        obj.interface.get_file_contents(writer).into()
     }
 
     extern "C" fn get_file_names<I: ImplDragData>(
@@ -3968,7 +3997,8 @@ mod impl_cef_drag_data_t {
         names: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_file_names(names.into()).into()
+        let names = &mut CefStringList::from(names);
+        obj.interface.get_file_names(names).into()
     }
 
     extern "C" fn get_file_paths<I: ImplDragData>(
@@ -3976,7 +4006,8 @@ mod impl_cef_drag_data_t {
         paths: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_file_paths(paths.into()).into()
+        let paths = &mut CefStringList::from(paths);
+        obj.interface.get_file_paths(paths).into()
     }
 
     extern "C" fn set_link_url<I: ImplDragData>(
@@ -3984,7 +4015,8 @@ mod impl_cef_drag_data_t {
         url: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_link_url(url.into())
+        let url = &CefString::from(url);
+        obj.interface.set_link_url(url)
     }
 
     extern "C" fn set_link_title<I: ImplDragData>(
@@ -3992,7 +4024,8 @@ mod impl_cef_drag_data_t {
         title: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_link_title(title.into())
+        let title = &CefString::from(title);
+        obj.interface.set_link_title(title)
     }
 
     extern "C" fn set_link_metadata<I: ImplDragData>(
@@ -4000,7 +4033,8 @@ mod impl_cef_drag_data_t {
         data: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_link_metadata(data.into())
+        let data = &CefString::from(data);
+        obj.interface.set_link_metadata(data)
     }
 
     extern "C" fn set_fragment_text<I: ImplDragData>(
@@ -4008,7 +4042,8 @@ mod impl_cef_drag_data_t {
         text: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_fragment_text(text.into())
+        let text = &CefString::from(text);
+        obj.interface.set_fragment_text(text)
     }
 
     extern "C" fn set_fragment_html<I: ImplDragData>(
@@ -4016,7 +4051,8 @@ mod impl_cef_drag_data_t {
         html: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_fragment_html(html.into())
+        let html = &CefString::from(html);
+        obj.interface.set_fragment_html(html)
     }
 
     extern "C" fn set_fragment_base_url<I: ImplDragData>(
@@ -4024,7 +4060,8 @@ mod impl_cef_drag_data_t {
         base_url: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_fragment_base_url(base_url.into())
+        let base_url = &CefString::from(base_url);
+        obj.interface.set_fragment_base_url(base_url)
     }
 
     extern "C" fn reset_file_contents<I: ImplDragData>(self_: *mut _cef_drag_data_t) {
@@ -4038,7 +4075,9 @@ mod impl_cef_drag_data_t {
         display_name: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.add_file(path.into(), display_name.into())
+        let path = &CefString::from(path);
+        let display_name = &CefString::from(display_name);
+        obj.interface.add_file(path, display_name)
     }
 
     extern "C" fn clear_filenames<I: ImplDragData>(self_: *mut _cef_drag_data_t) {
@@ -4069,11 +4108,11 @@ wrapper!(
     #[derive(Clone)]
     pub struct Domvisitor(_cef_domvisitor_t);
 
-    pub fn visit(&self, document: Domdocument);
+    pub fn visit(&self, document: &mut Domdocument);
 );
 
 pub trait ImplDomvisitor: Sized {
-    fn visit(&self, document: Domdocument) {}
+    fn visit(&self, document: &mut Domdocument) {}
 
     fn into_raw(self) -> *mut _cef_domvisitor_t {
         let mut object: _cef_domvisitor_t = unsafe { std::mem::zeroed() };
@@ -4094,7 +4133,8 @@ mod impl_cef_domvisitor_t {
         document: *mut _cef_domdocument_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.visit(document.into())
+        let document = &mut Domdocument(unsafe { RefGuard::from_raw_add_ref(document) });
+        obj.interface.visit(document)
     }
 }
 
@@ -4108,7 +4148,7 @@ wrapper!(
     pub fn get_body(&self) -> Domnode;
     pub fn get_head(&self) -> Domnode;
     pub fn get_title(&self) -> CefStringUserfree;
-    pub fn get_element_by_id(&self, id: CefString) -> Domnode;
+    pub fn get_element_by_id(&self, id: &CefString) -> Domnode;
     pub fn get_focused_node(&self) -> Domnode;
     pub fn has_selection(&self) -> ::std::os::raw::c_int;
     pub fn get_selection_start_offset(&self) -> ::std::os::raw::c_int;
@@ -4116,7 +4156,7 @@ wrapper!(
     pub fn get_selection_as_markup(&self) -> CefStringUserfree;
     pub fn get_selection_as_text(&self) -> CefStringUserfree;
     pub fn get_base_url(&self) -> CefStringUserfree;
-    pub fn get_complete_url(&self, partial_url: CefString) -> CefStringUserfree;
+    pub fn get_complete_url(&self, partial_url: &CefString) -> CefStringUserfree;
 );
 
 pub trait ImplDomdocument: Sized {
@@ -4135,7 +4175,7 @@ pub trait ImplDomdocument: Sized {
     fn get_title(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn get_element_by_id(&self, id: CefString) -> Domnode {
+    fn get_element_by_id(&self, id: &CefString) -> Domnode {
         Default::default()
     }
     fn get_focused_node(&self) -> Domnode {
@@ -4159,7 +4199,7 @@ pub trait ImplDomdocument: Sized {
     fn get_base_url(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn get_complete_url(&self, partial_url: CefString) -> CefStringUserfree {
+    fn get_complete_url(&self, partial_url: &CefString) -> CefStringUserfree {
         Default::default()
     }
 
@@ -4230,7 +4270,8 @@ mod impl_cef_domdocument_t {
         id: *const cef_string_t,
     ) -> *mut _cef_domnode_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_element_by_id(id.into()).into()
+        let id = &CefString::from(id);
+        obj.interface.get_element_by_id(id).into()
     }
 
     extern "C" fn get_focused_node<I: ImplDomdocument>(
@@ -4287,7 +4328,8 @@ mod impl_cef_domdocument_t {
         partial_url: *const cef_string_t,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_complete_url(partial_url.into()).into()
+        let partial_url = &CefString::from(partial_url);
+        obj.interface.get_complete_url(partial_url).into()
     }
 }
 
@@ -4302,10 +4344,10 @@ wrapper!(
     pub fn is_editable(&self) -> ::std::os::raw::c_int;
     pub fn is_form_control_element(&self) -> ::std::os::raw::c_int;
     pub fn get_form_control_element_type(&self) -> DomFormControlType;
-    pub fn is_same(&self, that: Domnode) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut Domnode) -> ::std::os::raw::c_int;
     pub fn get_name(&self) -> CefStringUserfree;
     pub fn get_value(&self) -> CefStringUserfree;
-    pub fn set_value(&self, value: CefString) -> ::std::os::raw::c_int;
+    pub fn set_value(&self, value: &CefString) -> ::std::os::raw::c_int;
     pub fn get_as_markup(&self) -> CefStringUserfree;
     pub fn get_document(&self) -> Domdocument;
     pub fn get_parent(&self) -> Domnode;
@@ -4316,13 +4358,13 @@ wrapper!(
     pub fn get_last_child(&self) -> Domnode;
     pub fn get_element_tag_name(&self) -> CefStringUserfree;
     pub fn has_element_attributes(&self) -> ::std::os::raw::c_int;
-    pub fn has_element_attribute(&self, attr_name: CefString) -> ::std::os::raw::c_int;
-    pub fn get_element_attribute(&self, attr_name: CefString) -> CefStringUserfree;
-    pub fn get_element_attributes(&self, attr_map: CefStringMap);
+    pub fn has_element_attribute(&self, attr_name: &CefString) -> ::std::os::raw::c_int;
+    pub fn get_element_attribute(&self, attr_name: &CefString) -> CefStringUserfree;
+    pub fn get_element_attributes(&self, attr_map: &mut CefStringMap);
     pub fn set_element_attribute(
         &self,
-        attr_name: CefString,
-        value: CefString,
+        attr_name: &CefString,
+        value: &CefString,
     ) -> ::std::os::raw::c_int;
     pub fn get_element_inner_text(&self) -> CefStringUserfree;
     pub fn get_element_bounds(&self) -> Rect;
@@ -4347,7 +4389,7 @@ pub trait ImplDomnode: Sized {
     fn get_form_control_element_type(&self) -> DomFormControlType {
         Default::default()
     }
-    fn is_same(&self, that: Domnode) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut Domnode) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_name(&self) -> CefStringUserfree {
@@ -4356,7 +4398,7 @@ pub trait ImplDomnode: Sized {
     fn get_value(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_value(&self, value: CefString) -> ::std::os::raw::c_int {
+    fn set_value(&self, value: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_as_markup(&self) -> CefStringUserfree {
@@ -4389,17 +4431,17 @@ pub trait ImplDomnode: Sized {
     fn has_element_attributes(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn has_element_attribute(&self, attr_name: CefString) -> ::std::os::raw::c_int {
+    fn has_element_attribute(&self, attr_name: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_element_attribute(&self, attr_name: CefString) -> CefStringUserfree {
+    fn get_element_attribute(&self, attr_name: &CefString) -> CefStringUserfree {
         Default::default()
     }
-    fn get_element_attributes(&self, attr_map: CefStringMap) {}
+    fn get_element_attributes(&self, attr_map: &mut CefStringMap) {}
     fn set_element_attribute(
         &self,
-        attr_name: CefString,
-        value: CefString,
+        attr_name: &CefString,
+        value: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -4488,7 +4530,8 @@ mod impl_cef_domnode_t {
         that: *mut _cef_domnode_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut Domnode(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn get_name<I: ImplDomnode>(self_: *mut _cef_domnode_t) -> cef_string_userfree_t {
@@ -4506,7 +4549,8 @@ mod impl_cef_domnode_t {
         value: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_value(value.into()).into()
+        let value = &CefString::from(value);
+        obj.interface.set_value(value).into()
     }
 
     extern "C" fn get_as_markup<I: ImplDomnode>(
@@ -4582,7 +4626,8 @@ mod impl_cef_domnode_t {
         attr_name: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.has_element_attribute(attr_name.into()).into()
+        let attr_name = &CefString::from(attr_name);
+        obj.interface.has_element_attribute(attr_name).into()
     }
 
     extern "C" fn get_element_attribute<I: ImplDomnode>(
@@ -4590,7 +4635,8 @@ mod impl_cef_domnode_t {
         attr_name: *const cef_string_t,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_element_attribute(attr_name.into()).into()
+        let attr_name = &CefString::from(attr_name);
+        obj.interface.get_element_attribute(attr_name).into()
     }
 
     extern "C" fn get_element_attributes<I: ImplDomnode>(
@@ -4598,7 +4644,8 @@ mod impl_cef_domnode_t {
         attr_map: cef_string_map_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_element_attributes(attr_map.into())
+        let attr_map = &mut CefStringMap::from(attr_map);
+        obj.interface.get_element_attributes(attr_map)
     }
 
     extern "C" fn set_element_attribute<I: ImplDomnode>(
@@ -4607,9 +4654,9 @@ mod impl_cef_domnode_t {
         value: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_element_attribute(attr_name.into(), value.into())
-            .into()
+        let attr_name = &CefString::from(attr_name);
+        let value = &CefString::from(value);
+        obj.interface.set_element_attribute(attr_name, value).into()
     }
 
     extern "C" fn get_element_inner_text<I: ImplDomnode>(
@@ -4786,34 +4833,34 @@ wrapper!(
 
     pub fn is_read_only(&self) -> ::std::os::raw::c_int;
     pub fn get_url(&self) -> CefStringUserfree;
-    pub fn set_url(&self, url: CefString);
+    pub fn set_url(&self, url: &CefString);
     pub fn get_method(&self) -> CefStringUserfree;
-    pub fn set_method(&self, method: CefString);
-    pub fn set_referrer(&self, referrer_url: CefString, policy: ReferrerPolicy);
+    pub fn set_method(&self, method: &CefString);
+    pub fn set_referrer(&self, referrer_url: &CefString, policy: ReferrerPolicy);
     pub fn get_referrer_url(&self) -> CefStringUserfree;
     pub fn get_referrer_policy(&self) -> ReferrerPolicy;
     pub fn get_post_data(&self) -> PostData;
-    pub fn set_post_data(&self, post_data: PostData);
-    pub fn get_header_map(&self, header_map: CefStringMultimap);
-    pub fn set_header_map(&self, header_map: CefStringMultimap);
-    pub fn get_header_by_name(&self, name: CefString) -> CefStringUserfree;
+    pub fn set_post_data(&self, post_data: &mut PostData);
+    pub fn get_header_map(&self, header_map: &mut CefStringMultimap);
+    pub fn set_header_map(&self, header_map: &mut CefStringMultimap);
+    pub fn get_header_by_name(&self, name: &CefString) -> CefStringUserfree;
     pub fn set_header_by_name(
         &self,
-        name: CefString,
-        value: CefString,
+        name: &CefString,
+        value: &CefString,
         overwrite: ::std::os::raw::c_int,
     );
     pub fn set(
         &self,
-        url: CefString,
-        method: CefString,
-        post_data: PostData,
-        header_map: CefStringMultimap,
+        url: &CefString,
+        method: &CefString,
+        post_data: &mut PostData,
+        header_map: &mut CefStringMultimap,
     );
     pub fn get_flags(&self) -> ::std::os::raw::c_int;
     pub fn set_flags(&self, flags: ::std::os::raw::c_int);
     pub fn get_first_party_for_cookies(&self) -> CefStringUserfree;
-    pub fn set_first_party_for_cookies(&self, url: CefString);
+    pub fn set_first_party_for_cookies(&self, url: &CefString);
     pub fn get_resource_type(&self) -> ResourceType;
     pub fn get_transition_type(&self) -> TransitionType;
     pub fn get_identifier(&self) -> u64;
@@ -4826,12 +4873,12 @@ pub trait ImplRequest: Sized {
     fn get_url(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_url(&self, url: CefString) {}
+    fn set_url(&self, url: &CefString) {}
     fn get_method(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_method(&self, method: CefString) {}
-    fn set_referrer(&self, referrer_url: CefString, policy: ReferrerPolicy) {}
+    fn set_method(&self, method: &CefString) {}
+    fn set_referrer(&self, referrer_url: &CefString, policy: ReferrerPolicy) {}
     fn get_referrer_url(&self) -> CefStringUserfree {
         Default::default()
     }
@@ -4841,25 +4888,25 @@ pub trait ImplRequest: Sized {
     fn get_post_data(&self) -> PostData {
         Default::default()
     }
-    fn set_post_data(&self, post_data: PostData) {}
-    fn get_header_map(&self, header_map: CefStringMultimap) {}
-    fn set_header_map(&self, header_map: CefStringMultimap) {}
-    fn get_header_by_name(&self, name: CefString) -> CefStringUserfree {
+    fn set_post_data(&self, post_data: &mut PostData) {}
+    fn get_header_map(&self, header_map: &mut CefStringMultimap) {}
+    fn set_header_map(&self, header_map: &mut CefStringMultimap) {}
+    fn get_header_by_name(&self, name: &CefString) -> CefStringUserfree {
         Default::default()
     }
     fn set_header_by_name(
         &self,
-        name: CefString,
-        value: CefString,
+        name: &CefString,
+        value: &CefString,
         overwrite: ::std::os::raw::c_int,
     ) {
     }
     fn set(
         &self,
-        url: CefString,
-        method: CefString,
-        post_data: PostData,
-        header_map: CefStringMultimap,
+        url: &CefString,
+        method: &CefString,
+        post_data: &mut PostData,
+        header_map: &mut CefStringMultimap,
     ) {
     }
     fn get_flags(&self) -> ::std::os::raw::c_int {
@@ -4869,7 +4916,7 @@ pub trait ImplRequest: Sized {
     fn get_first_party_for_cookies(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_first_party_for_cookies(&self, url: CefString) {}
+    fn set_first_party_for_cookies(&self, url: &CefString) {}
     fn get_resource_type(&self) -> ResourceType {
         Default::default()
     }
@@ -4929,7 +4976,8 @@ mod impl_cef_request_t {
 
     extern "C" fn set_url<I: ImplRequest>(self_: *mut _cef_request_t, url: *const cef_string_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_url(url.into())
+        let url = &CefString::from(url);
+        obj.interface.set_url(url)
     }
 
     extern "C" fn get_method<I: ImplRequest>(self_: *mut _cef_request_t) -> cef_string_userfree_t {
@@ -4942,7 +4990,8 @@ mod impl_cef_request_t {
         method: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_method(method.into())
+        let method = &CefString::from(method);
+        obj.interface.set_method(method)
     }
 
     extern "C" fn set_referrer<I: ImplRequest>(
@@ -4951,8 +5000,8 @@ mod impl_cef_request_t {
         policy: cef_referrer_policy_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_referrer(referrer_url.into(), policy.into())
+        let referrer_url = &CefString::from(referrer_url);
+        obj.interface.set_referrer(referrer_url, policy)
     }
 
     extern "C" fn get_referrer_url<I: ImplRequest>(
@@ -4981,7 +5030,8 @@ mod impl_cef_request_t {
         post_data: *mut _cef_post_data_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_post_data(post_data.into())
+        let post_data = &mut PostData(unsafe { RefGuard::from_raw_add_ref(post_data) });
+        obj.interface.set_post_data(post_data)
     }
 
     extern "C" fn get_header_map<I: ImplRequest>(
@@ -4989,7 +5039,8 @@ mod impl_cef_request_t {
         header_map: cef_string_multimap_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_header_map(header_map.into())
+        let header_map = &mut CefStringMultimap::from(header_map);
+        obj.interface.get_header_map(header_map)
     }
 
     extern "C" fn set_header_map<I: ImplRequest>(
@@ -4997,7 +5048,8 @@ mod impl_cef_request_t {
         header_map: cef_string_multimap_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_header_map(header_map.into())
+        let header_map = &mut CefStringMultimap::from(header_map);
+        obj.interface.set_header_map(header_map)
     }
 
     extern "C" fn get_header_by_name<I: ImplRequest>(
@@ -5005,7 +5057,8 @@ mod impl_cef_request_t {
         name: *const cef_string_t,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_header_by_name(name.into()).into()
+        let name = &CefString::from(name);
+        obj.interface.get_header_by_name(name).into()
     }
 
     extern "C" fn set_header_by_name<I: ImplRequest>(
@@ -5015,8 +5068,9 @@ mod impl_cef_request_t {
         overwrite: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_header_by_name(name.into(), value.into(), overwrite.into())
+        let name = &CefString::from(name);
+        let value = &CefString::from(value);
+        obj.interface.set_header_by_name(name, value, overwrite)
     }
 
     extern "C" fn set<I: ImplRequest>(
@@ -5027,12 +5081,11 @@ mod impl_cef_request_t {
         header_map: cef_string_multimap_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set(
-            url.into(),
-            method.into(),
-            post_data.into(),
-            header_map.into(),
-        )
+        let url = &CefString::from(url);
+        let method = &CefString::from(method);
+        let post_data = &mut PostData(unsafe { RefGuard::from_raw_add_ref(post_data) });
+        let header_map = &mut CefStringMultimap::from(header_map);
+        obj.interface.set(url, method, post_data, header_map)
     }
 
     extern "C" fn get_flags<I: ImplRequest>(self_: *mut _cef_request_t) -> ::std::os::raw::c_int {
@@ -5045,7 +5098,7 @@ mod impl_cef_request_t {
         flags: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_flags(flags.into())
+        obj.interface.set_flags(flags)
     }
 
     extern "C" fn get_first_party_for_cookies<I: ImplRequest>(
@@ -5060,7 +5113,8 @@ mod impl_cef_request_t {
         url: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_first_party_for_cookies(url.into())
+        let url = &CefString::from(url);
+        obj.interface.set_first_party_for_cookies(url)
     }
 
     extern "C" fn get_resource_type<I: ImplRequest>(
@@ -5091,9 +5145,9 @@ wrapper!(
     pub fn is_read_only(&self) -> ::std::os::raw::c_int;
     pub fn has_excluded_elements(&self) -> ::std::os::raw::c_int;
     pub fn get_element_count(&self) -> usize;
-    pub fn get_elements(&self, elements_count: *mut usize, elements: *mut PostDataElement);
-    pub fn remove_element(&self, element: PostDataElement) -> ::std::os::raw::c_int;
-    pub fn add_element(&self, element: PostDataElement) -> ::std::os::raw::c_int;
+    pub fn get_elements(&self, elements_count: *mut usize, elements: *mut &mut PostDataElement);
+    pub fn remove_element(&self, element: &mut PostDataElement) -> ::std::os::raw::c_int;
+    pub fn add_element(&self, element: &mut PostDataElement) -> ::std::os::raw::c_int;
     pub fn remove_elements(&self);
 );
 
@@ -5107,11 +5161,11 @@ pub trait ImplPostData: Sized {
     fn get_element_count(&self) -> usize {
         Default::default()
     }
-    fn get_elements(&self, elements_count: *mut usize, elements: *mut PostDataElement) {}
-    fn remove_element(&self, element: PostDataElement) -> ::std::os::raw::c_int {
+    fn get_elements(&self, elements_count: *mut usize, elements: *mut &mut PostDataElement) {}
+    fn remove_element(&self, element: &mut PostDataElement) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn add_element(&self, element: PostDataElement) -> ::std::os::raw::c_int {
+    fn add_element(&self, element: &mut PostDataElement) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn remove_elements(&self) {}
@@ -5161,8 +5215,7 @@ mod impl_cef_post_data_t {
         elements: *mut *mut _cef_post_data_element_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_elements(elements_count.into(), elements.into())
+        obj.interface.get_elements(elements_count, elements)
     }
 
     extern "C" fn remove_element<I: ImplPostData>(
@@ -5170,7 +5223,8 @@ mod impl_cef_post_data_t {
         element: *mut _cef_post_data_element_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.remove_element(element.into()).into()
+        let element = &mut PostDataElement(unsafe { RefGuard::from_raw_add_ref(element) });
+        obj.interface.remove_element(element).into()
     }
 
     extern "C" fn add_element<I: ImplPostData>(
@@ -5178,7 +5232,8 @@ mod impl_cef_post_data_t {
         element: *mut _cef_post_data_element_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.add_element(element.into()).into()
+        let element = &mut PostDataElement(unsafe { RefGuard::from_raw_add_ref(element) });
+        obj.interface.add_element(element).into()
     }
 
     extern "C" fn remove_elements<I: ImplPostData>(self_: *mut _cef_post_data_t) {
@@ -5194,7 +5249,7 @@ wrapper!(
 
     pub fn is_read_only(&self) -> ::std::os::raw::c_int;
     pub fn set_to_empty(&self);
-    pub fn set_to_file(&self, file_name: CefString);
+    pub fn set_to_file(&self, file_name: &CefString);
     pub fn set_to_bytes(&self, size: usize, bytes: *const ::std::os::raw::c_void);
     pub fn get_type(&self) -> PostdataelementType;
     pub fn get_file(&self) -> CefStringUserfree;
@@ -5207,7 +5262,7 @@ pub trait ImplPostDataElement: Sized {
         Default::default()
     }
     fn set_to_empty(&self) {}
-    fn set_to_file(&self, file_name: CefString) {}
+    fn set_to_file(&self, file_name: &CefString) {}
     fn set_to_bytes(&self, size: usize, bytes: *const ::std::os::raw::c_void) {}
     fn get_type(&self) -> PostdataelementType {
         Default::default()
@@ -5260,7 +5315,8 @@ mod impl_cef_post_data_element_t {
         file_name: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_to_file(file_name.into())
+        let file_name = &CefString::from(file_name);
+        obj.interface.set_to_file(file_name)
     }
 
     extern "C" fn set_to_bytes<I: ImplPostDataElement>(
@@ -5269,7 +5325,7 @@ mod impl_cef_post_data_element_t {
         bytes: *const ::std::os::raw::c_void,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_to_bytes(size.into(), bytes.into())
+        obj.interface.set_to_bytes(size, bytes)
     }
 
     extern "C" fn get_type<I: ImplPostDataElement>(
@@ -5299,7 +5355,7 @@ mod impl_cef_post_data_element_t {
         bytes: *mut ::std::os::raw::c_void,
     ) -> usize {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_bytes(size.into(), bytes.into()).into()
+        obj.interface.get_bytes(size, bytes).into()
     }
 }
 
@@ -5308,11 +5364,11 @@ wrapper!(
     #[derive(Clone)]
     pub struct CefStringVisitor(_cef_string_visitor_t);
 
-    pub fn visit(&self, string: CefString);
+    pub fn visit(&self, string: &CefString);
 );
 
 pub trait ImplCefStringVisitor: Sized {
-    fn visit(&self, string: CefString) {}
+    fn visit(&self, string: &CefString) {}
 
     fn into_raw(self) -> *mut _cef_string_visitor_t {
         let mut object: _cef_string_visitor_t = unsafe { std::mem::zeroed() };
@@ -5333,7 +5389,8 @@ mod impl_cef_string_visitor_t {
         string: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.visit(string.into())
+        let string = &CefString::from(string);
+        obj.interface.visit(string)
     }
 }
 
@@ -5418,14 +5475,14 @@ wrapper!(
     pub fn del(&self);
     pub fn select_all(&self);
     pub fn view_source(&self);
-    pub fn get_source(&self, visitor: CefStringVisitor);
-    pub fn get_text(&self, visitor: CefStringVisitor);
-    pub fn load_request(&self, request: Request);
-    pub fn load_url(&self, url: CefString);
+    pub fn get_source(&self, visitor: &mut CefStringVisitor);
+    pub fn get_text(&self, visitor: &mut CefStringVisitor);
+    pub fn load_request(&self, request: &mut Request);
+    pub fn load_url(&self, url: &CefString);
     pub fn execute_java_script(
         &self,
-        code: CefString,
-        script_url: CefString,
+        code: &CefString,
+        script_url: &CefString,
         start_line: ::std::os::raw::c_int,
     );
     pub fn is_main(&self) -> ::std::os::raw::c_int;
@@ -5436,9 +5493,13 @@ wrapper!(
     pub fn get_url(&self) -> CefStringUserfree;
     pub fn get_browser(&self) -> Browser;
     pub fn get_v8context(&self) -> V8context;
-    pub fn visit_dom(&self, visitor: Domvisitor);
-    pub fn create_urlrequest(&self, request: Request, client: UrlrequestClient) -> Urlrequest;
-    pub fn send_process_message(&self, target_process: ProcessId, message: ProcessMessage);
+    pub fn visit_dom(&self, visitor: &mut Domvisitor);
+    pub fn create_urlrequest(
+        &self,
+        request: &mut Request,
+        client: &mut UrlrequestClient,
+    ) -> Urlrequest;
+    pub fn send_process_message(&self, target_process: ProcessId, message: &mut ProcessMessage);
 );
 
 pub trait ImplFrame: Sized {
@@ -5454,14 +5515,14 @@ pub trait ImplFrame: Sized {
     fn del(&self) {}
     fn select_all(&self) {}
     fn view_source(&self) {}
-    fn get_source(&self, visitor: CefStringVisitor) {}
-    fn get_text(&self, visitor: CefStringVisitor) {}
-    fn load_request(&self, request: Request) {}
-    fn load_url(&self, url: CefString) {}
+    fn get_source(&self, visitor: &mut CefStringVisitor) {}
+    fn get_text(&self, visitor: &mut CefStringVisitor) {}
+    fn load_request(&self, request: &mut Request) {}
+    fn load_url(&self, url: &CefString) {}
     fn execute_java_script(
         &self,
-        code: CefString,
-        script_url: CefString,
+        code: &CefString,
+        script_url: &CefString,
         start_line: ::std::os::raw::c_int,
     ) {
     }
@@ -5489,11 +5550,15 @@ pub trait ImplFrame: Sized {
     fn get_v8context(&self) -> V8context {
         Default::default()
     }
-    fn visit_dom(&self, visitor: Domvisitor) {}
-    fn create_urlrequest(&self, request: Request, client: UrlrequestClient) -> Urlrequest {
+    fn visit_dom(&self, visitor: &mut Domvisitor) {}
+    fn create_urlrequest(
+        &self,
+        request: &mut Request,
+        client: &mut UrlrequestClient,
+    ) -> Urlrequest {
         Default::default()
     }
-    fn send_process_message(&self, target_process: ProcessId, message: ProcessMessage) {}
+    fn send_process_message(&self, target_process: ProcessId, message: &mut ProcessMessage) {}
 
     fn into_raw(self) -> *mut _cef_frame_t {
         let mut object: _cef_frame_t = unsafe { std::mem::zeroed() };
@@ -5589,7 +5654,8 @@ mod impl_cef_frame_t {
         visitor: *mut _cef_string_visitor_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_source(visitor.into())
+        let visitor = &mut CefStringVisitor::from(visitor);
+        obj.interface.get_source(visitor)
     }
 
     extern "C" fn get_text<I: ImplFrame>(
@@ -5597,7 +5663,8 @@ mod impl_cef_frame_t {
         visitor: *mut _cef_string_visitor_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_text(visitor.into())
+        let visitor = &mut CefStringVisitor::from(visitor);
+        obj.interface.get_text(visitor)
     }
 
     extern "C" fn load_request<I: ImplFrame>(
@@ -5605,12 +5672,14 @@ mod impl_cef_frame_t {
         request: *mut _cef_request_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.load_request(request.into())
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        obj.interface.load_request(request)
     }
 
     extern "C" fn load_url<I: ImplFrame>(self_: *mut _cef_frame_t, url: *const cef_string_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.load_url(url.into())
+        let url = &CefString::from(url);
+        obj.interface.load_url(url)
     }
 
     extern "C" fn execute_java_script<I: ImplFrame>(
@@ -5620,8 +5689,10 @@ mod impl_cef_frame_t {
         start_line: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let code = &CefString::from(code);
+        let script_url = &CefString::from(script_url);
         obj.interface
-            .execute_java_script(code.into(), script_url.into(), start_line.into())
+            .execute_java_script(code, script_url, start_line)
     }
 
     extern "C" fn is_main<I: ImplFrame>(self_: *mut _cef_frame_t) -> ::std::os::raw::c_int {
@@ -5669,7 +5740,8 @@ mod impl_cef_frame_t {
         visitor: *mut _cef_domvisitor_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.visit_dom(visitor.into())
+        let visitor = &mut Domvisitor(unsafe { RefGuard::from_raw_add_ref(visitor) });
+        obj.interface.visit_dom(visitor)
     }
 
     extern "C" fn create_urlrequest<I: ImplFrame>(
@@ -5678,9 +5750,9 @@ mod impl_cef_frame_t {
         client: *mut _cef_urlrequest_client_t,
     ) -> *mut _cef_urlrequest_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .create_urlrequest(request.into(), client.into())
-            .into()
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let client = &mut UrlrequestClient(unsafe { RefGuard::from_raw_add_ref(client) });
+        obj.interface.create_urlrequest(request, client).into()
     }
 
     extern "C" fn send_process_message<I: ImplFrame>(
@@ -5689,8 +5761,8 @@ mod impl_cef_frame_t {
         message: *mut _cef_process_message_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .send_process_message(target_process.into(), message.into())
+        let message = &mut ProcessMessage(unsafe { RefGuard::from_raw_add_ref(message) });
+        obj.interface.send_process_message(target_process, message)
     }
 }
 
@@ -5704,8 +5776,8 @@ wrapper!(
     pub fn get_locality_name(&self) -> CefStringUserfree;
     pub fn get_state_or_province_name(&self) -> CefStringUserfree;
     pub fn get_country_name(&self) -> CefStringUserfree;
-    pub fn get_organization_names(&self, names: CefStringList);
-    pub fn get_organization_unit_names(&self, names: CefStringList);
+    pub fn get_organization_names(&self, names: &mut CefStringList);
+    pub fn get_organization_unit_names(&self, names: &mut CefStringList);
 );
 
 pub trait ImplX509certPrincipal: Sized {
@@ -5724,8 +5796,8 @@ pub trait ImplX509certPrincipal: Sized {
     fn get_country_name(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn get_organization_names(&self, names: CefStringList) {}
-    fn get_organization_unit_names(&self, names: CefStringList) {}
+    fn get_organization_names(&self, names: &mut CefStringList) {}
+    fn get_organization_unit_names(&self, names: &mut CefStringList) {}
 
     fn into_raw(self) -> *mut _cef_x509cert_principal_t {
         let mut object: _cef_x509cert_principal_t = unsafe { std::mem::zeroed() };
@@ -5787,7 +5859,8 @@ mod impl_cef_x509cert_principal_t {
         names: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_organization_names(names.into())
+        let names = &mut CefStringList::from(names);
+        obj.interface.get_organization_names(names)
     }
 
     extern "C" fn get_organization_unit_names<I: ImplX509certPrincipal>(
@@ -5795,7 +5868,8 @@ mod impl_cef_x509cert_principal_t {
         names: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_organization_unit_names(names.into())
+        let names = &mut CefStringList::from(names);
+        obj.interface.get_organization_unit_names(names)
     }
 }
 
@@ -5812,8 +5886,16 @@ wrapper!(
     pub fn get_derencoded(&self) -> BinaryValue;
     pub fn get_pemencoded(&self) -> BinaryValue;
     pub fn get_issuer_chain_size(&self) -> usize;
-    pub fn get_derencoded_issuer_chain(&self, chain_count: *mut usize, chain: *mut BinaryValue);
-    pub fn get_pemencoded_issuer_chain(&self, chain_count: *mut usize, chain: *mut BinaryValue);
+    pub fn get_derencoded_issuer_chain(
+        &self,
+        chain_count: *mut usize,
+        chain: *mut &mut BinaryValue,
+    );
+    pub fn get_pemencoded_issuer_chain(
+        &self,
+        chain_count: *mut usize,
+        chain: *mut &mut BinaryValue,
+    );
 );
 
 pub trait ImplX509certificate: Sized {
@@ -5841,8 +5923,8 @@ pub trait ImplX509certificate: Sized {
     fn get_issuer_chain_size(&self) -> usize {
         Default::default()
     }
-    fn get_derencoded_issuer_chain(&self, chain_count: *mut usize, chain: *mut BinaryValue) {}
-    fn get_pemencoded_issuer_chain(&self, chain_count: *mut usize, chain: *mut BinaryValue) {}
+    fn get_derencoded_issuer_chain(&self, chain_count: *mut usize, chain: *mut &mut BinaryValue) {}
+    fn get_pemencoded_issuer_chain(&self, chain_count: *mut usize, chain: *mut &mut BinaryValue) {}
 
     fn into_raw(self) -> *mut _cef_x509certificate_t {
         let mut object: _cef_x509certificate_t = unsafe { std::mem::zeroed() };
@@ -5930,7 +6012,7 @@ mod impl_cef_x509certificate_t {
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_derencoded_issuer_chain(chain_count.into(), chain.into())
+            .get_derencoded_issuer_chain(chain_count, chain)
     }
 
     extern "C" fn get_pemencoded_issuer_chain<I: ImplX509certificate>(
@@ -5940,7 +6022,7 @@ mod impl_cef_x509certificate_t {
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_pemencoded_issuer_chain(chain_count.into(), chain.into())
+            .get_pemencoded_issuer_chain(chain_count, chain)
     }
 }
 
@@ -6265,57 +6347,57 @@ wrapper!(
     #[derive(Clone)]
     pub struct CookieManager(_cef_cookie_manager_t);
 
-    pub fn visit_all_cookies(&self, visitor: CookieVisitor) -> ::std::os::raw::c_int;
+    pub fn visit_all_cookies(&self, visitor: &mut CookieVisitor) -> ::std::os::raw::c_int;
     pub fn visit_url_cookies(
         &self,
-        url: CefString,
+        url: &CefString,
         include_http_only: ::std::os::raw::c_int,
-        visitor: CookieVisitor,
+        visitor: &mut CookieVisitor,
     ) -> ::std::os::raw::c_int;
     pub fn set_cookie(
         &self,
-        url: CefString,
-        cookie: Cookie,
-        callback: SetCookieCallback,
+        url: &CefString,
+        cookie: &Cookie,
+        callback: &mut SetCookieCallback,
     ) -> ::std::os::raw::c_int;
     pub fn delete_cookies(
         &self,
-        url: CefString,
-        cookie_name: CefString,
-        callback: DeleteCookiesCallback,
+        url: &CefString,
+        cookie_name: &CefString,
+        callback: &mut DeleteCookiesCallback,
     ) -> ::std::os::raw::c_int;
-    pub fn flush_store(&self, callback: CompletionCallback) -> ::std::os::raw::c_int;
+    pub fn flush_store(&self, callback: &mut CompletionCallback) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplCookieManager: Sized {
-    fn visit_all_cookies(&self, visitor: CookieVisitor) -> ::std::os::raw::c_int {
+    fn visit_all_cookies(&self, visitor: &mut CookieVisitor) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn visit_url_cookies(
         &self,
-        url: CefString,
+        url: &CefString,
         include_http_only: ::std::os::raw::c_int,
-        visitor: CookieVisitor,
+        visitor: &mut CookieVisitor,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn set_cookie(
         &self,
-        url: CefString,
-        cookie: Cookie,
-        callback: SetCookieCallback,
+        url: &CefString,
+        cookie: &Cookie,
+        callback: &mut SetCookieCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn delete_cookies(
         &self,
-        url: CefString,
-        cookie_name: CefString,
-        callback: DeleteCookiesCallback,
+        url: &CefString,
+        cookie_name: &CefString,
+        callback: &mut DeleteCookiesCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn flush_store(&self, callback: CompletionCallback) -> ::std::os::raw::c_int {
+    fn flush_store(&self, callback: &mut CompletionCallback) -> ::std::os::raw::c_int {
         Default::default()
     }
 
@@ -6342,7 +6424,8 @@ mod impl_cef_cookie_manager_t {
         visitor: *mut _cef_cookie_visitor_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.visit_all_cookies(visitor.into()).into()
+        let visitor = &mut CookieVisitor(unsafe { RefGuard::from_raw_add_ref(visitor) });
+        obj.interface.visit_all_cookies(visitor).into()
     }
 
     extern "C" fn visit_url_cookies<I: ImplCookieManager>(
@@ -6352,8 +6435,10 @@ mod impl_cef_cookie_manager_t {
         visitor: *mut _cef_cookie_visitor_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let url = &CefString::from(url);
+        let visitor = &mut CookieVisitor(unsafe { RefGuard::from_raw_add_ref(visitor) });
         obj.interface
-            .visit_url_cookies(url.into(), include_http_only.into(), visitor.into())
+            .visit_url_cookies(url, include_http_only, visitor)
             .into()
     }
 
@@ -6364,9 +6449,10 @@ mod impl_cef_cookie_manager_t {
         callback: *mut _cef_set_cookie_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_cookie(url.into(), cookie.into(), callback.into())
-            .into()
+        let url = &CefString::from(url);
+        let cookie = &Cookie(unsafe { RefGuard::from_raw_add_ref(cookie) });
+        let callback = &mut SetCookieCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.set_cookie(url, cookie, callback).into()
     }
 
     extern "C" fn delete_cookies<I: ImplCookieManager>(
@@ -6376,8 +6462,11 @@ mod impl_cef_cookie_manager_t {
         callback: *mut _cef_delete_cookies_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let url = &CefString::from(url);
+        let cookie_name = &CefString::from(cookie_name);
+        let callback = &mut DeleteCookiesCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .delete_cookies(url.into(), cookie_name.into(), callback.into())
+            .delete_cookies(url, cookie_name, callback)
             .into()
     }
 
@@ -6386,7 +6475,8 @@ mod impl_cef_cookie_manager_t {
         callback: *mut _cef_completion_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.flush_store(callback.into()).into()
+        let callback = &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.flush_store(callback).into()
     }
 }
 
@@ -6397,7 +6487,7 @@ wrapper!(
 
     pub fn visit(
         &self,
-        cookie: Cookie,
+        cookie: &Cookie,
         count: ::std::os::raw::c_int,
         total: ::std::os::raw::c_int,
         delete_cookie: *mut ::std::os::raw::c_int,
@@ -6407,7 +6497,7 @@ wrapper!(
 pub trait ImplCookieVisitor: Sized {
     fn visit(
         &self,
-        cookie: Cookie,
+        cookie: &Cookie,
         count: ::std::os::raw::c_int,
         total: ::std::os::raw::c_int,
         delete_cookie: *mut ::std::os::raw::c_int,
@@ -6437,13 +6527,9 @@ mod impl_cef_cookie_visitor_t {
         delete_cookie: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let cookie = &Cookie(unsafe { RefGuard::from_raw_add_ref(cookie) });
         obj.interface
-            .visit(
-                cookie.into(),
-                count.into(),
-                total.into(),
-                delete_cookie.into(),
-            )
+            .visit(cookie, count, total, delete_cookie)
             .into()
     }
 }
@@ -6478,7 +6564,7 @@ mod impl_cef_set_cookie_callback_t {
         success: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_complete(success.into())
+        obj.interface.on_complete(success)
     }
 }
 
@@ -6512,7 +6598,7 @@ mod impl_cef_delete_cookies_callback_t {
         num_deleted: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_complete(num_deleted.into())
+        obj.interface.on_complete(num_deleted)
     }
 }
 
@@ -6521,31 +6607,31 @@ wrapper!(
     #[derive(Clone)]
     pub struct MediaRouter(_cef_media_router_t);
 
-    pub fn add_observer(&self, observer: MediaObserver) -> Registration;
-    pub fn get_source(&self, urn: CefString) -> MediaSource;
+    pub fn add_observer(&self, observer: &mut MediaObserver) -> Registration;
+    pub fn get_source(&self, urn: &CefString) -> MediaSource;
     pub fn notify_current_sinks(&self);
     pub fn create_route(
         &self,
-        source: MediaSource,
-        sink: MediaSink,
-        callback: MediaRouteCreateCallback,
+        source: &mut MediaSource,
+        sink: &mut MediaSink,
+        callback: &mut MediaRouteCreateCallback,
     );
     pub fn notify_current_routes(&self);
 );
 
 pub trait ImplMediaRouter: Sized {
-    fn add_observer(&self, observer: MediaObserver) -> Registration {
+    fn add_observer(&self, observer: &mut MediaObserver) -> Registration {
         Default::default()
     }
-    fn get_source(&self, urn: CefString) -> MediaSource {
+    fn get_source(&self, urn: &CefString) -> MediaSource {
         Default::default()
     }
     fn notify_current_sinks(&self) {}
     fn create_route(
         &self,
-        source: MediaSource,
-        sink: MediaSink,
-        callback: MediaRouteCreateCallback,
+        source: &mut MediaSource,
+        sink: &mut MediaSink,
+        callback: &mut MediaRouteCreateCallback,
     ) {
     }
     fn notify_current_routes(&self) {}
@@ -6573,7 +6659,8 @@ mod impl_cef_media_router_t {
         observer: *mut _cef_media_observer_t,
     ) -> *mut _cef_registration_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.add_observer(observer.into()).into()
+        let observer = &mut MediaObserver(unsafe { RefGuard::from_raw_add_ref(observer) });
+        obj.interface.add_observer(observer).into()
     }
 
     extern "C" fn get_source<I: ImplMediaRouter>(
@@ -6581,7 +6668,8 @@ mod impl_cef_media_router_t {
         urn: *const cef_string_t,
     ) -> *mut _cef_media_source_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_source(urn.into()).into()
+        let urn = &CefString::from(urn);
+        obj.interface.get_source(urn).into()
     }
 
     extern "C" fn notify_current_sinks<I: ImplMediaRouter>(self_: *mut _cef_media_router_t) {
@@ -6596,8 +6684,11 @@ mod impl_cef_media_router_t {
         callback: *mut _cef_media_route_create_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .create_route(source.into(), sink.into(), callback.into())
+        let source = &mut MediaSource(unsafe { RefGuard::from_raw_add_ref(source) });
+        let sink = &mut MediaSink(unsafe { RefGuard::from_raw_add_ref(sink) });
+        let callback =
+            &mut MediaRouteCreateCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.create_route(source, sink, callback)
     }
 
     extern "C" fn notify_current_routes<I: ImplMediaRouter>(self_: *mut _cef_media_router_t) {
@@ -6611,24 +6702,24 @@ wrapper!(
     #[derive(Clone)]
     pub struct MediaObserver(_cef_media_observer_t);
 
-    pub fn on_sinks(&self, sinks_count: usize, sinks: *const MediaSink);
-    pub fn on_routes(&self, routes_count: usize, routes: *const MediaRoute);
-    pub fn on_route_state_changed(&self, route: MediaRoute, state: MediaRouteConnectionState);
+    pub fn on_sinks(&self, sinks_count: usize, sinks: *const &mut MediaSink);
+    pub fn on_routes(&self, routes_count: usize, routes: *const &mut MediaRoute);
+    pub fn on_route_state_changed(&self, route: &mut MediaRoute, state: MediaRouteConnectionState);
     pub fn on_route_message_received(
         &self,
-        route: MediaRoute,
+        route: &mut MediaRoute,
         message: *const ::std::os::raw::c_void,
         message_size: usize,
     );
 );
 
 pub trait ImplMediaObserver: Sized {
-    fn on_sinks(&self, sinks_count: usize, sinks: *const MediaSink) {}
-    fn on_routes(&self, routes_count: usize, routes: *const MediaRoute) {}
-    fn on_route_state_changed(&self, route: MediaRoute, state: MediaRouteConnectionState) {}
+    fn on_sinks(&self, sinks_count: usize, sinks: *const &mut MediaSink) {}
+    fn on_routes(&self, routes_count: usize, routes: *const &mut MediaRoute) {}
+    fn on_route_state_changed(&self, route: &mut MediaRoute, state: MediaRouteConnectionState) {}
     fn on_route_message_received(
         &self,
-        route: MediaRoute,
+        route: &mut MediaRoute,
         message: *const ::std::os::raw::c_void,
         message_size: usize,
     ) {
@@ -6657,7 +6748,7 @@ mod impl_cef_media_observer_t {
         sinks: *const *mut _cef_media_sink_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_sinks(sinks_count.into(), sinks.into())
+        obj.interface.on_sinks(sinks_count, sinks)
     }
 
     extern "C" fn on_routes<I: ImplMediaObserver>(
@@ -6666,7 +6757,7 @@ mod impl_cef_media_observer_t {
         routes: *const *mut _cef_media_route_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_routes(routes_count.into(), routes.into())
+        obj.interface.on_routes(routes_count, routes)
     }
 
     extern "C" fn on_route_state_changed<I: ImplMediaObserver>(
@@ -6675,8 +6766,8 @@ mod impl_cef_media_observer_t {
         state: cef_media_route_connection_state_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_route_state_changed(route.into(), state.into())
+        let route = &mut MediaRoute(unsafe { RefGuard::from_raw_add_ref(route) });
+        obj.interface.on_route_state_changed(route, state)
     }
 
     extern "C" fn on_route_message_received<I: ImplMediaObserver>(
@@ -6686,8 +6777,9 @@ mod impl_cef_media_observer_t {
         message_size: usize,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let route = &mut MediaRoute(unsafe { RefGuard::from_raw_add_ref(route) });
         obj.interface
-            .on_route_message_received(route.into(), message.into(), message_size.into())
+            .on_route_message_received(route, message, message_size)
     }
 }
 
@@ -6761,8 +6853,7 @@ mod impl_cef_media_route_t {
         message_size: usize,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .send_route_message(message.into(), message_size.into())
+        obj.interface.send_route_message(message, message_size)
     }
 
     extern "C" fn terminate<I: ImplMediaRoute>(self_: *mut _cef_media_route_t) {
@@ -6779,8 +6870,8 @@ wrapper!(
     pub fn on_media_route_create_finished(
         &self,
         result: MediaRouteCreateResult,
-        error: CefString,
-        route: MediaRoute,
+        error: &CefString,
+        route: &mut MediaRoute,
     );
 );
 
@@ -6788,8 +6879,8 @@ pub trait ImplMediaRouteCreateCallback: Sized {
     fn on_media_route_create_finished(
         &self,
         result: MediaRouteCreateResult,
-        error: CefString,
-        route: MediaRoute,
+        error: &CefString,
+        route: &mut MediaRoute,
     ) {
     }
 
@@ -6816,8 +6907,10 @@ mod impl_cef_media_route_create_callback_t {
         route: *mut _cef_media_route_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let error = &CefString::from(error);
+        let route = &mut MediaRoute(unsafe { RefGuard::from_raw_add_ref(route) });
         obj.interface
-            .on_media_route_create_finished(result.into(), error.into(), route.into())
+            .on_media_route_create_finished(result, error, route)
     }
 }
 
@@ -6829,10 +6922,10 @@ wrapper!(
     pub fn get_id(&self) -> CefStringUserfree;
     pub fn get_name(&self) -> CefStringUserfree;
     pub fn get_icon_type(&self) -> MediaSinkIconType;
-    pub fn get_device_info(&self, callback: MediaSinkDeviceInfoCallback);
+    pub fn get_device_info(&self, callback: &mut MediaSinkDeviceInfoCallback);
     pub fn is_cast_sink(&self) -> ::std::os::raw::c_int;
     pub fn is_dial_sink(&self) -> ::std::os::raw::c_int;
-    pub fn is_compatible_with(&self, source: MediaSource) -> ::std::os::raw::c_int;
+    pub fn is_compatible_with(&self, source: &mut MediaSource) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplMediaSink: Sized {
@@ -6845,14 +6938,14 @@ pub trait ImplMediaSink: Sized {
     fn get_icon_type(&self) -> MediaSinkIconType {
         Default::default()
     }
-    fn get_device_info(&self, callback: MediaSinkDeviceInfoCallback) {}
+    fn get_device_info(&self, callback: &mut MediaSinkDeviceInfoCallback) {}
     fn is_cast_sink(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn is_dial_sink(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_compatible_with(&self, source: MediaSource) -> ::std::os::raw::c_int {
+    fn is_compatible_with(&self, source: &mut MediaSource) -> ::std::os::raw::c_int {
         Default::default()
     }
 
@@ -6900,7 +6993,9 @@ mod impl_cef_media_sink_t {
         callback: *mut _cef_media_sink_device_info_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_device_info(callback.into())
+        let callback =
+            &mut MediaSinkDeviceInfoCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.get_device_info(callback)
     }
 
     extern "C" fn is_cast_sink<I: ImplMediaSink>(
@@ -6922,7 +7017,8 @@ mod impl_cef_media_sink_t {
         source: *mut _cef_media_source_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_compatible_with(source.into()).into()
+        let source = &mut MediaSource(unsafe { RefGuard::from_raw_add_ref(source) });
+        obj.interface.is_compatible_with(source).into()
     }
 }
 
@@ -6931,11 +7027,11 @@ wrapper!(
     #[derive(Clone)]
     pub struct MediaSinkDeviceInfoCallback(_cef_media_sink_device_info_callback_t);
 
-    pub fn on_media_sink_device_info(&self, device_info: MediaSinkDeviceInfo);
+    pub fn on_media_sink_device_info(&self, device_info: &MediaSinkDeviceInfo);
 );
 
 pub trait ImplMediaSinkDeviceInfoCallback: Sized {
-    fn on_media_sink_device_info(&self, device_info: MediaSinkDeviceInfo) {}
+    fn on_media_sink_device_info(&self, device_info: &MediaSinkDeviceInfo) {}
 
     fn into_raw(self) -> *mut _cef_media_sink_device_info_callback_t {
         let mut object: _cef_media_sink_device_info_callback_t = unsafe { std::mem::zeroed() };
@@ -6958,7 +7054,8 @@ mod impl_cef_media_sink_device_info_callback_t {
         device_info: *const _cef_media_sink_device_info_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_media_sink_device_info(device_info.into())
+        let device_info = &MediaSinkDeviceInfo(unsafe { RefGuard::from_raw_add_ref(device_info) });
+        obj.interface.on_media_sink_device_info(device_info)
     }
 }
 
@@ -7059,36 +7156,36 @@ wrapper!(
     #[derive(Clone)]
     pub struct PreferenceManager(_cef_preference_manager_t);
 
-    pub fn has_preference(&self, name: CefString) -> ::std::os::raw::c_int;
-    pub fn get_preference(&self, name: CefString) -> Value;
+    pub fn has_preference(&self, name: &CefString) -> ::std::os::raw::c_int;
+    pub fn get_preference(&self, name: &CefString) -> Value;
     pub fn get_all_preferences(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue;
-    pub fn can_set_preference(&self, name: CefString) -> ::std::os::raw::c_int;
+    pub fn can_set_preference(&self, name: &CefString) -> ::std::os::raw::c_int;
     pub fn set_preference(
         &self,
-        name: CefString,
-        value: Value,
-        error: CefString,
+        name: &CefString,
+        value: &mut Value,
+        error: &mut CefString,
     ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplPreferenceManager: Sized {
-    fn has_preference(&self, name: CefString) -> ::std::os::raw::c_int {
+    fn has_preference(&self, name: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_preference(&self, name: CefString) -> Value {
+    fn get_preference(&self, name: &CefString) -> Value {
         Default::default()
     }
     fn get_all_preferences(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
         Default::default()
     }
-    fn can_set_preference(&self, name: CefString) -> ::std::os::raw::c_int {
+    fn can_set_preference(&self, name: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn set_preference(
         &self,
-        name: CefString,
-        value: Value,
-        error: CefString,
+        name: &CefString,
+        value: &mut Value,
+        error: &mut CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -7116,7 +7213,8 @@ mod impl_cef_preference_manager_t {
         name: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.has_preference(name.into()).into()
+        let name = &CefString::from(name);
+        obj.interface.has_preference(name).into()
     }
 
     extern "C" fn get_preference<I: ImplPreferenceManager>(
@@ -7124,7 +7222,8 @@ mod impl_cef_preference_manager_t {
         name: *const cef_string_t,
     ) -> *mut _cef_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_preference(name.into()).into()
+        let name = &CefString::from(name);
+        obj.interface.get_preference(name).into()
     }
 
     extern "C" fn get_all_preferences<I: ImplPreferenceManager>(
@@ -7132,9 +7231,7 @@ mod impl_cef_preference_manager_t {
         include_defaults: ::std::os::raw::c_int,
     ) -> *mut _cef_dictionary_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_all_preferences(include_defaults.into())
-            .into()
+        obj.interface.get_all_preferences(include_defaults).into()
     }
 
     extern "C" fn can_set_preference<I: ImplPreferenceManager>(
@@ -7142,7 +7239,8 @@ mod impl_cef_preference_manager_t {
         name: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.can_set_preference(name.into()).into()
+        let name = &CefString::from(name);
+        obj.interface.can_set_preference(name).into()
     }
 
     extern "C" fn set_preference<I: ImplPreferenceManager>(
@@ -7152,9 +7250,10 @@ mod impl_cef_preference_manager_t {
         error: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_preference(name.into(), value.into(), error.into())
-            .into()
+        let name = &CefString::from(name);
+        let value = &mut Value(unsafe { RefGuard::from_raw_add_ref(value) });
+        let error = &mut CefString::from(error);
+        obj.interface.set_preference(name, value, error).into()
     }
 }
 
@@ -7163,11 +7262,11 @@ wrapper!(
     #[derive(Clone)]
     pub struct ResolveCallback(_cef_resolve_callback_t);
 
-    pub fn on_resolve_completed(&self, result: Errorcode, resolved_ips: CefStringList);
+    pub fn on_resolve_completed(&self, result: Errorcode, resolved_ips: &mut CefStringList);
 );
 
 pub trait ImplResolveCallback: Sized {
-    fn on_resolve_completed(&self, result: Errorcode, resolved_ips: CefStringList) {}
+    fn on_resolve_completed(&self, result: Errorcode, resolved_ips: &mut CefStringList) {}
 
     fn into_raw(self) -> *mut _cef_resolve_callback_t {
         let mut object: _cef_resolve_callback_t = unsafe { std::mem::zeroed() };
@@ -7189,8 +7288,8 @@ mod impl_cef_resolve_callback_t {
         resolved_ips: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_resolve_completed(result.into(), resolved_ips.into())
+        let resolved_ips = &mut CefStringList::from(resolved_ips);
+        obj.interface.on_resolve_completed(result, resolved_ips)
     }
 }
 
@@ -7199,61 +7298,61 @@ wrapper!(
     #[derive(Clone)]
     pub struct RequestContext(_cef_request_context_t);
 
-    pub fn is_same(&self, other: RequestContext) -> ::std::os::raw::c_int;
-    pub fn is_sharing_with(&self, other: RequestContext) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, other: &mut RequestContext) -> ::std::os::raw::c_int;
+    pub fn is_sharing_with(&self, other: &mut RequestContext) -> ::std::os::raw::c_int;
     pub fn is_global(&self) -> ::std::os::raw::c_int;
     pub fn get_handler(&self) -> RequestContextHandler;
     pub fn get_cache_path(&self) -> CefStringUserfree;
-    pub fn get_cookie_manager(&self, callback: CompletionCallback) -> CookieManager;
+    pub fn get_cookie_manager(&self, callback: &mut CompletionCallback) -> CookieManager;
     pub fn register_scheme_handler_factory(
         &self,
-        scheme_name: CefString,
-        domain_name: CefString,
-        factory: SchemeHandlerFactory,
+        scheme_name: &CefString,
+        domain_name: &CefString,
+        factory: &mut SchemeHandlerFactory,
     ) -> ::std::os::raw::c_int;
     pub fn clear_scheme_handler_factories(&self) -> ::std::os::raw::c_int;
-    pub fn clear_certificate_exceptions(&self, callback: CompletionCallback);
-    pub fn clear_http_auth_credentials(&self, callback: CompletionCallback);
-    pub fn close_all_connections(&self, callback: CompletionCallback);
-    pub fn resolve_host(&self, origin: CefString, callback: ResolveCallback);
-    pub fn get_media_router(&self, callback: CompletionCallback) -> MediaRouter;
+    pub fn clear_certificate_exceptions(&self, callback: &mut CompletionCallback);
+    pub fn clear_http_auth_credentials(&self, callback: &mut CompletionCallback);
+    pub fn close_all_connections(&self, callback: &mut CompletionCallback);
+    pub fn resolve_host(&self, origin: &CefString, callback: &mut ResolveCallback);
+    pub fn get_media_router(&self, callback: &mut CompletionCallback) -> MediaRouter;
     pub fn get_website_setting(
         &self,
-        requesting_url: CefString,
-        top_level_url: CefString,
+        requesting_url: &CefString,
+        top_level_url: &CefString,
         content_type: ContentSettingTypes,
     ) -> Value;
     pub fn set_website_setting(
         &self,
-        requesting_url: CefString,
-        top_level_url: CefString,
+        requesting_url: &CefString,
+        top_level_url: &CefString,
         content_type: ContentSettingTypes,
-        value: Value,
+        value: &mut Value,
     );
     pub fn get_content_setting(
         &self,
-        requesting_url: CefString,
-        top_level_url: CefString,
+        requesting_url: &CefString,
+        top_level_url: &CefString,
         content_type: ContentSettingTypes,
     ) -> ContentSettingValues;
     pub fn set_content_setting(
         &self,
-        requesting_url: CefString,
-        top_level_url: CefString,
+        requesting_url: &CefString,
+        top_level_url: &CefString,
         content_type: ContentSettingTypes,
         value: ContentSettingValues,
     );
-    pub fn set_chrome_color_scheme(&self, variant: ColorVariant, user_color: Color);
+    pub fn set_chrome_color_scheme(&self, variant: ColorVariant, user_color: &mut Color);
     pub fn get_chrome_color_scheme_mode(&self) -> ColorVariant;
     pub fn get_chrome_color_scheme_color(&self) -> Color;
     pub fn get_chrome_color_scheme_variant(&self) -> ColorVariant;
 );
 
 pub trait ImplRequestContext: ImplPreferenceManager {
-    fn is_same(&self, other: RequestContext) -> ::std::os::raw::c_int {
+    fn is_same(&self, other: &mut RequestContext) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_sharing_with(&self, other: RequestContext) -> ::std::os::raw::c_int {
+    fn is_sharing_with(&self, other: &mut RequestContext) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn is_global(&self) -> ::std::os::raw::c_int {
@@ -7265,60 +7364,60 @@ pub trait ImplRequestContext: ImplPreferenceManager {
     fn get_cache_path(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn get_cookie_manager(&self, callback: CompletionCallback) -> CookieManager {
+    fn get_cookie_manager(&self, callback: &mut CompletionCallback) -> CookieManager {
         Default::default()
     }
     fn register_scheme_handler_factory(
         &self,
-        scheme_name: CefString,
-        domain_name: CefString,
-        factory: SchemeHandlerFactory,
+        scheme_name: &CefString,
+        domain_name: &CefString,
+        factory: &mut SchemeHandlerFactory,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn clear_scheme_handler_factories(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn clear_certificate_exceptions(&self, callback: CompletionCallback) {}
-    fn clear_http_auth_credentials(&self, callback: CompletionCallback) {}
-    fn close_all_connections(&self, callback: CompletionCallback) {}
-    fn resolve_host(&self, origin: CefString, callback: ResolveCallback) {}
-    fn get_media_router(&self, callback: CompletionCallback) -> MediaRouter {
+    fn clear_certificate_exceptions(&self, callback: &mut CompletionCallback) {}
+    fn clear_http_auth_credentials(&self, callback: &mut CompletionCallback) {}
+    fn close_all_connections(&self, callback: &mut CompletionCallback) {}
+    fn resolve_host(&self, origin: &CefString, callback: &mut ResolveCallback) {}
+    fn get_media_router(&self, callback: &mut CompletionCallback) -> MediaRouter {
         Default::default()
     }
     fn get_website_setting(
         &self,
-        requesting_url: CefString,
-        top_level_url: CefString,
+        requesting_url: &CefString,
+        top_level_url: &CefString,
         content_type: ContentSettingTypes,
     ) -> Value {
         Default::default()
     }
     fn set_website_setting(
         &self,
-        requesting_url: CefString,
-        top_level_url: CefString,
+        requesting_url: &CefString,
+        top_level_url: &CefString,
         content_type: ContentSettingTypes,
-        value: Value,
+        value: &mut Value,
     ) {
     }
     fn get_content_setting(
         &self,
-        requesting_url: CefString,
-        top_level_url: CefString,
+        requesting_url: &CefString,
+        top_level_url: &CefString,
         content_type: ContentSettingTypes,
     ) -> ContentSettingValues {
         Default::default()
     }
     fn set_content_setting(
         &self,
-        requesting_url: CefString,
-        top_level_url: CefString,
+        requesting_url: &CefString,
+        top_level_url: &CefString,
         content_type: ContentSettingTypes,
         value: ContentSettingValues,
     ) {
     }
-    fn set_chrome_color_scheme(&self, variant: ColorVariant, user_color: Color) {}
+    fn set_chrome_color_scheme(&self, variant: ColorVariant, user_color: &mut Color) {}
     fn get_chrome_color_scheme_mode(&self) -> ColorVariant {
         Default::default()
     }
@@ -7369,7 +7468,8 @@ mod impl_cef_request_context_t {
         other: *mut _cef_request_context_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(other.into()).into()
+        let other = &mut RequestContext(unsafe { RefGuard::from_raw_add_ref(other) });
+        obj.interface.is_same(other).into()
     }
 
     extern "C" fn is_sharing_with<I: ImplRequestContext>(
@@ -7377,7 +7477,8 @@ mod impl_cef_request_context_t {
         other: *mut _cef_request_context_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_sharing_with(other.into()).into()
+        let other = &mut RequestContext(unsafe { RefGuard::from_raw_add_ref(other) });
+        obj.interface.is_sharing_with(other).into()
     }
 
     extern "C" fn is_global<I: ImplRequestContext>(
@@ -7406,7 +7507,8 @@ mod impl_cef_request_context_t {
         callback: *mut _cef_completion_callback_t,
     ) -> *mut _cef_cookie_manager_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_cookie_manager(callback.into()).into()
+        let callback = &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.get_cookie_manager(callback).into()
     }
 
     extern "C" fn register_scheme_handler_factory<I: ImplRequestContext>(
@@ -7416,8 +7518,11 @@ mod impl_cef_request_context_t {
         factory: *mut _cef_scheme_handler_factory_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let scheme_name = &CefString::from(scheme_name);
+        let domain_name = &CefString::from(domain_name);
+        let factory = &mut SchemeHandlerFactory(unsafe { RefGuard::from_raw_add_ref(factory) });
         obj.interface
-            .register_scheme_handler_factory(scheme_name.into(), domain_name.into(), factory.into())
+            .register_scheme_handler_factory(scheme_name, domain_name, factory)
             .into()
     }
 
@@ -7433,7 +7538,8 @@ mod impl_cef_request_context_t {
         callback: *mut _cef_completion_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.clear_certificate_exceptions(callback.into())
+        let callback = &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.clear_certificate_exceptions(callback)
     }
 
     extern "C" fn clear_http_auth_credentials<I: ImplRequestContext>(
@@ -7441,7 +7547,8 @@ mod impl_cef_request_context_t {
         callback: *mut _cef_completion_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.clear_http_auth_credentials(callback.into())
+        let callback = &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.clear_http_auth_credentials(callback)
     }
 
     extern "C" fn close_all_connections<I: ImplRequestContext>(
@@ -7449,7 +7556,8 @@ mod impl_cef_request_context_t {
         callback: *mut _cef_completion_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.close_all_connections(callback.into())
+        let callback = &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.close_all_connections(callback)
     }
 
     extern "C" fn resolve_host<I: ImplRequestContext>(
@@ -7458,7 +7566,9 @@ mod impl_cef_request_context_t {
         callback: *mut _cef_resolve_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.resolve_host(origin.into(), callback.into())
+        let origin = &CefString::from(origin);
+        let callback = &mut ResolveCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.resolve_host(origin, callback)
     }
 
     extern "C" fn get_media_router<I: ImplRequestContext>(
@@ -7466,7 +7576,8 @@ mod impl_cef_request_context_t {
         callback: *mut _cef_completion_callback_t,
     ) -> *mut _cef_media_router_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_media_router(callback.into()).into()
+        let callback = &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.get_media_router(callback).into()
     }
 
     extern "C" fn get_website_setting<I: ImplRequestContext>(
@@ -7476,12 +7587,10 @@ mod impl_cef_request_context_t {
         content_type: cef_content_setting_types_t,
     ) -> *mut _cef_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let requesting_url = &CefString::from(requesting_url);
+        let top_level_url = &CefString::from(top_level_url);
         obj.interface
-            .get_website_setting(
-                requesting_url.into(),
-                top_level_url.into(),
-                content_type.into(),
-            )
+            .get_website_setting(requesting_url, top_level_url, content_type)
             .into()
     }
 
@@ -7493,12 +7602,11 @@ mod impl_cef_request_context_t {
         value: *mut _cef_value_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_website_setting(
-            requesting_url.into(),
-            top_level_url.into(),
-            content_type.into(),
-            value.into(),
-        )
+        let requesting_url = &CefString::from(requesting_url);
+        let top_level_url = &CefString::from(top_level_url);
+        let value = &mut Value(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface
+            .set_website_setting(requesting_url, top_level_url, content_type, value)
     }
 
     extern "C" fn get_content_setting<I: ImplRequestContext>(
@@ -7508,12 +7616,10 @@ mod impl_cef_request_context_t {
         content_type: cef_content_setting_types_t,
     ) -> cef_content_setting_values_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let requesting_url = &CefString::from(requesting_url);
+        let top_level_url = &CefString::from(top_level_url);
         obj.interface
-            .get_content_setting(
-                requesting_url.into(),
-                top_level_url.into(),
-                content_type.into(),
-            )
+            .get_content_setting(requesting_url, top_level_url, content_type)
             .into()
     }
 
@@ -7525,12 +7631,10 @@ mod impl_cef_request_context_t {
         value: cef_content_setting_values_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_content_setting(
-            requesting_url.into(),
-            top_level_url.into(),
-            content_type.into(),
-            value.into(),
-        )
+        let requesting_url = &CefString::from(requesting_url);
+        let top_level_url = &CefString::from(top_level_url);
+        obj.interface
+            .set_content_setting(requesting_url, top_level_url, content_type, value)
     }
 
     extern "C" fn set_chrome_color_scheme<I: ImplRequestContext>(
@@ -7539,8 +7643,7 @@ mod impl_cef_request_context_t {
         user_color: cef_color_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_chrome_color_scheme(variant.into(), user_color.into())
+        obj.interface.set_chrome_color_scheme(variant, user_color)
     }
 
     extern "C" fn get_chrome_color_scheme_mode<I: ImplRequestContext>(
@@ -7581,16 +7684,16 @@ wrapper!(
     pub fn reload_ignore_cache(&self);
     pub fn stop_load(&self);
     pub fn get_identifier(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: Browser) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut Browser) -> ::std::os::raw::c_int;
     pub fn is_popup(&self) -> ::std::os::raw::c_int;
     pub fn has_document(&self) -> ::std::os::raw::c_int;
     pub fn get_main_frame(&self) -> Frame;
     pub fn get_focused_frame(&self) -> Frame;
-    pub fn get_frame_by_identifier(&self, identifier: CefString) -> Frame;
-    pub fn get_frame_by_name(&self, name: CefString) -> Frame;
+    pub fn get_frame_by_identifier(&self, identifier: &CefString) -> Frame;
+    pub fn get_frame_by_name(&self, name: &CefString) -> Frame;
     pub fn get_frame_count(&self) -> usize;
-    pub fn get_frame_identifiers(&self, identifiers: CefStringList);
-    pub fn get_frame_names(&self, names: CefStringList);
+    pub fn get_frame_identifiers(&self, identifiers: &mut CefStringList);
+    pub fn get_frame_names(&self, names: &mut CefStringList);
 );
 
 pub trait ImplBrowser: Sized {
@@ -7617,7 +7720,7 @@ pub trait ImplBrowser: Sized {
     fn get_identifier(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: Browser) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut Browser) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn is_popup(&self) -> ::std::os::raw::c_int {
@@ -7632,17 +7735,17 @@ pub trait ImplBrowser: Sized {
     fn get_focused_frame(&self) -> Frame {
         Default::default()
     }
-    fn get_frame_by_identifier(&self, identifier: CefString) -> Frame {
+    fn get_frame_by_identifier(&self, identifier: &CefString) -> Frame {
         Default::default()
     }
-    fn get_frame_by_name(&self, name: CefString) -> Frame {
+    fn get_frame_by_name(&self, name: &CefString) -> Frame {
         Default::default()
     }
     fn get_frame_count(&self) -> usize {
         Default::default()
     }
-    fn get_frame_identifiers(&self, identifiers: CefStringList) {}
-    fn get_frame_names(&self, names: CefStringList) {}
+    fn get_frame_identifiers(&self, identifiers: &mut CefStringList) {}
+    fn get_frame_names(&self, names: &mut CefStringList) {}
 
     fn into_raw(self) -> *mut _cef_browser_t {
         let mut object: _cef_browser_t = unsafe { std::mem::zeroed() };
@@ -7742,7 +7845,8 @@ mod impl_cef_browser_t {
         that: *mut _cef_browser_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut Browser(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn is_popup<I: ImplBrowser>(self_: *mut _cef_browser_t) -> ::std::os::raw::c_int {
@@ -7774,9 +7878,8 @@ mod impl_cef_browser_t {
         identifier: *const cef_string_t,
     ) -> *mut _cef_frame_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_frame_by_identifier(identifier.into())
-            .into()
+        let identifier = &CefString::from(identifier);
+        obj.interface.get_frame_by_identifier(identifier).into()
     }
 
     extern "C" fn get_frame_by_name<I: ImplBrowser>(
@@ -7784,7 +7887,8 @@ mod impl_cef_browser_t {
         name: *const cef_string_t,
     ) -> *mut _cef_frame_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_frame_by_name(name.into()).into()
+        let name = &CefString::from(name);
+        obj.interface.get_frame_by_name(name).into()
     }
 
     extern "C" fn get_frame_count<I: ImplBrowser>(self_: *mut _cef_browser_t) -> usize {
@@ -7797,7 +7901,8 @@ mod impl_cef_browser_t {
         identifiers: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_frame_identifiers(identifiers.into())
+        let identifiers = &mut CefStringList::from(identifiers);
+        obj.interface.get_frame_identifiers(identifiers)
     }
 
     extern "C" fn get_frame_names<I: ImplBrowser>(
@@ -7805,7 +7910,8 @@ mod impl_cef_browser_t {
         names: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_frame_names(names.into())
+        let names = &mut CefStringList::from(names);
+        obj.interface.get_frame_names(names)
     }
 }
 
@@ -7814,11 +7920,11 @@ wrapper!(
     #[derive(Clone)]
     pub struct RunFileDialogCallback(_cef_run_file_dialog_callback_t);
 
-    pub fn on_file_dialog_dismissed(&self, file_paths: CefStringList);
+    pub fn on_file_dialog_dismissed(&self, file_paths: &mut CefStringList);
 );
 
 pub trait ImplRunFileDialogCallback: Sized {
-    fn on_file_dialog_dismissed(&self, file_paths: CefStringList) {}
+    fn on_file_dialog_dismissed(&self, file_paths: &mut CefStringList) {}
 
     fn into_raw(self) -> *mut _cef_run_file_dialog_callback_t {
         let mut object: _cef_run_file_dialog_callback_t = unsafe { std::mem::zeroed() };
@@ -7841,7 +7947,8 @@ mod impl_cef_run_file_dialog_callback_t {
         file_paths: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_file_dialog_dismissed(file_paths.into())
+        let file_paths = &mut CefStringList::from(file_paths);
+        obj.interface.on_file_dialog_dismissed(file_paths)
     }
 }
 
@@ -7852,7 +7959,7 @@ wrapper!(
 
     pub fn visit(
         &self,
-        entry: NavigationEntry,
+        entry: &mut NavigationEntry,
         current: ::std::os::raw::c_int,
         index: ::std::os::raw::c_int,
         total: ::std::os::raw::c_int,
@@ -7862,7 +7969,7 @@ wrapper!(
 pub trait ImplNavigationEntryVisitor: Sized {
     fn visit(
         &self,
-        entry: NavigationEntry,
+        entry: &mut NavigationEntry,
         current: ::std::os::raw::c_int,
         index: ::std::os::raw::c_int,
         total: ::std::os::raw::c_int,
@@ -7894,9 +8001,8 @@ mod impl_cef_navigation_entry_visitor_t {
         total: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .visit(entry.into(), current.into(), index.into(), total.into())
-            .into()
+        let entry = &mut NavigationEntry(unsafe { RefGuard::from_raw_add_ref(entry) });
+        obj.interface.visit(entry, current, index, total).into()
     }
 }
 
@@ -7905,11 +8011,11 @@ wrapper!(
     #[derive(Clone)]
     pub struct PdfPrintCallback(_cef_pdf_print_callback_t);
 
-    pub fn on_pdf_print_finished(&self, path: CefString, ok: ::std::os::raw::c_int);
+    pub fn on_pdf_print_finished(&self, path: &CefString, ok: ::std::os::raw::c_int);
 );
 
 pub trait ImplPdfPrintCallback: Sized {
-    fn on_pdf_print_finished(&self, path: CefString, ok: ::std::os::raw::c_int) {}
+    fn on_pdf_print_finished(&self, path: &CefString, ok: ::std::os::raw::c_int) {}
 
     fn into_raw(self) -> *mut _cef_pdf_print_callback_t {
         let mut object: _cef_pdf_print_callback_t = unsafe { std::mem::zeroed() };
@@ -7931,7 +8037,8 @@ mod impl_cef_pdf_print_callback_t {
         ok: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_pdf_print_finished(path.into(), ok.into())
+        let path = &CefString::from(path);
+        obj.interface.on_pdf_print_finished(path, ok)
     }
 }
 
@@ -7942,18 +8049,18 @@ wrapper!(
 
     pub fn on_download_image_finished(
         &self,
-        image_url: CefString,
+        image_url: &CefString,
         http_status_code: ::std::os::raw::c_int,
-        image: Image,
+        image: &mut Image,
     );
 );
 
 pub trait ImplDownloadImageCallback: Sized {
     fn on_download_image_finished(
         &self,
-        image_url: CefString,
+        image_url: &CefString,
         http_status_code: ::std::os::raw::c_int,
-        image: Image,
+        image: &mut Image,
     ) {
     }
 
@@ -7978,11 +8085,10 @@ mod impl_cef_download_image_callback_t {
         image: *mut _cef_image_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_download_image_finished(
-            image_url.into(),
-            http_status_code.into(),
-            image.into(),
-        )
+        let image_url = &CefString::from(image_url);
+        let image = &mut Image(unsafe { RefGuard::from_raw_add_ref(image) });
+        obj.interface
+            .on_download_image_finished(image_url, http_status_code, image)
     }
 }
 
@@ -8010,30 +8116,30 @@ wrapper!(
     pub fn run_file_dialog(
         &self,
         mode: FileDialogMode,
-        title: CefString,
-        default_file_path: CefString,
-        accept_filters: CefStringList,
-        callback: RunFileDialogCallback,
+        title: &CefString,
+        default_file_path: &CefString,
+        accept_filters: &mut CefStringList,
+        callback: &mut RunFileDialogCallback,
     );
-    pub fn start_download(&self, url: CefString);
+    pub fn start_download(&self, url: &CefString);
     pub fn download_image(
         &self,
-        image_url: CefString,
+        image_url: &CefString,
         is_favicon: ::std::os::raw::c_int,
         max_image_size: u32,
         bypass_cache: ::std::os::raw::c_int,
-        callback: DownloadImageCallback,
+        callback: &mut DownloadImageCallback,
     );
     pub fn print(&self);
     pub fn print_to_pdf(
         &self,
-        path: CefString,
-        settings: PdfPrintSettings,
-        callback: PdfPrintCallback,
+        path: &CefString,
+        settings: &PdfPrintSettings,
+        callback: &mut PdfPrintCallback,
     );
     pub fn find(
         &self,
-        search_text: CefString,
+        search_text: &CefString,
         forward: ::std::os::raw::c_int,
         match_case: ::std::os::raw::c_int,
         find_next: ::std::os::raw::c_int,
@@ -8041,10 +8147,10 @@ wrapper!(
     pub fn stop_finding(&self, clear_selection: ::std::os::raw::c_int);
     pub fn show_dev_tools(
         &self,
-        window_info: WindowInfo,
-        client: Client,
-        settings: BrowserSettings,
-        inspect_element_at: Point,
+        window_info: &WindowInfo,
+        client: &mut Client,
+        settings: &BrowserSettings,
+        inspect_element_at: &Point,
     );
     pub fn close_dev_tools(&self);
     pub fn has_dev_tools(&self) -> ::std::os::raw::c_int;
@@ -8056,69 +8162,71 @@ wrapper!(
     pub fn execute_dev_tools_method(
         &self,
         message_id: ::std::os::raw::c_int,
-        method: CefString,
-        params: DictionaryValue,
+        method: &CefString,
+        params: &mut DictionaryValue,
     ) -> ::std::os::raw::c_int;
-    pub fn add_dev_tools_message_observer(&self, observer: DevToolsMessageObserver)
-        -> Registration;
+    pub fn add_dev_tools_message_observer(
+        &self,
+        observer: &mut DevToolsMessageObserver,
+    ) -> Registration;
     pub fn get_navigation_entries(
         &self,
-        visitor: NavigationEntryVisitor,
+        visitor: &mut NavigationEntryVisitor,
         current_only: ::std::os::raw::c_int,
     );
-    pub fn replace_misspelling(&self, word: CefString);
-    pub fn add_word_to_dictionary(&self, word: CefString);
+    pub fn replace_misspelling(&self, word: &CefString);
+    pub fn add_word_to_dictionary(&self, word: &CefString);
     pub fn is_window_rendering_disabled(&self) -> ::std::os::raw::c_int;
     pub fn was_resized(&self);
     pub fn was_hidden(&self, hidden: ::std::os::raw::c_int);
     pub fn notify_screen_info_changed(&self);
     pub fn invalidate(&self, type_: PaintElementType);
     pub fn send_external_begin_frame(&self);
-    pub fn send_key_event(&self, event: KeyEvent);
+    pub fn send_key_event(&self, event: &KeyEvent);
     pub fn send_mouse_click_event(
         &self,
-        event: MouseEvent,
+        event: &MouseEvent,
         type_: MouseButtonType,
         mouse_up: ::std::os::raw::c_int,
         click_count: ::std::os::raw::c_int,
     );
-    pub fn send_mouse_move_event(&self, event: MouseEvent, mouse_leave: ::std::os::raw::c_int);
+    pub fn send_mouse_move_event(&self, event: &MouseEvent, mouse_leave: ::std::os::raw::c_int);
     pub fn send_mouse_wheel_event(
         &self,
-        event: MouseEvent,
+        event: &MouseEvent,
         delta_x: ::std::os::raw::c_int,
         delta_y: ::std::os::raw::c_int,
     );
-    pub fn send_touch_event(&self, event: TouchEvent);
+    pub fn send_touch_event(&self, event: &TouchEvent);
     pub fn send_capture_lost_event(&self);
     pub fn notify_move_or_resize_started(&self);
     pub fn get_windowless_frame_rate(&self) -> ::std::os::raw::c_int;
     pub fn set_windowless_frame_rate(&self, frame_rate: ::std::os::raw::c_int);
     pub fn ime_set_composition(
         &self,
-        text: CefString,
+        text: &CefString,
         underlines_count: usize,
-        underlines: CompositionUnderline,
-        replacement_range: Range,
-        selection_range: Range,
+        underlines: &CompositionUnderline,
+        replacement_range: &Range,
+        selection_range: &Range,
     );
     pub fn ime_commit_text(
         &self,
-        text: CefString,
-        replacement_range: Range,
+        text: &CefString,
+        replacement_range: &Range,
         relative_cursor_pos: ::std::os::raw::c_int,
     );
     pub fn ime_finish_composing_text(&self, keep_selection: ::std::os::raw::c_int);
     pub fn ime_cancel_composition(&self);
     pub fn drag_target_drag_enter(
         &self,
-        drag_data: DragData,
-        event: MouseEvent,
+        drag_data: &mut DragData,
+        event: &MouseEvent,
         allowed_ops: DragOperationsMask,
     );
-    pub fn drag_target_drag_over(&self, event: MouseEvent, allowed_ops: DragOperationsMask);
+    pub fn drag_target_drag_over(&self, event: &MouseEvent, allowed_ops: DragOperationsMask);
     pub fn drag_target_drag_leave(&self);
-    pub fn drag_target_drop(&self, event: MouseEvent);
+    pub fn drag_target_drop(&self, event: &MouseEvent);
     pub fn drag_source_ended_at(
         &self,
         x: ::std::os::raw::c_int,
@@ -8131,8 +8239,8 @@ wrapper!(
     pub fn set_auto_resize_enabled(
         &self,
         enabled: ::std::os::raw::c_int,
-        min_size: Size,
-        max_size: Size,
+        min_size: &Size,
+        max_size: &Size,
     );
     pub fn set_audio_muted(&self, mute: ::std::os::raw::c_int);
     pub fn is_audio_muted(&self) -> ::std::os::raw::c_int;
@@ -8195,33 +8303,33 @@ pub trait ImplBrowserHost: Sized {
     fn run_file_dialog(
         &self,
         mode: FileDialogMode,
-        title: CefString,
-        default_file_path: CefString,
-        accept_filters: CefStringList,
-        callback: RunFileDialogCallback,
+        title: &CefString,
+        default_file_path: &CefString,
+        accept_filters: &mut CefStringList,
+        callback: &mut RunFileDialogCallback,
     ) {
     }
-    fn start_download(&self, url: CefString) {}
+    fn start_download(&self, url: &CefString) {}
     fn download_image(
         &self,
-        image_url: CefString,
+        image_url: &CefString,
         is_favicon: ::std::os::raw::c_int,
         max_image_size: u32,
         bypass_cache: ::std::os::raw::c_int,
-        callback: DownloadImageCallback,
+        callback: &mut DownloadImageCallback,
     ) {
     }
     fn print(&self) {}
     fn print_to_pdf(
         &self,
-        path: CefString,
-        settings: PdfPrintSettings,
-        callback: PdfPrintCallback,
+        path: &CefString,
+        settings: &PdfPrintSettings,
+        callback: &mut PdfPrintCallback,
     ) {
     }
     fn find(
         &self,
-        search_text: CefString,
+        search_text: &CefString,
         forward: ::std::os::raw::c_int,
         match_case: ::std::os::raw::c_int,
         find_next: ::std::os::raw::c_int,
@@ -8230,10 +8338,10 @@ pub trait ImplBrowserHost: Sized {
     fn stop_finding(&self, clear_selection: ::std::os::raw::c_int) {}
     fn show_dev_tools(
         &self,
-        window_info: WindowInfo,
-        client: Client,
-        settings: BrowserSettings,
-        inspect_element_at: Point,
+        window_info: &WindowInfo,
+        client: &mut Client,
+        settings: &BrowserSettings,
+        inspect_element_at: &Point,
     ) {
     }
     fn close_dev_tools(&self) {}
@@ -8250,22 +8358,25 @@ pub trait ImplBrowserHost: Sized {
     fn execute_dev_tools_method(
         &self,
         message_id: ::std::os::raw::c_int,
-        method: CefString,
-        params: DictionaryValue,
+        method: &CefString,
+        params: &mut DictionaryValue,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn add_dev_tools_message_observer(&self, observer: DevToolsMessageObserver) -> Registration {
+    fn add_dev_tools_message_observer(
+        &self,
+        observer: &mut DevToolsMessageObserver,
+    ) -> Registration {
         Default::default()
     }
     fn get_navigation_entries(
         &self,
-        visitor: NavigationEntryVisitor,
+        visitor: &mut NavigationEntryVisitor,
         current_only: ::std::os::raw::c_int,
     ) {
     }
-    fn replace_misspelling(&self, word: CefString) {}
-    fn add_word_to_dictionary(&self, word: CefString) {}
+    fn replace_misspelling(&self, word: &CefString) {}
+    fn add_word_to_dictionary(&self, word: &CefString) {}
     fn is_window_rendering_disabled(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -8274,24 +8385,24 @@ pub trait ImplBrowserHost: Sized {
     fn notify_screen_info_changed(&self) {}
     fn invalidate(&self, type_: PaintElementType) {}
     fn send_external_begin_frame(&self) {}
-    fn send_key_event(&self, event: KeyEvent) {}
+    fn send_key_event(&self, event: &KeyEvent) {}
     fn send_mouse_click_event(
         &self,
-        event: MouseEvent,
+        event: &MouseEvent,
         type_: MouseButtonType,
         mouse_up: ::std::os::raw::c_int,
         click_count: ::std::os::raw::c_int,
     ) {
     }
-    fn send_mouse_move_event(&self, event: MouseEvent, mouse_leave: ::std::os::raw::c_int) {}
+    fn send_mouse_move_event(&self, event: &MouseEvent, mouse_leave: ::std::os::raw::c_int) {}
     fn send_mouse_wheel_event(
         &self,
-        event: MouseEvent,
+        event: &MouseEvent,
         delta_x: ::std::os::raw::c_int,
         delta_y: ::std::os::raw::c_int,
     ) {
     }
-    fn send_touch_event(&self, event: TouchEvent) {}
+    fn send_touch_event(&self, event: &TouchEvent) {}
     fn send_capture_lost_event(&self) {}
     fn notify_move_or_resize_started(&self) {}
     fn get_windowless_frame_rate(&self) -> ::std::os::raw::c_int {
@@ -8300,17 +8411,17 @@ pub trait ImplBrowserHost: Sized {
     fn set_windowless_frame_rate(&self, frame_rate: ::std::os::raw::c_int) {}
     fn ime_set_composition(
         &self,
-        text: CefString,
+        text: &CefString,
         underlines_count: usize,
-        underlines: CompositionUnderline,
-        replacement_range: Range,
-        selection_range: Range,
+        underlines: &CompositionUnderline,
+        replacement_range: &Range,
+        selection_range: &Range,
     ) {
     }
     fn ime_commit_text(
         &self,
-        text: CefString,
-        replacement_range: Range,
+        text: &CefString,
+        replacement_range: &Range,
         relative_cursor_pos: ::std::os::raw::c_int,
     ) {
     }
@@ -8318,14 +8429,14 @@ pub trait ImplBrowserHost: Sized {
     fn ime_cancel_composition(&self) {}
     fn drag_target_drag_enter(
         &self,
-        drag_data: DragData,
-        event: MouseEvent,
+        drag_data: &mut DragData,
+        event: &MouseEvent,
         allowed_ops: DragOperationsMask,
     ) {
     }
-    fn drag_target_drag_over(&self, event: MouseEvent, allowed_ops: DragOperationsMask) {}
+    fn drag_target_drag_over(&self, event: &MouseEvent, allowed_ops: DragOperationsMask) {}
     fn drag_target_drag_leave(&self) {}
-    fn drag_target_drop(&self, event: MouseEvent) {}
+    fn drag_target_drop(&self, event: &MouseEvent) {}
     fn drag_source_ended_at(
         &self,
         x: ::std::os::raw::c_int,
@@ -8341,8 +8452,8 @@ pub trait ImplBrowserHost: Sized {
     fn set_auto_resize_enabled(
         &self,
         enabled: ::std::os::raw::c_int,
-        min_size: Size,
-        max_size: Size,
+        min_size: &Size,
+        max_size: &Size,
     ) {
     }
     fn set_audio_muted(&self, mute: ::std::os::raw::c_int) {}
@@ -8465,7 +8576,7 @@ mod impl_cef_browser_host_t {
         force_close: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.close_browser(force_close.into())
+        obj.interface.close_browser(force_close)
     }
 
     extern "C" fn try_close_browser<I: ImplBrowserHost>(
@@ -8487,7 +8598,7 @@ mod impl_cef_browser_host_t {
         focus: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_focus(focus.into())
+        obj.interface.set_focus(focus)
     }
 
     extern "C" fn get_window_handle<I: ImplBrowserHost>(
@@ -8537,7 +8648,7 @@ mod impl_cef_browser_host_t {
         command: cef_zoom_command_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.can_zoom(command.into()).into()
+        obj.interface.can_zoom(command).into()
     }
 
     extern "C" fn zoom<I: ImplBrowserHost>(
@@ -8545,7 +8656,7 @@ mod impl_cef_browser_host_t {
         command: cef_zoom_command_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.zoom(command.into())
+        obj.interface.zoom(command)
     }
 
     extern "C" fn get_default_zoom_level<I: ImplBrowserHost>(
@@ -8565,7 +8676,7 @@ mod impl_cef_browser_host_t {
         zoom_level: f64,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_zoom_level(zoom_level.into())
+        obj.interface.set_zoom_level(zoom_level)
     }
 
     extern "C" fn run_file_dialog<I: ImplBrowserHost>(
@@ -8577,13 +8688,12 @@ mod impl_cef_browser_host_t {
         callback: *mut _cef_run_file_dialog_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.run_file_dialog(
-            mode.into(),
-            title.into(),
-            default_file_path.into(),
-            accept_filters.into(),
-            callback.into(),
-        )
+        let title = &CefString::from(title);
+        let default_file_path = &CefString::from(default_file_path);
+        let accept_filters = &mut CefStringList::from(accept_filters);
+        let callback = &mut RunFileDialogCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface
+            .run_file_dialog(mode, title, default_file_path, accept_filters, callback)
     }
 
     extern "C" fn start_download<I: ImplBrowserHost>(
@@ -8591,7 +8701,8 @@ mod impl_cef_browser_host_t {
         url: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.start_download(url.into())
+        let url = &CefString::from(url);
+        obj.interface.start_download(url)
     }
 
     extern "C" fn download_image<I: ImplBrowserHost>(
@@ -8603,12 +8714,14 @@ mod impl_cef_browser_host_t {
         callback: *mut _cef_download_image_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let image_url = &CefString::from(image_url);
+        let callback = &mut DownloadImageCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface.download_image(
-            image_url.into(),
-            is_favicon.into(),
-            max_image_size.into(),
-            bypass_cache.into(),
-            callback.into(),
+            image_url,
+            is_favicon,
+            max_image_size,
+            bypass_cache,
+            callback,
         )
     }
 
@@ -8624,8 +8737,10 @@ mod impl_cef_browser_host_t {
         callback: *mut _cef_pdf_print_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .print_to_pdf(path.into(), settings.into(), callback.into())
+        let path = &CefString::from(path);
+        let settings = &PdfPrintSettings(unsafe { RefGuard::from_raw_add_ref(settings) });
+        let callback = &mut PdfPrintCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.print_to_pdf(path, settings, callback)
     }
 
     extern "C" fn find<I: ImplBrowserHost>(
@@ -8636,12 +8751,9 @@ mod impl_cef_browser_host_t {
         find_next: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.find(
-            search_text.into(),
-            forward.into(),
-            match_case.into(),
-            find_next.into(),
-        )
+        let search_text = &CefString::from(search_text);
+        obj.interface
+            .find(search_text, forward, match_case, find_next)
     }
 
     extern "C" fn stop_finding<I: ImplBrowserHost>(
@@ -8649,7 +8761,7 @@ mod impl_cef_browser_host_t {
         clear_selection: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.stop_finding(clear_selection.into())
+        obj.interface.stop_finding(clear_selection)
     }
 
     extern "C" fn show_dev_tools<I: ImplBrowserHost>(
@@ -8660,12 +8772,12 @@ mod impl_cef_browser_host_t {
         inspect_element_at: *const cef_point_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.show_dev_tools(
-            window_info.into(),
-            client.into(),
-            settings.into(),
-            inspect_element_at.into(),
-        )
+        let window_info = &WindowInfo(unsafe { RefGuard::from_raw_add_ref(window_info) });
+        let client = &mut Client(unsafe { RefGuard::from_raw_add_ref(client) });
+        let settings = &BrowserSettings(unsafe { RefGuard::from_raw_add_ref(settings) });
+        let inspect_element_at = &Point(unsafe { RefGuard::from_raw_add_ref(inspect_element_at) });
+        obj.interface
+            .show_dev_tools(window_info, client, settings, inspect_element_at)
     }
 
     extern "C" fn close_dev_tools<I: ImplBrowserHost>(self_: *mut _cef_browser_host_t) {
@@ -8687,7 +8799,7 @@ mod impl_cef_browser_host_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .send_dev_tools_message(message.into(), message_size.into())
+            .send_dev_tools_message(message, message_size)
             .into()
     }
 
@@ -8698,8 +8810,10 @@ mod impl_cef_browser_host_t {
         params: *mut _cef_dictionary_value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let method = &CefString::from(method);
+        let params = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(params) });
         obj.interface
-            .execute_dev_tools_method(message_id.into(), method.into(), params.into())
+            .execute_dev_tools_method(message_id, method, params)
             .into()
     }
 
@@ -8708,8 +8822,10 @@ mod impl_cef_browser_host_t {
         observer: *mut _cef_dev_tools_message_observer_t,
     ) -> *mut _cef_registration_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let observer =
+            &mut DevToolsMessageObserver(unsafe { RefGuard::from_raw_add_ref(observer) });
         obj.interface
-            .add_dev_tools_message_observer(observer.into())
+            .add_dev_tools_message_observer(observer)
             .into()
     }
 
@@ -8719,8 +8835,8 @@ mod impl_cef_browser_host_t {
         current_only: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_navigation_entries(visitor.into(), current_only.into())
+        let visitor = &mut NavigationEntryVisitor(unsafe { RefGuard::from_raw_add_ref(visitor) });
+        obj.interface.get_navigation_entries(visitor, current_only)
     }
 
     extern "C" fn replace_misspelling<I: ImplBrowserHost>(
@@ -8728,7 +8844,8 @@ mod impl_cef_browser_host_t {
         word: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.replace_misspelling(word.into())
+        let word = &CefString::from(word);
+        obj.interface.replace_misspelling(word)
     }
 
     extern "C" fn add_word_to_dictionary<I: ImplBrowserHost>(
@@ -8736,7 +8853,8 @@ mod impl_cef_browser_host_t {
         word: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.add_word_to_dictionary(word.into())
+        let word = &CefString::from(word);
+        obj.interface.add_word_to_dictionary(word)
     }
 
     extern "C" fn is_window_rendering_disabled<I: ImplBrowserHost>(
@@ -8756,7 +8874,7 @@ mod impl_cef_browser_host_t {
         hidden: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.was_hidden(hidden.into())
+        obj.interface.was_hidden(hidden)
     }
 
     extern "C" fn notify_screen_info_changed<I: ImplBrowserHost>(self_: *mut _cef_browser_host_t) {
@@ -8769,7 +8887,7 @@ mod impl_cef_browser_host_t {
         type_: cef_paint_element_type_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.invalidate(type_.into())
+        obj.interface.invalidate(type_)
     }
 
     extern "C" fn send_external_begin_frame<I: ImplBrowserHost>(self_: *mut _cef_browser_host_t) {
@@ -8782,7 +8900,8 @@ mod impl_cef_browser_host_t {
         event: *const cef_key_event_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.send_key_event(event.into())
+        let event = &KeyEvent(unsafe { RefGuard::from_raw_add_ref(event) });
+        obj.interface.send_key_event(event)
     }
 
     extern "C" fn send_mouse_click_event<I: ImplBrowserHost>(
@@ -8793,12 +8912,9 @@ mod impl_cef_browser_host_t {
         click_count: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.send_mouse_click_event(
-            event.into(),
-            type_.into(),
-            mouse_up.into(),
-            click_count.into(),
-        )
+        let event = &MouseEvent(unsafe { RefGuard::from_raw_add_ref(event) });
+        obj.interface
+            .send_mouse_click_event(event, type_, mouse_up, click_count)
     }
 
     extern "C" fn send_mouse_move_event<I: ImplBrowserHost>(
@@ -8807,8 +8923,8 @@ mod impl_cef_browser_host_t {
         mouse_leave: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .send_mouse_move_event(event.into(), mouse_leave.into())
+        let event = &MouseEvent(unsafe { RefGuard::from_raw_add_ref(event) });
+        obj.interface.send_mouse_move_event(event, mouse_leave)
     }
 
     extern "C" fn send_mouse_wheel_event<I: ImplBrowserHost>(
@@ -8818,8 +8934,9 @@ mod impl_cef_browser_host_t {
         delta_y: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let event = &MouseEvent(unsafe { RefGuard::from_raw_add_ref(event) });
         obj.interface
-            .send_mouse_wheel_event(event.into(), delta_x.into(), delta_y.into())
+            .send_mouse_wheel_event(event, delta_x, delta_y)
     }
 
     extern "C" fn send_touch_event<I: ImplBrowserHost>(
@@ -8827,7 +8944,8 @@ mod impl_cef_browser_host_t {
         event: *const cef_touch_event_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.send_touch_event(event.into())
+        let event = &TouchEvent(unsafe { RefGuard::from_raw_add_ref(event) });
+        obj.interface.send_touch_event(event)
     }
 
     extern "C" fn send_capture_lost_event<I: ImplBrowserHost>(self_: *mut _cef_browser_host_t) {
@@ -8854,7 +8972,7 @@ mod impl_cef_browser_host_t {
         frame_rate: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_windowless_frame_rate(frame_rate.into())
+        obj.interface.set_windowless_frame_rate(frame_rate)
     }
 
     extern "C" fn ime_set_composition<I: ImplBrowserHost>(
@@ -8866,12 +8984,16 @@ mod impl_cef_browser_host_t {
         selection_range: *const cef_range_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let text = &CefString::from(text);
+        let underlines = &CompositionUnderline(unsafe { RefGuard::from_raw_add_ref(underlines) });
+        let replacement_range = &Range(unsafe { RefGuard::from_raw_add_ref(replacement_range) });
+        let selection_range = &Range(unsafe { RefGuard::from_raw_add_ref(selection_range) });
         obj.interface.ime_set_composition(
-            text.into(),
-            underlines_count.into(),
-            underlines.into(),
-            replacement_range.into(),
-            selection_range.into(),
+            text,
+            underlines_count,
+            underlines,
+            replacement_range,
+            selection_range,
         )
     }
 
@@ -8882,11 +9004,10 @@ mod impl_cef_browser_host_t {
         relative_cursor_pos: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.ime_commit_text(
-            text.into(),
-            replacement_range.into(),
-            relative_cursor_pos.into(),
-        )
+        let text = &CefString::from(text);
+        let replacement_range = &Range(unsafe { RefGuard::from_raw_add_ref(replacement_range) });
+        obj.interface
+            .ime_commit_text(text, replacement_range, relative_cursor_pos)
     }
 
     extern "C" fn ime_finish_composing_text<I: ImplBrowserHost>(
@@ -8894,8 +9015,7 @@ mod impl_cef_browser_host_t {
         keep_selection: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .ime_finish_composing_text(keep_selection.into())
+        obj.interface.ime_finish_composing_text(keep_selection)
     }
 
     extern "C" fn ime_cancel_composition<I: ImplBrowserHost>(self_: *mut _cef_browser_host_t) {
@@ -8910,8 +9030,10 @@ mod impl_cef_browser_host_t {
         allowed_ops: cef_drag_operations_mask_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let drag_data = &mut DragData(unsafe { RefGuard::from_raw_add_ref(drag_data) });
+        let event = &MouseEvent(unsafe { RefGuard::from_raw_add_ref(event) });
         obj.interface
-            .drag_target_drag_enter(drag_data.into(), event.into(), allowed_ops.into())
+            .drag_target_drag_enter(drag_data, event, allowed_ops)
     }
 
     extern "C" fn drag_target_drag_over<I: ImplBrowserHost>(
@@ -8920,8 +9042,8 @@ mod impl_cef_browser_host_t {
         allowed_ops: cef_drag_operations_mask_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .drag_target_drag_over(event.into(), allowed_ops.into())
+        let event = &MouseEvent(unsafe { RefGuard::from_raw_add_ref(event) });
+        obj.interface.drag_target_drag_over(event, allowed_ops)
     }
 
     extern "C" fn drag_target_drag_leave<I: ImplBrowserHost>(self_: *mut _cef_browser_host_t) {
@@ -8934,7 +9056,8 @@ mod impl_cef_browser_host_t {
         event: *const cef_mouse_event_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.drag_target_drop(event.into())
+        let event = &MouseEvent(unsafe { RefGuard::from_raw_add_ref(event) });
+        obj.interface.drag_target_drop(event)
     }
 
     extern "C" fn drag_source_ended_at<I: ImplBrowserHost>(
@@ -8944,8 +9067,7 @@ mod impl_cef_browser_host_t {
         op: cef_drag_operations_mask_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .drag_source_ended_at(x.into(), y.into(), op.into())
+        obj.interface.drag_source_ended_at(x, y, op)
     }
 
     extern "C" fn drag_source_system_drag_ended<I: ImplBrowserHost>(
@@ -8967,8 +9089,7 @@ mod impl_cef_browser_host_t {
         accessibility_state: cef_state_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_accessibility_state(accessibility_state.into())
+        obj.interface.set_accessibility_state(accessibility_state)
     }
 
     extern "C" fn set_auto_resize_enabled<I: ImplBrowserHost>(
@@ -8978,8 +9099,10 @@ mod impl_cef_browser_host_t {
         max_size: *const cef_size_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let min_size = &Size(unsafe { RefGuard::from_raw_add_ref(min_size) });
+        let max_size = &Size(unsafe { RefGuard::from_raw_add_ref(max_size) });
         obj.interface
-            .set_auto_resize_enabled(enabled.into(), min_size.into(), max_size.into())
+            .set_auto_resize_enabled(enabled, min_size, max_size)
     }
 
     extern "C" fn set_audio_muted<I: ImplBrowserHost>(
@@ -8987,7 +9110,7 @@ mod impl_cef_browser_host_t {
         mute: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_audio_muted(mute.into())
+        obj.interface.set_audio_muted(mute)
     }
 
     extern "C" fn is_audio_muted<I: ImplBrowserHost>(
@@ -9009,7 +9132,7 @@ mod impl_cef_browser_host_t {
         will_cause_resize: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.exit_fullscreen(will_cause_resize.into())
+        obj.interface.exit_fullscreen(will_cause_resize)
     }
 
     extern "C" fn can_execute_chrome_command<I: ImplBrowserHost>(
@@ -9017,9 +9140,7 @@ mod impl_cef_browser_host_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .can_execute_chrome_command(command_id.into())
-            .into()
+        obj.interface.can_execute_chrome_command(command_id).into()
     }
 
     extern "C" fn execute_chrome_command<I: ImplBrowserHost>(
@@ -9029,7 +9150,7 @@ mod impl_cef_browser_host_t {
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .execute_chrome_command(command_id.into(), disposition.into())
+            .execute_chrome_command(command_id, disposition)
     }
 
     extern "C" fn is_render_process_unresponsive<I: ImplBrowserHost>(
@@ -9054,51 +9175,51 @@ wrapper!(
 
     pub fn get_audio_parameters(
         &self,
-        browser: Browser,
-        params: AudioParameters,
+        browser: &mut Browser,
+        params: &mut AudioParameters,
     ) -> ::std::os::raw::c_int;
     pub fn on_audio_stream_started(
         &self,
-        browser: Browser,
-        params: AudioParameters,
+        browser: &mut Browser,
+        params: &AudioParameters,
         channels: ::std::os::raw::c_int,
     );
     pub fn on_audio_stream_packet(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         data: *mut *const f32,
         frames: ::std::os::raw::c_int,
         pts: i64,
     );
-    pub fn on_audio_stream_stopped(&self, browser: Browser);
-    pub fn on_audio_stream_error(&self, browser: Browser, message: CefString);
+    pub fn on_audio_stream_stopped(&self, browser: &mut Browser);
+    pub fn on_audio_stream_error(&self, browser: &mut Browser, message: &CefString);
 );
 
 pub trait ImplAudioHandler: Sized {
     fn get_audio_parameters(
         &self,
-        browser: Browser,
-        params: AudioParameters,
+        browser: &mut Browser,
+        params: &mut AudioParameters,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_audio_stream_started(
         &self,
-        browser: Browser,
-        params: AudioParameters,
+        browser: &mut Browser,
+        params: &AudioParameters,
         channels: ::std::os::raw::c_int,
     ) {
     }
     fn on_audio_stream_packet(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         data: *mut *const f32,
         frames: ::std::os::raw::c_int,
         pts: i64,
     ) {
     }
-    fn on_audio_stream_stopped(&self, browser: Browser) {}
-    fn on_audio_stream_error(&self, browser: Browser, message: CefString) {}
+    fn on_audio_stream_stopped(&self, browser: &mut Browser) {}
+    fn on_audio_stream_error(&self, browser: &mut Browser, message: &CefString) {}
 
     fn into_raw(self) -> *mut _cef_audio_handler_t {
         let mut object: _cef_audio_handler_t = unsafe { std::mem::zeroed() };
@@ -9124,9 +9245,9 @@ mod impl_cef_audio_handler_t {
         params: *mut cef_audio_parameters_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_audio_parameters(browser.into(), params.into())
-            .into()
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let params = &mut AudioParameters(unsafe { RefGuard::from_raw_add_ref(params) });
+        obj.interface.get_audio_parameters(browser, params).into()
     }
 
     extern "C" fn on_audio_stream_started<I: ImplAudioHandler>(
@@ -9136,8 +9257,10 @@ mod impl_cef_audio_handler_t {
         channels: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let params = &AudioParameters(unsafe { RefGuard::from_raw_add_ref(params) });
         obj.interface
-            .on_audio_stream_started(browser.into(), params.into(), channels.into())
+            .on_audio_stream_started(browser, params, channels)
     }
 
     extern "C" fn on_audio_stream_packet<I: ImplAudioHandler>(
@@ -9148,8 +9271,9 @@ mod impl_cef_audio_handler_t {
         pts: i64,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         obj.interface
-            .on_audio_stream_packet(browser.into(), data.into(), frames.into(), pts.into())
+            .on_audio_stream_packet(browser, data, frames, pts)
     }
 
     extern "C" fn on_audio_stream_stopped<I: ImplAudioHandler>(
@@ -9157,7 +9281,8 @@ mod impl_cef_audio_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_audio_stream_stopped(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_audio_stream_stopped(browser)
     }
 
     extern "C" fn on_audio_stream_error<I: ImplAudioHandler>(
@@ -9166,8 +9291,9 @@ mod impl_cef_audio_handler_t {
         message: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_audio_stream_error(browser.into(), message.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let message = &CefString::from(message);
+        obj.interface.on_audio_stream_error(browser, message)
     }
 }
 
@@ -9178,18 +9304,18 @@ wrapper!(
 
     pub fn on_chrome_command(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         command_id: ::std::os::raw::c_int,
         disposition: WindowOpenDisposition,
     ) -> ::std::os::raw::c_int;
     pub fn is_chrome_app_menu_item_visible(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
     pub fn is_chrome_app_menu_item_enabled(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
     pub fn is_chrome_page_action_icon_visible(
@@ -9205,7 +9331,7 @@ wrapper!(
 pub trait ImplCommandHandler: Sized {
     fn on_chrome_command(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         command_id: ::std::os::raw::c_int,
         disposition: WindowOpenDisposition,
     ) -> ::std::os::raw::c_int {
@@ -9213,14 +9339,14 @@ pub trait ImplCommandHandler: Sized {
     }
     fn is_chrome_app_menu_item_visible(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn is_chrome_app_menu_item_enabled(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
@@ -9263,8 +9389,9 @@ mod impl_cef_command_handler_t {
         disposition: cef_window_open_disposition_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         obj.interface
-            .on_chrome_command(browser.into(), command_id.into(), disposition.into())
+            .on_chrome_command(browser, command_id, disposition)
             .into()
     }
 
@@ -9274,8 +9401,9 @@ mod impl_cef_command_handler_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         obj.interface
-            .is_chrome_app_menu_item_visible(browser.into(), command_id.into())
+            .is_chrome_app_menu_item_visible(browser, command_id)
             .into()
     }
 
@@ -9285,8 +9413,9 @@ mod impl_cef_command_handler_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         obj.interface
-            .is_chrome_app_menu_item_enabled(browser.into(), command_id.into())
+            .is_chrome_app_menu_item_enabled(browser, command_id)
             .into()
     }
 
@@ -9296,7 +9425,7 @@ mod impl_cef_command_handler_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .is_chrome_page_action_icon_visible(icon_type.into())
+            .is_chrome_page_action_icon_visible(icon_type)
             .into()
     }
 
@@ -9306,7 +9435,7 @@ mod impl_cef_command_handler_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .is_chrome_toolbar_button_visible(button_type.into())
+            .is_chrome_toolbar_button_visible(button_type)
             .into()
     }
 }
@@ -9318,32 +9447,44 @@ wrapper!(
 
     pub fn execute_command(
         &self,
-        menu_model: MenuModel,
+        menu_model: &mut MenuModel,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     );
-    pub fn mouse_outside_menu(&self, menu_model: MenuModel, screen_point: Point);
-    pub fn unhandled_open_submenu(&self, menu_model: MenuModel, is_rtl: ::std::os::raw::c_int);
-    pub fn unhandled_close_submenu(&self, menu_model: MenuModel, is_rtl: ::std::os::raw::c_int);
-    pub fn menu_will_show(&self, menu_model: MenuModel);
-    pub fn menu_closed(&self, menu_model: MenuModel);
-    pub fn format_label(&self, menu_model: MenuModel, label: CefString) -> ::std::os::raw::c_int;
+    pub fn mouse_outside_menu(&self, menu_model: &mut MenuModel, screen_point: &Point);
+    pub fn unhandled_open_submenu(&self, menu_model: &mut MenuModel, is_rtl: ::std::os::raw::c_int);
+    pub fn unhandled_close_submenu(
+        &self,
+        menu_model: &mut MenuModel,
+        is_rtl: ::std::os::raw::c_int,
+    );
+    pub fn menu_will_show(&self, menu_model: &mut MenuModel);
+    pub fn menu_closed(&self, menu_model: &mut MenuModel);
+    pub fn format_label(
+        &self,
+        menu_model: &mut MenuModel,
+        label: &mut CefString,
+    ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplMenuModelDelegate: Sized {
     fn execute_command(
         &self,
-        menu_model: MenuModel,
+        menu_model: &mut MenuModel,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) {
     }
-    fn mouse_outside_menu(&self, menu_model: MenuModel, screen_point: Point) {}
-    fn unhandled_open_submenu(&self, menu_model: MenuModel, is_rtl: ::std::os::raw::c_int) {}
-    fn unhandled_close_submenu(&self, menu_model: MenuModel, is_rtl: ::std::os::raw::c_int) {}
-    fn menu_will_show(&self, menu_model: MenuModel) {}
-    fn menu_closed(&self, menu_model: MenuModel) {}
-    fn format_label(&self, menu_model: MenuModel, label: CefString) -> ::std::os::raw::c_int {
+    fn mouse_outside_menu(&self, menu_model: &mut MenuModel, screen_point: &Point) {}
+    fn unhandled_open_submenu(&self, menu_model: &mut MenuModel, is_rtl: ::std::os::raw::c_int) {}
+    fn unhandled_close_submenu(&self, menu_model: &mut MenuModel, is_rtl: ::std::os::raw::c_int) {}
+    fn menu_will_show(&self, menu_model: &mut MenuModel) {}
+    fn menu_closed(&self, menu_model: &mut MenuModel) {}
+    fn format_label(
+        &self,
+        menu_model: &mut MenuModel,
+        label: &mut CefString,
+    ) -> ::std::os::raw::c_int {
         Default::default()
     }
 
@@ -9374,8 +9515,9 @@ mod impl_cef_menu_model_delegate_t {
         event_flags: cef_event_flags_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(menu_model) });
         obj.interface
-            .execute_command(menu_model.into(), command_id.into(), event_flags.into())
+            .execute_command(menu_model, command_id, event_flags)
     }
 
     extern "C" fn mouse_outside_menu<I: ImplMenuModelDelegate>(
@@ -9384,8 +9526,9 @@ mod impl_cef_menu_model_delegate_t {
         screen_point: *const cef_point_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .mouse_outside_menu(menu_model.into(), screen_point.into())
+        let menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(menu_model) });
+        let screen_point = &Point(unsafe { RefGuard::from_raw_add_ref(screen_point) });
+        obj.interface.mouse_outside_menu(menu_model, screen_point)
     }
 
     extern "C" fn unhandled_open_submenu<I: ImplMenuModelDelegate>(
@@ -9394,8 +9537,8 @@ mod impl_cef_menu_model_delegate_t {
         is_rtl: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .unhandled_open_submenu(menu_model.into(), is_rtl.into())
+        let menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(menu_model) });
+        obj.interface.unhandled_open_submenu(menu_model, is_rtl)
     }
 
     extern "C" fn unhandled_close_submenu<I: ImplMenuModelDelegate>(
@@ -9404,8 +9547,8 @@ mod impl_cef_menu_model_delegate_t {
         is_rtl: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .unhandled_close_submenu(menu_model.into(), is_rtl.into())
+        let menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(menu_model) });
+        obj.interface.unhandled_close_submenu(menu_model, is_rtl)
     }
 
     extern "C" fn menu_will_show<I: ImplMenuModelDelegate>(
@@ -9413,7 +9556,8 @@ mod impl_cef_menu_model_delegate_t {
         menu_model: *mut _cef_menu_model_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.menu_will_show(menu_model.into())
+        let menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(menu_model) });
+        obj.interface.menu_will_show(menu_model)
     }
 
     extern "C" fn menu_closed<I: ImplMenuModelDelegate>(
@@ -9421,7 +9565,8 @@ mod impl_cef_menu_model_delegate_t {
         menu_model: *mut _cef_menu_model_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.menu_closed(menu_model.into())
+        let menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(menu_model) });
+        obj.interface.menu_closed(menu_model)
     }
 
     extern "C" fn format_label<I: ImplMenuModelDelegate>(
@@ -9430,9 +9575,9 @@ mod impl_cef_menu_model_delegate_t {
         label: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .format_label(menu_model.into(), label.into())
-            .into()
+        let menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(menu_model) });
+        let label = &mut CefString::from(label);
+        obj.interface.format_label(menu_model, label).into()
     }
 }
 
@@ -9448,45 +9593,45 @@ wrapper!(
     pub fn add_item(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int;
     pub fn add_check_item(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int;
     pub fn add_radio_item(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-    pub fn add_sub_menu(&self, command_id: ::std::os::raw::c_int, label: CefString) -> MenuModel;
+    pub fn add_sub_menu(&self, command_id: ::std::os::raw::c_int, label: &CefString) -> MenuModel;
     pub fn insert_separator_at(&self, index: usize) -> ::std::os::raw::c_int;
     pub fn insert_item_at(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int;
     pub fn insert_check_item_at(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int;
     pub fn insert_radio_item_at(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
     pub fn insert_sub_menu_at(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> MenuModel;
     pub fn remove(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
     pub fn remove_at(&self, index: usize) -> ::std::os::raw::c_int;
@@ -9502,9 +9647,9 @@ wrapper!(
     pub fn set_label(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int;
-    pub fn set_label_at(&self, index: usize, label: CefString) -> ::std::os::raw::c_int;
+    pub fn set_label_at(&self, index: usize, label: &CefString) -> ::std::os::raw::c_int;
     pub fn get_type(&self, command_id: ::std::os::raw::c_int) -> MenuItemType;
     pub fn get_type_at(&self, index: usize) -> MenuItemType;
     pub fn get_group_id(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
@@ -9597,35 +9742,35 @@ wrapper!(
         &self,
         command_id: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: Color,
+        color: &mut Color,
     ) -> ::std::os::raw::c_int;
     pub fn set_color_at(
         &self,
         index: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: Color,
+        color: &mut Color,
     ) -> ::std::os::raw::c_int;
     pub fn get_color(
         &self,
         command_id: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: Color,
+        color: &mut Color,
     ) -> ::std::os::raw::c_int;
     pub fn get_color_at(
         &self,
         index: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: Color,
+        color: &mut Color,
     ) -> ::std::os::raw::c_int;
     pub fn set_font_list(
         &self,
         command_id: ::std::os::raw::c_int,
-        font_list: CefString,
+        font_list: &CefString,
     ) -> ::std::os::raw::c_int;
     pub fn set_font_list_at(
         &self,
         index: ::std::os::raw::c_int,
-        font_list: CefString,
+        font_list: &CefString,
     ) -> ::std::os::raw::c_int;
 );
 
@@ -9645,26 +9790,26 @@ pub trait ImplMenuModel: Sized {
     fn add_item(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn add_check_item(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn add_radio_item(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn add_sub_menu(&self, command_id: ::std::os::raw::c_int, label: CefString) -> MenuModel {
+    fn add_sub_menu(&self, command_id: ::std::os::raw::c_int, label: &CefString) -> MenuModel {
         Default::default()
     }
     fn insert_separator_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -9674,7 +9819,7 @@ pub trait ImplMenuModel: Sized {
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -9682,7 +9827,7 @@ pub trait ImplMenuModel: Sized {
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -9690,7 +9835,7 @@ pub trait ImplMenuModel: Sized {
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
@@ -9699,7 +9844,7 @@ pub trait ImplMenuModel: Sized {
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> MenuModel {
         Default::default()
     }
@@ -9731,11 +9876,11 @@ pub trait ImplMenuModel: Sized {
     fn set_label(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: CefString,
+        label: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_label_at(&self, index: usize, label: CefString) -> ::std::os::raw::c_int {
+    fn set_label_at(&self, index: usize, label: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_type(&self, command_id: ::std::os::raw::c_int) -> MenuItemType {
@@ -9886,7 +10031,7 @@ pub trait ImplMenuModel: Sized {
         &self,
         command_id: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: Color,
+        color: &mut Color,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -9894,7 +10039,7 @@ pub trait ImplMenuModel: Sized {
         &self,
         index: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: Color,
+        color: &mut Color,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -9902,7 +10047,7 @@ pub trait ImplMenuModel: Sized {
         &self,
         command_id: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: Color,
+        color: &mut Color,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -9910,21 +10055,21 @@ pub trait ImplMenuModel: Sized {
         &self,
         index: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: Color,
+        color: &mut Color,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn set_font_list(
         &self,
         command_id: ::std::os::raw::c_int,
-        font_list: CefString,
+        font_list: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn set_font_list_at(
         &self,
         index: ::std::os::raw::c_int,
-        font_list: CefString,
+        font_list: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -10028,9 +10173,8 @@ mod impl_cef_menu_model_t {
         label: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .add_item(command_id.into(), label.into())
-            .into()
+        let label = &CefString::from(label);
+        obj.interface.add_item(command_id, label).into()
     }
 
     extern "C" fn add_check_item<I: ImplMenuModel>(
@@ -10039,9 +10183,8 @@ mod impl_cef_menu_model_t {
         label: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .add_check_item(command_id.into(), label.into())
-            .into()
+        let label = &CefString::from(label);
+        obj.interface.add_check_item(command_id, label).into()
     }
 
     extern "C" fn add_radio_item<I: ImplMenuModel>(
@@ -10051,8 +10194,9 @@ mod impl_cef_menu_model_t {
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let label = &CefString::from(label);
         obj.interface
-            .add_radio_item(command_id.into(), label.into(), group_id.into())
+            .add_radio_item(command_id, label, group_id)
             .into()
     }
 
@@ -10062,9 +10206,8 @@ mod impl_cef_menu_model_t {
         label: *const cef_string_t,
     ) -> *mut _cef_menu_model_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .add_sub_menu(command_id.into(), label.into())
-            .into()
+        let label = &CefString::from(label);
+        obj.interface.add_sub_menu(command_id, label).into()
     }
 
     extern "C" fn insert_separator_at<I: ImplMenuModel>(
@@ -10072,7 +10215,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.insert_separator_at(index.into()).into()
+        obj.interface.insert_separator_at(index).into()
     }
 
     extern "C" fn insert_item_at<I: ImplMenuModel>(
@@ -10082,8 +10225,9 @@ mod impl_cef_menu_model_t {
         label: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let label = &CefString::from(label);
         obj.interface
-            .insert_item_at(index.into(), command_id.into(), label.into())
+            .insert_item_at(index, command_id, label)
             .into()
     }
 
@@ -10094,8 +10238,9 @@ mod impl_cef_menu_model_t {
         label: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let label = &CefString::from(label);
         obj.interface
-            .insert_check_item_at(index.into(), command_id.into(), label.into())
+            .insert_check_item_at(index, command_id, label)
             .into()
     }
 
@@ -10107,13 +10252,9 @@ mod impl_cef_menu_model_t {
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let label = &CefString::from(label);
         obj.interface
-            .insert_radio_item_at(
-                index.into(),
-                command_id.into(),
-                label.into(),
-                group_id.into(),
-            )
+            .insert_radio_item_at(index, command_id, label, group_id)
             .into()
     }
 
@@ -10124,8 +10265,9 @@ mod impl_cef_menu_model_t {
         label: *const cef_string_t,
     ) -> *mut _cef_menu_model_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let label = &CefString::from(label);
         obj.interface
-            .insert_sub_menu_at(index.into(), command_id.into(), label.into())
+            .insert_sub_menu_at(index, command_id, label)
             .into()
     }
 
@@ -10134,7 +10276,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.remove(command_id.into()).into()
+        obj.interface.remove(command_id).into()
     }
 
     extern "C" fn remove_at<I: ImplMenuModel>(
@@ -10142,7 +10284,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.remove_at(index.into()).into()
+        obj.interface.remove_at(index).into()
     }
 
     extern "C" fn get_index_of<I: ImplMenuModel>(
@@ -10150,7 +10292,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_index_of(command_id.into()).into()
+        obj.interface.get_index_of(command_id).into()
     }
 
     extern "C" fn get_command_id_at<I: ImplMenuModel>(
@@ -10158,7 +10300,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_command_id_at(index.into()).into()
+        obj.interface.get_command_id_at(index).into()
     }
 
     extern "C" fn set_command_id_at<I: ImplMenuModel>(
@@ -10167,9 +10309,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_command_id_at(index.into(), command_id.into())
-            .into()
+        obj.interface.set_command_id_at(index, command_id).into()
     }
 
     extern "C" fn get_label<I: ImplMenuModel>(
@@ -10177,7 +10317,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_label(command_id.into()).into()
+        obj.interface.get_label(command_id).into()
     }
 
     extern "C" fn get_label_at<I: ImplMenuModel>(
@@ -10185,7 +10325,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_label_at(index.into()).into()
+        obj.interface.get_label_at(index).into()
     }
 
     extern "C" fn set_label<I: ImplMenuModel>(
@@ -10194,9 +10334,8 @@ mod impl_cef_menu_model_t {
         label: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_label(command_id.into(), label.into())
-            .into()
+        let label = &CefString::from(label);
+        obj.interface.set_label(command_id, label).into()
     }
 
     extern "C" fn set_label_at<I: ImplMenuModel>(
@@ -10205,9 +10344,8 @@ mod impl_cef_menu_model_t {
         label: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_label_at(index.into(), label.into())
-            .into()
+        let label = &CefString::from(label);
+        obj.interface.set_label_at(index, label).into()
     }
 
     extern "C" fn get_type<I: ImplMenuModel>(
@@ -10215,7 +10353,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> cef_menu_item_type_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_type(command_id.into()).into()
+        obj.interface.get_type(command_id).into()
     }
 
     extern "C" fn get_type_at<I: ImplMenuModel>(
@@ -10223,7 +10361,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> cef_menu_item_type_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_type_at(index.into()).into()
+        obj.interface.get_type_at(index).into()
     }
 
     extern "C" fn get_group_id<I: ImplMenuModel>(
@@ -10231,7 +10369,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_group_id(command_id.into()).into()
+        obj.interface.get_group_id(command_id).into()
     }
 
     extern "C" fn get_group_id_at<I: ImplMenuModel>(
@@ -10239,7 +10377,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_group_id_at(index.into()).into()
+        obj.interface.get_group_id_at(index).into()
     }
 
     extern "C" fn set_group_id<I: ImplMenuModel>(
@@ -10248,9 +10386,7 @@ mod impl_cef_menu_model_t {
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_group_id(command_id.into(), group_id.into())
-            .into()
+        obj.interface.set_group_id(command_id, group_id).into()
     }
 
     extern "C" fn set_group_id_at<I: ImplMenuModel>(
@@ -10259,9 +10395,7 @@ mod impl_cef_menu_model_t {
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_group_id_at(index.into(), group_id.into())
-            .into()
+        obj.interface.set_group_id_at(index, group_id).into()
     }
 
     extern "C" fn get_sub_menu<I: ImplMenuModel>(
@@ -10269,7 +10403,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> *mut _cef_menu_model_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_sub_menu(command_id.into()).into()
+        obj.interface.get_sub_menu(command_id).into()
     }
 
     extern "C" fn get_sub_menu_at<I: ImplMenuModel>(
@@ -10277,7 +10411,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> *mut _cef_menu_model_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_sub_menu_at(index.into()).into()
+        obj.interface.get_sub_menu_at(index).into()
     }
 
     extern "C" fn is_visible<I: ImplMenuModel>(
@@ -10285,7 +10419,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_visible(command_id.into()).into()
+        obj.interface.is_visible(command_id).into()
     }
 
     extern "C" fn is_visible_at<I: ImplMenuModel>(
@@ -10293,7 +10427,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_visible_at(index.into()).into()
+        obj.interface.is_visible_at(index).into()
     }
 
     extern "C" fn set_visible<I: ImplMenuModel>(
@@ -10302,9 +10436,7 @@ mod impl_cef_menu_model_t {
         visible: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_visible(command_id.into(), visible.into())
-            .into()
+        obj.interface.set_visible(command_id, visible).into()
     }
 
     extern "C" fn set_visible_at<I: ImplMenuModel>(
@@ -10313,9 +10445,7 @@ mod impl_cef_menu_model_t {
         visible: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_visible_at(index.into(), visible.into())
-            .into()
+        obj.interface.set_visible_at(index, visible).into()
     }
 
     extern "C" fn is_enabled<I: ImplMenuModel>(
@@ -10323,7 +10453,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_enabled(command_id.into()).into()
+        obj.interface.is_enabled(command_id).into()
     }
 
     extern "C" fn is_enabled_at<I: ImplMenuModel>(
@@ -10331,7 +10461,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_enabled_at(index.into()).into()
+        obj.interface.is_enabled_at(index).into()
     }
 
     extern "C" fn set_enabled<I: ImplMenuModel>(
@@ -10340,9 +10470,7 @@ mod impl_cef_menu_model_t {
         enabled: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_enabled(command_id.into(), enabled.into())
-            .into()
+        obj.interface.set_enabled(command_id, enabled).into()
     }
 
     extern "C" fn set_enabled_at<I: ImplMenuModel>(
@@ -10351,9 +10479,7 @@ mod impl_cef_menu_model_t {
         enabled: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_enabled_at(index.into(), enabled.into())
-            .into()
+        obj.interface.set_enabled_at(index, enabled).into()
     }
 
     extern "C" fn is_checked<I: ImplMenuModel>(
@@ -10361,7 +10487,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_checked(command_id.into()).into()
+        obj.interface.is_checked(command_id).into()
     }
 
     extern "C" fn is_checked_at<I: ImplMenuModel>(
@@ -10369,7 +10495,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_checked_at(index.into()).into()
+        obj.interface.is_checked_at(index).into()
     }
 
     extern "C" fn set_checked<I: ImplMenuModel>(
@@ -10378,9 +10504,7 @@ mod impl_cef_menu_model_t {
         checked: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_checked(command_id.into(), checked.into())
-            .into()
+        obj.interface.set_checked(command_id, checked).into()
     }
 
     extern "C" fn set_checked_at<I: ImplMenuModel>(
@@ -10389,9 +10513,7 @@ mod impl_cef_menu_model_t {
         checked: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_checked_at(index.into(), checked.into())
-            .into()
+        obj.interface.set_checked_at(index, checked).into()
     }
 
     extern "C" fn has_accelerator<I: ImplMenuModel>(
@@ -10399,7 +10521,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.has_accelerator(command_id.into()).into()
+        obj.interface.has_accelerator(command_id).into()
     }
 
     extern "C" fn has_accelerator_at<I: ImplMenuModel>(
@@ -10407,7 +10529,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.has_accelerator_at(index.into()).into()
+        obj.interface.has_accelerator_at(index).into()
     }
 
     extern "C" fn set_accelerator<I: ImplMenuModel>(
@@ -10421,11 +10543,11 @@ mod impl_cef_menu_model_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
             .set_accelerator(
-                command_id.into(),
-                key_code.into(),
-                shift_pressed.into(),
-                ctrl_pressed.into(),
-                alt_pressed.into(),
+                command_id,
+                key_code,
+                shift_pressed,
+                ctrl_pressed,
+                alt_pressed,
             )
             .into()
     }
@@ -10440,13 +10562,7 @@ mod impl_cef_menu_model_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .set_accelerator_at(
-                index.into(),
-                key_code.into(),
-                shift_pressed.into(),
-                ctrl_pressed.into(),
-                alt_pressed.into(),
-            )
+            .set_accelerator_at(index, key_code, shift_pressed, ctrl_pressed, alt_pressed)
             .into()
     }
 
@@ -10455,7 +10571,7 @@ mod impl_cef_menu_model_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.remove_accelerator(command_id.into()).into()
+        obj.interface.remove_accelerator(command_id).into()
     }
 
     extern "C" fn remove_accelerator_at<I: ImplMenuModel>(
@@ -10463,7 +10579,7 @@ mod impl_cef_menu_model_t {
         index: usize,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.remove_accelerator_at(index.into()).into()
+        obj.interface.remove_accelerator_at(index).into()
     }
 
     extern "C" fn get_accelerator<I: ImplMenuModel>(
@@ -10477,11 +10593,11 @@ mod impl_cef_menu_model_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
             .get_accelerator(
-                command_id.into(),
-                key_code.into(),
-                shift_pressed.into(),
-                ctrl_pressed.into(),
-                alt_pressed.into(),
+                command_id,
+                key_code,
+                shift_pressed,
+                ctrl_pressed,
+                alt_pressed,
             )
             .into()
     }
@@ -10496,13 +10612,7 @@ mod impl_cef_menu_model_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_accelerator_at(
-                index.into(),
-                key_code.into(),
-                shift_pressed.into(),
-                ctrl_pressed.into(),
-                alt_pressed.into(),
-            )
+            .get_accelerator_at(index, key_code, shift_pressed, ctrl_pressed, alt_pressed)
             .into()
     }
 
@@ -10514,7 +10624,7 @@ mod impl_cef_menu_model_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .set_color(command_id.into(), color_type.into(), color.into())
+            .set_color(command_id, color_type, color)
             .into()
     }
 
@@ -10525,9 +10635,7 @@ mod impl_cef_menu_model_t {
         color: cef_color_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_color_at(index.into(), color_type.into(), color.into())
-            .into()
+        obj.interface.set_color_at(index, color_type, color).into()
     }
 
     extern "C" fn get_color<I: ImplMenuModel>(
@@ -10538,7 +10646,7 @@ mod impl_cef_menu_model_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_color(command_id.into(), color_type.into(), color.into())
+            .get_color(command_id, color_type, color)
             .into()
     }
 
@@ -10549,9 +10657,7 @@ mod impl_cef_menu_model_t {
         color: *mut cef_color_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_color_at(index.into(), color_type.into(), color.into())
-            .into()
+        obj.interface.get_color_at(index, color_type, color).into()
     }
 
     extern "C" fn set_font_list<I: ImplMenuModel>(
@@ -10560,9 +10666,8 @@ mod impl_cef_menu_model_t {
         font_list: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_font_list(command_id.into(), font_list.into())
-            .into()
+        let font_list = &CefString::from(font_list);
+        obj.interface.set_font_list(command_id, font_list).into()
     }
 
     extern "C" fn set_font_list_at<I: ImplMenuModel>(
@@ -10571,9 +10676,8 @@ mod impl_cef_menu_model_t {
         font_list: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_font_list_at(index.into(), font_list.into())
-            .into()
+        let font_list = &CefString::from(font_list);
+        obj.interface.set_font_list_at(index, font_list).into()
     }
 }
 
@@ -10613,7 +10717,7 @@ mod impl_cef_run_context_menu_callback_t {
         event_flags: cef_event_flags_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(command_id.into(), event_flags.into())
+        obj.interface.cont(command_id, event_flags)
     }
 
     extern "C" fn cancel<I: ImplRunContextMenuCallback>(
@@ -10658,7 +10762,7 @@ mod impl_cef_run_quick_menu_callback_t {
         event_flags: cef_event_flags_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(command_id.into(), event_flags.into())
+        obj.interface.cont(command_id, event_flags)
     }
 
     extern "C" fn cancel<I: ImplRunQuickMenuCallback>(self_: *mut _cef_run_quick_menu_callback_t) {
@@ -10674,98 +10778,98 @@ wrapper!(
 
     pub fn on_before_context_menu(
         &self,
-        browser: Browser,
-        frame: Frame,
-        params: ContextMenuParams,
-        model: MenuModel,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        params: &mut ContextMenuParams,
+        model: &mut MenuModel,
     );
     pub fn run_context_menu(
         &self,
-        browser: Browser,
-        frame: Frame,
-        params: ContextMenuParams,
-        model: MenuModel,
-        callback: RunContextMenuCallback,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        params: &mut ContextMenuParams,
+        model: &mut MenuModel,
+        callback: &mut RunContextMenuCallback,
     ) -> ::std::os::raw::c_int;
     pub fn on_context_menu_command(
         &self,
-        browser: Browser,
-        frame: Frame,
-        params: ContextMenuParams,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        params: &mut ContextMenuParams,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int;
-    pub fn on_context_menu_dismissed(&self, browser: Browser, frame: Frame);
+    pub fn on_context_menu_dismissed(&self, browser: &mut Browser, frame: &mut Frame);
     pub fn run_quick_menu(
         &self,
-        browser: Browser,
-        frame: Frame,
-        location: Point,
-        size: Size,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        location: &Point,
+        size: &Size,
         edit_state_flags: QuickMenuEditStateFlags,
-        callback: RunQuickMenuCallback,
+        callback: &mut RunQuickMenuCallback,
     ) -> ::std::os::raw::c_int;
     pub fn on_quick_menu_command(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int;
-    pub fn on_quick_menu_dismissed(&self, browser: Browser, frame: Frame);
+    pub fn on_quick_menu_dismissed(&self, browser: &mut Browser, frame: &mut Frame);
 );
 
 pub trait ImplContextMenuHandler: Sized {
     fn on_before_context_menu(
         &self,
-        browser: Browser,
-        frame: Frame,
-        params: ContextMenuParams,
-        model: MenuModel,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        params: &mut ContextMenuParams,
+        model: &mut MenuModel,
     ) {
     }
     fn run_context_menu(
         &self,
-        browser: Browser,
-        frame: Frame,
-        params: ContextMenuParams,
-        model: MenuModel,
-        callback: RunContextMenuCallback,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        params: &mut ContextMenuParams,
+        model: &mut MenuModel,
+        callback: &mut RunContextMenuCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_context_menu_command(
         &self,
-        browser: Browser,
-        frame: Frame,
-        params: ContextMenuParams,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        params: &mut ContextMenuParams,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_context_menu_dismissed(&self, browser: Browser, frame: Frame) {}
+    fn on_context_menu_dismissed(&self, browser: &mut Browser, frame: &mut Frame) {}
     fn run_quick_menu(
         &self,
-        browser: Browser,
-        frame: Frame,
-        location: Point,
-        size: Size,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        location: &Point,
+        size: &Size,
         edit_state_flags: QuickMenuEditStateFlags,
-        callback: RunQuickMenuCallback,
+        callback: &mut RunQuickMenuCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_quick_menu_command(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_quick_menu_dismissed(&self, browser: Browser, frame: Frame) {}
+    fn on_quick_menu_dismissed(&self, browser: &mut Browser, frame: &mut Frame) {}
 
     fn into_raw(self) -> *mut _cef_context_menu_handler_t {
         let mut object: _cef_context_menu_handler_t = unsafe { std::mem::zeroed() };
@@ -10795,12 +10899,12 @@ mod impl_cef_context_menu_handler_t {
         model: *mut _cef_menu_model_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_before_context_menu(
-            browser.into(),
-            frame.into(),
-            params.into(),
-            model.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let params = &mut ContextMenuParams(unsafe { RefGuard::from_raw_add_ref(params) });
+        let model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(model) });
+        obj.interface
+            .on_before_context_menu(browser, frame, params, model)
     }
 
     extern "C" fn run_context_menu<I: ImplContextMenuHandler>(
@@ -10812,14 +10916,13 @@ mod impl_cef_context_menu_handler_t {
         callback: *mut _cef_run_context_menu_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let params = &mut ContextMenuParams(unsafe { RefGuard::from_raw_add_ref(params) });
+        let model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(model) });
+        let callback = &mut RunContextMenuCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .run_context_menu(
-                browser.into(),
-                frame.into(),
-                params.into(),
-                model.into(),
-                callback.into(),
-            )
+            .run_context_menu(browser, frame, params, model, callback)
             .into()
     }
 
@@ -10832,14 +10935,11 @@ mod impl_cef_context_menu_handler_t {
         event_flags: cef_event_flags_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let params = &mut ContextMenuParams(unsafe { RefGuard::from_raw_add_ref(params) });
         obj.interface
-            .on_context_menu_command(
-                browser.into(),
-                frame.into(),
-                params.into(),
-                command_id.into(),
-                event_flags.into(),
-            )
+            .on_context_menu_command(browser, frame, params, command_id, event_flags)
             .into()
     }
 
@@ -10849,8 +10949,9 @@ mod impl_cef_context_menu_handler_t {
         frame: *mut _cef_frame_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_context_menu_dismissed(browser.into(), frame.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        obj.interface.on_context_menu_dismissed(browser, frame)
     }
 
     extern "C" fn run_quick_menu<I: ImplContextMenuHandler>(
@@ -10863,15 +10964,13 @@ mod impl_cef_context_menu_handler_t {
         callback: *mut _cef_run_quick_menu_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let location = &Point(unsafe { RefGuard::from_raw_add_ref(location) });
+        let size = &Size(unsafe { RefGuard::from_raw_add_ref(size) });
+        let callback = &mut RunQuickMenuCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .run_quick_menu(
-                browser.into(),
-                frame.into(),
-                location.into(),
-                size.into(),
-                edit_state_flags.into(),
-                callback.into(),
-            )
+            .run_quick_menu(browser, frame, location, size, edit_state_flags, callback)
             .into()
     }
 
@@ -10883,13 +10982,10 @@ mod impl_cef_context_menu_handler_t {
         event_flags: cef_event_flags_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
         obj.interface
-            .on_quick_menu_command(
-                browser.into(),
-                frame.into(),
-                command_id.into(),
-                event_flags.into(),
-            )
+            .on_quick_menu_command(browser, frame, command_id, event_flags)
             .into()
     }
 
@@ -10899,8 +10995,9 @@ mod impl_cef_context_menu_handler_t {
         frame: *mut _cef_frame_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_quick_menu_dismissed(browser.into(), frame.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        obj.interface.on_quick_menu_dismissed(browser, frame)
     }
 }
 
@@ -10924,7 +11021,10 @@ wrapper!(
     pub fn get_media_state_flags(&self) -> ContextMenuMediaStateFlags;
     pub fn get_selection_text(&self) -> CefStringUserfree;
     pub fn get_misspelled_word(&self) -> CefStringUserfree;
-    pub fn get_dictionary_suggestions(&self, suggestions: CefStringList) -> ::std::os::raw::c_int;
+    pub fn get_dictionary_suggestions(
+        &self,
+        suggestions: &mut CefStringList,
+    ) -> ::std::os::raw::c_int;
     pub fn is_editable(&self) -> ::std::os::raw::c_int;
     pub fn is_spell_check_enabled(&self) -> ::std::os::raw::c_int;
     pub fn get_edit_state_flags(&self) -> ContextMenuEditStateFlags;
@@ -10977,7 +11077,7 @@ pub trait ImplContextMenuParams: Sized {
     fn get_misspelled_word(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn get_dictionary_suggestions(&self, suggestions: CefStringList) -> ::std::os::raw::c_int {
+    fn get_dictionary_suggestions(&self, suggestions: &mut CefStringList) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn is_editable(&self) -> ::std::os::raw::c_int {
@@ -11136,9 +11236,8 @@ mod impl_cef_context_menu_params_t {
         suggestions: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_dictionary_suggestions(suggestions.into())
-            .into()
+        let suggestions = &mut CefStringList::from(suggestions);
+        obj.interface.get_dictionary_suggestions(suggestions).into()
     }
 
     extern "C" fn is_editable<I: ImplContextMenuParams>(
@@ -11175,12 +11274,12 @@ wrapper!(
     #[derive(Clone)]
     pub struct FileDialogCallback(_cef_file_dialog_callback_t);
 
-    pub fn cont(&self, file_paths: CefStringList);
+    pub fn cont(&self, file_paths: &mut CefStringList);
     pub fn cancel(&self);
 );
 
 pub trait ImplFileDialogCallback: Sized {
-    fn cont(&self, file_paths: CefStringList) {}
+    fn cont(&self, file_paths: &mut CefStringList) {}
     fn cancel(&self) {}
 
     fn into_raw(self) -> *mut _cef_file_dialog_callback_t {
@@ -11203,7 +11302,8 @@ mod impl_cef_file_dialog_callback_t {
         file_paths: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(file_paths.into())
+        let file_paths = &mut CefStringList::from(file_paths);
+        obj.interface.cont(file_paths)
     }
 
     extern "C" fn cancel<I: ImplFileDialogCallback>(self_: *mut _cef_file_dialog_callback_t) {
@@ -11219,28 +11319,28 @@ wrapper!(
 
     pub fn on_file_dialog(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         mode: FileDialogMode,
-        title: CefString,
-        default_file_path: CefString,
-        accept_filters: CefStringList,
-        accept_extensions: CefStringList,
-        accept_descriptions: CefStringList,
-        callback: FileDialogCallback,
+        title: &CefString,
+        default_file_path: &CefString,
+        accept_filters: &mut CefStringList,
+        accept_extensions: &mut CefStringList,
+        accept_descriptions: &mut CefStringList,
+        callback: &mut FileDialogCallback,
     ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplDialogHandler: Sized {
     fn on_file_dialog(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         mode: FileDialogMode,
-        title: CefString,
-        default_file_path: CefString,
-        accept_filters: CefStringList,
-        accept_extensions: CefStringList,
-        accept_descriptions: CefStringList,
-        callback: FileDialogCallback,
+        title: &CefString,
+        default_file_path: &CefString,
+        accept_filters: &mut CefStringList,
+        accept_extensions: &mut CefStringList,
+        accept_descriptions: &mut CefStringList,
+        callback: &mut FileDialogCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -11271,16 +11371,23 @@ mod impl_cef_dialog_handler_t {
         callback: *mut _cef_file_dialog_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let title = &CefString::from(title);
+        let default_file_path = &CefString::from(default_file_path);
+        let accept_filters = &mut CefStringList::from(accept_filters);
+        let accept_extensions = &mut CefStringList::from(accept_extensions);
+        let accept_descriptions = &mut CefStringList::from(accept_descriptions);
+        let callback = &mut FileDialogCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
             .on_file_dialog(
-                browser.into(),
-                mode.into(),
-                title.into(),
-                default_file_path.into(),
-                accept_filters.into(),
-                accept_extensions.into(),
-                accept_descriptions.into(),
-                callback.into(),
+                browser,
+                mode,
+                title,
+                default_file_path,
+                accept_filters,
+                accept_extensions,
+                accept_descriptions,
+                callback,
             )
             .into()
     }
@@ -11291,72 +11398,76 @@ wrapper!(
     #[derive(Clone)]
     pub struct DisplayHandler(_cef_display_handler_t);
 
-    pub fn on_address_change(&self, browser: Browser, frame: Frame, url: CefString);
-    pub fn on_title_change(&self, browser: Browser, title: CefString);
-    pub fn on_favicon_urlchange(&self, browser: Browser, icon_urls: CefStringList);
-    pub fn on_fullscreen_mode_change(&self, browser: Browser, fullscreen: ::std::os::raw::c_int);
-    pub fn on_tooltip(&self, browser: Browser, text: CefString) -> ::std::os::raw::c_int;
-    pub fn on_status_message(&self, browser: Browser, value: CefString);
+    pub fn on_address_change(&self, browser: &mut Browser, frame: &mut Frame, url: &CefString);
+    pub fn on_title_change(&self, browser: &mut Browser, title: &CefString);
+    pub fn on_favicon_urlchange(&self, browser: &mut Browser, icon_urls: &mut CefStringList);
+    pub fn on_fullscreen_mode_change(
+        &self,
+        browser: &mut Browser,
+        fullscreen: ::std::os::raw::c_int,
+    );
+    pub fn on_tooltip(&self, browser: &mut Browser, text: &mut CefString) -> ::std::os::raw::c_int;
+    pub fn on_status_message(&self, browser: &mut Browser, value: &CefString);
     pub fn on_console_message(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         level: LogSeverity,
-        message: CefString,
-        source: CefString,
+        message: &CefString,
+        source: &CefString,
         line: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-    pub fn on_auto_resize(&self, browser: Browser, new_size: Size) -> ::std::os::raw::c_int;
-    pub fn on_loading_progress_change(&self, browser: Browser, progress: f64);
+    pub fn on_auto_resize(&self, browser: &mut Browser, new_size: &Size) -> ::std::os::raw::c_int;
+    pub fn on_loading_progress_change(&self, browser: &mut Browser, progress: f64);
     pub fn on_cursor_change(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         cursor: ::std::os::raw::c_ulong,
         type_: CursorType,
-        custom_cursor_info: CursorInfo,
+        custom_cursor_info: &CursorInfo,
     ) -> ::std::os::raw::c_int;
     pub fn on_media_access_change(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         has_video_access: ::std::os::raw::c_int,
         has_audio_access: ::std::os::raw::c_int,
     );
 );
 
 pub trait ImplDisplayHandler: Sized {
-    fn on_address_change(&self, browser: Browser, frame: Frame, url: CefString) {}
-    fn on_title_change(&self, browser: Browser, title: CefString) {}
-    fn on_favicon_urlchange(&self, browser: Browser, icon_urls: CefStringList) {}
-    fn on_fullscreen_mode_change(&self, browser: Browser, fullscreen: ::std::os::raw::c_int) {}
-    fn on_tooltip(&self, browser: Browser, text: CefString) -> ::std::os::raw::c_int {
+    fn on_address_change(&self, browser: &mut Browser, frame: &mut Frame, url: &CefString) {}
+    fn on_title_change(&self, browser: &mut Browser, title: &CefString) {}
+    fn on_favicon_urlchange(&self, browser: &mut Browser, icon_urls: &mut CefStringList) {}
+    fn on_fullscreen_mode_change(&self, browser: &mut Browser, fullscreen: ::std::os::raw::c_int) {}
+    fn on_tooltip(&self, browser: &mut Browser, text: &mut CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_status_message(&self, browser: Browser, value: CefString) {}
+    fn on_status_message(&self, browser: &mut Browser, value: &CefString) {}
     fn on_console_message(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         level: LogSeverity,
-        message: CefString,
-        source: CefString,
+        message: &CefString,
+        source: &CefString,
         line: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_auto_resize(&self, browser: Browser, new_size: Size) -> ::std::os::raw::c_int {
+    fn on_auto_resize(&self, browser: &mut Browser, new_size: &Size) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_loading_progress_change(&self, browser: Browser, progress: f64) {}
+    fn on_loading_progress_change(&self, browser: &mut Browser, progress: f64) {}
     fn on_cursor_change(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         cursor: ::std::os::raw::c_ulong,
         type_: CursorType,
-        custom_cursor_info: CursorInfo,
+        custom_cursor_info: &CursorInfo,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_media_access_change(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         has_video_access: ::std::os::raw::c_int,
         has_audio_access: ::std::os::raw::c_int,
     ) {
@@ -11393,8 +11504,10 @@ mod impl_cef_display_handler_t {
         url: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_address_change(browser.into(), frame.into(), url.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let url = &CefString::from(url);
+        obj.interface.on_address_change(browser, frame, url)
     }
 
     extern "C" fn on_title_change<I: ImplDisplayHandler>(
@@ -11403,7 +11516,9 @@ mod impl_cef_display_handler_t {
         title: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_title_change(browser.into(), title.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let title = &CefString::from(title);
+        obj.interface.on_title_change(browser, title)
     }
 
     extern "C" fn on_favicon_urlchange<I: ImplDisplayHandler>(
@@ -11412,8 +11527,9 @@ mod impl_cef_display_handler_t {
         icon_urls: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_favicon_urlchange(browser.into(), icon_urls.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let icon_urls = &mut CefStringList::from(icon_urls);
+        obj.interface.on_favicon_urlchange(browser, icon_urls)
     }
 
     extern "C" fn on_fullscreen_mode_change<I: ImplDisplayHandler>(
@@ -11422,8 +11538,8 @@ mod impl_cef_display_handler_t {
         fullscreen: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_fullscreen_mode_change(browser.into(), fullscreen.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_fullscreen_mode_change(browser, fullscreen)
     }
 
     extern "C" fn on_tooltip<I: ImplDisplayHandler>(
@@ -11432,7 +11548,9 @@ mod impl_cef_display_handler_t {
         text: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_tooltip(browser.into(), text.into()).into()
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let text = &mut CefString::from(text);
+        obj.interface.on_tooltip(browser, text).into()
     }
 
     extern "C" fn on_status_message<I: ImplDisplayHandler>(
@@ -11441,8 +11559,9 @@ mod impl_cef_display_handler_t {
         value: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_status_message(browser.into(), value.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let value = &CefString::from(value);
+        obj.interface.on_status_message(browser, value)
     }
 
     extern "C" fn on_console_message<I: ImplDisplayHandler>(
@@ -11454,14 +11573,11 @@ mod impl_cef_display_handler_t {
         line: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let message = &CefString::from(message);
+        let source = &CefString::from(source);
         obj.interface
-            .on_console_message(
-                browser.into(),
-                level.into(),
-                message.into(),
-                source.into(),
-                line.into(),
-            )
+            .on_console_message(browser, level, message, source, line)
             .into()
     }
 
@@ -11471,9 +11587,9 @@ mod impl_cef_display_handler_t {
         new_size: *const cef_size_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_auto_resize(browser.into(), new_size.into())
-            .into()
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let new_size = &Size(unsafe { RefGuard::from_raw_add_ref(new_size) });
+        obj.interface.on_auto_resize(browser, new_size).into()
     }
 
     extern "C" fn on_loading_progress_change<I: ImplDisplayHandler>(
@@ -11482,8 +11598,8 @@ mod impl_cef_display_handler_t {
         progress: f64,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_loading_progress_change(browser.into(), progress.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_loading_progress_change(browser, progress)
     }
 
     extern "C" fn on_cursor_change<I: ImplDisplayHandler>(
@@ -11494,13 +11610,11 @@ mod impl_cef_display_handler_t {
         custom_cursor_info: *const cef_cursor_info_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let custom_cursor_info =
+            &CursorInfo(unsafe { RefGuard::from_raw_add_ref(custom_cursor_info) });
         obj.interface
-            .on_cursor_change(
-                browser.into(),
-                cursor.into(),
-                type_.into(),
-                custom_cursor_info.into(),
-            )
+            .on_cursor_change(browser, cursor, type_, custom_cursor_info)
             .into()
     }
 
@@ -11511,11 +11625,9 @@ mod impl_cef_display_handler_t {
         has_audio_access: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_media_access_change(
-            browser.into(),
-            has_video_access.into(),
-            has_audio_access.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface
+            .on_media_access_change(browser, has_video_access, has_audio_access)
     }
 }
 
@@ -11767,11 +11879,11 @@ wrapper!(
     #[derive(Clone)]
     pub struct BeforeDownloadCallback(_cef_before_download_callback_t);
 
-    pub fn cont(&self, download_path: CefString, show_dialog: ::std::os::raw::c_int);
+    pub fn cont(&self, download_path: &CefString, show_dialog: ::std::os::raw::c_int);
 );
 
 pub trait ImplBeforeDownloadCallback: Sized {
-    fn cont(&self, download_path: CefString, show_dialog: ::std::os::raw::c_int) {}
+    fn cont(&self, download_path: &CefString, show_dialog: ::std::os::raw::c_int) {}
 
     fn into_raw(self) -> *mut _cef_before_download_callback_t {
         let mut object: _cef_before_download_callback_t = unsafe { std::mem::zeroed() };
@@ -11795,7 +11907,8 @@ mod impl_cef_before_download_callback_t {
         show_dialog: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(download_path.into(), show_dialog.into())
+        let download_path = &CefString::from(download_path);
+        obj.interface.cont(download_path, show_dialog)
     }
 }
 
@@ -11853,48 +11966,48 @@ wrapper!(
 
     pub fn can_download(
         &self,
-        browser: Browser,
-        url: CefString,
-        request_method: CefString,
+        browser: &mut Browser,
+        url: &CefString,
+        request_method: &CefString,
     ) -> ::std::os::raw::c_int;
     pub fn on_before_download(
         &self,
-        browser: Browser,
-        download_item: DownloadItem,
-        suggested_name: CefString,
-        callback: BeforeDownloadCallback,
+        browser: &mut Browser,
+        download_item: &mut DownloadItem,
+        suggested_name: &CefString,
+        callback: &mut BeforeDownloadCallback,
     ) -> ::std::os::raw::c_int;
     pub fn on_download_updated(
         &self,
-        browser: Browser,
-        download_item: DownloadItem,
-        callback: DownloadItemCallback,
+        browser: &mut Browser,
+        download_item: &mut DownloadItem,
+        callback: &mut DownloadItemCallback,
     );
 );
 
 pub trait ImplDownloadHandler: Sized {
     fn can_download(
         &self,
-        browser: Browser,
-        url: CefString,
-        request_method: CefString,
+        browser: &mut Browser,
+        url: &CefString,
+        request_method: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_before_download(
         &self,
-        browser: Browser,
-        download_item: DownloadItem,
-        suggested_name: CefString,
-        callback: BeforeDownloadCallback,
+        browser: &mut Browser,
+        download_item: &mut DownloadItem,
+        suggested_name: &CefString,
+        callback: &mut BeforeDownloadCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_download_updated(
         &self,
-        browser: Browser,
-        download_item: DownloadItem,
-        callback: DownloadItemCallback,
+        browser: &mut Browser,
+        download_item: &mut DownloadItem,
+        callback: &mut DownloadItemCallback,
     ) {
     }
 
@@ -11921,8 +12034,11 @@ mod impl_cef_download_handler_t {
         request_method: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let url = &CefString::from(url);
+        let request_method = &CefString::from(request_method);
         obj.interface
-            .can_download(browser.into(), url.into(), request_method.into())
+            .can_download(browser, url, request_method)
             .into()
     }
 
@@ -11934,13 +12050,12 @@ mod impl_cef_download_handler_t {
         callback: *mut _cef_before_download_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let download_item = &mut DownloadItem(unsafe { RefGuard::from_raw_add_ref(download_item) });
+        let suggested_name = &CefString::from(suggested_name);
+        let callback = &mut BeforeDownloadCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .on_before_download(
-                browser.into(),
-                download_item.into(),
-                suggested_name.into(),
-                callback.into(),
-            )
+            .on_before_download(browser, download_item, suggested_name, callback)
             .into()
     }
 
@@ -11951,8 +12066,11 @@ mod impl_cef_download_handler_t {
         callback: *mut _cef_download_item_callback_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let download_item = &mut DownloadItem(unsafe { RefGuard::from_raw_add_ref(download_item) });
+        let callback = &mut DownloadItemCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .on_download_updated(browser.into(), download_item.into(), callback.into())
+            .on_download_updated(browser, download_item, callback)
     }
 }
 
@@ -11963,34 +12081,34 @@ wrapper!(
 
     pub fn on_drag_enter(
         &self,
-        browser: Browser,
-        drag_data: DragData,
+        browser: &mut Browser,
+        drag_data: &mut DragData,
         mask: DragOperationsMask,
     ) -> ::std::os::raw::c_int;
     pub fn on_draggable_regions_changed(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         regions_count: usize,
-        regions: DraggableRegion,
+        regions: &DraggableRegion,
     );
 );
 
 pub trait ImplDragHandler: Sized {
     fn on_drag_enter(
         &self,
-        browser: Browser,
-        drag_data: DragData,
+        browser: &mut Browser,
+        drag_data: &mut DragData,
         mask: DragOperationsMask,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_draggable_regions_changed(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         regions_count: usize,
-        regions: DraggableRegion,
+        regions: &DraggableRegion,
     ) {
     }
 
@@ -12016,9 +12134,9 @@ mod impl_cef_drag_handler_t {
         mask: cef_drag_operations_mask_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_drag_enter(browser.into(), drag_data.into(), mask.into())
-            .into()
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let drag_data = &mut DragData(unsafe { RefGuard::from_raw_add_ref(drag_data) });
+        obj.interface.on_drag_enter(browser, drag_data, mask).into()
     }
 
     extern "C" fn on_draggable_regions_changed<I: ImplDragHandler>(
@@ -12029,12 +12147,11 @@ mod impl_cef_drag_handler_t {
         regions: *const cef_draggable_region_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_draggable_regions_changed(
-            browser.into(),
-            frame.into(),
-            regions_count.into(),
-            regions.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let regions = &DraggableRegion(unsafe { RefGuard::from_raw_add_ref(regions) });
+        obj.interface
+            .on_draggable_regions_changed(browser, frame, regions_count, regions)
     }
 }
 
@@ -12045,10 +12162,10 @@ wrapper!(
 
     pub fn on_find_result(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         identifier: ::std::os::raw::c_int,
         count: ::std::os::raw::c_int,
-        selection_rect: Rect,
+        selection_rect: &Rect,
         active_match_ordinal: ::std::os::raw::c_int,
         final_update: ::std::os::raw::c_int,
     );
@@ -12057,10 +12174,10 @@ wrapper!(
 pub trait ImplFindHandler: Sized {
     fn on_find_result(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         identifier: ::std::os::raw::c_int,
         count: ::std::os::raw::c_int,
-        selection_rect: Rect,
+        selection_rect: &Rect,
         active_match_ordinal: ::std::os::raw::c_int,
         final_update: ::std::os::raw::c_int,
     ) {
@@ -12090,13 +12207,15 @@ mod impl_cef_find_handler_t {
         final_update: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let selection_rect = &Rect(unsafe { RefGuard::from_raw_add_ref(selection_rect) });
         obj.interface.on_find_result(
-            browser.into(),
-            identifier.into(),
-            count.into(),
-            selection_rect.into(),
-            active_match_ordinal.into(),
-            final_update.into(),
+            browser,
+            identifier,
+            count,
+            selection_rect,
+            active_match_ordinal,
+            final_update,
         )
     }
 }
@@ -12106,17 +12225,18 @@ wrapper!(
     #[derive(Clone)]
     pub struct FocusHandler(_cef_focus_handler_t);
 
-    pub fn on_take_focus(&self, browser: Browser, next: ::std::os::raw::c_int);
-    pub fn on_set_focus(&self, browser: Browser, source: FocusSource) -> ::std::os::raw::c_int;
-    pub fn on_got_focus(&self, browser: Browser);
+    pub fn on_take_focus(&self, browser: &mut Browser, next: ::std::os::raw::c_int);
+    pub fn on_set_focus(&self, browser: &mut Browser, source: FocusSource)
+        -> ::std::os::raw::c_int;
+    pub fn on_got_focus(&self, browser: &mut Browser);
 );
 
 pub trait ImplFocusHandler: Sized {
-    fn on_take_focus(&self, browser: Browser, next: ::std::os::raw::c_int) {}
-    fn on_set_focus(&self, browser: Browser, source: FocusSource) -> ::std::os::raw::c_int {
+    fn on_take_focus(&self, browser: &mut Browser, next: ::std::os::raw::c_int) {}
+    fn on_set_focus(&self, browser: &mut Browser, source: FocusSource) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_got_focus(&self, browser: Browser) {}
+    fn on_got_focus(&self, browser: &mut Browser) {}
 
     fn into_raw(self) -> *mut _cef_focus_handler_t {
         let mut object: _cef_focus_handler_t = unsafe { std::mem::zeroed() };
@@ -12140,7 +12260,8 @@ mod impl_cef_focus_handler_t {
         next: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_take_focus(browser.into(), next.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_take_focus(browser, next)
     }
 
     extern "C" fn on_set_focus<I: ImplFocusHandler>(
@@ -12149,9 +12270,8 @@ mod impl_cef_focus_handler_t {
         source: cef_focus_source_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_set_focus(browser.into(), source.into())
-            .into()
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_set_focus(browser, source).into()
     }
 
     extern "C" fn on_got_focus<I: ImplFocusHandler>(
@@ -12159,7 +12279,8 @@ mod impl_cef_focus_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_got_focus(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_got_focus(browser)
     }
 }
 
@@ -12168,25 +12289,41 @@ wrapper!(
     #[derive(Clone)]
     pub struct FrameHandler(_cef_frame_handler_t);
 
-    pub fn on_frame_created(&self, browser: Browser, frame: Frame);
-    pub fn on_frame_destroyed(&self, browser: Browser, frame: Frame);
+    pub fn on_frame_created(&self, browser: &mut Browser, frame: &mut Frame);
+    pub fn on_frame_destroyed(&self, browser: &mut Browser, frame: &mut Frame);
     pub fn on_frame_attached(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         reattached: ::std::os::raw::c_int,
     );
-    pub fn on_frame_detached(&self, browser: Browser, frame: Frame);
-    pub fn on_main_frame_changed(&self, browser: Browser, old_frame: Frame, new_frame: Frame);
+    pub fn on_frame_detached(&self, browser: &mut Browser, frame: &mut Frame);
+    pub fn on_main_frame_changed(
+        &self,
+        browser: &mut Browser,
+        old_frame: &mut Frame,
+        new_frame: &mut Frame,
+    );
 );
 
 pub trait ImplFrameHandler: Sized {
-    fn on_frame_created(&self, browser: Browser, frame: Frame) {}
-    fn on_frame_destroyed(&self, browser: Browser, frame: Frame) {}
-    fn on_frame_attached(&self, browser: Browser, frame: Frame, reattached: ::std::os::raw::c_int) {
+    fn on_frame_created(&self, browser: &mut Browser, frame: &mut Frame) {}
+    fn on_frame_destroyed(&self, browser: &mut Browser, frame: &mut Frame) {}
+    fn on_frame_attached(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        reattached: ::std::os::raw::c_int,
+    ) {
     }
-    fn on_frame_detached(&self, browser: Browser, frame: Frame) {}
-    fn on_main_frame_changed(&self, browser: Browser, old_frame: Frame, new_frame: Frame) {}
+    fn on_frame_detached(&self, browser: &mut Browser, frame: &mut Frame) {}
+    fn on_main_frame_changed(
+        &self,
+        browser: &mut Browser,
+        old_frame: &mut Frame,
+        new_frame: &mut Frame,
+    ) {
+    }
 
     fn into_raw(self) -> *mut _cef_frame_handler_t {
         let mut object: _cef_frame_handler_t = unsafe { std::mem::zeroed() };
@@ -12212,7 +12349,9 @@ mod impl_cef_frame_handler_t {
         frame: *mut _cef_frame_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_frame_created(browser.into(), frame.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        obj.interface.on_frame_created(browser, frame)
     }
 
     extern "C" fn on_frame_destroyed<I: ImplFrameHandler>(
@@ -12221,8 +12360,9 @@ mod impl_cef_frame_handler_t {
         frame: *mut _cef_frame_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_frame_destroyed(browser.into(), frame.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        obj.interface.on_frame_destroyed(browser, frame)
     }
 
     extern "C" fn on_frame_attached<I: ImplFrameHandler>(
@@ -12232,8 +12372,9 @@ mod impl_cef_frame_handler_t {
         reattached: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_frame_attached(browser.into(), frame.into(), reattached.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        obj.interface.on_frame_attached(browser, frame, reattached)
     }
 
     extern "C" fn on_frame_detached<I: ImplFrameHandler>(
@@ -12242,8 +12383,9 @@ mod impl_cef_frame_handler_t {
         frame: *mut _cef_frame_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_frame_detached(browser.into(), frame.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        obj.interface.on_frame_detached(browser, frame)
     }
 
     extern "C" fn on_main_frame_changed<I: ImplFrameHandler>(
@@ -12253,8 +12395,11 @@ mod impl_cef_frame_handler_t {
         new_frame: *mut _cef_frame_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let old_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(old_frame) });
+        let new_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(new_frame) });
         obj.interface
-            .on_main_frame_changed(browser.into(), old_frame.into(), new_frame.into())
+            .on_main_frame_changed(browser, old_frame, new_frame)
     }
 }
 
@@ -12263,11 +12408,11 @@ wrapper!(
     #[derive(Clone)]
     pub struct JsdialogCallback(_cef_jsdialog_callback_t);
 
-    pub fn cont(&self, success: ::std::os::raw::c_int, user_input: CefString);
+    pub fn cont(&self, success: ::std::os::raw::c_int, user_input: &CefString);
 );
 
 pub trait ImplJsdialogCallback: Sized {
-    fn cont(&self, success: ::std::os::raw::c_int, user_input: CefString) {}
+    fn cont(&self, success: ::std::os::raw::c_int, user_input: &CefString) {}
 
     fn into_raw(self) -> *mut _cef_jsdialog_callback_t {
         let mut object: _cef_jsdialog_callback_t = unsafe { std::mem::zeroed() };
@@ -12289,7 +12434,8 @@ mod impl_cef_jsdialog_callback_t {
         user_input: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(success.into(), user_input.into())
+        let user_input = &CefString::from(user_input);
+        obj.interface.cont(success, user_input)
     }
 }
 
@@ -12300,49 +12446,49 @@ wrapper!(
 
     pub fn on_jsdialog(
         &self,
-        browser: Browser,
-        origin_url: CefString,
+        browser: &mut Browser,
+        origin_url: &CefString,
         dialog_type: JsdialogType,
-        message_text: CefString,
-        default_prompt_text: CefString,
-        callback: JsdialogCallback,
+        message_text: &CefString,
+        default_prompt_text: &CefString,
+        callback: &mut JsdialogCallback,
         suppress_message: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
     pub fn on_before_unload_dialog(
         &self,
-        browser: Browser,
-        message_text: CefString,
+        browser: &mut Browser,
+        message_text: &CefString,
         is_reload: ::std::os::raw::c_int,
-        callback: JsdialogCallback,
+        callback: &mut JsdialogCallback,
     ) -> ::std::os::raw::c_int;
-    pub fn on_reset_dialog_state(&self, browser: Browser);
-    pub fn on_dialog_closed(&self, browser: Browser);
+    pub fn on_reset_dialog_state(&self, browser: &mut Browser);
+    pub fn on_dialog_closed(&self, browser: &mut Browser);
 );
 
 pub trait ImplJsdialogHandler: Sized {
     fn on_jsdialog(
         &self,
-        browser: Browser,
-        origin_url: CefString,
+        browser: &mut Browser,
+        origin_url: &CefString,
         dialog_type: JsdialogType,
-        message_text: CefString,
-        default_prompt_text: CefString,
-        callback: JsdialogCallback,
+        message_text: &CefString,
+        default_prompt_text: &CefString,
+        callback: &mut JsdialogCallback,
         suppress_message: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_before_unload_dialog(
         &self,
-        browser: Browser,
-        message_text: CefString,
+        browser: &mut Browser,
+        message_text: &CefString,
         is_reload: ::std::os::raw::c_int,
-        callback: JsdialogCallback,
+        callback: &mut JsdialogCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_reset_dialog_state(&self, browser: Browser) {}
-    fn on_dialog_closed(&self, browser: Browser) {}
+    fn on_reset_dialog_state(&self, browser: &mut Browser) {}
+    fn on_dialog_closed(&self, browser: &mut Browser) {}
 
     fn into_raw(self) -> *mut _cef_jsdialog_handler_t {
         let mut object: _cef_jsdialog_handler_t = unsafe { std::mem::zeroed() };
@@ -12372,15 +12518,20 @@ mod impl_cef_jsdialog_handler_t {
         suppress_message: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let origin_url = &CefString::from(origin_url);
+        let message_text = &CefString::from(message_text);
+        let default_prompt_text = &CefString::from(default_prompt_text);
+        let callback = &mut JsdialogCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
             .on_jsdialog(
-                browser.into(),
-                origin_url.into(),
-                dialog_type.into(),
-                message_text.into(),
-                default_prompt_text.into(),
-                callback.into(),
-                suppress_message.into(),
+                browser,
+                origin_url,
+                dialog_type,
+                message_text,
+                default_prompt_text,
+                callback,
+                suppress_message,
             )
             .into()
     }
@@ -12393,13 +12544,11 @@ mod impl_cef_jsdialog_handler_t {
         callback: *mut _cef_jsdialog_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let message_text = &CefString::from(message_text);
+        let callback = &mut JsdialogCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .on_before_unload_dialog(
-                browser.into(),
-                message_text.into(),
-                is_reload.into(),
-                callback.into(),
-            )
+            .on_before_unload_dialog(browser, message_text, is_reload, callback)
             .into()
     }
 
@@ -12408,7 +12557,8 @@ mod impl_cef_jsdialog_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_reset_dialog_state(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_reset_dialog_state(browser)
     }
 
     extern "C" fn on_dialog_closed<I: ImplJsdialogHandler>(
@@ -12416,7 +12566,8 @@ mod impl_cef_jsdialog_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_dialog_closed(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_dialog_closed(browser)
     }
 }
 
@@ -12427,15 +12578,15 @@ wrapper!(
 
     pub fn on_pre_key_event(
         &self,
-        browser: Browser,
-        event: KeyEvent,
+        browser: &mut Browser,
+        event: &KeyEvent,
         os_event: *mut XEvent,
         is_keyboard_shortcut: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
     pub fn on_key_event(
         &self,
-        browser: Browser,
-        event: KeyEvent,
+        browser: &mut Browser,
+        event: &KeyEvent,
         os_event: *mut XEvent,
     ) -> ::std::os::raw::c_int;
 );
@@ -12443,8 +12594,8 @@ wrapper!(
 pub trait ImplKeyboardHandler: Sized {
     fn on_pre_key_event(
         &self,
-        browser: Browser,
-        event: KeyEvent,
+        browser: &mut Browser,
+        event: &KeyEvent,
         os_event: *mut XEvent,
         is_keyboard_shortcut: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -12452,8 +12603,8 @@ pub trait ImplKeyboardHandler: Sized {
     }
     fn on_key_event(
         &self,
-        browser: Browser,
-        event: KeyEvent,
+        browser: &mut Browser,
+        event: &KeyEvent,
         os_event: *mut XEvent,
     ) -> ::std::os::raw::c_int {
         Default::default()
@@ -12482,13 +12633,10 @@ mod impl_cef_keyboard_handler_t {
         is_keyboard_shortcut: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let event = &KeyEvent(unsafe { RefGuard::from_raw_add_ref(event) });
         obj.interface
-            .on_pre_key_event(
-                browser.into(),
-                event.into(),
-                os_event.into(),
-                is_keyboard_shortcut.into(),
-            )
+            .on_pre_key_event(browser, event, os_event, is_keyboard_shortcut)
             .into()
     }
 
@@ -12499,9 +12647,9 @@ mod impl_cef_keyboard_handler_t {
         os_event: *mut XEvent,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_key_event(browser.into(), event.into(), os_event.into())
-            .into()
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let event = &KeyEvent(unsafe { RefGuard::from_raw_add_ref(event) });
+        obj.interface.on_key_event(browser, event, os_event).into()
     }
 }
 
@@ -12512,70 +12660,70 @@ wrapper!(
 
     pub fn on_before_popup(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         popup_id: ::std::os::raw::c_int,
-        target_url: CefString,
-        target_frame_name: CefString,
+        target_url: &CefString,
+        target_frame_name: &CefString,
         target_disposition: WindowOpenDisposition,
         user_gesture: ::std::os::raw::c_int,
-        popup_features: PopupFeatures,
-        window_info: WindowInfo,
-        client: *mut Client,
-        settings: BrowserSettings,
-        extra_info: *mut DictionaryValue,
+        popup_features: &PopupFeatures,
+        window_info: &mut WindowInfo,
+        client: *mut &mut Client,
+        settings: &mut BrowserSettings,
+        extra_info: *mut &mut DictionaryValue,
         no_javascript_access: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-    pub fn on_before_popup_aborted(&self, browser: Browser, popup_id: ::std::os::raw::c_int);
+    pub fn on_before_popup_aborted(&self, browser: &mut Browser, popup_id: ::std::os::raw::c_int);
     pub fn on_before_dev_tools_popup(
         &self,
-        browser: Browser,
-        window_info: WindowInfo,
-        client: *mut Client,
-        settings: BrowserSettings,
-        extra_info: *mut DictionaryValue,
+        browser: &mut Browser,
+        window_info: &mut WindowInfo,
+        client: *mut &mut Client,
+        settings: &mut BrowserSettings,
+        extra_info: *mut &mut DictionaryValue,
         use_default_window: *mut ::std::os::raw::c_int,
     );
-    pub fn on_after_created(&self, browser: Browser);
-    pub fn do_close(&self, browser: Browser) -> ::std::os::raw::c_int;
-    pub fn on_before_close(&self, browser: Browser);
+    pub fn on_after_created(&self, browser: &mut Browser);
+    pub fn do_close(&self, browser: &mut Browser) -> ::std::os::raw::c_int;
+    pub fn on_before_close(&self, browser: &mut Browser);
 );
 
 pub trait ImplLifeSpanHandler: Sized {
     fn on_before_popup(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         popup_id: ::std::os::raw::c_int,
-        target_url: CefString,
-        target_frame_name: CefString,
+        target_url: &CefString,
+        target_frame_name: &CefString,
         target_disposition: WindowOpenDisposition,
         user_gesture: ::std::os::raw::c_int,
-        popup_features: PopupFeatures,
-        window_info: WindowInfo,
-        client: *mut Client,
-        settings: BrowserSettings,
-        extra_info: *mut DictionaryValue,
+        popup_features: &PopupFeatures,
+        window_info: &mut WindowInfo,
+        client: *mut &mut Client,
+        settings: &mut BrowserSettings,
+        extra_info: *mut &mut DictionaryValue,
         no_javascript_access: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_before_popup_aborted(&self, browser: Browser, popup_id: ::std::os::raw::c_int) {}
+    fn on_before_popup_aborted(&self, browser: &mut Browser, popup_id: ::std::os::raw::c_int) {}
     fn on_before_dev_tools_popup(
         &self,
-        browser: Browser,
-        window_info: WindowInfo,
-        client: *mut Client,
-        settings: BrowserSettings,
-        extra_info: *mut DictionaryValue,
+        browser: &mut Browser,
+        window_info: &mut WindowInfo,
+        client: *mut &mut Client,
+        settings: &mut BrowserSettings,
+        extra_info: *mut &mut DictionaryValue,
         use_default_window: *mut ::std::os::raw::c_int,
     ) {
     }
-    fn on_after_created(&self, browser: Browser) {}
-    fn do_close(&self, browser: Browser) -> ::std::os::raw::c_int {
+    fn on_after_created(&self, browser: &mut Browser) {}
+    fn do_close(&self, browser: &mut Browser) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_before_close(&self, browser: Browser) {}
+    fn on_before_close(&self, browser: &mut Browser) {}
 
     fn into_raw(self) -> *mut _cef_life_span_handler_t {
         let mut object: _cef_life_span_handler_t = unsafe { std::mem::zeroed() };
@@ -12613,21 +12761,28 @@ mod impl_cef_life_span_handler_t {
         no_javascript_access: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let target_url = &CefString::from(target_url);
+        let target_frame_name = &CefString::from(target_frame_name);
+        let popup_features = &PopupFeatures(unsafe { RefGuard::from_raw_add_ref(popup_features) });
+        let window_info = &mut WindowInfo(unsafe { RefGuard::from_raw_add_ref(window_info) });
+        let settings = &mut BrowserSettings(unsafe { RefGuard::from_raw_add_ref(settings) });
         obj.interface
             .on_before_popup(
-                browser.into(),
-                frame.into(),
-                popup_id.into(),
-                target_url.into(),
-                target_frame_name.into(),
-                target_disposition.into(),
-                user_gesture.into(),
-                popup_features.into(),
-                window_info.into(),
-                client.into(),
-                settings.into(),
-                extra_info.into(),
-                no_javascript_access.into(),
+                browser,
+                frame,
+                popup_id,
+                target_url,
+                target_frame_name,
+                target_disposition,
+                user_gesture,
+                popup_features,
+                window_info,
+                client,
+                settings,
+                extra_info,
+                no_javascript_access,
             )
             .into()
     }
@@ -12638,8 +12793,8 @@ mod impl_cef_life_span_handler_t {
         popup_id: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_before_popup_aborted(browser.into(), popup_id.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_before_popup_aborted(browser, popup_id)
     }
 
     extern "C" fn on_before_dev_tools_popup<I: ImplLifeSpanHandler>(
@@ -12652,13 +12807,16 @@ mod impl_cef_life_span_handler_t {
         use_default_window: *mut ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let window_info = &mut WindowInfo(unsafe { RefGuard::from_raw_add_ref(window_info) });
+        let settings = &mut BrowserSettings(unsafe { RefGuard::from_raw_add_ref(settings) });
         obj.interface.on_before_dev_tools_popup(
-            browser.into(),
-            window_info.into(),
-            client.into(),
-            settings.into(),
-            extra_info.into(),
-            use_default_window.into(),
+            browser,
+            window_info,
+            client,
+            settings,
+            extra_info,
+            use_default_window,
         )
     }
 
@@ -12667,7 +12825,8 @@ mod impl_cef_life_span_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_after_created(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_after_created(browser)
     }
 
     extern "C" fn do_close<I: ImplLifeSpanHandler>(
@@ -12675,7 +12834,8 @@ mod impl_cef_life_span_handler_t {
         browser: *mut _cef_browser_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.do_close(browser.into()).into()
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.do_close(browser).into()
     }
 
     extern "C" fn on_before_close<I: ImplLifeSpanHandler>(
@@ -12683,7 +12843,8 @@ mod impl_cef_life_span_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_before_close(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_before_close(browser)
     }
 }
 
@@ -12694,47 +12855,63 @@ wrapper!(
 
     pub fn on_loading_state_change(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         is_loading: ::std::os::raw::c_int,
         can_go_back: ::std::os::raw::c_int,
         can_go_forward: ::std::os::raw::c_int,
     );
-    pub fn on_load_start(&self, browser: Browser, frame: Frame, transition_type: TransitionType);
+    pub fn on_load_start(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        transition_type: TransitionType,
+    );
     pub fn on_load_end(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         http_status_code: ::std::os::raw::c_int,
     );
     pub fn on_load_error(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         error_code: Errorcode,
-        error_text: CefString,
-        failed_url: CefString,
+        error_text: &CefString,
+        failed_url: &CefString,
     );
 );
 
 pub trait ImplLoadHandler: Sized {
     fn on_loading_state_change(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         is_loading: ::std::os::raw::c_int,
         can_go_back: ::std::os::raw::c_int,
         can_go_forward: ::std::os::raw::c_int,
     ) {
     }
-    fn on_load_start(&self, browser: Browser, frame: Frame, transition_type: TransitionType) {}
-    fn on_load_end(&self, browser: Browser, frame: Frame, http_status_code: ::std::os::raw::c_int) {
+    fn on_load_start(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        transition_type: TransitionType,
+    ) {
+    }
+    fn on_load_end(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        http_status_code: ::std::os::raw::c_int,
+    ) {
     }
     fn on_load_error(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         error_code: Errorcode,
-        error_text: CefString,
-        failed_url: CefString,
+        error_text: &CefString,
+        failed_url: &CefString,
     ) {
     }
 
@@ -12763,12 +12940,9 @@ mod impl_cef_load_handler_t {
         can_go_forward: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_loading_state_change(
-            browser.into(),
-            is_loading.into(),
-            can_go_back.into(),
-            can_go_forward.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface
+            .on_loading_state_change(browser, is_loading, can_go_back, can_go_forward)
     }
 
     extern "C" fn on_load_start<I: ImplLoadHandler>(
@@ -12778,8 +12952,9 @@ mod impl_cef_load_handler_t {
         transition_type: cef_transition_type_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_load_start(browser.into(), frame.into(), transition_type.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        obj.interface.on_load_start(browser, frame, transition_type)
     }
 
     extern "C" fn on_load_end<I: ImplLoadHandler>(
@@ -12789,8 +12964,9 @@ mod impl_cef_load_handler_t {
         http_status_code: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_load_end(browser.into(), frame.into(), http_status_code.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        obj.interface.on_load_end(browser, frame, http_status_code)
     }
 
     extern "C" fn on_load_error<I: ImplLoadHandler>(
@@ -12802,13 +12978,12 @@ mod impl_cef_load_handler_t {
         failed_url: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_load_error(
-            browser.into(),
-            frame.into(),
-            error_code.into(),
-            error_text.into(),
-            failed_url.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let error_text = &CefString::from(error_text);
+        let failed_url = &CefString::from(failed_url);
+        obj.interface
+            .on_load_error(browser, frame, error_code, error_text, failed_url)
     }
 }
 
@@ -12845,7 +13020,7 @@ mod impl_cef_media_access_callback_t {
         allowed_permissions: u32,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(allowed_permissions.into())
+        obj.interface.cont(allowed_permissions)
     }
 
     extern "C" fn cancel<I: ImplMediaAccessCallback>(self_: *mut _cef_media_access_callback_t) {
@@ -12886,7 +13061,7 @@ mod impl_cef_permission_prompt_callback_t {
         result: cef_permission_request_result_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(result.into())
+        obj.interface.cont(result)
     }
 }
 
@@ -12897,23 +13072,23 @@ wrapper!(
 
     pub fn on_request_media_access_permission(
         &self,
-        browser: Browser,
-        frame: Frame,
-        requesting_origin: CefString,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        requesting_origin: &CefString,
         requested_permissions: u32,
-        callback: MediaAccessCallback,
+        callback: &mut MediaAccessCallback,
     ) -> ::std::os::raw::c_int;
     pub fn on_show_permission_prompt(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         prompt_id: u64,
-        requesting_origin: CefString,
+        requesting_origin: &CefString,
         requested_permissions: u32,
-        callback: PermissionPromptCallback,
+        callback: &mut PermissionPromptCallback,
     ) -> ::std::os::raw::c_int;
     pub fn on_dismiss_permission_prompt(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         prompt_id: u64,
         result: PermissionRequestResult,
     );
@@ -12922,27 +13097,27 @@ wrapper!(
 pub trait ImplPermissionHandler: Sized {
     fn on_request_media_access_permission(
         &self,
-        browser: Browser,
-        frame: Frame,
-        requesting_origin: CefString,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        requesting_origin: &CefString,
         requested_permissions: u32,
-        callback: MediaAccessCallback,
+        callback: &mut MediaAccessCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_show_permission_prompt(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         prompt_id: u64,
-        requesting_origin: CefString,
+        requesting_origin: &CefString,
         requested_permissions: u32,
-        callback: PermissionPromptCallback,
+        callback: &mut PermissionPromptCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_dismiss_permission_prompt(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         prompt_id: u64,
         result: PermissionRequestResult,
     ) {
@@ -12973,13 +13148,17 @@ mod impl_cef_permission_handler_t {
         callback: *mut _cef_media_access_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let requesting_origin = &CefString::from(requesting_origin);
+        let callback = &mut MediaAccessCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
             .on_request_media_access_permission(
-                browser.into(),
-                frame.into(),
-                requesting_origin.into(),
-                requested_permissions.into(),
-                callback.into(),
+                browser,
+                frame,
+                requesting_origin,
+                requested_permissions,
+                callback,
             )
             .into()
     }
@@ -12993,13 +13172,17 @@ mod impl_cef_permission_handler_t {
         callback: *mut _cef_permission_prompt_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let requesting_origin = &CefString::from(requesting_origin);
+        let callback =
+            &mut PermissionPromptCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
             .on_show_permission_prompt(
-                browser.into(),
-                prompt_id.into(),
-                requesting_origin.into(),
-                requested_permissions.into(),
-                callback.into(),
+                browser,
+                prompt_id,
+                requesting_origin,
+                requested_permissions,
+                callback,
             )
             .into()
     }
@@ -13011,8 +13194,9 @@ mod impl_cef_permission_handler_t {
         result: cef_permission_request_result_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         obj.interface
-            .on_dismiss_permission_prompt(browser.into(), prompt_id.into(), result.into())
+            .on_dismiss_permission_prompt(browser, prompt_id, result)
     }
 }
 
@@ -13027,17 +13211,17 @@ wrapper!(
     pub fn is_landscape(&self) -> ::std::os::raw::c_int;
     pub fn set_printer_printable_area(
         &self,
-        physical_size_device_units: Size,
-        printable_area_device_units: Rect,
+        physical_size_device_units: &Size,
+        printable_area_device_units: &Rect,
         landscape_needs_flip: ::std::os::raw::c_int,
     );
-    pub fn set_device_name(&self, name: CefString);
+    pub fn set_device_name(&self, name: &CefString);
     pub fn get_device_name(&self) -> CefStringUserfree;
     pub fn set_dpi(&self, dpi: ::std::os::raw::c_int);
     pub fn get_dpi(&self) -> ::std::os::raw::c_int;
-    pub fn set_page_ranges(&self, ranges_count: usize, ranges: Range);
+    pub fn set_page_ranges(&self, ranges_count: usize, ranges: &Range);
     pub fn get_page_ranges_count(&self) -> usize;
-    pub fn get_page_ranges(&self, ranges_count: *mut usize, ranges: Range);
+    pub fn get_page_ranges(&self, ranges_count: *mut usize, ranges: &mut Range);
     pub fn set_selection_only(&self, selection_only: ::std::os::raw::c_int);
     pub fn is_selection_only(&self) -> ::std::os::raw::c_int;
     pub fn set_collate(&self, collate: ::std::os::raw::c_int);
@@ -13063,12 +13247,12 @@ pub trait ImplPrintSettings: Sized {
     }
     fn set_printer_printable_area(
         &self,
-        physical_size_device_units: Size,
-        printable_area_device_units: Rect,
+        physical_size_device_units: &Size,
+        printable_area_device_units: &Rect,
         landscape_needs_flip: ::std::os::raw::c_int,
     ) {
     }
-    fn set_device_name(&self, name: CefString) {}
+    fn set_device_name(&self, name: &CefString) {}
     fn get_device_name(&self) -> CefStringUserfree {
         Default::default()
     }
@@ -13076,11 +13260,11 @@ pub trait ImplPrintSettings: Sized {
     fn get_dpi(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_page_ranges(&self, ranges_count: usize, ranges: Range) {}
+    fn set_page_ranges(&self, ranges_count: usize, ranges: &Range) {}
     fn get_page_ranges_count(&self) -> usize {
         Default::default()
     }
-    fn get_page_ranges(&self, ranges_count: *mut usize, ranges: Range) {}
+    fn get_page_ranges(&self, ranges_count: *mut usize, ranges: &mut Range) {}
     fn set_selection_only(&self, selection_only: ::std::os::raw::c_int) {}
     fn is_selection_only(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -13156,7 +13340,7 @@ mod impl_cef_print_settings_t {
         landscape: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_orientation(landscape.into())
+        obj.interface.set_orientation(landscape)
     }
 
     extern "C" fn is_landscape<I: ImplPrintSettings>(
@@ -13173,10 +13357,14 @@ mod impl_cef_print_settings_t {
         landscape_needs_flip: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let physical_size_device_units =
+            &Size(unsafe { RefGuard::from_raw_add_ref(physical_size_device_units) });
+        let printable_area_device_units =
+            &Rect(unsafe { RefGuard::from_raw_add_ref(printable_area_device_units) });
         obj.interface.set_printer_printable_area(
-            physical_size_device_units.into(),
-            printable_area_device_units.into(),
-            landscape_needs_flip.into(),
+            physical_size_device_units,
+            printable_area_device_units,
+            landscape_needs_flip,
         )
     }
 
@@ -13185,7 +13373,8 @@ mod impl_cef_print_settings_t {
         name: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_device_name(name.into())
+        let name = &CefString::from(name);
+        obj.interface.set_device_name(name)
     }
 
     extern "C" fn get_device_name<I: ImplPrintSettings>(
@@ -13200,7 +13389,7 @@ mod impl_cef_print_settings_t {
         dpi: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_dpi(dpi.into())
+        obj.interface.set_dpi(dpi)
     }
 
     extern "C" fn get_dpi<I: ImplPrintSettings>(
@@ -13216,8 +13405,8 @@ mod impl_cef_print_settings_t {
         ranges: *const cef_range_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_page_ranges(ranges_count.into(), ranges.into())
+        let ranges = &Range(unsafe { RefGuard::from_raw_add_ref(ranges) });
+        obj.interface.set_page_ranges(ranges_count, ranges)
     }
 
     extern "C" fn get_page_ranges_count<I: ImplPrintSettings>(
@@ -13233,8 +13422,8 @@ mod impl_cef_print_settings_t {
         ranges: *mut cef_range_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_page_ranges(ranges_count.into(), ranges.into())
+        let ranges = &mut Range(unsafe { RefGuard::from_raw_add_ref(ranges) });
+        obj.interface.get_page_ranges(ranges_count, ranges)
     }
 
     extern "C" fn set_selection_only<I: ImplPrintSettings>(
@@ -13242,7 +13431,7 @@ mod impl_cef_print_settings_t {
         selection_only: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_selection_only(selection_only.into())
+        obj.interface.set_selection_only(selection_only)
     }
 
     extern "C" fn is_selection_only<I: ImplPrintSettings>(
@@ -13257,7 +13446,7 @@ mod impl_cef_print_settings_t {
         collate: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_collate(collate.into())
+        obj.interface.set_collate(collate)
     }
 
     extern "C" fn will_collate<I: ImplPrintSettings>(
@@ -13272,7 +13461,7 @@ mod impl_cef_print_settings_t {
         model: cef_color_model_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_color_model(model.into())
+        obj.interface.set_color_model(model)
     }
 
     extern "C" fn get_color_model<I: ImplPrintSettings>(
@@ -13287,7 +13476,7 @@ mod impl_cef_print_settings_t {
         copies: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_copies(copies.into())
+        obj.interface.set_copies(copies)
     }
 
     extern "C" fn get_copies<I: ImplPrintSettings>(
@@ -13302,7 +13491,7 @@ mod impl_cef_print_settings_t {
         mode: cef_duplex_mode_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_duplex_mode(mode.into())
+        obj.interface.set_duplex_mode(mode)
     }
 
     extern "C" fn get_duplex_mode<I: ImplPrintSettings>(
@@ -13318,12 +13507,12 @@ wrapper!(
     #[derive(Clone)]
     pub struct PrintDialogCallback(_cef_print_dialog_callback_t);
 
-    pub fn cont(&self, settings: PrintSettings);
+    pub fn cont(&self, settings: &mut PrintSettings);
     pub fn cancel(&self);
 );
 
 pub trait ImplPrintDialogCallback: Sized {
-    fn cont(&self, settings: PrintSettings) {}
+    fn cont(&self, settings: &mut PrintSettings) {}
     fn cancel(&self) {}
 
     fn into_raw(self) -> *mut _cef_print_dialog_callback_t {
@@ -13346,7 +13535,8 @@ mod impl_cef_print_dialog_callback_t {
         settings: *mut _cef_print_settings_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(settings.into())
+        let settings = &mut PrintSettings(unsafe { RefGuard::from_raw_add_ref(settings) });
+        obj.interface.cont(settings)
     }
 
     extern "C" fn cancel<I: ImplPrintDialogCallback>(self_: *mut _cef_print_dialog_callback_t) {
@@ -13391,64 +13581,64 @@ wrapper!(
     #[derive(Clone)]
     pub struct PrintHandler(_cef_print_handler_t);
 
-    pub fn on_print_start(&self, browser: Browser);
+    pub fn on_print_start(&self, browser: &mut Browser);
     pub fn on_print_settings(
         &self,
-        browser: Browser,
-        settings: PrintSettings,
+        browser: &mut Browser,
+        settings: &mut PrintSettings,
         get_defaults: ::std::os::raw::c_int,
     );
     pub fn on_print_dialog(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         has_selection: ::std::os::raw::c_int,
-        callback: PrintDialogCallback,
+        callback: &mut PrintDialogCallback,
     ) -> ::std::os::raw::c_int;
     pub fn on_print_job(
         &self,
-        browser: Browser,
-        document_name: CefString,
-        pdf_file_path: CefString,
-        callback: PrintJobCallback,
+        browser: &mut Browser,
+        document_name: &CefString,
+        pdf_file_path: &CefString,
+        callback: &mut PrintJobCallback,
     ) -> ::std::os::raw::c_int;
-    pub fn on_print_reset(&self, browser: Browser);
+    pub fn on_print_reset(&self, browser: &mut Browser);
     pub fn get_pdf_paper_size(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         device_units_per_inch: ::std::os::raw::c_int,
     ) -> Size;
 );
 
 pub trait ImplPrintHandler: Sized {
-    fn on_print_start(&self, browser: Browser) {}
+    fn on_print_start(&self, browser: &mut Browser) {}
     fn on_print_settings(
         &self,
-        browser: Browser,
-        settings: PrintSettings,
+        browser: &mut Browser,
+        settings: &mut PrintSettings,
         get_defaults: ::std::os::raw::c_int,
     ) {
     }
     fn on_print_dialog(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         has_selection: ::std::os::raw::c_int,
-        callback: PrintDialogCallback,
+        callback: &mut PrintDialogCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_print_job(
         &self,
-        browser: Browser,
-        document_name: CefString,
-        pdf_file_path: CefString,
-        callback: PrintJobCallback,
+        browser: &mut Browser,
+        document_name: &CefString,
+        pdf_file_path: &CefString,
+        callback: &mut PrintJobCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_print_reset(&self, browser: Browser) {}
+    fn on_print_reset(&self, browser: &mut Browser) {}
     fn get_pdf_paper_size(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         device_units_per_inch: ::std::os::raw::c_int,
     ) -> Size {
         Default::default()
@@ -13478,7 +13668,8 @@ mod impl_cef_print_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_print_start(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_print_start(browser)
     }
 
     extern "C" fn on_print_settings<I: ImplPrintHandler>(
@@ -13488,8 +13679,10 @@ mod impl_cef_print_handler_t {
         get_defaults: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let settings = &mut PrintSettings(unsafe { RefGuard::from_raw_add_ref(settings) });
         obj.interface
-            .on_print_settings(browser.into(), settings.into(), get_defaults.into())
+            .on_print_settings(browser, settings, get_defaults)
     }
 
     extern "C" fn on_print_dialog<I: ImplPrintHandler>(
@@ -13499,8 +13692,10 @@ mod impl_cef_print_handler_t {
         callback: *mut _cef_print_dialog_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let callback = &mut PrintDialogCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .on_print_dialog(browser.into(), has_selection.into(), callback.into())
+            .on_print_dialog(browser, has_selection, callback)
             .into()
     }
 
@@ -13512,13 +13707,12 @@ mod impl_cef_print_handler_t {
         callback: *mut _cef_print_job_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let document_name = &CefString::from(document_name);
+        let pdf_file_path = &CefString::from(pdf_file_path);
+        let callback = &mut PrintJobCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .on_print_job(
-                browser.into(),
-                document_name.into(),
-                pdf_file_path.into(),
-                callback.into(),
-            )
+            .on_print_job(browser, document_name, pdf_file_path, callback)
             .into()
     }
 
@@ -13527,7 +13721,8 @@ mod impl_cef_print_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_print_reset(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_print_reset(browser)
     }
 
     extern "C" fn get_pdf_paper_size<I: ImplPrintHandler>(
@@ -13536,8 +13731,9 @@ mod impl_cef_print_handler_t {
         device_units_per_inch: ::std::os::raw::c_int,
     ) -> cef_size_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         obj.interface
-            .get_pdf_paper_size(browser.into(), device_units_per_inch.into())
+            .get_pdf_paper_size(browser, device_units_per_inch)
             .into()
     }
 }
@@ -13547,13 +13743,13 @@ wrapper!(
     #[derive(Clone)]
     pub struct AccessibilityHandler(_cef_accessibility_handler_t);
 
-    pub fn on_accessibility_tree_change(&self, value: Value);
-    pub fn on_accessibility_location_change(&self, value: Value);
+    pub fn on_accessibility_tree_change(&self, value: &mut Value);
+    pub fn on_accessibility_location_change(&self, value: &mut Value);
 );
 
 pub trait ImplAccessibilityHandler: Sized {
-    fn on_accessibility_tree_change(&self, value: Value) {}
-    fn on_accessibility_location_change(&self, value: Value) {}
+    fn on_accessibility_tree_change(&self, value: &mut Value) {}
+    fn on_accessibility_location_change(&self, value: &mut Value) {}
 
     fn into_raw(self) -> *mut _cef_accessibility_handler_t {
         let mut object: _cef_accessibility_handler_t = unsafe { std::mem::zeroed() };
@@ -13575,7 +13771,8 @@ mod impl_cef_accessibility_handler_t {
         value: *mut _cef_value_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_accessibility_tree_change(value.into())
+        let value = &mut Value(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.on_accessibility_tree_change(value)
     }
 
     extern "C" fn on_accessibility_location_change<I: ImplAccessibilityHandler>(
@@ -13583,7 +13780,8 @@ mod impl_cef_accessibility_handler_t {
         value: *mut _cef_value_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_accessibility_location_change(value.into())
+        let value = &mut Value(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.on_accessibility_location_change(value)
     }
 }
 
@@ -13593,11 +13791,15 @@ wrapper!(
     pub struct RenderHandler(_cef_render_handler_t);
 
     pub fn get_accessibility_handler(&self) -> AccessibilityHandler;
-    pub fn get_root_screen_rect(&self, browser: Browser, rect: Rect) -> ::std::os::raw::c_int;
-    pub fn get_view_rect(&self, browser: Browser, rect: Rect);
+    pub fn get_root_screen_rect(
+        &self,
+        browser: &mut Browser,
+        rect: &mut Rect,
+    ) -> ::std::os::raw::c_int;
+    pub fn get_view_rect(&self, browser: &mut Browser, rect: &mut Rect);
     pub fn get_screen_point(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         view_x: ::std::os::raw::c_int,
         view_y: ::std::os::raw::c_int,
         screen_x: *mut ::std::os::raw::c_int,
@@ -13605,73 +13807,77 @@ wrapper!(
     ) -> ::std::os::raw::c_int;
     pub fn get_screen_info(
         &self,
-        browser: Browser,
-        screen_info: ScreenInfo,
+        browser: &mut Browser,
+        screen_info: &mut ScreenInfo,
     ) -> ::std::os::raw::c_int;
-    pub fn on_popup_show(&self, browser: Browser, show: ::std::os::raw::c_int);
-    pub fn on_popup_size(&self, browser: Browser, rect: Rect);
+    pub fn on_popup_show(&self, browser: &mut Browser, show: ::std::os::raw::c_int);
+    pub fn on_popup_size(&self, browser: &mut Browser, rect: &Rect);
     pub fn on_paint(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         type_: PaintElementType,
         dirty_rects_count: usize,
-        dirty_rects: Rect,
+        dirty_rects: &Rect,
         buffer: *const ::std::os::raw::c_void,
         width: ::std::os::raw::c_int,
         height: ::std::os::raw::c_int,
     );
     pub fn on_accelerated_paint(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         type_: PaintElementType,
         dirty_rects_count: usize,
-        dirty_rects: Rect,
-        info: AcceleratedPaintInfo,
+        dirty_rects: &Rect,
+        info: &AcceleratedPaintInfo,
     );
     pub fn get_touch_handle_size(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         orientation: HorizontalAlignment,
-        size: Size,
+        size: &mut Size,
     );
-    pub fn on_touch_handle_state_changed(&self, browser: Browser, state: TouchHandleState);
+    pub fn on_touch_handle_state_changed(&self, browser: &mut Browser, state: &TouchHandleState);
     pub fn start_dragging(
         &self,
-        browser: Browser,
-        drag_data: DragData,
+        browser: &mut Browser,
+        drag_data: &mut DragData,
         allowed_ops: DragOperationsMask,
         x: ::std::os::raw::c_int,
         y: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-    pub fn update_drag_cursor(&self, browser: Browser, operation: DragOperationsMask);
-    pub fn on_scroll_offset_changed(&self, browser: Browser, x: f64, y: f64);
+    pub fn update_drag_cursor(&self, browser: &mut Browser, operation: DragOperationsMask);
+    pub fn on_scroll_offset_changed(&self, browser: &mut Browser, x: f64, y: f64);
     pub fn on_ime_composition_range_changed(
         &self,
-        browser: Browser,
-        selected_range: Range,
+        browser: &mut Browser,
+        selected_range: &Range,
         character_bounds_count: usize,
-        character_bounds: Rect,
+        character_bounds: &Rect,
     );
     pub fn on_text_selection_changed(
         &self,
-        browser: Browser,
-        selected_text: CefString,
-        selected_range: Range,
+        browser: &mut Browser,
+        selected_text: &CefString,
+        selected_range: &Range,
     );
-    pub fn on_virtual_keyboard_requested(&self, browser: Browser, input_mode: TextInputMode);
+    pub fn on_virtual_keyboard_requested(&self, browser: &mut Browser, input_mode: TextInputMode);
 );
 
 pub trait ImplRenderHandler: Sized {
     fn get_accessibility_handler(&self) -> AccessibilityHandler {
         Default::default()
     }
-    fn get_root_screen_rect(&self, browser: Browser, rect: Rect) -> ::std::os::raw::c_int {
+    fn get_root_screen_rect(
+        &self,
+        browser: &mut Browser,
+        rect: &mut Rect,
+    ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_view_rect(&self, browser: Browser, rect: Rect) {}
+    fn get_view_rect(&self, browser: &mut Browser, rect: &mut Rect) {}
     fn get_screen_point(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         view_x: ::std::os::raw::c_int,
         view_y: ::std::os::raw::c_int,
         screen_x: *mut ::std::os::raw::c_int,
@@ -13679,17 +13885,21 @@ pub trait ImplRenderHandler: Sized {
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_screen_info(&self, browser: Browser, screen_info: ScreenInfo) -> ::std::os::raw::c_int {
+    fn get_screen_info(
+        &self,
+        browser: &mut Browser,
+        screen_info: &mut ScreenInfo,
+    ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_popup_show(&self, browser: Browser, show: ::std::os::raw::c_int) {}
-    fn on_popup_size(&self, browser: Browser, rect: Rect) {}
+    fn on_popup_show(&self, browser: &mut Browser, show: ::std::os::raw::c_int) {}
+    fn on_popup_size(&self, browser: &mut Browser, rect: &Rect) {}
     fn on_paint(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         type_: PaintElementType,
         dirty_rects_count: usize,
-        dirty_rects: Rect,
+        dirty_rects: &Rect,
         buffer: *const ::std::os::raw::c_void,
         width: ::std::os::raw::c_int,
         height: ::std::os::raw::c_int,
@@ -13697,49 +13907,49 @@ pub trait ImplRenderHandler: Sized {
     }
     fn on_accelerated_paint(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         type_: PaintElementType,
         dirty_rects_count: usize,
-        dirty_rects: Rect,
-        info: AcceleratedPaintInfo,
+        dirty_rects: &Rect,
+        info: &AcceleratedPaintInfo,
     ) {
     }
     fn get_touch_handle_size(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         orientation: HorizontalAlignment,
-        size: Size,
+        size: &mut Size,
     ) {
     }
-    fn on_touch_handle_state_changed(&self, browser: Browser, state: TouchHandleState) {}
+    fn on_touch_handle_state_changed(&self, browser: &mut Browser, state: &TouchHandleState) {}
     fn start_dragging(
         &self,
-        browser: Browser,
-        drag_data: DragData,
+        browser: &mut Browser,
+        drag_data: &mut DragData,
         allowed_ops: DragOperationsMask,
         x: ::std::os::raw::c_int,
         y: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn update_drag_cursor(&self, browser: Browser, operation: DragOperationsMask) {}
-    fn on_scroll_offset_changed(&self, browser: Browser, x: f64, y: f64) {}
+    fn update_drag_cursor(&self, browser: &mut Browser, operation: DragOperationsMask) {}
+    fn on_scroll_offset_changed(&self, browser: &mut Browser, x: f64, y: f64) {}
     fn on_ime_composition_range_changed(
         &self,
-        browser: Browser,
-        selected_range: Range,
+        browser: &mut Browser,
+        selected_range: &Range,
         character_bounds_count: usize,
-        character_bounds: Rect,
+        character_bounds: &Rect,
     ) {
     }
     fn on_text_selection_changed(
         &self,
-        browser: Browser,
-        selected_text: CefString,
-        selected_range: Range,
+        browser: &mut Browser,
+        selected_text: &CefString,
+        selected_range: &Range,
     ) {
     }
-    fn on_virtual_keyboard_requested(&self, browser: Browser, input_mode: TextInputMode) {}
+    fn on_virtual_keyboard_requested(&self, browser: &mut Browser, input_mode: TextInputMode) {}
 
     fn into_raw(self) -> *mut _cef_render_handler_t {
         let mut object: _cef_render_handler_t = unsafe { std::mem::zeroed() };
@@ -13784,9 +13994,9 @@ mod impl_cef_render_handler_t {
         rect: *mut cef_rect_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_root_screen_rect(browser.into(), rect.into())
-            .into()
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let rect = &mut Rect(unsafe { RefGuard::from_raw_add_ref(rect) });
+        obj.interface.get_root_screen_rect(browser, rect).into()
     }
 
     extern "C" fn get_view_rect<I: ImplRenderHandler>(
@@ -13795,7 +14005,9 @@ mod impl_cef_render_handler_t {
         rect: *mut cef_rect_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_view_rect(browser.into(), rect.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let rect = &mut Rect(unsafe { RefGuard::from_raw_add_ref(rect) });
+        obj.interface.get_view_rect(browser, rect)
     }
 
     extern "C" fn get_screen_point<I: ImplRenderHandler>(
@@ -13807,14 +14019,9 @@ mod impl_cef_render_handler_t {
         screen_y: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         obj.interface
-            .get_screen_point(
-                browser.into(),
-                view_x.into(),
-                view_y.into(),
-                screen_x.into(),
-                screen_y.into(),
-            )
+            .get_screen_point(browser, view_x, view_y, screen_x, screen_y)
             .into()
     }
 
@@ -13824,9 +14031,9 @@ mod impl_cef_render_handler_t {
         screen_info: *mut cef_screen_info_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_screen_info(browser.into(), screen_info.into())
-            .into()
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let screen_info = &mut ScreenInfo(unsafe { RefGuard::from_raw_add_ref(screen_info) });
+        obj.interface.get_screen_info(browser, screen_info).into()
     }
 
     extern "C" fn on_popup_show<I: ImplRenderHandler>(
@@ -13835,7 +14042,8 @@ mod impl_cef_render_handler_t {
         show: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_popup_show(browser.into(), show.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_popup_show(browser, show)
     }
 
     extern "C" fn on_popup_size<I: ImplRenderHandler>(
@@ -13844,7 +14052,9 @@ mod impl_cef_render_handler_t {
         rect: *const cef_rect_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_popup_size(browser.into(), rect.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let rect = &Rect(unsafe { RefGuard::from_raw_add_ref(rect) });
+        obj.interface.on_popup_size(browser, rect)
     }
 
     extern "C" fn on_paint<I: ImplRenderHandler>(
@@ -13858,14 +14068,16 @@ mod impl_cef_render_handler_t {
         height: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let dirty_rects = &Rect(unsafe { RefGuard::from_raw_add_ref(dirty_rects) });
         obj.interface.on_paint(
-            browser.into(),
-            type_.into(),
-            dirty_rects_count.into(),
-            dirty_rects.into(),
-            buffer.into(),
-            width.into(),
-            height.into(),
+            browser,
+            type_,
+            dirty_rects_count,
+            dirty_rects,
+            buffer,
+            width,
+            height,
         )
     }
 
@@ -13878,13 +14090,11 @@ mod impl_cef_render_handler_t {
         info: *const cef_accelerated_paint_info_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_accelerated_paint(
-            browser.into(),
-            type_.into(),
-            dirty_rects_count.into(),
-            dirty_rects.into(),
-            info.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let dirty_rects = &Rect(unsafe { RefGuard::from_raw_add_ref(dirty_rects) });
+        let info = &AcceleratedPaintInfo(unsafe { RefGuard::from_raw_add_ref(info) });
+        obj.interface
+            .on_accelerated_paint(browser, type_, dirty_rects_count, dirty_rects, info)
     }
 
     extern "C" fn get_touch_handle_size<I: ImplRenderHandler>(
@@ -13894,8 +14104,10 @@ mod impl_cef_render_handler_t {
         size: *mut cef_size_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let size = &mut Size(unsafe { RefGuard::from_raw_add_ref(size) });
         obj.interface
-            .get_touch_handle_size(browser.into(), orientation.into(), size.into())
+            .get_touch_handle_size(browser, orientation, size)
     }
 
     extern "C" fn on_touch_handle_state_changed<I: ImplRenderHandler>(
@@ -13904,8 +14116,9 @@ mod impl_cef_render_handler_t {
         state: *const cef_touch_handle_state_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_touch_handle_state_changed(browser.into(), state.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let state = &TouchHandleState(unsafe { RefGuard::from_raw_add_ref(state) });
+        obj.interface.on_touch_handle_state_changed(browser, state)
     }
 
     extern "C" fn start_dragging<I: ImplRenderHandler>(
@@ -13917,14 +14130,10 @@ mod impl_cef_render_handler_t {
         y: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let drag_data = &mut DragData(unsafe { RefGuard::from_raw_add_ref(drag_data) });
         obj.interface
-            .start_dragging(
-                browser.into(),
-                drag_data.into(),
-                allowed_ops.into(),
-                x.into(),
-                y.into(),
-            )
+            .start_dragging(browser, drag_data, allowed_ops, x, y)
             .into()
     }
 
@@ -13934,8 +14143,8 @@ mod impl_cef_render_handler_t {
         operation: cef_drag_operations_mask_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .update_drag_cursor(browser.into(), operation.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.update_drag_cursor(browser, operation)
     }
 
     extern "C" fn on_scroll_offset_changed<I: ImplRenderHandler>(
@@ -13945,8 +14154,8 @@ mod impl_cef_render_handler_t {
         y: f64,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_scroll_offset_changed(browser.into(), x.into(), y.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_scroll_offset_changed(browser, x, y)
     }
 
     extern "C" fn on_ime_composition_range_changed<I: ImplRenderHandler>(
@@ -13957,11 +14166,14 @@ mod impl_cef_render_handler_t {
         character_bounds: *const cef_rect_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let selected_range = &Range(unsafe { RefGuard::from_raw_add_ref(selected_range) });
+        let character_bounds = &Rect(unsafe { RefGuard::from_raw_add_ref(character_bounds) });
         obj.interface.on_ime_composition_range_changed(
-            browser.into(),
-            selected_range.into(),
-            character_bounds_count.into(),
-            character_bounds.into(),
+            browser,
+            selected_range,
+            character_bounds_count,
+            character_bounds,
         )
     }
 
@@ -13972,11 +14184,11 @@ mod impl_cef_render_handler_t {
         selected_range: *const cef_range_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_text_selection_changed(
-            browser.into(),
-            selected_text.into(),
-            selected_range.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let selected_text = &CefString::from(selected_text);
+        let selected_range = &Range(unsafe { RefGuard::from_raw_add_ref(selected_range) });
+        obj.interface
+            .on_text_selection_changed(browser, selected_text, selected_range)
     }
 
     extern "C" fn on_virtual_keyboard_requested<I: ImplRenderHandler>(
@@ -13985,8 +14197,9 @@ mod impl_cef_render_handler_t {
         input_mode: cef_text_input_mode_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         obj.interface
-            .on_virtual_keyboard_requested(browser.into(), input_mode.into())
+            .on_virtual_keyboard_requested(browser, input_mode)
     }
 }
 
@@ -13995,12 +14208,12 @@ wrapper!(
     #[derive(Clone)]
     pub struct AuthCallback(_cef_auth_callback_t);
 
-    pub fn cont(&self, username: CefString, password: CefString);
+    pub fn cont(&self, username: &CefString, password: &CefString);
     pub fn cancel(&self);
 );
 
 pub trait ImplAuthCallback: Sized {
-    fn cont(&self, username: CefString, password: CefString) {}
+    fn cont(&self, username: &CefString, password: &CefString) {}
     fn cancel(&self) {}
 
     fn into_raw(self) -> *mut _cef_auth_callback_t {
@@ -14024,7 +14237,9 @@ mod impl_cef_auth_callback_t {
         password: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(username.into(), password.into())
+        let username = &CefString::from(username);
+        let password = &CefString::from(password);
+        obj.interface.cont(username, password)
     }
 
     extern "C" fn cancel<I: ImplAuthCallback>(self_: *mut _cef_auth_callback_t) {
@@ -14044,22 +14259,22 @@ wrapper!(
     pub fn get_status(&self) -> ::std::os::raw::c_int;
     pub fn set_status(&self, status: ::std::os::raw::c_int);
     pub fn get_status_text(&self) -> CefStringUserfree;
-    pub fn set_status_text(&self, status_text: CefString);
+    pub fn set_status_text(&self, status_text: &CefString);
     pub fn get_mime_type(&self) -> CefStringUserfree;
-    pub fn set_mime_type(&self, mime_type: CefString);
+    pub fn set_mime_type(&self, mime_type: &CefString);
     pub fn get_charset(&self) -> CefStringUserfree;
-    pub fn set_charset(&self, charset: CefString);
-    pub fn get_header_by_name(&self, name: CefString) -> CefStringUserfree;
+    pub fn set_charset(&self, charset: &CefString);
+    pub fn get_header_by_name(&self, name: &CefString) -> CefStringUserfree;
     pub fn set_header_by_name(
         &self,
-        name: CefString,
-        value: CefString,
+        name: &CefString,
+        value: &CefString,
         overwrite: ::std::os::raw::c_int,
     );
-    pub fn get_header_map(&self, header_map: CefStringMultimap);
-    pub fn set_header_map(&self, header_map: CefStringMultimap);
+    pub fn get_header_map(&self, header_map: &mut CefStringMultimap);
+    pub fn set_header_map(&self, header_map: &mut CefStringMultimap);
     pub fn get_url(&self) -> CefStringUserfree;
-    pub fn set_url(&self, url: CefString);
+    pub fn set_url(&self, url: &CefString);
 );
 
 pub trait ImplResponse: Sized {
@@ -14077,31 +14292,31 @@ pub trait ImplResponse: Sized {
     fn get_status_text(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_status_text(&self, status_text: CefString) {}
+    fn set_status_text(&self, status_text: &CefString) {}
     fn get_mime_type(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_mime_type(&self, mime_type: CefString) {}
+    fn set_mime_type(&self, mime_type: &CefString) {}
     fn get_charset(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_charset(&self, charset: CefString) {}
-    fn get_header_by_name(&self, name: CefString) -> CefStringUserfree {
+    fn set_charset(&self, charset: &CefString) {}
+    fn get_header_by_name(&self, name: &CefString) -> CefStringUserfree {
         Default::default()
     }
     fn set_header_by_name(
         &self,
-        name: CefString,
-        value: CefString,
+        name: &CefString,
+        value: &CefString,
         overwrite: ::std::os::raw::c_int,
     ) {
     }
-    fn get_header_map(&self, header_map: CefStringMultimap) {}
-    fn set_header_map(&self, header_map: CefStringMultimap) {}
+    fn get_header_map(&self, header_map: &mut CefStringMultimap) {}
+    fn set_header_map(&self, header_map: &mut CefStringMultimap) {}
     fn get_url(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_url(&self, url: CefString) {}
+    fn set_url(&self, url: &CefString) {}
 
     fn into_raw(self) -> *mut _cef_response_t {
         let mut object: _cef_response_t = unsafe { std::mem::zeroed() };
@@ -14147,7 +14362,7 @@ mod impl_cef_response_t {
 
     extern "C" fn set_error<I: ImplResponse>(self_: *mut _cef_response_t, error: cef_errorcode_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_error(error.into())
+        obj.interface.set_error(error)
     }
 
     extern "C" fn get_status<I: ImplResponse>(
@@ -14162,7 +14377,7 @@ mod impl_cef_response_t {
         status: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_status(status.into())
+        obj.interface.set_status(status)
     }
 
     extern "C" fn get_status_text<I: ImplResponse>(
@@ -14177,7 +14392,8 @@ mod impl_cef_response_t {
         status_text: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_status_text(status_text.into())
+        let status_text = &CefString::from(status_text);
+        obj.interface.set_status_text(status_text)
     }
 
     extern "C" fn get_mime_type<I: ImplResponse>(
@@ -14192,7 +14408,8 @@ mod impl_cef_response_t {
         mime_type: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_mime_type(mime_type.into())
+        let mime_type = &CefString::from(mime_type);
+        obj.interface.set_mime_type(mime_type)
     }
 
     extern "C" fn get_charset<I: ImplResponse>(
@@ -14207,7 +14424,8 @@ mod impl_cef_response_t {
         charset: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_charset(charset.into())
+        let charset = &CefString::from(charset);
+        obj.interface.set_charset(charset)
     }
 
     extern "C" fn get_header_by_name<I: ImplResponse>(
@@ -14215,7 +14433,8 @@ mod impl_cef_response_t {
         name: *const cef_string_t,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_header_by_name(name.into()).into()
+        let name = &CefString::from(name);
+        obj.interface.get_header_by_name(name).into()
     }
 
     extern "C" fn set_header_by_name<I: ImplResponse>(
@@ -14225,8 +14444,9 @@ mod impl_cef_response_t {
         overwrite: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_header_by_name(name.into(), value.into(), overwrite.into())
+        let name = &CefString::from(name);
+        let value = &CefString::from(value);
+        obj.interface.set_header_by_name(name, value, overwrite)
     }
 
     extern "C" fn get_header_map<I: ImplResponse>(
@@ -14234,7 +14454,8 @@ mod impl_cef_response_t {
         header_map: cef_string_multimap_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_header_map(header_map.into())
+        let header_map = &mut CefStringMultimap::from(header_map);
+        obj.interface.get_header_map(header_map)
     }
 
     extern "C" fn set_header_map<I: ImplResponse>(
@@ -14242,7 +14463,8 @@ mod impl_cef_response_t {
         header_map: cef_string_multimap_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_header_map(header_map.into())
+        let header_map = &mut CefStringMultimap::from(header_map);
+        obj.interface.set_header_map(header_map)
     }
 
     extern "C" fn get_url<I: ImplResponse>(self_: *mut _cef_response_t) -> cef_string_userfree_t {
@@ -14252,7 +14474,8 @@ mod impl_cef_response_t {
 
     extern "C" fn set_url<I: ImplResponse>(self_: *mut _cef_response_t, url: *const cef_string_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_url(url.into())
+        let url = &CefString::from(url);
+        obj.interface.set_url(url)
     }
 }
 
@@ -14286,7 +14509,7 @@ mod impl_cef_resource_skip_callback_t {
         bytes_skipped: i64,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(bytes_skipped.into())
+        obj.interface.cont(bytes_skipped)
     }
 }
 
@@ -14320,7 +14543,7 @@ mod impl_cef_resource_read_callback_t {
         bytes_read: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.cont(bytes_read.into())
+        obj.interface.cont(bytes_read)
     }
 }
 
@@ -14331,36 +14554,40 @@ wrapper!(
 
     pub fn open(
         &self,
-        request: Request,
+        request: &mut Request,
         handle_request: *mut ::std::os::raw::c_int,
-        callback: Callback,
+        callback: &mut Callback,
     ) -> ::std::os::raw::c_int;
-    pub fn process_request(&self, request: Request, callback: Callback) -> ::std::os::raw::c_int;
+    pub fn process_request(
+        &self,
+        request: &mut Request,
+        callback: &mut Callback,
+    ) -> ::std::os::raw::c_int;
     pub fn get_response_headers(
         &self,
-        response: Response,
+        response: &mut Response,
         response_length: *mut i64,
-        redirect_url: CefString,
+        redirect_url: &mut CefString,
     );
     pub fn skip(
         &self,
         bytes_to_skip: i64,
         bytes_skipped: *mut i64,
-        callback: ResourceSkipCallback,
+        callback: &mut ResourceSkipCallback,
     ) -> ::std::os::raw::c_int;
     pub fn read(
         &self,
         data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
         bytes_read: *mut ::std::os::raw::c_int,
-        callback: ResourceReadCallback,
+        callback: &mut ResourceReadCallback,
     ) -> ::std::os::raw::c_int;
     pub fn read_response(
         &self,
         data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
         bytes_read: *mut ::std::os::raw::c_int,
-        callback: Callback,
+        callback: &mut Callback,
     ) -> ::std::os::raw::c_int;
     pub fn cancel(&self);
 );
@@ -14368,27 +14595,31 @@ wrapper!(
 pub trait ImplResourceHandler: Sized {
     fn open(
         &self,
-        request: Request,
+        request: &mut Request,
         handle_request: *mut ::std::os::raw::c_int,
-        callback: Callback,
+        callback: &mut Callback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn process_request(&self, request: Request, callback: Callback) -> ::std::os::raw::c_int {
+    fn process_request(
+        &self,
+        request: &mut Request,
+        callback: &mut Callback,
+    ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_response_headers(
         &self,
-        response: Response,
+        response: &mut Response,
         response_length: *mut i64,
-        redirect_url: CefString,
+        redirect_url: &mut CefString,
     ) {
     }
     fn skip(
         &self,
         bytes_to_skip: i64,
         bytes_skipped: *mut i64,
-        callback: ResourceSkipCallback,
+        callback: &mut ResourceSkipCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -14397,7 +14628,7 @@ pub trait ImplResourceHandler: Sized {
         data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
         bytes_read: *mut ::std::os::raw::c_int,
-        callback: ResourceReadCallback,
+        callback: &mut ResourceReadCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -14406,7 +14637,7 @@ pub trait ImplResourceHandler: Sized {
         data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
         bytes_read: *mut ::std::os::raw::c_int,
-        callback: Callback,
+        callback: &mut Callback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -14439,9 +14670,9 @@ mod impl_cef_resource_handler_t {
         callback: *mut _cef_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .open(request.into(), handle_request.into(), callback.into())
-            .into()
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.open(request, handle_request, callback).into()
     }
 
     extern "C" fn process_request<I: ImplResourceHandler>(
@@ -14450,9 +14681,9 @@ mod impl_cef_resource_handler_t {
         callback: *mut _cef_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .process_request(request.into(), callback.into())
-            .into()
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(callback) });
+        obj.interface.process_request(request, callback).into()
     }
 
     extern "C" fn get_response_headers<I: ImplResourceHandler>(
@@ -14462,11 +14693,10 @@ mod impl_cef_resource_handler_t {
         redirect_url: *mut cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_response_headers(
-            response.into(),
-            response_length.into(),
-            redirect_url.into(),
-        )
+        let response = &mut Response(unsafe { RefGuard::from_raw_add_ref(response) });
+        let redirect_url = &mut CefString::from(redirect_url);
+        obj.interface
+            .get_response_headers(response, response_length, redirect_url)
     }
 
     extern "C" fn skip<I: ImplResourceHandler>(
@@ -14476,8 +14706,9 @@ mod impl_cef_resource_handler_t {
         callback: *mut _cef_resource_skip_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let callback = &mut ResourceSkipCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .skip(bytes_to_skip.into(), bytes_skipped.into(), callback.into())
+            .skip(bytes_to_skip, bytes_skipped, callback)
             .into()
     }
 
@@ -14489,13 +14720,9 @@ mod impl_cef_resource_handler_t {
         callback: *mut _cef_resource_read_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let callback = &mut ResourceReadCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .read(
-                data_out.into(),
-                bytes_to_read.into(),
-                bytes_read.into(),
-                callback.into(),
-            )
+            .read(data_out, bytes_to_read, bytes_read, callback)
             .into()
     }
 
@@ -14507,13 +14734,9 @@ mod impl_cef_resource_handler_t {
         callback: *mut _cef_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .read_response(
-                data_out.into(),
-                bytes_to_read.into(),
-                bytes_read.into(),
-                callback.into(),
-            )
+            .read_response(data_out, bytes_to_read, bytes_read, callback)
             .into()
     }
 
@@ -14590,12 +14813,12 @@ mod impl_cef_response_filter_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
             .filter(
-                data_in.into(),
-                data_in_size.into(),
-                data_in_read.into(),
-                data_out.into(),
-                data_out_size.into(),
-                data_out_written.into(),
+                data_in,
+                data_in_size,
+                data_in_read,
+                data_out,
+                data_out_size,
+                data_out_written,
             )
             .into()
     }
@@ -14608,59 +14831,59 @@ wrapper!(
 
     pub fn get_cookie_access_filter(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
     ) -> CookieAccessFilter;
     pub fn on_before_resource_load(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        callback: Callback,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        callback: &mut Callback,
     ) -> ReturnValue;
     pub fn get_resource_handler(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
     ) -> ResourceHandler;
     pub fn on_resource_redirect(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
-        new_url: CefString,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
+        new_url: &mut CefString,
     );
     pub fn on_resource_response(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
     ) -> ::std::os::raw::c_int;
     pub fn get_resource_response_filter(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
     ) -> ResponseFilter;
     pub fn on_resource_load_complete(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
         status: UrlrequestStatus,
         received_content_length: i64,
     );
     pub fn on_protocol_execution(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
         allow_os_execution: *mut ::std::os::raw::c_int,
     );
 );
@@ -14668,71 +14891,71 @@ wrapper!(
 pub trait ImplResourceRequestHandler: Sized {
     fn get_cookie_access_filter(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
     ) -> CookieAccessFilter {
         Default::default()
     }
     fn on_before_resource_load(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        callback: Callback,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        callback: &mut Callback,
     ) -> ReturnValue {
         Default::default()
     }
     fn get_resource_handler(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
     ) -> ResourceHandler {
         Default::default()
     }
     fn on_resource_redirect(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
-        new_url: CefString,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
+        new_url: &mut CefString,
     ) {
     }
     fn on_resource_response(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_resource_response_filter(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
     ) -> ResponseFilter {
         Default::default()
     }
     fn on_resource_load_complete(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
         status: UrlrequestStatus,
         received_content_length: i64,
     ) {
     }
     fn on_protocol_execution(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
         allow_os_execution: *mut ::std::os::raw::c_int,
     ) {
     }
@@ -14767,8 +14990,11 @@ mod impl_cef_resource_request_handler_t {
         request: *mut _cef_request_t,
     ) -> *mut _cef_cookie_access_filter_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
         obj.interface
-            .get_cookie_access_filter(browser.into(), frame.into(), request.into())
+            .get_cookie_access_filter(browser, frame, request)
             .into()
     }
 
@@ -14780,13 +15006,12 @@ mod impl_cef_resource_request_handler_t {
         callback: *mut _cef_callback_t,
     ) -> cef_return_value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .on_before_resource_load(
-                browser.into(),
-                frame.into(),
-                request.into(),
-                callback.into(),
-            )
+            .on_before_resource_load(browser, frame, request, callback)
             .into()
     }
 
@@ -14797,8 +15022,11 @@ mod impl_cef_resource_request_handler_t {
         request: *mut _cef_request_t,
     ) -> *mut _cef_resource_handler_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
         obj.interface
-            .get_resource_handler(browser.into(), frame.into(), request.into())
+            .get_resource_handler(browser, frame, request)
             .into()
     }
 
@@ -14811,13 +15039,13 @@ mod impl_cef_resource_request_handler_t {
         new_url: *mut cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_resource_redirect(
-            browser.into(),
-            frame.into(),
-            request.into(),
-            response.into(),
-            new_url.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let response = &mut Response(unsafe { RefGuard::from_raw_add_ref(response) });
+        let new_url = &mut CefString::from(new_url);
+        obj.interface
+            .on_resource_redirect(browser, frame, request, response, new_url)
     }
 
     extern "C" fn on_resource_response<I: ImplResourceRequestHandler>(
@@ -14828,13 +15056,12 @@ mod impl_cef_resource_request_handler_t {
         response: *mut _cef_response_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let response = &mut Response(unsafe { RefGuard::from_raw_add_ref(response) });
         obj.interface
-            .on_resource_response(
-                browser.into(),
-                frame.into(),
-                request.into(),
-                response.into(),
-            )
+            .on_resource_response(browser, frame, request, response)
             .into()
     }
 
@@ -14846,13 +15073,12 @@ mod impl_cef_resource_request_handler_t {
         response: *mut _cef_response_t,
     ) -> *mut _cef_response_filter_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let response = &mut Response(unsafe { RefGuard::from_raw_add_ref(response) });
         obj.interface
-            .get_resource_response_filter(
-                browser.into(),
-                frame.into(),
-                request.into(),
-                response.into(),
-            )
+            .get_resource_response_filter(browser, frame, request, response)
             .into()
     }
 
@@ -14866,13 +15092,17 @@ mod impl_cef_resource_request_handler_t {
         received_content_length: i64,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let response = &mut Response(unsafe { RefGuard::from_raw_add_ref(response) });
         obj.interface.on_resource_load_complete(
-            browser.into(),
-            frame.into(),
-            request.into(),
-            response.into(),
-            status.into(),
-            received_content_length.into(),
+            browser,
+            frame,
+            request,
+            response,
+            status,
+            received_content_length,
         )
     }
 
@@ -14884,12 +15114,11 @@ mod impl_cef_resource_request_handler_t {
         allow_os_execution: *mut ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_protocol_execution(
-            browser.into(),
-            frame.into(),
-            request.into(),
-            allow_os_execution.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        obj.interface
+            .on_protocol_execution(browser, frame, request, allow_os_execution)
     }
 }
 
@@ -14900,38 +15129,38 @@ wrapper!(
 
     pub fn can_send_cookie(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        cookie: Cookie,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        cookie: &Cookie,
     ) -> ::std::os::raw::c_int;
     pub fn can_save_cookie(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
-        cookie: Cookie,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
+        cookie: &Cookie,
     ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplCookieAccessFilter: Sized {
     fn can_send_cookie(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        cookie: Cookie,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        cookie: &Cookie,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn can_save_cookie(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
-        response: Response,
-        cookie: Cookie,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
+        response: &mut Response,
+        cookie: &Cookie,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -14959,8 +15188,12 @@ mod impl_cef_cookie_access_filter_t {
         cookie: *const _cef_cookie_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let cookie = &Cookie(unsafe { RefGuard::from_raw_add_ref(cookie) });
         obj.interface
-            .can_send_cookie(browser.into(), frame.into(), request.into(), cookie.into())
+            .can_send_cookie(browser, frame, request, cookie)
             .into()
     }
 
@@ -14973,14 +15206,13 @@ mod impl_cef_cookie_access_filter_t {
         cookie: *const _cef_cookie_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let response = &mut Response(unsafe { RefGuard::from_raw_add_ref(response) });
+        let cookie = &Cookie(unsafe { RefGuard::from_raw_add_ref(cookie) });
         obj.interface
-            .can_save_cookie(
-                browser.into(),
-                frame.into(),
-                request.into(),
-                response.into(),
-                cookie.into(),
-            )
+            .can_save_cookie(browser, frame, request, response, cookie)
             .into()
     }
 }
@@ -15080,11 +15312,11 @@ wrapper!(
     #[derive(Clone)]
     pub struct SelectClientCertificateCallback(_cef_select_client_certificate_callback_t);
 
-    pub fn select(&self, cert: X509certificate);
+    pub fn select(&self, cert: &mut X509certificate);
 );
 
 pub trait ImplSelectClientCertificateCallback: Sized {
-    fn select(&self, cert: X509certificate) {}
+    fn select(&self, cert: &mut X509certificate) {}
 
     fn into_raw(self) -> *mut _cef_select_client_certificate_callback_t {
         let mut object: _cef_select_client_certificate_callback_t = unsafe { std::mem::zeroed() };
@@ -15107,7 +15339,8 @@ mod impl_cef_select_client_certificate_callback_t {
         cert: *mut _cef_x509certificate_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.select(cert.into())
+        let cert = &mut X509certificate(unsafe { RefGuard::from_raw_add_ref(cert) });
+        obj.interface.select(cert)
     }
 }
 
@@ -15118,82 +15351,82 @@ wrapper!(
 
     pub fn on_before_browse(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
         user_gesture: ::std::os::raw::c_int,
         is_redirect: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
     pub fn on_open_urlfrom_tab(
         &self,
-        browser: Browser,
-        frame: Frame,
-        target_url: CefString,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        target_url: &CefString,
         target_disposition: WindowOpenDisposition,
         user_gesture: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
     pub fn get_resource_request_handler(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
         is_navigation: ::std::os::raw::c_int,
         is_download: ::std::os::raw::c_int,
-        request_initiator: CefString,
+        request_initiator: &CefString,
         disable_default_handling: *mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler;
     pub fn get_auth_credentials(
         &self,
-        browser: Browser,
-        origin_url: CefString,
+        browser: &mut Browser,
+        origin_url: &CefString,
         is_proxy: ::std::os::raw::c_int,
-        host: CefString,
+        host: &CefString,
         port: ::std::os::raw::c_int,
-        realm: CefString,
-        scheme: CefString,
-        callback: AuthCallback,
+        realm: &CefString,
+        scheme: &CefString,
+        callback: &mut AuthCallback,
     ) -> ::std::os::raw::c_int;
     pub fn on_certificate_error(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         cert_error: Errorcode,
-        request_url: CefString,
-        ssl_info: Sslinfo,
-        callback: Callback,
+        request_url: &CefString,
+        ssl_info: &mut Sslinfo,
+        callback: &mut Callback,
     ) -> ::std::os::raw::c_int;
     pub fn on_select_client_certificate(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         is_proxy: ::std::os::raw::c_int,
-        host: CefString,
+        host: &CefString,
         port: ::std::os::raw::c_int,
         certificates_count: usize,
-        certificates: *const X509certificate,
-        callback: SelectClientCertificateCallback,
+        certificates: *const &mut X509certificate,
+        callback: &mut SelectClientCertificateCallback,
     ) -> ::std::os::raw::c_int;
-    pub fn on_render_view_ready(&self, browser: Browser);
+    pub fn on_render_view_ready(&self, browser: &mut Browser);
     pub fn on_render_process_unresponsive(
         &self,
-        browser: Browser,
-        callback: UnresponsiveProcessCallback,
+        browser: &mut Browser,
+        callback: &mut UnresponsiveProcessCallback,
     ) -> ::std::os::raw::c_int;
-    pub fn on_render_process_responsive(&self, browser: Browser);
+    pub fn on_render_process_responsive(&self, browser: &mut Browser);
     pub fn on_render_process_terminated(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         status: TerminationStatus,
         error_code: ::std::os::raw::c_int,
-        error_string: CefString,
+        error_string: &CefString,
     );
-    pub fn on_document_available_in_main_frame(&self, browser: Browser);
+    pub fn on_document_available_in_main_frame(&self, browser: &mut Browser);
 );
 
 pub trait ImplRequestHandler: Sized {
     fn on_before_browse(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
         user_gesture: ::std::os::raw::c_int,
         is_redirect: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -15201,9 +15434,9 @@ pub trait ImplRequestHandler: Sized {
     }
     fn on_open_urlfrom_tab(
         &self,
-        browser: Browser,
-        frame: Frame,
-        target_url: CefString,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        target_url: &CefString,
         target_disposition: WindowOpenDisposition,
         user_gesture: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -15211,69 +15444,69 @@ pub trait ImplRequestHandler: Sized {
     }
     fn get_resource_request_handler(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
         is_navigation: ::std::os::raw::c_int,
         is_download: ::std::os::raw::c_int,
-        request_initiator: CefString,
+        request_initiator: &CefString,
         disable_default_handling: *mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler {
         Default::default()
     }
     fn get_auth_credentials(
         &self,
-        browser: Browser,
-        origin_url: CefString,
+        browser: &mut Browser,
+        origin_url: &CefString,
         is_proxy: ::std::os::raw::c_int,
-        host: CefString,
+        host: &CefString,
         port: ::std::os::raw::c_int,
-        realm: CefString,
-        scheme: CefString,
-        callback: AuthCallback,
+        realm: &CefString,
+        scheme: &CefString,
+        callback: &mut AuthCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_certificate_error(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         cert_error: Errorcode,
-        request_url: CefString,
-        ssl_info: Sslinfo,
-        callback: Callback,
+        request_url: &CefString,
+        ssl_info: &mut Sslinfo,
+        callback: &mut Callback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_select_client_certificate(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         is_proxy: ::std::os::raw::c_int,
-        host: CefString,
+        host: &CefString,
         port: ::std::os::raw::c_int,
         certificates_count: usize,
-        certificates: *const X509certificate,
-        callback: SelectClientCertificateCallback,
+        certificates: *const &mut X509certificate,
+        callback: &mut SelectClientCertificateCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_render_view_ready(&self, browser: Browser) {}
+    fn on_render_view_ready(&self, browser: &mut Browser) {}
     fn on_render_process_unresponsive(
         &self,
-        browser: Browser,
-        callback: UnresponsiveProcessCallback,
+        browser: &mut Browser,
+        callback: &mut UnresponsiveProcessCallback,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_render_process_responsive(&self, browser: Browser) {}
+    fn on_render_process_responsive(&self, browser: &mut Browser) {}
     fn on_render_process_terminated(
         &self,
-        browser: Browser,
+        browser: &mut Browser,
         status: TerminationStatus,
         error_code: ::std::os::raw::c_int,
-        error_string: CefString,
+        error_string: &CefString,
     ) {
     }
-    fn on_document_available_in_main_frame(&self, browser: Browser) {}
+    fn on_document_available_in_main_frame(&self, browser: &mut Browser) {}
 
     fn into_raw(self) -> *mut _cef_request_handler_t {
         let mut object: _cef_request_handler_t = unsafe { std::mem::zeroed() };
@@ -15308,14 +15541,11 @@ mod impl_cef_request_handler_t {
         is_redirect: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
         obj.interface
-            .on_before_browse(
-                browser.into(),
-                frame.into(),
-                request.into(),
-                user_gesture.into(),
-                is_redirect.into(),
-            )
+            .on_before_browse(browser, frame, request, user_gesture, is_redirect)
             .into()
     }
 
@@ -15328,14 +15558,11 @@ mod impl_cef_request_handler_t {
         user_gesture: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let target_url = &CefString::from(target_url);
         obj.interface
-            .on_open_urlfrom_tab(
-                browser.into(),
-                frame.into(),
-                target_url.into(),
-                target_disposition.into(),
-                user_gesture.into(),
-            )
+            .on_open_urlfrom_tab(browser, frame, target_url, target_disposition, user_gesture)
             .into()
     }
 
@@ -15350,15 +15577,19 @@ mod impl_cef_request_handler_t {
         disable_default_handling: *mut ::std::os::raw::c_int,
     ) -> *mut _cef_resource_request_handler_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let request_initiator = &CefString::from(request_initiator);
         obj.interface
             .get_resource_request_handler(
-                browser.into(),
-                frame.into(),
-                request.into(),
-                is_navigation.into(),
-                is_download.into(),
-                request_initiator.into(),
-                disable_default_handling.into(),
+                browser,
+                frame,
+                request,
+                is_navigation,
+                is_download,
+                request_initiator,
+                disable_default_handling,
             )
             .into()
     }
@@ -15375,16 +15606,15 @@ mod impl_cef_request_handler_t {
         callback: *mut _cef_auth_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let origin_url = &CefString::from(origin_url);
+        let host = &CefString::from(host);
+        let realm = &CefString::from(realm);
+        let scheme = &CefString::from(scheme);
+        let callback = &mut AuthCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
             .get_auth_credentials(
-                browser.into(),
-                origin_url.into(),
-                is_proxy.into(),
-                host.into(),
-                port.into(),
-                realm.into(),
-                scheme.into(),
-                callback.into(),
+                browser, origin_url, is_proxy, host, port, realm, scheme, callback,
             )
             .into()
     }
@@ -15398,14 +15628,12 @@ mod impl_cef_request_handler_t {
         callback: *mut _cef_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let request_url = &CefString::from(request_url);
+        let ssl_info = &mut Sslinfo(unsafe { RefGuard::from_raw_add_ref(ssl_info) });
+        let callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .on_certificate_error(
-                browser.into(),
-                cert_error.into(),
-                request_url.into(),
-                ssl_info.into(),
-                callback.into(),
-            )
+            .on_certificate_error(browser, cert_error, request_url, ssl_info, callback)
             .into()
     }
 
@@ -15420,15 +15648,19 @@ mod impl_cef_request_handler_t {
         callback: *mut _cef_select_client_certificate_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let host = &CefString::from(host);
+        let callback =
+            &mut SelectClientCertificateCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
             .on_select_client_certificate(
-                browser.into(),
-                is_proxy.into(),
-                host.into(),
-                port.into(),
-                certificates_count.into(),
-                certificates.into(),
-                callback.into(),
+                browser,
+                is_proxy,
+                host,
+                port,
+                certificates_count,
+                certificates,
+                callback,
             )
             .into()
     }
@@ -15438,7 +15670,8 @@ mod impl_cef_request_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_render_view_ready(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_render_view_ready(browser)
     }
 
     extern "C" fn on_render_process_unresponsive<I: ImplRequestHandler>(
@@ -15447,8 +15680,11 @@ mod impl_cef_request_handler_t {
         callback: *mut _cef_unresponsive_process_callback_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let callback =
+            &mut UnresponsiveProcessCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
-            .on_render_process_unresponsive(browser.into(), callback.into())
+            .on_render_process_unresponsive(browser, callback)
             .into()
     }
 
@@ -15457,7 +15693,8 @@ mod impl_cef_request_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_render_process_responsive(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_render_process_responsive(browser)
     }
 
     extern "C" fn on_render_process_terminated<I: ImplRequestHandler>(
@@ -15468,12 +15705,10 @@ mod impl_cef_request_handler_t {
         error_string: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_render_process_terminated(
-            browser.into(),
-            status.into(),
-            error_code.into(),
-            error_string.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let error_string = &CefString::from(error_string);
+        obj.interface
+            .on_render_process_terminated(browser, status, error_code, error_string)
     }
 
     extern "C" fn on_document_available_in_main_frame<I: ImplRequestHandler>(
@@ -15481,8 +15716,8 @@ mod impl_cef_request_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_document_available_in_main_frame(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_document_available_in_main_frame(browser)
     }
 }
 
@@ -15511,10 +15746,10 @@ wrapper!(
     pub fn get_request_handler(&self) -> RequestHandler;
     pub fn on_process_message_received(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         source_process: ProcessId,
-        message: ProcessMessage,
+        message: &mut ProcessMessage,
     ) -> ::std::os::raw::c_int;
 );
 
@@ -15575,10 +15810,10 @@ pub trait ImplClient: Sized {
     }
     fn on_process_message_received(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         source_process: ProcessId,
-        message: ProcessMessage,
+        message: &mut ProcessMessage,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -15749,13 +15984,11 @@ mod impl_cef_client_t {
         message: *mut _cef_process_message_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let message = &mut ProcessMessage(unsafe { RefGuard::from_raw_add_ref(message) });
         obj.interface
-            .on_process_message_received(
-                browser.into(),
-                frame.into(),
-                source_process.into(),
-                message.into(),
-            )
+            .on_process_message_received(browser, frame, source_process, message)
             .into()
     }
 }
@@ -15773,22 +16006,22 @@ wrapper!(
         argc: ::std::os::raw::c_int,
         argv: *const *const ::std::os::raw::c_char,
     );
-    pub fn init_from_string(&self, command_line: CefString);
+    pub fn init_from_string(&self, command_line: &CefString);
     pub fn reset(&self);
-    pub fn get_argv(&self, argv: CefStringList);
+    pub fn get_argv(&self, argv: &mut CefStringList);
     pub fn get_command_line_string(&self) -> CefStringUserfree;
     pub fn get_program(&self) -> CefStringUserfree;
-    pub fn set_program(&self, program: CefString);
+    pub fn set_program(&self, program: &CefString);
     pub fn has_switches(&self) -> ::std::os::raw::c_int;
-    pub fn has_switch(&self, name: CefString) -> ::std::os::raw::c_int;
-    pub fn get_switch_value(&self, name: CefString) -> CefStringUserfree;
-    pub fn get_switches(&self, switches: CefStringMap);
-    pub fn append_switch(&self, name: CefString);
-    pub fn append_switch_with_value(&self, name: CefString, value: CefString);
+    pub fn has_switch(&self, name: &CefString) -> ::std::os::raw::c_int;
+    pub fn get_switch_value(&self, name: &CefString) -> CefStringUserfree;
+    pub fn get_switches(&self, switches: &mut CefStringMap);
+    pub fn append_switch(&self, name: &CefString);
+    pub fn append_switch_with_value(&self, name: &CefString, value: &CefString);
     pub fn has_arguments(&self) -> ::std::os::raw::c_int;
-    pub fn get_arguments(&self, arguments: CefStringList);
-    pub fn append_argument(&self, argument: CefString);
-    pub fn prepend_wrapper(&self, wrapper: CefString);
+    pub fn get_arguments(&self, arguments: &mut CefStringList);
+    pub fn append_argument(&self, argument: &CefString);
+    pub fn prepend_wrapper(&self, wrapper: &CefString);
 );
 
 pub trait ImplCommandLine: Sized {
@@ -15807,34 +16040,34 @@ pub trait ImplCommandLine: Sized {
         argv: *const *const ::std::os::raw::c_char,
     ) {
     }
-    fn init_from_string(&self, command_line: CefString) {}
+    fn init_from_string(&self, command_line: &CefString) {}
     fn reset(&self) {}
-    fn get_argv(&self, argv: CefStringList) {}
+    fn get_argv(&self, argv: &mut CefStringList) {}
     fn get_command_line_string(&self) -> CefStringUserfree {
         Default::default()
     }
     fn get_program(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_program(&self, program: CefString) {}
+    fn set_program(&self, program: &CefString) {}
     fn has_switches(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn has_switch(&self, name: CefString) -> ::std::os::raw::c_int {
+    fn has_switch(&self, name: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_switch_value(&self, name: CefString) -> CefStringUserfree {
+    fn get_switch_value(&self, name: &CefString) -> CefStringUserfree {
         Default::default()
     }
-    fn get_switches(&self, switches: CefStringMap) {}
-    fn append_switch(&self, name: CefString) {}
-    fn append_switch_with_value(&self, name: CefString, value: CefString) {}
+    fn get_switches(&self, switches: &mut CefStringMap) {}
+    fn append_switch(&self, name: &CefString) {}
+    fn append_switch_with_value(&self, name: &CefString, value: &CefString) {}
     fn has_arguments(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_arguments(&self, arguments: CefStringList) {}
-    fn append_argument(&self, argument: CefString) {}
-    fn prepend_wrapper(&self, wrapper: CefString) {}
+    fn get_arguments(&self, arguments: &mut CefStringList) {}
+    fn append_argument(&self, argument: &CefString) {}
+    fn prepend_wrapper(&self, wrapper: &CefString) {}
 
     fn into_raw(self) -> *mut _cef_command_line_t {
         let mut object: _cef_command_line_t = unsafe { std::mem::zeroed() };
@@ -15896,7 +16129,7 @@ mod impl_cef_command_line_t {
         argv: *const *const ::std::os::raw::c_char,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.init_from_argv(argc.into(), argv.into())
+        obj.interface.init_from_argv(argc, argv)
     }
 
     extern "C" fn init_from_string<I: ImplCommandLine>(
@@ -15904,7 +16137,8 @@ mod impl_cef_command_line_t {
         command_line: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.init_from_string(command_line.into())
+        let command_line = &CefString::from(command_line);
+        obj.interface.init_from_string(command_line)
     }
 
     extern "C" fn reset<I: ImplCommandLine>(self_: *mut _cef_command_line_t) {
@@ -15917,7 +16151,8 @@ mod impl_cef_command_line_t {
         argv: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_argv(argv.into())
+        let argv = &mut CefStringList::from(argv);
+        obj.interface.get_argv(argv)
     }
 
     extern "C" fn get_command_line_string<I: ImplCommandLine>(
@@ -15939,7 +16174,8 @@ mod impl_cef_command_line_t {
         program: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_program(program.into())
+        let program = &CefString::from(program);
+        obj.interface.set_program(program)
     }
 
     extern "C" fn has_switches<I: ImplCommandLine>(
@@ -15954,7 +16190,8 @@ mod impl_cef_command_line_t {
         name: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.has_switch(name.into()).into()
+        let name = &CefString::from(name);
+        obj.interface.has_switch(name).into()
     }
 
     extern "C" fn get_switch_value<I: ImplCommandLine>(
@@ -15962,7 +16199,8 @@ mod impl_cef_command_line_t {
         name: *const cef_string_t,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_switch_value(name.into()).into()
+        let name = &CefString::from(name);
+        obj.interface.get_switch_value(name).into()
     }
 
     extern "C" fn get_switches<I: ImplCommandLine>(
@@ -15970,7 +16208,8 @@ mod impl_cef_command_line_t {
         switches: cef_string_map_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_switches(switches.into())
+        let switches = &mut CefStringMap::from(switches);
+        obj.interface.get_switches(switches)
     }
 
     extern "C" fn append_switch<I: ImplCommandLine>(
@@ -15978,7 +16217,8 @@ mod impl_cef_command_line_t {
         name: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.append_switch(name.into())
+        let name = &CefString::from(name);
+        obj.interface.append_switch(name)
     }
 
     extern "C" fn append_switch_with_value<I: ImplCommandLine>(
@@ -15987,8 +16227,9 @@ mod impl_cef_command_line_t {
         value: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .append_switch_with_value(name.into(), value.into())
+        let name = &CefString::from(name);
+        let value = &CefString::from(value);
+        obj.interface.append_switch_with_value(name, value)
     }
 
     extern "C" fn has_arguments<I: ImplCommandLine>(
@@ -16003,7 +16244,8 @@ mod impl_cef_command_line_t {
         arguments: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_arguments(arguments.into())
+        let arguments = &mut CefStringList::from(arguments);
+        obj.interface.get_arguments(arguments)
     }
 
     extern "C" fn append_argument<I: ImplCommandLine>(
@@ -16011,7 +16253,8 @@ mod impl_cef_command_line_t {
         argument: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.append_argument(argument.into())
+        let argument = &CefString::from(argument);
+        obj.interface.append_argument(argument)
     }
 
     extern "C" fn prepend_wrapper<I: ImplCommandLine>(
@@ -16019,7 +16262,8 @@ mod impl_cef_command_line_t {
         wrapper: *const cef_string_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.prepend_wrapper(wrapper.into())
+        let wrapper = &CefString::from(wrapper);
+        obj.interface.prepend_wrapper(wrapper)
     }
 }
 
@@ -16028,29 +16272,29 @@ wrapper!(
     #[derive(Clone)]
     pub struct RequestContextHandler(_cef_request_context_handler_t);
 
-    pub fn on_request_context_initialized(&self, request_context: RequestContext);
+    pub fn on_request_context_initialized(&self, request_context: &mut RequestContext);
     pub fn get_resource_request_handler(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
         is_navigation: ::std::os::raw::c_int,
         is_download: ::std::os::raw::c_int,
-        request_initiator: CefString,
+        request_initiator: &CefString,
         disable_default_handling: *mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler;
 );
 
 pub trait ImplRequestContextHandler: Sized {
-    fn on_request_context_initialized(&self, request_context: RequestContext) {}
+    fn on_request_context_initialized(&self, request_context: &mut RequestContext) {}
     fn get_resource_request_handler(
         &self,
-        browser: Browser,
-        frame: Frame,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        request: &mut Request,
         is_navigation: ::std::os::raw::c_int,
         is_download: ::std::os::raw::c_int,
-        request_initiator: CefString,
+        request_initiator: &CefString,
         disable_default_handling: *mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler {
         Default::default()
@@ -16076,8 +16320,10 @@ mod impl_cef_request_context_handler_t {
         request_context: *mut _cef_request_context_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let request_context =
+            &mut RequestContext(unsafe { RefGuard::from_raw_add_ref(request_context) });
         obj.interface
-            .on_request_context_initialized(request_context.into())
+            .on_request_context_initialized(request_context)
     }
 
     extern "C" fn get_resource_request_handler<I: ImplRequestContextHandler>(
@@ -16091,15 +16337,19 @@ mod impl_cef_request_context_handler_t {
         disable_default_handling: *mut ::std::os::raw::c_int,
     ) -> *mut _cef_resource_request_handler_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
+        let request_initiator = &CefString::from(request_initiator);
         obj.interface
             .get_resource_request_handler(
-                browser.into(),
-                frame.into(),
-                request.into(),
-                is_navigation.into(),
-                is_download.into(),
-                request_initiator.into(),
-                disable_default_handling.into(),
+                browser,
+                frame,
+                request,
+                is_navigation,
+                is_download,
+                request_initiator,
+                disable_default_handling,
             )
             .into()
     }
@@ -16113,14 +16363,14 @@ wrapper!(
     pub fn on_register_custom_preferences(
         &self,
         type_: PreferencesType,
-        registrar: PreferenceRegistrar,
+        registrar: &mut PreferenceRegistrar,
     );
     pub fn on_context_initialized(&self);
-    pub fn on_before_child_process_launch(&self, command_line: CommandLine);
+    pub fn on_before_child_process_launch(&self, command_line: &mut CommandLine);
     pub fn on_already_running_app_relaunch(
         &self,
-        command_line: CommandLine,
-        current_directory: CefString,
+        command_line: &mut CommandLine,
+        current_directory: &CefString,
     ) -> ::std::os::raw::c_int;
     pub fn on_schedule_message_pump_work(&self, delay_ms: i64);
     pub fn get_default_client(&self) -> Client;
@@ -16131,15 +16381,15 @@ pub trait ImplBrowserProcessHandler: Sized {
     fn on_register_custom_preferences(
         &self,
         type_: PreferencesType,
-        registrar: PreferenceRegistrar,
+        registrar: &mut PreferenceRegistrar,
     ) {
     }
     fn on_context_initialized(&self) {}
-    fn on_before_child_process_launch(&self, command_line: CommandLine) {}
+    fn on_before_child_process_launch(&self, command_line: &mut CommandLine) {}
     fn on_already_running_app_relaunch(
         &self,
-        command_line: CommandLine,
-        current_directory: CefString,
+        command_line: &mut CommandLine,
+        current_directory: &CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -16177,8 +16427,9 @@ mod impl_cef_browser_process_handler_t {
         registrar: *mut _cef_preference_registrar_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let registrar = &mut PreferenceRegistrar(unsafe { RefGuard::from_raw_add_ref(registrar) });
         obj.interface
-            .on_register_custom_preferences(type_.into(), registrar.into())
+            .on_register_custom_preferences(type_, registrar)
     }
 
     extern "C" fn on_context_initialized<I: ImplBrowserProcessHandler>(
@@ -16193,8 +16444,8 @@ mod impl_cef_browser_process_handler_t {
         command_line: *mut _cef_command_line_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_before_child_process_launch(command_line.into())
+        let command_line = &mut CommandLine(unsafe { RefGuard::from_raw_add_ref(command_line) });
+        obj.interface.on_before_child_process_launch(command_line)
     }
 
     extern "C" fn on_already_running_app_relaunch<I: ImplBrowserProcessHandler>(
@@ -16203,8 +16454,10 @@ mod impl_cef_browser_process_handler_t {
         current_directory: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let command_line = &mut CommandLine(unsafe { RefGuard::from_raw_add_ref(command_line) });
+        let current_directory = &CefString::from(current_directory);
         obj.interface
-            .on_already_running_app_relaunch(command_line.into(), current_directory.into())
+            .on_already_running_app_relaunch(command_line, current_directory)
             .into()
     }
 
@@ -16213,7 +16466,7 @@ mod impl_cef_browser_process_handler_t {
         delay_ms: i64,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_schedule_message_pump_work(delay_ms.into())
+        obj.interface.on_schedule_message_pump_work(delay_ms)
     }
 
     extern "C" fn get_default_client<I: ImplBrowserProcessHandler>(
@@ -16267,15 +16520,15 @@ wrapper!(
     #[derive(Clone)]
     pub struct TaskRunner(_cef_task_runner_t);
 
-    pub fn is_same(&self, that: TaskRunner) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut TaskRunner) -> ::std::os::raw::c_int;
     pub fn belongs_to_current_thread(&self) -> ::std::os::raw::c_int;
     pub fn belongs_to_thread(&self, thread_id: ThreadId) -> ::std::os::raw::c_int;
-    pub fn post_task(&self, task: Task) -> ::std::os::raw::c_int;
-    pub fn post_delayed_task(&self, task: Task, delay_ms: i64) -> ::std::os::raw::c_int;
+    pub fn post_task(&self, task: &mut Task) -> ::std::os::raw::c_int;
+    pub fn post_delayed_task(&self, task: &mut Task, delay_ms: i64) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplTaskRunner: Sized {
-    fn is_same(&self, that: TaskRunner) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut TaskRunner) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn belongs_to_current_thread(&self) -> ::std::os::raw::c_int {
@@ -16284,10 +16537,10 @@ pub trait ImplTaskRunner: Sized {
     fn belongs_to_thread(&self, thread_id: ThreadId) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn post_task(&self, task: Task) -> ::std::os::raw::c_int {
+    fn post_task(&self, task: &mut Task) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn post_delayed_task(&self, task: Task, delay_ms: i64) -> ::std::os::raw::c_int {
+    fn post_delayed_task(&self, task: &mut Task, delay_ms: i64) -> ::std::os::raw::c_int {
         Default::default()
     }
 
@@ -16314,7 +16567,8 @@ mod impl_cef_task_runner_t {
         that: *mut _cef_task_runner_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut TaskRunner(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn belongs_to_current_thread<I: ImplTaskRunner>(
@@ -16329,7 +16583,7 @@ mod impl_cef_task_runner_t {
         thread_id: cef_thread_id_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.belongs_to_thread(thread_id.into()).into()
+        obj.interface.belongs_to_thread(thread_id).into()
     }
 
     extern "C" fn post_task<I: ImplTaskRunner>(
@@ -16337,7 +16591,8 @@ mod impl_cef_task_runner_t {
         task: *mut _cef_task_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.post_task(task.into()).into()
+        let task = &mut Task(unsafe { RefGuard::from_raw_add_ref(task) });
+        obj.interface.post_task(task).into()
     }
 
     extern "C" fn post_delayed_task<I: ImplTaskRunner>(
@@ -16346,9 +16601,8 @@ mod impl_cef_task_runner_t {
         delay_ms: i64,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .post_delayed_task(task.into(), delay_ms.into())
-            .into()
+        let task = &mut Task(unsafe { RefGuard::from_raw_add_ref(task) });
+        obj.interface.post_delayed_task(task, delay_ms).into()
     }
 }
 
@@ -16364,14 +16618,14 @@ wrapper!(
     pub fn get_global(&self) -> V8value;
     pub fn enter(&self) -> ::std::os::raw::c_int;
     pub fn exit(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: V8context) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut V8context) -> ::std::os::raw::c_int;
     pub fn eval(
         &self,
-        code: CefString,
-        script_url: CefString,
+        code: &CefString,
+        script_url: &CefString,
         start_line: ::std::os::raw::c_int,
-        retval: *mut V8value,
-        exception: *mut V8exception,
+        retval: *mut &mut V8value,
+        exception: *mut &mut V8exception,
     ) -> ::std::os::raw::c_int;
 );
 
@@ -16397,16 +16651,16 @@ pub trait ImplV8context: Sized {
     fn exit(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: V8context) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut V8context) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn eval(
         &self,
-        code: CefString,
-        script_url: CefString,
+        code: &CefString,
+        script_url: &CefString,
         start_line: ::std::os::raw::c_int,
-        retval: *mut V8value,
-        exception: *mut V8exception,
+        retval: *mut &mut V8value,
+        exception: *mut &mut V8exception,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -16481,7 +16735,8 @@ mod impl_cef_v8context_t {
         that: *mut _cef_v8context_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut V8context(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn eval<I: ImplV8context>(
@@ -16493,14 +16748,10 @@ mod impl_cef_v8context_t {
         exception: *mut *mut _cef_v8exception_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let code = &CefString::from(code);
+        let script_url = &CefString::from(script_url);
         obj.interface
-            .eval(
-                code.into(),
-                script_url.into(),
-                start_line.into(),
-                retval.into(),
-                exception.into(),
-            )
+            .eval(code, script_url, start_line, retval, exception)
             .into()
     }
 }
@@ -16512,24 +16763,24 @@ wrapper!(
 
     pub fn execute(
         &self,
-        name: CefString,
-        object: V8value,
+        name: &CefString,
+        object: &mut V8value,
         arguments_count: usize,
-        arguments: *const V8value,
-        retval: *mut V8value,
-        exception: CefString,
+        arguments: *const &mut V8value,
+        retval: *mut &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplV8handler: Sized {
     fn execute(
         &self,
-        name: CefString,
-        object: V8value,
+        name: &CefString,
+        object: &mut V8value,
         arguments_count: usize,
-        arguments: *const V8value,
-        retval: *mut V8value,
-        exception: CefString,
+        arguments: *const &mut V8value,
+        retval: *mut &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -16558,15 +16809,11 @@ mod impl_cef_v8handler_t {
         exception: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let name = &CefString::from(name);
+        let object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(object) });
+        let exception = &mut CefString::from(exception);
         obj.interface
-            .execute(
-                name.into(),
-                object.into(),
-                arguments_count.into(),
-                arguments.into(),
-                retval.into(),
-                exception.into(),
-            )
+            .execute(name, object, arguments_count, arguments, retval, exception)
             .into()
     }
 }
@@ -16578,36 +16825,36 @@ wrapper!(
 
     pub fn get(
         &self,
-        name: CefString,
-        object: V8value,
-        retval: *mut V8value,
-        exception: CefString,
+        name: &CefString,
+        object: &mut V8value,
+        retval: *mut &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int;
     pub fn set(
         &self,
-        name: CefString,
-        object: V8value,
-        value: V8value,
-        exception: CefString,
+        name: &CefString,
+        object: &mut V8value,
+        value: &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplV8accessor: Sized {
     fn get(
         &self,
-        name: CefString,
-        object: V8value,
-        retval: *mut V8value,
-        exception: CefString,
+        name: &CefString,
+        object: &mut V8value,
+        retval: *mut &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn set(
         &self,
-        name: CefString,
-        object: V8value,
-        value: V8value,
-        exception: CefString,
+        name: &CefString,
+        object: &mut V8value,
+        value: &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -16635,9 +16882,10 @@ mod impl_cef_v8accessor_t {
         exception: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get(name.into(), object.into(), retval.into(), exception.into())
-            .into()
+        let name = &CefString::from(name);
+        let object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(object) });
+        let exception = &mut CefString::from(exception);
+        obj.interface.get(name, object, retval, exception).into()
     }
 
     extern "C" fn set<I: ImplV8accessor>(
@@ -16648,9 +16896,11 @@ mod impl_cef_v8accessor_t {
         exception: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set(name.into(), object.into(), value.into(), exception.into())
-            .into()
+        let name = &CefString::from(name);
+        let object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(object) });
+        let value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(value) });
+        let exception = &mut CefString::from(exception);
+        obj.interface.set(name, object, value, exception).into()
     }
 }
 
@@ -16661,68 +16911,68 @@ wrapper!(
 
     pub fn get_byname(
         &self,
-        name: CefString,
-        object: V8value,
-        retval: *mut V8value,
-        exception: CefString,
+        name: &CefString,
+        object: &mut V8value,
+        retval: *mut &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int;
     pub fn get_byindex(
         &self,
         index: ::std::os::raw::c_int,
-        object: V8value,
-        retval: *mut V8value,
-        exception: CefString,
+        object: &mut V8value,
+        retval: *mut &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int;
     pub fn set_byname(
         &self,
-        name: CefString,
-        object: V8value,
-        value: V8value,
-        exception: CefString,
+        name: &CefString,
+        object: &mut V8value,
+        value: &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int;
     pub fn set_byindex(
         &self,
         index: ::std::os::raw::c_int,
-        object: V8value,
-        value: V8value,
-        exception: CefString,
+        object: &mut V8value,
+        value: &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplV8interceptor: Sized {
     fn get_byname(
         &self,
-        name: CefString,
-        object: V8value,
-        retval: *mut V8value,
-        exception: CefString,
+        name: &CefString,
+        object: &mut V8value,
+        retval: *mut &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_byindex(
         &self,
         index: ::std::os::raw::c_int,
-        object: V8value,
-        retval: *mut V8value,
-        exception: CefString,
+        object: &mut V8value,
+        retval: *mut &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn set_byname(
         &self,
-        name: CefString,
-        object: V8value,
-        value: V8value,
-        exception: CefString,
+        name: &CefString,
+        object: &mut V8value,
+        value: &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn set_byindex(
         &self,
         index: ::std::os::raw::c_int,
-        object: V8value,
-        value: V8value,
-        exception: CefString,
+        object: &mut V8value,
+        value: &mut V8value,
+        exception: &mut CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -16752,8 +17002,11 @@ mod impl_cef_v8interceptor_t {
         exception: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let name = &CefString::from(name);
+        let object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(object) });
+        let exception = &mut CefString::from(exception);
         obj.interface
-            .get_byname(name.into(), object.into(), retval.into(), exception.into())
+            .get_byname(name, object, retval, exception)
             .into()
     }
 
@@ -16765,8 +17018,10 @@ mod impl_cef_v8interceptor_t {
         exception: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(object) });
+        let exception = &mut CefString::from(exception);
         obj.interface
-            .get_byindex(index.into(), object.into(), retval.into(), exception.into())
+            .get_byindex(index, object, retval, exception)
             .into()
     }
 
@@ -16778,8 +17033,12 @@ mod impl_cef_v8interceptor_t {
         exception: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let name = &CefString::from(name);
+        let object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(object) });
+        let value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(value) });
+        let exception = &mut CefString::from(exception);
         obj.interface
-            .set_byname(name.into(), object.into(), value.into(), exception.into())
+            .set_byname(name, object, value, exception)
             .into()
     }
 
@@ -16791,8 +17050,11 @@ mod impl_cef_v8interceptor_t {
         exception: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(object) });
+        let value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(value) });
+        let exception = &mut CefString::from(exception);
         obj.interface
-            .set_byindex(index.into(), object.into(), value.into(), exception.into())
+            .set_byindex(index, object, value, exception)
             .into()
     }
 }
@@ -16948,7 +17210,7 @@ mod impl_cef_v8array_buffer_release_callback_t {
         buffer: *mut ::std::os::raw::c_void,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.release_buffer(buffer.into())
+        obj.interface.release_buffer(buffer)
     }
 }
 
@@ -16971,7 +17233,7 @@ wrapper!(
     pub fn is_array_buffer(&self) -> ::std::os::raw::c_int;
     pub fn is_function(&self) -> ::std::os::raw::c_int;
     pub fn is_promise(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: V8value) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut V8value) -> ::std::os::raw::c_int;
     pub fn get_bool_value(&self) -> ::std::os::raw::c_int;
     pub fn get_int_value(&self) -> i32;
     pub fn get_uint_value(&self) -> u32;
@@ -16984,30 +17246,30 @@ wrapper!(
     pub fn clear_exception(&self) -> ::std::os::raw::c_int;
     pub fn will_rethrow_exceptions(&self) -> ::std::os::raw::c_int;
     pub fn set_rethrow_exceptions(&self, rethrow: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-    pub fn has_value_bykey(&self, key: CefString) -> ::std::os::raw::c_int;
+    pub fn has_value_bykey(&self, key: &CefString) -> ::std::os::raw::c_int;
     pub fn has_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-    pub fn delete_value_bykey(&self, key: CefString) -> ::std::os::raw::c_int;
+    pub fn delete_value_bykey(&self, key: &CefString) -> ::std::os::raw::c_int;
     pub fn delete_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-    pub fn get_value_bykey(&self, key: CefString) -> V8value;
+    pub fn get_value_bykey(&self, key: &CefString) -> V8value;
     pub fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> V8value;
     pub fn set_value_bykey(
         &self,
-        key: CefString,
-        value: V8value,
+        key: &CefString,
+        value: &mut V8value,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int;
     pub fn set_value_byindex(
         &self,
         index: ::std::os::raw::c_int,
-        value: V8value,
+        value: &mut V8value,
     ) -> ::std::os::raw::c_int;
     pub fn set_value_byaccessor(
         &self,
-        key: CefString,
+        key: &CefString,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int;
-    pub fn get_keys(&self, keys: CefStringList) -> ::std::os::raw::c_int;
-    pub fn set_user_data(&self, user_data: BaseRefCounted) -> ::std::os::raw::c_int;
+    pub fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int;
+    pub fn set_user_data(&self, user_data: &mut BaseRefCounted) -> ::std::os::raw::c_int;
     pub fn get_user_data(&self) -> BaseRefCounted;
     pub fn get_externally_allocated_memory(&self) -> ::std::os::raw::c_int;
     pub fn adjust_externally_allocated_memory(
@@ -17023,19 +17285,19 @@ wrapper!(
     pub fn get_function_handler(&self) -> V8handler;
     pub fn execute_function(
         &self,
-        object: V8value,
+        object: &mut V8value,
         arguments_count: usize,
-        arguments: *const V8value,
+        arguments: *const &mut V8value,
     ) -> V8value;
     pub fn execute_function_with_context(
         &self,
-        context: V8context,
-        object: V8value,
+        context: &mut V8context,
+        object: &mut V8value,
         arguments_count: usize,
-        arguments: *const V8value,
+        arguments: *const &mut V8value,
     ) -> V8value;
-    pub fn resolve_promise(&self, arg: V8value) -> ::std::os::raw::c_int;
-    pub fn reject_promise(&self, error_msg: CefString) -> ::std::os::raw::c_int;
+    pub fn resolve_promise(&self, arg: &mut V8value) -> ::std::os::raw::c_int;
+    pub fn reject_promise(&self, error_msg: &CefString) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplV8value: Sized {
@@ -17081,7 +17343,7 @@ pub trait ImplV8value: Sized {
     fn is_promise(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: V8value) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut V8value) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_bool_value(&self) -> ::std::os::raw::c_int {
@@ -17120,19 +17382,19 @@ pub trait ImplV8value: Sized {
     fn set_rethrow_exceptions(&self, rethrow: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn has_value_bykey(&self, key: CefString) -> ::std::os::raw::c_int {
+    fn has_value_bykey(&self, key: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn has_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn delete_value_bykey(&self, key: CefString) -> ::std::os::raw::c_int {
+    fn delete_value_bykey(&self, key: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn delete_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_value_bykey(&self, key: CefString) -> V8value {
+    fn get_value_bykey(&self, key: &CefString) -> V8value {
         Default::default()
     }
     fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> V8value {
@@ -17140,8 +17402,8 @@ pub trait ImplV8value: Sized {
     }
     fn set_value_bykey(
         &self,
-        key: CefString,
-        value: V8value,
+        key: &CefString,
+        value: &mut V8value,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int {
         Default::default()
@@ -17149,21 +17411,21 @@ pub trait ImplV8value: Sized {
     fn set_value_byindex(
         &self,
         index: ::std::os::raw::c_int,
-        value: V8value,
+        value: &mut V8value,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn set_value_byaccessor(
         &self,
-        key: CefString,
+        key: &CefString,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_keys(&self, keys: CefStringList) -> ::std::os::raw::c_int {
+    fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn set_user_data(&self, user_data: BaseRefCounted) -> ::std::os::raw::c_int {
+    fn set_user_data(&self, user_data: &mut BaseRefCounted) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_user_data(&self) -> BaseRefCounted {
@@ -17201,25 +17463,25 @@ pub trait ImplV8value: Sized {
     }
     fn execute_function(
         &self,
-        object: V8value,
+        object: &mut V8value,
         arguments_count: usize,
-        arguments: *const V8value,
+        arguments: *const &mut V8value,
     ) -> V8value {
         Default::default()
     }
     fn execute_function_with_context(
         &self,
-        context: V8context,
-        object: V8value,
+        context: &mut V8context,
+        object: &mut V8value,
         arguments_count: usize,
-        arguments: *const V8value,
+        arguments: *const &mut V8value,
     ) -> V8value {
         Default::default()
     }
-    fn resolve_promise(&self, arg: V8value) -> ::std::os::raw::c_int {
+    fn resolve_promise(&self, arg: &mut V8value) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn reject_promise(&self, error_msg: CefString) -> ::std::os::raw::c_int {
+    fn reject_promise(&self, error_msg: &CefString) -> ::std::os::raw::c_int {
         Default::default()
     }
 
@@ -17367,7 +17629,8 @@ mod impl_cef_v8value_t {
         that: *mut _cef_v8value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut V8value(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn get_bool_value<I: ImplV8value>(
@@ -17444,7 +17707,7 @@ mod impl_cef_v8value_t {
         rethrow: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_rethrow_exceptions(rethrow.into()).into()
+        obj.interface.set_rethrow_exceptions(rethrow).into()
     }
 
     extern "C" fn has_value_bykey<I: ImplV8value>(
@@ -17452,7 +17715,8 @@ mod impl_cef_v8value_t {
         key: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.has_value_bykey(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.has_value_bykey(key).into()
     }
 
     extern "C" fn has_value_byindex<I: ImplV8value>(
@@ -17460,7 +17724,7 @@ mod impl_cef_v8value_t {
         index: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.has_value_byindex(index.into()).into()
+        obj.interface.has_value_byindex(index).into()
     }
 
     extern "C" fn delete_value_bykey<I: ImplV8value>(
@@ -17468,7 +17732,8 @@ mod impl_cef_v8value_t {
         key: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.delete_value_bykey(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.delete_value_bykey(key).into()
     }
 
     extern "C" fn delete_value_byindex<I: ImplV8value>(
@@ -17476,7 +17741,7 @@ mod impl_cef_v8value_t {
         index: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.delete_value_byindex(index.into()).into()
+        obj.interface.delete_value_byindex(index).into()
     }
 
     extern "C" fn get_value_bykey<I: ImplV8value>(
@@ -17484,7 +17749,8 @@ mod impl_cef_v8value_t {
         key: *const cef_string_t,
     ) -> *mut _cef_v8value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_value_bykey(key.into()).into()
+        let key = &CefString::from(key);
+        obj.interface.get_value_bykey(key).into()
     }
 
     extern "C" fn get_value_byindex<I: ImplV8value>(
@@ -17492,7 +17758,7 @@ mod impl_cef_v8value_t {
         index: ::std::os::raw::c_int,
     ) -> *mut _cef_v8value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_value_byindex(index.into()).into()
+        obj.interface.get_value_byindex(index).into()
     }
 
     extern "C" fn set_value_bykey<I: ImplV8value>(
@@ -17502,9 +17768,9 @@ mod impl_cef_v8value_t {
         attribute: cef_v8_propertyattribute_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_value_bykey(key.into(), value.into(), attribute.into())
-            .into()
+        let key = &CefString::from(key);
+        let value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_value_bykey(key, value, attribute).into()
     }
 
     extern "C" fn set_value_byindex<I: ImplV8value>(
@@ -17513,9 +17779,8 @@ mod impl_cef_v8value_t {
         value: *mut _cef_v8value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_value_byindex(index.into(), value.into())
-            .into()
+        let value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(value) });
+        obj.interface.set_value_byindex(index, value).into()
     }
 
     extern "C" fn set_value_byaccessor<I: ImplV8value>(
@@ -17524,9 +17789,8 @@ mod impl_cef_v8value_t {
         attribute: cef_v8_propertyattribute_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_value_byaccessor(key.into(), attribute.into())
-            .into()
+        let key = &CefString::from(key);
+        obj.interface.set_value_byaccessor(key, attribute).into()
     }
 
     extern "C" fn get_keys<I: ImplV8value>(
@@ -17534,7 +17798,8 @@ mod impl_cef_v8value_t {
         keys: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_keys(keys.into()).into()
+        let keys = &mut CefStringList::from(keys);
+        obj.interface.get_keys(keys).into()
     }
 
     extern "C" fn set_user_data<I: ImplV8value>(
@@ -17542,7 +17807,8 @@ mod impl_cef_v8value_t {
         user_data: *mut _cef_base_ref_counted_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_user_data(user_data.into()).into()
+        let user_data = &mut BaseRefCounted(unsafe { RefGuard::from_raw_add_ref(user_data) });
+        obj.interface.set_user_data(user_data).into()
     }
 
     extern "C" fn get_user_data<I: ImplV8value>(
@@ -17565,7 +17831,7 @@ mod impl_cef_v8value_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .adjust_externally_allocated_memory(change_in_bytes.into())
+            .adjust_externally_allocated_memory(change_in_bytes)
             .into()
     }
 
@@ -17625,8 +17891,9 @@ mod impl_cef_v8value_t {
         arguments: *const *mut _cef_v8value_t,
     ) -> *mut _cef_v8value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(object) });
         obj.interface
-            .execute_function(object.into(), arguments_count.into(), arguments.into())
+            .execute_function(object, arguments_count, arguments)
             .into()
     }
 
@@ -17638,13 +17905,10 @@ mod impl_cef_v8value_t {
         arguments: *const *mut _cef_v8value_t,
     ) -> *mut _cef_v8value_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let context = &mut V8context(unsafe { RefGuard::from_raw_add_ref(context) });
+        let object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(object) });
         obj.interface
-            .execute_function_with_context(
-                context.into(),
-                object.into(),
-                arguments_count.into(),
-                arguments.into(),
-            )
+            .execute_function_with_context(context, object, arguments_count, arguments)
             .into()
     }
 
@@ -17653,7 +17917,8 @@ mod impl_cef_v8value_t {
         arg: *mut _cef_v8value_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.resolve_promise(arg.into()).into()
+        let arg = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg) });
+        obj.interface.resolve_promise(arg).into()
     }
 
     extern "C" fn reject_promise<I: ImplV8value>(
@@ -17661,7 +17926,8 @@ mod impl_cef_v8value_t {
         error_msg: *const cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.reject_promise(error_msg.into()).into()
+        let error_msg = &CefString::from(error_msg);
+        obj.interface.reject_promise(error_msg).into()
     }
 }
 
@@ -17721,7 +17987,7 @@ mod impl_cef_v8stack_trace_t {
         index: ::std::os::raw::c_int,
     ) -> *mut _cef_v8stack_frame_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_frame(index.into()).into()
+        obj.interface.get_frame(index).into()
     }
 }
 
@@ -17850,54 +18116,87 @@ wrapper!(
     pub struct RenderProcessHandler(_cef_render_process_handler_t);
 
     pub fn on_web_kit_initialized(&self);
-    pub fn on_browser_created(&self, browser: Browser, extra_info: DictionaryValue);
-    pub fn on_browser_destroyed(&self, browser: Browser);
+    pub fn on_browser_created(&self, browser: &mut Browser, extra_info: &mut DictionaryValue);
+    pub fn on_browser_destroyed(&self, browser: &mut Browser);
     pub fn get_load_handler(&self) -> LoadHandler;
-    pub fn on_context_created(&self, browser: Browser, frame: Frame, context: V8context);
-    pub fn on_context_released(&self, browser: Browser, frame: Frame, context: V8context);
+    pub fn on_context_created(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        context: &mut V8context,
+    );
+    pub fn on_context_released(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        context: &mut V8context,
+    );
     pub fn on_uncaught_exception(
         &self,
-        browser: Browser,
-        frame: Frame,
-        context: V8context,
-        exception: V8exception,
-        stack_trace: V8stackTrace,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        context: &mut V8context,
+        exception: &mut V8exception,
+        stack_trace: &mut V8stackTrace,
     );
-    pub fn on_focused_node_changed(&self, browser: Browser, frame: Frame, node: Domnode);
+    pub fn on_focused_node_changed(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        node: &mut Domnode,
+    );
     pub fn on_process_message_received(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         source_process: ProcessId,
-        message: ProcessMessage,
+        message: &mut ProcessMessage,
     ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplRenderProcessHandler: Sized {
     fn on_web_kit_initialized(&self) {}
-    fn on_browser_created(&self, browser: Browser, extra_info: DictionaryValue) {}
-    fn on_browser_destroyed(&self, browser: Browser) {}
+    fn on_browser_created(&self, browser: &mut Browser, extra_info: &mut DictionaryValue) {}
+    fn on_browser_destroyed(&self, browser: &mut Browser) {}
     fn get_load_handler(&self) -> LoadHandler {
         Default::default()
     }
-    fn on_context_created(&self, browser: Browser, frame: Frame, context: V8context) {}
-    fn on_context_released(&self, browser: Browser, frame: Frame, context: V8context) {}
-    fn on_uncaught_exception(
+    fn on_context_created(
         &self,
-        browser: Browser,
-        frame: Frame,
-        context: V8context,
-        exception: V8exception,
-        stack_trace: V8stackTrace,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        context: &mut V8context,
     ) {
     }
-    fn on_focused_node_changed(&self, browser: Browser, frame: Frame, node: Domnode) {}
+    fn on_context_released(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        context: &mut V8context,
+    ) {
+    }
+    fn on_uncaught_exception(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        context: &mut V8context,
+        exception: &mut V8exception,
+        stack_trace: &mut V8stackTrace,
+    ) {
+    }
+    fn on_focused_node_changed(
+        &self,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        node: &mut Domnode,
+    ) {
+    }
     fn on_process_message_received(
         &self,
-        browser: Browser,
-        frame: Frame,
+        browser: &mut Browser,
+        frame: &mut Frame,
         source_process: ProcessId,
-        message: ProcessMessage,
+        message: &mut ProcessMessage,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -17937,8 +18236,9 @@ mod impl_cef_render_process_handler_t {
         extra_info: *mut _cef_dictionary_value_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_browser_created(browser.into(), extra_info.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let extra_info = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(extra_info) });
+        obj.interface.on_browser_created(browser, extra_info)
     }
 
     extern "C" fn on_browser_destroyed<I: ImplRenderProcessHandler>(
@@ -17946,7 +18246,8 @@ mod impl_cef_render_process_handler_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_browser_destroyed(browser.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_browser_destroyed(browser)
     }
 
     extern "C" fn get_load_handler<I: ImplRenderProcessHandler>(
@@ -17963,8 +18264,10 @@ mod impl_cef_render_process_handler_t {
         context: *mut _cef_v8context_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_context_created(browser.into(), frame.into(), context.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let context = &mut V8context(unsafe { RefGuard::from_raw_add_ref(context) });
+        obj.interface.on_context_created(browser, frame, context)
     }
 
     extern "C" fn on_context_released<I: ImplRenderProcessHandler>(
@@ -17974,8 +18277,10 @@ mod impl_cef_render_process_handler_t {
         context: *mut _cef_v8context_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_context_released(browser.into(), frame.into(), context.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let context = &mut V8context(unsafe { RefGuard::from_raw_add_ref(context) });
+        obj.interface.on_context_released(browser, frame, context)
     }
 
     extern "C" fn on_uncaught_exception<I: ImplRenderProcessHandler>(
@@ -17987,13 +18292,13 @@ mod impl_cef_render_process_handler_t {
         stack_trace: *mut _cef_v8stack_trace_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_uncaught_exception(
-            browser.into(),
-            frame.into(),
-            context.into(),
-            exception.into(),
-            stack_trace.into(),
-        )
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let context = &mut V8context(unsafe { RefGuard::from_raw_add_ref(context) });
+        let exception = &mut V8exception(unsafe { RefGuard::from_raw_add_ref(exception) });
+        let stack_trace = &mut V8stackTrace(unsafe { RefGuard::from_raw_add_ref(stack_trace) });
+        obj.interface
+            .on_uncaught_exception(browser, frame, context, exception, stack_trace)
     }
 
     extern "C" fn on_focused_node_changed<I: ImplRenderProcessHandler>(
@@ -18003,8 +18308,10 @@ mod impl_cef_render_process_handler_t {
         node: *mut _cef_domnode_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_focused_node_changed(browser.into(), frame.into(), node.into())
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let node = &mut Domnode(unsafe { RefGuard::from_raw_add_ref(node) });
+        obj.interface.on_focused_node_changed(browser, frame, node)
     }
 
     extern "C" fn on_process_message_received<I: ImplRenderProcessHandler>(
@@ -18015,13 +18322,11 @@ mod impl_cef_render_process_handler_t {
         message: *mut _cef_process_message_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let message = &mut ProcessMessage(unsafe { RefGuard::from_raw_add_ref(message) });
         obj.interface
-            .on_process_message_received(
-                browser.into(),
-                frame.into(),
-                source_process.into(),
-                message.into(),
-            )
+            .on_process_message_received(browser, frame, source_process, message)
             .into()
     }
 }
@@ -18034,7 +18339,7 @@ wrapper!(
     pub fn get_localized_string(
         &self,
         string_id: ::std::os::raw::c_int,
-        string: CefString,
+        string: &mut CefString,
     ) -> ::std::os::raw::c_int;
     pub fn get_data_resource(
         &self,
@@ -18055,7 +18360,7 @@ pub trait ImplResourceBundleHandler: Sized {
     fn get_localized_string(
         &self,
         string_id: ::std::os::raw::c_int,
-        string: CefString,
+        string: &mut CefString,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -18099,9 +18404,8 @@ mod impl_cef_resource_bundle_handler_t {
         string: *mut cef_string_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_localized_string(string_id.into(), string.into())
-            .into()
+        let string = &mut CefString::from(string);
+        obj.interface.get_localized_string(string_id, string).into()
     }
 
     extern "C" fn get_data_resource<I: ImplResourceBundleHandler>(
@@ -18112,7 +18416,7 @@ mod impl_cef_resource_bundle_handler_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_data_resource(resource_id.into(), data.into(), data_size.into())
+            .get_data_resource(resource_id, data, data_size)
             .into()
     }
 
@@ -18125,12 +18429,7 @@ mod impl_cef_resource_bundle_handler_t {
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .get_data_resource_for_scale(
-                resource_id.into(),
-                scale_factor.into(),
-                data.into(),
-                data_size.into(),
-            )
+            .get_data_resource_for_scale(resource_id, scale_factor, data, data_size)
             .into()
     }
 }
@@ -18175,20 +18474,20 @@ wrapper!(
 
     pub fn create(
         &self,
-        browser: Browser,
-        frame: Frame,
-        scheme_name: CefString,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        scheme_name: &CefString,
+        request: &mut Request,
     ) -> ResourceHandler;
 );
 
 pub trait ImplSchemeHandlerFactory: Sized {
     fn create(
         &self,
-        browser: Browser,
-        frame: Frame,
-        scheme_name: CefString,
-        request: Request,
+        browser: &mut Browser,
+        frame: &mut Frame,
+        scheme_name: &CefString,
+        request: &mut Request,
     ) -> ResourceHandler {
         Default::default()
     }
@@ -18215,13 +18514,12 @@ mod impl_cef_scheme_handler_factory_t {
         request: *mut _cef_request_t,
     ) -> *mut _cef_resource_handler_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        let frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(frame) });
+        let scheme_name = &CefString::from(scheme_name);
+        let request = &mut Request(unsafe { RefGuard::from_raw_add_ref(request) });
         obj.interface
-            .create(
-                browser.into(),
-                frame.into(),
-                scheme_name.into(),
-                request.into(),
-            )
+            .create(browser, frame, scheme_name, request)
             .into()
     }
 }
@@ -18233,10 +18531,10 @@ wrapper!(
 
     pub fn on_before_command_line_processing(
         &self,
-        process_type: CefString,
-        command_line: CommandLine,
+        process_type: &CefString,
+        command_line: &mut CommandLine,
     );
-    pub fn on_register_custom_schemes(&self, registrar: SchemeRegistrar);
+    pub fn on_register_custom_schemes(&self, registrar: &mut SchemeRegistrar);
     pub fn get_resource_bundle_handler(&self) -> ResourceBundleHandler;
     pub fn get_browser_process_handler(&self) -> BrowserProcessHandler;
     pub fn get_render_process_handler(&self) -> RenderProcessHandler;
@@ -18245,11 +18543,11 @@ wrapper!(
 pub trait ImplApp: Sized {
     fn on_before_command_line_processing(
         &self,
-        process_type: CefString,
-        command_line: CommandLine,
+        process_type: &CefString,
+        command_line: &mut CommandLine,
     ) {
     }
-    fn on_register_custom_schemes(&self, registrar: SchemeRegistrar) {}
+    fn on_register_custom_schemes(&self, registrar: &mut SchemeRegistrar) {}
     fn get_resource_bundle_handler(&self) -> ResourceBundleHandler {
         Default::default()
     }
@@ -18284,8 +18582,10 @@ mod impl_cef_app_t {
         command_line: *mut _cef_command_line_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let process_type = &CefString::from(process_type);
+        let command_line = &mut CommandLine(unsafe { RefGuard::from_raw_add_ref(command_line) });
         obj.interface
-            .on_before_command_line_processing(process_type.into(), command_line.into())
+            .on_before_command_line_processing(process_type, command_line)
     }
 
     extern "C" fn on_register_custom_schemes<I: ImplApp>(
@@ -18293,7 +18593,8 @@ mod impl_cef_app_t {
         registrar: *mut _cef_scheme_registrar_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_register_custom_schemes(registrar.into())
+        let registrar = &mut SchemeRegistrar(unsafe { RefGuard::from_raw_add_ref(registrar) });
+        obj.interface.on_register_custom_schemes(registrar)
     }
 
     extern "C" fn get_resource_bundle_handler<I: ImplApp>(
@@ -18323,47 +18624,69 @@ wrapper!(
     #[derive(Clone)]
     pub struct ViewDelegate(_cef_view_delegate_t);
 
-    pub fn get_preferred_size(&self, view: View) -> Size;
-    pub fn get_minimum_size(&self, view: View) -> Size;
-    pub fn get_maximum_size(&self, view: View) -> Size;
+    pub fn get_preferred_size(&self, view: &mut View) -> Size;
+    pub fn get_minimum_size(&self, view: &mut View) -> Size;
+    pub fn get_maximum_size(&self, view: &mut View) -> Size;
     pub fn get_height_for_width(
         &self,
-        view: View,
+        view: &mut View,
         width: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-    pub fn on_parent_view_changed(&self, view: View, added: ::std::os::raw::c_int, parent: View);
-    pub fn on_child_view_changed(&self, view: View, added: ::std::os::raw::c_int, child: View);
-    pub fn on_window_changed(&self, view: View, added: ::std::os::raw::c_int);
-    pub fn on_layout_changed(&self, view: View, new_bounds: Rect);
-    pub fn on_focus(&self, view: View);
-    pub fn on_blur(&self, view: View);
-    pub fn on_theme_changed(&self, view: View);
+    pub fn on_parent_view_changed(
+        &self,
+        view: &mut View,
+        added: ::std::os::raw::c_int,
+        parent: &mut View,
+    );
+    pub fn on_child_view_changed(
+        &self,
+        view: &mut View,
+        added: ::std::os::raw::c_int,
+        child: &mut View,
+    );
+    pub fn on_window_changed(&self, view: &mut View, added: ::std::os::raw::c_int);
+    pub fn on_layout_changed(&self, view: &mut View, new_bounds: &Rect);
+    pub fn on_focus(&self, view: &mut View);
+    pub fn on_blur(&self, view: &mut View);
+    pub fn on_theme_changed(&self, view: &mut View);
 );
 
 pub trait ImplViewDelegate: Sized {
-    fn get_preferred_size(&self, view: View) -> Size {
+    fn get_preferred_size(&self, view: &mut View) -> Size {
         Default::default()
     }
-    fn get_minimum_size(&self, view: View) -> Size {
+    fn get_minimum_size(&self, view: &mut View) -> Size {
         Default::default()
     }
-    fn get_maximum_size(&self, view: View) -> Size {
+    fn get_maximum_size(&self, view: &mut View) -> Size {
         Default::default()
     }
     fn get_height_for_width(
         &self,
-        view: View,
+        view: &mut View,
         width: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_parent_view_changed(&self, view: View, added: ::std::os::raw::c_int, parent: View) {}
-    fn on_child_view_changed(&self, view: View, added: ::std::os::raw::c_int, child: View) {}
-    fn on_window_changed(&self, view: View, added: ::std::os::raw::c_int) {}
-    fn on_layout_changed(&self, view: View, new_bounds: Rect) {}
-    fn on_focus(&self, view: View) {}
-    fn on_blur(&self, view: View) {}
-    fn on_theme_changed(&self, view: View) {}
+    fn on_parent_view_changed(
+        &self,
+        view: &mut View,
+        added: ::std::os::raw::c_int,
+        parent: &mut View,
+    ) {
+    }
+    fn on_child_view_changed(
+        &self,
+        view: &mut View,
+        added: ::std::os::raw::c_int,
+        child: &mut View,
+    ) {
+    }
+    fn on_window_changed(&self, view: &mut View, added: ::std::os::raw::c_int) {}
+    fn on_layout_changed(&self, view: &mut View, new_bounds: &Rect) {}
+    fn on_focus(&self, view: &mut View) {}
+    fn on_blur(&self, view: &mut View) {}
+    fn on_theme_changed(&self, view: &mut View) {}
 
     fn into_raw(self) -> *mut _cef_view_delegate_t {
         let mut object: _cef_view_delegate_t = unsafe { std::mem::zeroed() };
@@ -18394,7 +18717,8 @@ mod impl_cef_view_delegate_t {
         view: *mut _cef_view_t,
     ) -> cef_size_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_preferred_size(view.into()).into()
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.get_preferred_size(view).into()
     }
 
     extern "C" fn get_minimum_size<I: ImplViewDelegate>(
@@ -18402,7 +18726,8 @@ mod impl_cef_view_delegate_t {
         view: *mut _cef_view_t,
     ) -> cef_size_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_minimum_size(view.into()).into()
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.get_minimum_size(view).into()
     }
 
     extern "C" fn get_maximum_size<I: ImplViewDelegate>(
@@ -18410,7 +18735,8 @@ mod impl_cef_view_delegate_t {
         view: *mut _cef_view_t,
     ) -> cef_size_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_maximum_size(view.into()).into()
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.get_maximum_size(view).into()
     }
 
     extern "C" fn get_height_for_width<I: ImplViewDelegate>(
@@ -18419,9 +18745,8 @@ mod impl_cef_view_delegate_t {
         width: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_height_for_width(view.into(), width.into())
-            .into()
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.get_height_for_width(view, width).into()
     }
 
     extern "C" fn on_parent_view_changed<I: ImplViewDelegate>(
@@ -18431,8 +18756,9 @@ mod impl_cef_view_delegate_t {
         parent: *mut _cef_view_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_parent_view_changed(view.into(), added.into(), parent.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        let parent = &mut View(unsafe { RefGuard::from_raw_add_ref(parent) });
+        obj.interface.on_parent_view_changed(view, added, parent)
     }
 
     extern "C" fn on_child_view_changed<I: ImplViewDelegate>(
@@ -18442,8 +18768,9 @@ mod impl_cef_view_delegate_t {
         child: *mut _cef_view_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_child_view_changed(view.into(), added.into(), child.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        let child = &mut View(unsafe { RefGuard::from_raw_add_ref(child) });
+        obj.interface.on_child_view_changed(view, added, child)
     }
 
     extern "C" fn on_window_changed<I: ImplViewDelegate>(
@@ -18452,7 +18779,8 @@ mod impl_cef_view_delegate_t {
         added: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_window_changed(view.into(), added.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.on_window_changed(view, added)
     }
 
     extern "C" fn on_layout_changed<I: ImplViewDelegate>(
@@ -18461,8 +18789,9 @@ mod impl_cef_view_delegate_t {
         new_bounds: *const cef_rect_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_layout_changed(view.into(), new_bounds.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        let new_bounds = &Rect(unsafe { RefGuard::from_raw_add_ref(new_bounds) });
+        obj.interface.on_layout_changed(view, new_bounds)
     }
 
     extern "C" fn on_focus<I: ImplViewDelegate>(
@@ -18470,7 +18799,8 @@ mod impl_cef_view_delegate_t {
         view: *mut _cef_view_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_focus(view.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.on_focus(view)
     }
 
     extern "C" fn on_blur<I: ImplViewDelegate>(
@@ -18478,7 +18808,8 @@ mod impl_cef_view_delegate_t {
         view: *mut _cef_view_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_blur(view.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.on_blur(view)
     }
 
     extern "C" fn on_theme_changed<I: ImplViewDelegate>(
@@ -18486,7 +18817,8 @@ mod impl_cef_view_delegate_t {
         view: *mut _cef_view_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_theme_changed(view.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.on_theme_changed(view)
     }
 }
 
@@ -18495,66 +18827,66 @@ wrapper!(
     #[derive(Clone)]
     pub struct BrowserViewDelegate(_cef_browser_view_delegate_t);
 
-    pub fn on_browser_created(&self, browser_view: BrowserView, browser: Browser);
-    pub fn on_browser_destroyed(&self, browser_view: BrowserView, browser: Browser);
+    pub fn on_browser_created(&self, browser_view: &mut BrowserView, browser: &mut Browser);
+    pub fn on_browser_destroyed(&self, browser_view: &mut BrowserView, browser: &mut Browser);
     pub fn get_delegate_for_popup_browser_view(
         &self,
-        browser_view: BrowserView,
-        settings: BrowserSettings,
-        client: Client,
+        browser_view: &mut BrowserView,
+        settings: &BrowserSettings,
+        client: &mut Client,
         is_devtools: ::std::os::raw::c_int,
     ) -> BrowserViewDelegate;
     pub fn on_popup_browser_view_created(
         &self,
-        browser_view: BrowserView,
-        popup_browser_view: BrowserView,
+        browser_view: &mut BrowserView,
+        popup_browser_view: &mut BrowserView,
         is_devtools: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-    pub fn get_chrome_toolbar_type(&self, browser_view: BrowserView) -> ChromeToolbarType;
+    pub fn get_chrome_toolbar_type(&self, browser_view: &mut BrowserView) -> ChromeToolbarType;
     pub fn use_frameless_window_for_picture_in_picture(
         &self,
-        browser_view: BrowserView,
+        browser_view: &mut BrowserView,
     ) -> ::std::os::raw::c_int;
     pub fn on_gesture_command(
         &self,
-        browser_view: BrowserView,
+        browser_view: &mut BrowserView,
         gesture_command: GestureCommand,
     ) -> ::std::os::raw::c_int;
     pub fn get_browser_runtime_style(&self) -> RuntimeStyle;
 );
 
 pub trait ImplBrowserViewDelegate: ImplViewDelegate {
-    fn on_browser_created(&self, browser_view: BrowserView, browser: Browser) {}
-    fn on_browser_destroyed(&self, browser_view: BrowserView, browser: Browser) {}
+    fn on_browser_created(&self, browser_view: &mut BrowserView, browser: &mut Browser) {}
+    fn on_browser_destroyed(&self, browser_view: &mut BrowserView, browser: &mut Browser) {}
     fn get_delegate_for_popup_browser_view(
         &self,
-        browser_view: BrowserView,
-        settings: BrowserSettings,
-        client: Client,
+        browser_view: &mut BrowserView,
+        settings: &BrowserSettings,
+        client: &mut Client,
         is_devtools: ::std::os::raw::c_int,
     ) -> BrowserViewDelegate {
         Default::default()
     }
     fn on_popup_browser_view_created(
         &self,
-        browser_view: BrowserView,
-        popup_browser_view: BrowserView,
+        browser_view: &mut BrowserView,
+        popup_browser_view: &mut BrowserView,
         is_devtools: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_chrome_toolbar_type(&self, browser_view: BrowserView) -> ChromeToolbarType {
+    fn get_chrome_toolbar_type(&self, browser_view: &mut BrowserView) -> ChromeToolbarType {
         Default::default()
     }
     fn use_frameless_window_for_picture_in_picture(
         &self,
-        browser_view: BrowserView,
+        browser_view: &mut BrowserView,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_gesture_command(
         &self,
-        browser_view: BrowserView,
+        browser_view: &mut BrowserView,
         gesture_command: GestureCommand,
     ) -> ::std::os::raw::c_int {
         Default::default()
@@ -18592,8 +18924,9 @@ mod impl_cef_browser_view_delegate_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_browser_created(browser_view.into(), browser.into())
+        let browser_view = &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(browser_view) });
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_browser_created(browser_view, browser)
     }
 
     extern "C" fn on_browser_destroyed<I: ImplBrowserViewDelegate>(
@@ -18602,8 +18935,9 @@ mod impl_cef_browser_view_delegate_t {
         browser: *mut _cef_browser_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_browser_destroyed(browser_view.into(), browser.into())
+        let browser_view = &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(browser_view) });
+        let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
+        obj.interface.on_browser_destroyed(browser_view, browser)
     }
 
     extern "C" fn get_delegate_for_popup_browser_view<I: ImplBrowserViewDelegate>(
@@ -18614,13 +18948,11 @@ mod impl_cef_browser_view_delegate_t {
         is_devtools: ::std::os::raw::c_int,
     ) -> *mut _cef_browser_view_delegate_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser_view = &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(browser_view) });
+        let settings = &BrowserSettings(unsafe { RefGuard::from_raw_add_ref(settings) });
+        let client = &mut Client(unsafe { RefGuard::from_raw_add_ref(client) });
         obj.interface
-            .get_delegate_for_popup_browser_view(
-                browser_view.into(),
-                settings.into(),
-                client.into(),
-                is_devtools.into(),
-            )
+            .get_delegate_for_popup_browser_view(browser_view, settings, client, is_devtools)
             .into()
     }
 
@@ -18631,12 +18963,11 @@ mod impl_cef_browser_view_delegate_t {
         is_devtools: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser_view = &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(browser_view) });
+        let popup_browser_view =
+            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(popup_browser_view) });
         obj.interface
-            .on_popup_browser_view_created(
-                browser_view.into(),
-                popup_browser_view.into(),
-                is_devtools.into(),
-            )
+            .on_popup_browser_view_created(browser_view, popup_browser_view, is_devtools)
             .into()
     }
 
@@ -18645,9 +18976,8 @@ mod impl_cef_browser_view_delegate_t {
         browser_view: *mut _cef_browser_view_t,
     ) -> cef_chrome_toolbar_type_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .get_chrome_toolbar_type(browser_view.into())
-            .into()
+        let browser_view = &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(browser_view) });
+        obj.interface.get_chrome_toolbar_type(browser_view).into()
     }
 
     extern "C" fn use_frameless_window_for_picture_in_picture<I: ImplBrowserViewDelegate>(
@@ -18655,8 +18985,9 @@ mod impl_cef_browser_view_delegate_t {
         browser_view: *mut _cef_browser_view_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser_view = &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(browser_view) });
         obj.interface
-            .use_frameless_window_for_picture_in_picture(browser_view.into())
+            .use_frameless_window_for_picture_in_picture(browser_view)
             .into()
     }
 
@@ -18666,8 +18997,9 @@ mod impl_cef_browser_view_delegate_t {
         gesture_command: cef_gesture_command_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let browser_view = &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(browser_view) });
         obj.interface
-            .on_gesture_command(browser_view.into(), gesture_command.into())
+            .on_gesture_command(browser_view, gesture_command)
             .into()
     }
 
@@ -18792,7 +19124,7 @@ wrapper!(
     pub fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUserfree;
     pub fn is_valid(&self) -> ::std::os::raw::c_int;
     pub fn is_attached(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: View) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut View) -> ::std::os::raw::c_int;
     pub fn get_delegate(&self) -> ViewDelegate;
     pub fn get_window(&self) -> Window;
     pub fn get_id(&self) -> ::std::os::raw::c_int;
@@ -18801,14 +19133,14 @@ wrapper!(
     pub fn set_group_id(&self, group_id: ::std::os::raw::c_int);
     pub fn get_parent_view(&self) -> View;
     pub fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View;
-    pub fn set_bounds(&self, bounds: Rect);
+    pub fn set_bounds(&self, bounds: &Rect);
     pub fn get_bounds(&self) -> Rect;
     pub fn get_bounds_in_screen(&self) -> Rect;
-    pub fn set_size(&self, size: Size);
+    pub fn set_size(&self, size: &Size);
     pub fn get_size(&self) -> Size;
-    pub fn set_position(&self, position: Point);
+    pub fn set_position(&self, position: &Point);
     pub fn get_position(&self) -> Point;
-    pub fn set_insets(&self, insets: Insets);
+    pub fn set_insets(&self, insets: &Insets);
     pub fn get_insets(&self) -> Insets;
     pub fn get_preferred_size(&self) -> Size;
     pub fn size_to_preferred_size(&self);
@@ -18826,15 +19158,23 @@ wrapper!(
     pub fn is_accessibility_focusable(&self) -> ::std::os::raw::c_int;
     pub fn has_focus(&self) -> ::std::os::raw::c_int;
     pub fn request_focus(&self);
-    pub fn set_background_color(&self, color: Color);
+    pub fn set_background_color(&self, color: &mut Color);
     pub fn get_background_color(&self) -> Color;
     pub fn get_theme_color(&self, color_id: ::std::os::raw::c_int) -> Color;
-    pub fn convert_point_to_screen(&self, point: Point) -> ::std::os::raw::c_int;
-    pub fn convert_point_from_screen(&self, point: Point) -> ::std::os::raw::c_int;
-    pub fn convert_point_to_window(&self, point: Point) -> ::std::os::raw::c_int;
-    pub fn convert_point_from_window(&self, point: Point) -> ::std::os::raw::c_int;
-    pub fn convert_point_to_view(&self, view: View, point: Point) -> ::std::os::raw::c_int;
-    pub fn convert_point_from_view(&self, view: View, point: Point) -> ::std::os::raw::c_int;
+    pub fn convert_point_to_screen(&self, point: &mut Point) -> ::std::os::raw::c_int;
+    pub fn convert_point_from_screen(&self, point: &mut Point) -> ::std::os::raw::c_int;
+    pub fn convert_point_to_window(&self, point: &mut Point) -> ::std::os::raw::c_int;
+    pub fn convert_point_from_window(&self, point: &mut Point) -> ::std::os::raw::c_int;
+    pub fn convert_point_to_view(
+        &self,
+        view: &mut View,
+        point: &mut Point,
+    ) -> ::std::os::raw::c_int;
+    pub fn convert_point_from_view(
+        &self,
+        view: &mut View,
+        point: &mut Point,
+    ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplView: Sized {
@@ -18865,7 +19205,7 @@ pub trait ImplView: Sized {
     fn is_attached(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: View) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut View) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_delegate(&self) -> ViewDelegate {
@@ -18888,22 +19228,22 @@ pub trait ImplView: Sized {
     fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
         Default::default()
     }
-    fn set_bounds(&self, bounds: Rect) {}
+    fn set_bounds(&self, bounds: &Rect) {}
     fn get_bounds(&self) -> Rect {
         Default::default()
     }
     fn get_bounds_in_screen(&self) -> Rect {
         Default::default()
     }
-    fn set_size(&self, size: Size) {}
+    fn set_size(&self, size: &Size) {}
     fn get_size(&self) -> Size {
         Default::default()
     }
-    fn set_position(&self, position: Point) {}
+    fn set_position(&self, position: &Point) {}
     fn get_position(&self) -> Point {
         Default::default()
     }
-    fn set_insets(&self, insets: Insets) {}
+    fn set_insets(&self, insets: &Insets) {}
     fn get_insets(&self) -> Insets {
         Default::default()
     }
@@ -18943,29 +19283,29 @@ pub trait ImplView: Sized {
         Default::default()
     }
     fn request_focus(&self) {}
-    fn set_background_color(&self, color: Color) {}
+    fn set_background_color(&self, color: &mut Color) {}
     fn get_background_color(&self) -> Color {
         Default::default()
     }
     fn get_theme_color(&self, color_id: ::std::os::raw::c_int) -> Color {
         Default::default()
     }
-    fn convert_point_to_screen(&self, point: Point) -> ::std::os::raw::c_int {
+    fn convert_point_to_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn convert_point_from_screen(&self, point: Point) -> ::std::os::raw::c_int {
+    fn convert_point_from_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn convert_point_to_window(&self, point: Point) -> ::std::os::raw::c_int {
+    fn convert_point_to_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn convert_point_from_window(&self, point: Point) -> ::std::os::raw::c_int {
+    fn convert_point_from_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn convert_point_to_view(&self, view: View, point: Point) -> ::std::os::raw::c_int {
+    fn convert_point_to_view(&self, view: &mut View, point: &mut Point) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn convert_point_from_view(&self, view: View, point: Point) -> ::std::os::raw::c_int {
+    fn convert_point_from_view(&self, view: &mut View, point: &mut Point) -> ::std::os::raw::c_int {
         Default::default()
     }
 
@@ -19071,7 +19411,7 @@ mod impl_cef_view_t {
         include_children: ::std::os::raw::c_int,
     ) -> cef_string_userfree_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.to_string(include_children.into()).into()
+        obj.interface.to_string(include_children).into()
     }
 
     extern "C" fn is_valid<I: ImplView>(self_: *mut _cef_view_t) -> ::std::os::raw::c_int {
@@ -19089,7 +19429,8 @@ mod impl_cef_view_t {
         that: *mut _cef_view_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut View(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn get_delegate<I: ImplView>(self_: *mut _cef_view_t) -> *mut _cef_view_delegate_t {
@@ -19109,7 +19450,7 @@ mod impl_cef_view_t {
 
     extern "C" fn set_id<I: ImplView>(self_: *mut _cef_view_t, id: ::std::os::raw::c_int) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_id(id.into())
+        obj.interface.set_id(id)
     }
 
     extern "C" fn get_group_id<I: ImplView>(self_: *mut _cef_view_t) -> ::std::os::raw::c_int {
@@ -19122,7 +19463,7 @@ mod impl_cef_view_t {
         group_id: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_group_id(group_id.into())
+        obj.interface.set_group_id(group_id)
     }
 
     extern "C" fn get_parent_view<I: ImplView>(self_: *mut _cef_view_t) -> *mut _cef_view_t {
@@ -19135,12 +19476,13 @@ mod impl_cef_view_t {
         id: ::std::os::raw::c_int,
     ) -> *mut _cef_view_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_view_for_id(id.into()).into()
+        obj.interface.get_view_for_id(id).into()
     }
 
     extern "C" fn set_bounds<I: ImplView>(self_: *mut _cef_view_t, bounds: *const cef_rect_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_bounds(bounds.into())
+        let bounds = &Rect(unsafe { RefGuard::from_raw_add_ref(bounds) });
+        obj.interface.set_bounds(bounds)
     }
 
     extern "C" fn get_bounds<I: ImplView>(self_: *mut _cef_view_t) -> cef_rect_t {
@@ -19155,7 +19497,8 @@ mod impl_cef_view_t {
 
     extern "C" fn set_size<I: ImplView>(self_: *mut _cef_view_t, size: *const cef_size_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_size(size.into())
+        let size = &Size(unsafe { RefGuard::from_raw_add_ref(size) });
+        obj.interface.set_size(size)
     }
 
     extern "C" fn get_size<I: ImplView>(self_: *mut _cef_view_t) -> cef_size_t {
@@ -19165,7 +19508,8 @@ mod impl_cef_view_t {
 
     extern "C" fn set_position<I: ImplView>(self_: *mut _cef_view_t, position: *const cef_point_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_position(position.into())
+        let position = &Point(unsafe { RefGuard::from_raw_add_ref(position) });
+        obj.interface.set_position(position)
     }
 
     extern "C" fn get_position<I: ImplView>(self_: *mut _cef_view_t) -> cef_point_t {
@@ -19175,7 +19519,8 @@ mod impl_cef_view_t {
 
     extern "C" fn set_insets<I: ImplView>(self_: *mut _cef_view_t, insets: *const cef_insets_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_insets(insets.into())
+        let insets = &Insets(unsafe { RefGuard::from_raw_add_ref(insets) });
+        obj.interface.set_insets(insets)
     }
 
     extern "C" fn get_insets<I: ImplView>(self_: *mut _cef_view_t) -> cef_insets_t {
@@ -19208,7 +19553,7 @@ mod impl_cef_view_t {
         width: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_height_for_width(width.into()).into()
+        obj.interface.get_height_for_width(width).into()
     }
 
     extern "C" fn invalidate_layout<I: ImplView>(self_: *mut _cef_view_t) {
@@ -19221,7 +19566,7 @@ mod impl_cef_view_t {
         visible: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_visible(visible.into())
+        obj.interface.set_visible(visible)
     }
 
     extern "C" fn is_visible<I: ImplView>(self_: *mut _cef_view_t) -> ::std::os::raw::c_int {
@@ -19239,7 +19584,7 @@ mod impl_cef_view_t {
         enabled: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_enabled(enabled.into())
+        obj.interface.set_enabled(enabled)
     }
 
     extern "C" fn is_enabled<I: ImplView>(self_: *mut _cef_view_t) -> ::std::os::raw::c_int {
@@ -19252,7 +19597,7 @@ mod impl_cef_view_t {
         focusable: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_focusable(focusable.into())
+        obj.interface.set_focusable(focusable)
     }
 
     extern "C" fn is_focusable<I: ImplView>(self_: *mut _cef_view_t) -> ::std::os::raw::c_int {
@@ -19279,7 +19624,7 @@ mod impl_cef_view_t {
 
     extern "C" fn set_background_color<I: ImplView>(self_: *mut _cef_view_t, color: cef_color_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_background_color(color.into())
+        obj.interface.set_background_color(color)
     }
 
     extern "C" fn get_background_color<I: ImplView>(self_: *mut _cef_view_t) -> cef_color_t {
@@ -19292,7 +19637,7 @@ mod impl_cef_view_t {
         color_id: ::std::os::raw::c_int,
     ) -> cef_color_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_theme_color(color_id.into()).into()
+        obj.interface.get_theme_color(color_id).into()
     }
 
     extern "C" fn convert_point_to_screen<I: ImplView>(
@@ -19300,7 +19645,8 @@ mod impl_cef_view_t {
         point: *mut cef_point_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.convert_point_to_screen(point.into()).into()
+        let point = &mut Point(unsafe { RefGuard::from_raw_add_ref(point) });
+        obj.interface.convert_point_to_screen(point).into()
     }
 
     extern "C" fn convert_point_from_screen<I: ImplView>(
@@ -19308,7 +19654,8 @@ mod impl_cef_view_t {
         point: *mut cef_point_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.convert_point_from_screen(point.into()).into()
+        let point = &mut Point(unsafe { RefGuard::from_raw_add_ref(point) });
+        obj.interface.convert_point_from_screen(point).into()
     }
 
     extern "C" fn convert_point_to_window<I: ImplView>(
@@ -19316,7 +19663,8 @@ mod impl_cef_view_t {
         point: *mut cef_point_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.convert_point_to_window(point.into()).into()
+        let point = &mut Point(unsafe { RefGuard::from_raw_add_ref(point) });
+        obj.interface.convert_point_to_window(point).into()
     }
 
     extern "C" fn convert_point_from_window<I: ImplView>(
@@ -19324,7 +19672,8 @@ mod impl_cef_view_t {
         point: *mut cef_point_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.convert_point_from_window(point.into()).into()
+        let point = &mut Point(unsafe { RefGuard::from_raw_add_ref(point) });
+        obj.interface.convert_point_from_window(point).into()
     }
 
     extern "C" fn convert_point_to_view<I: ImplView>(
@@ -19333,9 +19682,9 @@ mod impl_cef_view_t {
         point: *mut cef_point_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .convert_point_to_view(view.into(), point.into())
-            .into()
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        let point = &mut Point(unsafe { RefGuard::from_raw_add_ref(point) });
+        obj.interface.convert_point_to_view(view, point).into()
     }
 
     extern "C" fn convert_point_from_view<I: ImplView>(
@@ -19344,9 +19693,9 @@ mod impl_cef_view_t {
         point: *mut cef_point_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .convert_point_from_view(view.into(), point.into())
-            .into()
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        let point = &mut Point(unsafe { RefGuard::from_raw_add_ref(point) });
+        obj.interface.convert_point_from_view(view, point).into()
     }
 }
 
@@ -19410,8 +19759,7 @@ mod impl_cef_browser_view_t {
         prefer_accelerators: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_prefer_accelerators(prefer_accelerators.into())
+        obj.interface.set_prefer_accelerators(prefer_accelerators)
     }
 
     extern "C" fn get_runtime_style<I: ImplBrowserView>(
@@ -19429,8 +19777,8 @@ wrapper!(
 
     pub fn get_id(&self) -> i64;
     pub fn get_device_scale_factor(&self) -> f32;
-    pub fn convert_point_to_pixels(&self, point: Point);
-    pub fn convert_point_from_pixels(&self, point: Point);
+    pub fn convert_point_to_pixels(&self, point: &mut Point);
+    pub fn convert_point_from_pixels(&self, point: &mut Point);
     pub fn get_bounds(&self) -> Rect;
     pub fn get_work_area(&self) -> Rect;
     pub fn get_rotation(&self) -> ::std::os::raw::c_int;
@@ -19443,8 +19791,8 @@ pub trait ImplDisplay: Sized {
     fn get_device_scale_factor(&self) -> f32 {
         Default::default()
     }
-    fn convert_point_to_pixels(&self, point: Point) {}
-    fn convert_point_from_pixels(&self, point: Point) {}
+    fn convert_point_to_pixels(&self, point: &mut Point) {}
+    fn convert_point_from_pixels(&self, point: &mut Point) {}
     fn get_bounds(&self) -> Rect {
         Default::default()
     }
@@ -19490,7 +19838,8 @@ mod impl_cef_display_t {
         point: *mut cef_point_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.convert_point_to_pixels(point.into())
+        let point = &mut Point(unsafe { RefGuard::from_raw_add_ref(point) });
+        obj.interface.convert_point_to_pixels(point)
     }
 
     extern "C" fn convert_point_from_pixels<I: ImplDisplay>(
@@ -19498,7 +19847,8 @@ mod impl_cef_display_t {
         point: *mut cef_point_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.convert_point_from_pixels(point.into())
+        let point = &mut Point(unsafe { RefGuard::from_raw_add_ref(point) });
+        obj.interface.convert_point_from_pixels(point)
     }
 
     extern "C" fn get_bounds<I: ImplDisplay>(self_: *mut _cef_display_t) -> cef_rect_t {
@@ -19525,19 +19875,19 @@ wrapper!(
     pub struct OverlayController(_cef_overlay_controller_t);
 
     pub fn is_valid(&self) -> ::std::os::raw::c_int;
-    pub fn is_same(&self, that: OverlayController) -> ::std::os::raw::c_int;
+    pub fn is_same(&self, that: &mut OverlayController) -> ::std::os::raw::c_int;
     pub fn get_contents_view(&self) -> View;
     pub fn get_window(&self) -> Window;
     pub fn get_docking_mode(&self) -> DockingMode;
     pub fn destroy(&self);
-    pub fn set_bounds(&self, bounds: Rect);
+    pub fn set_bounds(&self, bounds: &Rect);
     pub fn get_bounds(&self) -> Rect;
     pub fn get_bounds_in_screen(&self) -> Rect;
-    pub fn set_size(&self, size: Size);
+    pub fn set_size(&self, size: &Size);
     pub fn get_size(&self) -> Size;
-    pub fn set_position(&self, position: Point);
+    pub fn set_position(&self, position: &Point);
     pub fn get_position(&self) -> Point;
-    pub fn set_insets(&self, insets: Insets);
+    pub fn set_insets(&self, insets: &Insets);
     pub fn get_insets(&self) -> Insets;
     pub fn size_to_preferred_size(&self);
     pub fn set_visible(&self, visible: ::std::os::raw::c_int);
@@ -19549,7 +19899,7 @@ pub trait ImplOverlayController: Sized {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn is_same(&self, that: OverlayController) -> ::std::os::raw::c_int {
+    fn is_same(&self, that: &mut OverlayController) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_contents_view(&self) -> View {
@@ -19562,22 +19912,22 @@ pub trait ImplOverlayController: Sized {
         Default::default()
     }
     fn destroy(&self) {}
-    fn set_bounds(&self, bounds: Rect) {}
+    fn set_bounds(&self, bounds: &Rect) {}
     fn get_bounds(&self) -> Rect {
         Default::default()
     }
     fn get_bounds_in_screen(&self) -> Rect {
         Default::default()
     }
-    fn set_size(&self, size: Size) {}
+    fn set_size(&self, size: &Size) {}
     fn get_size(&self) -> Size {
         Default::default()
     }
-    fn set_position(&self, position: Point) {}
+    fn set_position(&self, position: &Point) {}
     fn get_position(&self) -> Point {
         Default::default()
     }
-    fn set_insets(&self, insets: Insets) {}
+    fn set_insets(&self, insets: &Insets) {}
     fn get_insets(&self) -> Insets {
         Default::default()
     }
@@ -19634,7 +19984,8 @@ mod impl_cef_overlay_controller_t {
         that: *mut _cef_overlay_controller_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_same(that.into()).into()
+        let that = &mut OverlayController(unsafe { RefGuard::from_raw_add_ref(that) });
+        obj.interface.is_same(that).into()
     }
 
     extern "C" fn get_contents_view<I: ImplOverlayController>(
@@ -19668,7 +20019,8 @@ mod impl_cef_overlay_controller_t {
         bounds: *const cef_rect_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_bounds(bounds.into())
+        let bounds = &Rect(unsafe { RefGuard::from_raw_add_ref(bounds) });
+        obj.interface.set_bounds(bounds)
     }
 
     extern "C" fn get_bounds<I: ImplOverlayController>(
@@ -19690,7 +20042,8 @@ mod impl_cef_overlay_controller_t {
         size: *const cef_size_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_size(size.into())
+        let size = &Size(unsafe { RefGuard::from_raw_add_ref(size) });
+        obj.interface.set_size(size)
     }
 
     extern "C" fn get_size<I: ImplOverlayController>(
@@ -19705,7 +20058,8 @@ mod impl_cef_overlay_controller_t {
         position: *const cef_point_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_position(position.into())
+        let position = &Point(unsafe { RefGuard::from_raw_add_ref(position) });
+        obj.interface.set_position(position)
     }
 
     extern "C" fn get_position<I: ImplOverlayController>(
@@ -19720,7 +20074,8 @@ mod impl_cef_overlay_controller_t {
         insets: *const cef_insets_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_insets(insets.into())
+        let insets = &Insets(unsafe { RefGuard::from_raw_add_ref(insets) });
+        obj.interface.set_insets(insets)
     }
 
     extern "C" fn get_insets<I: ImplOverlayController>(
@@ -19742,7 +20097,7 @@ mod impl_cef_overlay_controller_t {
         visible: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_visible(visible.into())
+        obj.interface.set_visible(visible)
     }
 
     extern "C" fn is_visible<I: ImplOverlayController>(
@@ -19887,13 +20242,13 @@ wrapper!(
 
     pub fn as_window(&self) -> Window;
     pub fn set_to_fill_layout(&self) -> FillLayout;
-    pub fn set_to_box_layout(&self, settings: BoxLayoutSettings) -> BoxLayout;
+    pub fn set_to_box_layout(&self, settings: &BoxLayoutSettings) -> BoxLayout;
     pub fn get_layout(&self) -> Layout;
     pub fn layout(&self);
-    pub fn add_child_view(&self, view: View);
-    pub fn add_child_view_at(&self, view: View, index: ::std::os::raw::c_int);
-    pub fn reorder_child_view(&self, view: View, index: ::std::os::raw::c_int);
-    pub fn remove_child_view(&self, view: View);
+    pub fn add_child_view(&self, view: &mut View);
+    pub fn add_child_view_at(&self, view: &mut View, index: ::std::os::raw::c_int);
+    pub fn reorder_child_view(&self, view: &mut View, index: ::std::os::raw::c_int);
+    pub fn remove_child_view(&self, view: &mut View);
     pub fn remove_all_child_views(&self);
     pub fn get_child_view_count(&self) -> usize;
     pub fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> View;
@@ -19906,17 +20261,17 @@ pub trait ImplPanel: ImplView {
     fn set_to_fill_layout(&self) -> FillLayout {
         Default::default()
     }
-    fn set_to_box_layout(&self, settings: BoxLayoutSettings) -> BoxLayout {
+    fn set_to_box_layout(&self, settings: &BoxLayoutSettings) -> BoxLayout {
         Default::default()
     }
     fn get_layout(&self) -> Layout {
         Default::default()
     }
     fn layout(&self) {}
-    fn add_child_view(&self, view: View) {}
-    fn add_child_view_at(&self, view: View, index: ::std::os::raw::c_int) {}
-    fn reorder_child_view(&self, view: View, index: ::std::os::raw::c_int) {}
-    fn remove_child_view(&self, view: View) {}
+    fn add_child_view(&self, view: &mut View) {}
+    fn add_child_view_at(&self, view: &mut View, index: ::std::os::raw::c_int) {}
+    fn reorder_child_view(&self, view: &mut View, index: ::std::os::raw::c_int) {}
+    fn remove_child_view(&self, view: &mut View) {}
     fn remove_all_child_views(&self) {}
     fn get_child_view_count(&self) -> usize {
         Default::default()
@@ -19968,7 +20323,8 @@ mod impl_cef_panel_t {
         settings: *const cef_box_layout_settings_t,
     ) -> *mut _cef_box_layout_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_to_box_layout(settings.into()).into()
+        let settings = &BoxLayoutSettings(unsafe { RefGuard::from_raw_add_ref(settings) });
+        obj.interface.set_to_box_layout(settings).into()
     }
 
     extern "C" fn get_layout<I: ImplPanel>(self_: *mut _cef_panel_t) -> *mut _cef_layout_t {
@@ -19983,7 +20339,8 @@ mod impl_cef_panel_t {
 
     extern "C" fn add_child_view<I: ImplPanel>(self_: *mut _cef_panel_t, view: *mut _cef_view_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.add_child_view(view.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.add_child_view(view)
     }
 
     extern "C" fn add_child_view_at<I: ImplPanel>(
@@ -19992,7 +20349,8 @@ mod impl_cef_panel_t {
         index: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.add_child_view_at(view.into(), index.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.add_child_view_at(view, index)
     }
 
     extern "C" fn reorder_child_view<I: ImplPanel>(
@@ -20001,7 +20359,8 @@ mod impl_cef_panel_t {
         index: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.reorder_child_view(view.into(), index.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.reorder_child_view(view, index)
     }
 
     extern "C" fn remove_child_view<I: ImplPanel>(
@@ -20009,7 +20368,8 @@ mod impl_cef_panel_t {
         view: *mut _cef_view_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.remove_child_view(view.into())
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
+        obj.interface.remove_child_view(view)
     }
 
     extern "C" fn remove_all_child_views<I: ImplPanel>(self_: *mut _cef_panel_t) {
@@ -20027,7 +20387,7 @@ mod impl_cef_panel_t {
         index: ::std::os::raw::c_int,
     ) -> *mut _cef_view_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_child_view_at(index.into()).into()
+        obj.interface.get_child_view_at(index).into()
     }
 }
 
@@ -20036,123 +20396,127 @@ wrapper!(
     #[derive(Clone)]
     pub struct WindowDelegate(_cef_window_delegate_t);
 
-    pub fn on_window_created(&self, window: Window);
-    pub fn on_window_closing(&self, window: Window);
-    pub fn on_window_destroyed(&self, window: Window);
-    pub fn on_window_activation_changed(&self, window: Window, active: ::std::os::raw::c_int);
-    pub fn on_window_bounds_changed(&self, window: Window, new_bounds: Rect);
+    pub fn on_window_created(&self, window: &mut Window);
+    pub fn on_window_closing(&self, window: &mut Window);
+    pub fn on_window_destroyed(&self, window: &mut Window);
+    pub fn on_window_activation_changed(&self, window: &mut Window, active: ::std::os::raw::c_int);
+    pub fn on_window_bounds_changed(&self, window: &mut Window, new_bounds: &Rect);
     pub fn on_window_fullscreen_transition(
         &self,
-        window: Window,
+        window: &mut Window,
         is_completed: ::std::os::raw::c_int,
     );
     pub fn get_parent_window(
         &self,
-        window: Window,
+        window: &mut Window,
         is_menu: *mut ::std::os::raw::c_int,
         can_activate_menu: *mut ::std::os::raw::c_int,
     ) -> Window;
-    pub fn is_window_modal_dialog(&self, window: Window) -> ::std::os::raw::c_int;
-    pub fn get_initial_bounds(&self, window: Window) -> Rect;
-    pub fn get_initial_show_state(&self, window: Window) -> ShowState;
-    pub fn is_frameless(&self, window: Window) -> ::std::os::raw::c_int;
-    pub fn with_standard_window_buttons(&self, window: Window) -> ::std::os::raw::c_int;
+    pub fn is_window_modal_dialog(&self, window: &mut Window) -> ::std::os::raw::c_int;
+    pub fn get_initial_bounds(&self, window: &mut Window) -> Rect;
+    pub fn get_initial_show_state(&self, window: &mut Window) -> ShowState;
+    pub fn is_frameless(&self, window: &mut Window) -> ::std::os::raw::c_int;
+    pub fn with_standard_window_buttons(&self, window: &mut Window) -> ::std::os::raw::c_int;
     pub fn get_titlebar_height(
         &self,
-        window: Window,
+        window: &mut Window,
         titlebar_height: *mut f32,
     ) -> ::std::os::raw::c_int;
-    pub fn accepts_first_mouse(&self, window: Window) -> State;
-    pub fn can_resize(&self, window: Window) -> ::std::os::raw::c_int;
-    pub fn can_maximize(&self, window: Window) -> ::std::os::raw::c_int;
-    pub fn can_minimize(&self, window: Window) -> ::std::os::raw::c_int;
-    pub fn can_close(&self, window: Window) -> ::std::os::raw::c_int;
+    pub fn accepts_first_mouse(&self, window: &mut Window) -> State;
+    pub fn can_resize(&self, window: &mut Window) -> ::std::os::raw::c_int;
+    pub fn can_maximize(&self, window: &mut Window) -> ::std::os::raw::c_int;
+    pub fn can_minimize(&self, window: &mut Window) -> ::std::os::raw::c_int;
+    pub fn can_close(&self, window: &mut Window) -> ::std::os::raw::c_int;
     pub fn on_accelerator(
         &self,
-        window: Window,
+        window: &mut Window,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-    pub fn on_key_event(&self, window: Window, event: KeyEvent) -> ::std::os::raw::c_int;
-    pub fn on_theme_colors_changed(&self, window: Window, chrome_theme: ::std::os::raw::c_int);
+    pub fn on_key_event(&self, window: &mut Window, event: &KeyEvent) -> ::std::os::raw::c_int;
+    pub fn on_theme_colors_changed(&self, window: &mut Window, chrome_theme: ::std::os::raw::c_int);
     pub fn get_window_runtime_style(&self) -> RuntimeStyle;
     pub fn get_linux_window_properties(
         &self,
-        window: Window,
-        properties: LinuxWindowProperties,
+        window: &mut Window,
+        properties: &mut LinuxWindowProperties,
     ) -> ::std::os::raw::c_int;
 );
 
 pub trait ImplWindowDelegate: ImplPanelDelegate {
-    fn on_window_created(&self, window: Window) {}
-    fn on_window_closing(&self, window: Window) {}
-    fn on_window_destroyed(&self, window: Window) {}
-    fn on_window_activation_changed(&self, window: Window, active: ::std::os::raw::c_int) {}
-    fn on_window_bounds_changed(&self, window: Window, new_bounds: Rect) {}
-    fn on_window_fullscreen_transition(&self, window: Window, is_completed: ::std::os::raw::c_int) {
+    fn on_window_created(&self, window: &mut Window) {}
+    fn on_window_closing(&self, window: &mut Window) {}
+    fn on_window_destroyed(&self, window: &mut Window) {}
+    fn on_window_activation_changed(&self, window: &mut Window, active: ::std::os::raw::c_int) {}
+    fn on_window_bounds_changed(&self, window: &mut Window, new_bounds: &Rect) {}
+    fn on_window_fullscreen_transition(
+        &self,
+        window: &mut Window,
+        is_completed: ::std::os::raw::c_int,
+    ) {
     }
     fn get_parent_window(
         &self,
-        window: Window,
+        window: &mut Window,
         is_menu: *mut ::std::os::raw::c_int,
         can_activate_menu: *mut ::std::os::raw::c_int,
     ) -> Window {
         Default::default()
     }
-    fn is_window_modal_dialog(&self, window: Window) -> ::std::os::raw::c_int {
+    fn is_window_modal_dialog(&self, window: &mut Window) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_initial_bounds(&self, window: Window) -> Rect {
+    fn get_initial_bounds(&self, window: &mut Window) -> Rect {
         Default::default()
     }
-    fn get_initial_show_state(&self, window: Window) -> ShowState {
+    fn get_initial_show_state(&self, window: &mut Window) -> ShowState {
         Default::default()
     }
-    fn is_frameless(&self, window: Window) -> ::std::os::raw::c_int {
+    fn is_frameless(&self, window: &mut Window) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn with_standard_window_buttons(&self, window: Window) -> ::std::os::raw::c_int {
+    fn with_standard_window_buttons(&self, window: &mut Window) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn get_titlebar_height(
         &self,
-        window: Window,
+        window: &mut Window,
         titlebar_height: *mut f32,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn accepts_first_mouse(&self, window: Window) -> State {
+    fn accepts_first_mouse(&self, window: &mut Window) -> State {
         Default::default()
     }
-    fn can_resize(&self, window: Window) -> ::std::os::raw::c_int {
+    fn can_resize(&self, window: &mut Window) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn can_maximize(&self, window: Window) -> ::std::os::raw::c_int {
+    fn can_maximize(&self, window: &mut Window) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn can_minimize(&self, window: Window) -> ::std::os::raw::c_int {
+    fn can_minimize(&self, window: &mut Window) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn can_close(&self, window: Window) -> ::std::os::raw::c_int {
+    fn can_close(&self, window: &mut Window) -> ::std::os::raw::c_int {
         Default::default()
     }
     fn on_accelerator(
         &self,
-        window: Window,
+        window: &mut Window,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_key_event(&self, window: Window, event: KeyEvent) -> ::std::os::raw::c_int {
+    fn on_key_event(&self, window: &mut Window, event: &KeyEvent) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn on_theme_colors_changed(&self, window: Window, chrome_theme: ::std::os::raw::c_int) {}
+    fn on_theme_colors_changed(&self, window: &mut Window, chrome_theme: ::std::os::raw::c_int) {}
     fn get_window_runtime_style(&self) -> RuntimeStyle {
         Default::default()
     }
     fn get_linux_window_properties(
         &self,
-        window: Window,
-        properties: LinuxWindowProperties,
+        window: &mut Window,
+        properties: &mut LinuxWindowProperties,
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
@@ -20200,7 +20564,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_window_created(window.into())
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.on_window_created(window)
     }
 
     extern "C" fn on_window_closing<I: ImplWindowDelegate>(
@@ -20208,7 +20573,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_window_closing(window.into())
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.on_window_closing(window)
     }
 
     extern "C" fn on_window_destroyed<I: ImplWindowDelegate>(
@@ -20216,7 +20582,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.on_window_destroyed(window.into())
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.on_window_destroyed(window)
     }
 
     extern "C" fn on_window_activation_changed<I: ImplWindowDelegate>(
@@ -20225,8 +20592,8 @@ mod impl_cef_window_delegate_t {
         active: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_window_activation_changed(window.into(), active.into())
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.on_window_activation_changed(window, active)
     }
 
     extern "C" fn on_window_bounds_changed<I: ImplWindowDelegate>(
@@ -20235,8 +20602,9 @@ mod impl_cef_window_delegate_t {
         new_bounds: *const cef_rect_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_window_bounds_changed(window.into(), new_bounds.into())
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        let new_bounds = &Rect(unsafe { RefGuard::from_raw_add_ref(new_bounds) });
+        obj.interface.on_window_bounds_changed(window, new_bounds)
     }
 
     extern "C" fn on_window_fullscreen_transition<I: ImplWindowDelegate>(
@@ -20245,8 +20613,9 @@ mod impl_cef_window_delegate_t {
         is_completed: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
         obj.interface
-            .on_window_fullscreen_transition(window.into(), is_completed.into())
+            .on_window_fullscreen_transition(window, is_completed)
     }
 
     extern "C" fn get_parent_window<I: ImplWindowDelegate>(
@@ -20256,8 +20625,9 @@ mod impl_cef_window_delegate_t {
         can_activate_menu: *mut ::std::os::raw::c_int,
     ) -> *mut _cef_window_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
         obj.interface
-            .get_parent_window(window.into(), is_menu.into(), can_activate_menu.into())
+            .get_parent_window(window, is_menu, can_activate_menu)
             .into()
     }
 
@@ -20266,7 +20636,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_window_modal_dialog(window.into()).into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.is_window_modal_dialog(window).into()
     }
 
     extern "C" fn get_initial_bounds<I: ImplWindowDelegate>(
@@ -20274,7 +20645,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> cef_rect_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_initial_bounds(window.into()).into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.get_initial_bounds(window).into()
     }
 
     extern "C" fn get_initial_show_state<I: ImplWindowDelegate>(
@@ -20282,7 +20654,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> cef_show_state_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.get_initial_show_state(window.into()).into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.get_initial_show_state(window).into()
     }
 
     extern "C" fn is_frameless<I: ImplWindowDelegate>(
@@ -20290,7 +20663,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.is_frameless(window.into()).into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.is_frameless(window).into()
     }
 
     extern "C" fn with_standard_window_buttons<I: ImplWindowDelegate>(
@@ -20298,9 +20672,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .with_standard_window_buttons(window.into())
-            .into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.with_standard_window_buttons(window).into()
     }
 
     extern "C" fn get_titlebar_height<I: ImplWindowDelegate>(
@@ -20309,8 +20682,9 @@ mod impl_cef_window_delegate_t {
         titlebar_height: *mut f32,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
         obj.interface
-            .get_titlebar_height(window.into(), titlebar_height.into())
+            .get_titlebar_height(window, titlebar_height)
             .into()
     }
 
@@ -20319,7 +20693,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> cef_state_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.accepts_first_mouse(window.into()).into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.accepts_first_mouse(window).into()
     }
 
     extern "C" fn can_resize<I: ImplWindowDelegate>(
@@ -20327,7 +20702,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.can_resize(window.into()).into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.can_resize(window).into()
     }
 
     extern "C" fn can_maximize<I: ImplWindowDelegate>(
@@ -20335,7 +20711,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.can_maximize(window.into()).into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.can_maximize(window).into()
     }
 
     extern "C" fn can_minimize<I: ImplWindowDelegate>(
@@ -20343,7 +20720,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.can_minimize(window.into()).into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.can_minimize(window).into()
     }
 
     extern "C" fn can_close<I: ImplWindowDelegate>(
@@ -20351,7 +20729,8 @@ mod impl_cef_window_delegate_t {
         window: *mut _cef_window_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.can_close(window.into()).into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.can_close(window).into()
     }
 
     extern "C" fn on_accelerator<I: ImplWindowDelegate>(
@@ -20360,9 +20739,8 @@ mod impl_cef_window_delegate_t {
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_accelerator(window.into(), command_id.into())
-            .into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.on_accelerator(window, command_id).into()
     }
 
     extern "C" fn on_key_event<I: ImplWindowDelegate>(
@@ -20371,9 +20749,9 @@ mod impl_cef_window_delegate_t {
         event: *const cef_key_event_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_key_event(window.into(), event.into())
-            .into()
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        let event = &KeyEvent(unsafe { RefGuard::from_raw_add_ref(event) });
+        obj.interface.on_key_event(window, event).into()
     }
 
     extern "C" fn on_theme_colors_changed<I: ImplWindowDelegate>(
@@ -20382,8 +20760,8 @@ mod impl_cef_window_delegate_t {
         chrome_theme: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .on_theme_colors_changed(window.into(), chrome_theme.into())
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        obj.interface.on_theme_colors_changed(window, chrome_theme)
     }
 
     extern "C" fn get_window_runtime_style<I: ImplWindowDelegate>(
@@ -20399,8 +20777,11 @@ mod impl_cef_window_delegate_t {
         properties: *mut _cef_linux_window_properties_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let window = &mut Window(unsafe { RefGuard::from_raw_add_ref(window) });
+        let properties =
+            &mut LinuxWindowProperties(unsafe { RefGuard::from_raw_add_ref(properties) });
         obj.interface
-            .get_linux_window_properties(window.into(), properties.into())
+            .get_linux_window_properties(window, properties)
             .into()
     }
 }
@@ -20411,9 +20792,9 @@ wrapper!(
     pub struct Window(_cef_window_t);
 
     pub fn show(&self);
-    pub fn show_as_browser_modal_dialog(&self, browser_view: BrowserView);
+    pub fn show_as_browser_modal_dialog(&self, browser_view: &mut BrowserView);
     pub fn hide(&self);
-    pub fn center_window(&self, size: Size);
+    pub fn center_window(&self, size: &Size);
     pub fn close(&self);
     pub fn is_closed(&self) -> ::std::os::raw::c_int;
     pub fn activate(&self);
@@ -20430,28 +20811,28 @@ wrapper!(
     pub fn is_minimized(&self) -> ::std::os::raw::c_int;
     pub fn is_fullscreen(&self) -> ::std::os::raw::c_int;
     pub fn get_focused_view(&self) -> View;
-    pub fn set_title(&self, title: CefString);
+    pub fn set_title(&self, title: &CefString);
     pub fn get_title(&self) -> CefStringUserfree;
-    pub fn set_window_icon(&self, image: Image);
+    pub fn set_window_icon(&self, image: &mut Image);
     pub fn get_window_icon(&self) -> Image;
-    pub fn set_window_app_icon(&self, image: Image);
+    pub fn set_window_app_icon(&self, image: &mut Image);
     pub fn get_window_app_icon(&self) -> Image;
     pub fn add_overlay_view(
         &self,
-        view: View,
+        view: &mut View,
         docking_mode: DockingMode,
         can_activate: ::std::os::raw::c_int,
     ) -> OverlayController;
     pub fn show_menu(
         &self,
-        menu_model: MenuModel,
-        screen_point: Point,
+        menu_model: &mut MenuModel,
+        screen_point: &Point,
         anchor_position: MenuAnchorPosition,
     );
     pub fn cancel_menu(&self);
     pub fn get_display(&self) -> Display;
     pub fn get_client_area_bounds_in_screen(&self) -> Rect;
-    pub fn set_draggable_regions(&self, regions_count: usize, regions: DraggableRegion);
+    pub fn set_draggable_regions(&self, regions_count: usize, regions: &DraggableRegion);
     pub fn get_window_handle(&self) -> ::std::os::raw::c_ulong;
     pub fn send_key_press(&self, key_code: ::std::os::raw::c_int, event_flags: u32);
     pub fn send_mouse_move(&self, screen_x: ::std::os::raw::c_int, screen_y: ::std::os::raw::c_int);
@@ -20472,16 +20853,16 @@ wrapper!(
     );
     pub fn remove_accelerator(&self, command_id: ::std::os::raw::c_int);
     pub fn remove_all_accelerators(&self);
-    pub fn set_theme_color(&self, color_id: ::std::os::raw::c_int, color: Color);
+    pub fn set_theme_color(&self, color_id: ::std::os::raw::c_int, color: &mut Color);
     pub fn theme_changed(&self);
     pub fn get_runtime_style(&self) -> RuntimeStyle;
 );
 
 pub trait ImplWindow: ImplPanel {
     fn show(&self) {}
-    fn show_as_browser_modal_dialog(&self, browser_view: BrowserView) {}
+    fn show_as_browser_modal_dialog(&self, browser_view: &mut BrowserView) {}
     fn hide(&self) {}
-    fn center_window(&self, size: Size) {}
+    fn center_window(&self, size: &Size) {}
     fn close(&self) {}
     fn is_closed(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -20512,21 +20893,21 @@ pub trait ImplWindow: ImplPanel {
     fn get_focused_view(&self) -> View {
         Default::default()
     }
-    fn set_title(&self, title: CefString) {}
+    fn set_title(&self, title: &CefString) {}
     fn get_title(&self) -> CefStringUserfree {
         Default::default()
     }
-    fn set_window_icon(&self, image: Image) {}
+    fn set_window_icon(&self, image: &mut Image) {}
     fn get_window_icon(&self) -> Image {
         Default::default()
     }
-    fn set_window_app_icon(&self, image: Image) {}
+    fn set_window_app_icon(&self, image: &mut Image) {}
     fn get_window_app_icon(&self) -> Image {
         Default::default()
     }
     fn add_overlay_view(
         &self,
-        view: View,
+        view: &mut View,
         docking_mode: DockingMode,
         can_activate: ::std::os::raw::c_int,
     ) -> OverlayController {
@@ -20534,8 +20915,8 @@ pub trait ImplWindow: ImplPanel {
     }
     fn show_menu(
         &self,
-        menu_model: MenuModel,
-        screen_point: Point,
+        menu_model: &mut MenuModel,
+        screen_point: &Point,
         anchor_position: MenuAnchorPosition,
     ) {
     }
@@ -20546,7 +20927,7 @@ pub trait ImplWindow: ImplPanel {
     fn get_client_area_bounds_in_screen(&self) -> Rect {
         Default::default()
     }
-    fn set_draggable_regions(&self, regions_count: usize, regions: DraggableRegion) {}
+    fn set_draggable_regions(&self, regions_count: usize, regions: &DraggableRegion) {}
     fn get_window_handle(&self) -> ::std::os::raw::c_ulong {
         Default::default()
     }
@@ -20571,7 +20952,7 @@ pub trait ImplWindow: ImplPanel {
     }
     fn remove_accelerator(&self, command_id: ::std::os::raw::c_int) {}
     fn remove_all_accelerators(&self) {}
-    fn set_theme_color(&self, color_id: ::std::os::raw::c_int, color: Color) {}
+    fn set_theme_color(&self, color_id: ::std::os::raw::c_int, color: &mut Color) {}
     fn theme_changed(&self) {}
     fn get_runtime_style(&self) -> RuntimeStyle {
         Default::default()
@@ -20644,8 +21025,8 @@ mod impl_cef_window_t {
         browser_view: *mut _cef_browser_view_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .show_as_browser_modal_dialog(browser_view.into())
+        let browser_view = &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(browser_view) });
+        obj.interface.show_as_browser_modal_dialog(browser_view)
     }
 
     extern "C" fn hide<I: ImplWindow>(self_: *mut _cef_window_t) {
@@ -20655,7 +21036,8 @@ mod impl_cef_window_t {
 
     extern "C" fn center_window<I: ImplWindow>(self_: *mut _cef_window_t, size: *const cef_size_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.center_window(size.into())
+        let size = &Size(unsafe { RefGuard::from_raw_add_ref(size) });
+        obj.interface.center_window(size)
     }
 
     extern "C" fn close<I: ImplWindow>(self_: *mut _cef_window_t) {
@@ -20693,7 +21075,7 @@ mod impl_cef_window_t {
         on_top: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_always_on_top(on_top.into())
+        obj.interface.set_always_on_top(on_top)
     }
 
     extern "C" fn is_always_on_top<I: ImplWindow>(
@@ -20723,7 +21105,7 @@ mod impl_cef_window_t {
         fullscreen: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_fullscreen(fullscreen.into())
+        obj.interface.set_fullscreen(fullscreen)
     }
 
     extern "C" fn is_maximized<I: ImplWindow>(self_: *mut _cef_window_t) -> ::std::os::raw::c_int {
@@ -20748,7 +21130,8 @@ mod impl_cef_window_t {
 
     extern "C" fn set_title<I: ImplWindow>(self_: *mut _cef_window_t, title: *const cef_string_t) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_title(title.into())
+        let title = &CefString::from(title);
+        obj.interface.set_title(title)
     }
 
     extern "C" fn get_title<I: ImplWindow>(self_: *mut _cef_window_t) -> cef_string_userfree_t {
@@ -20761,7 +21144,8 @@ mod impl_cef_window_t {
         image: *mut _cef_image_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_window_icon(image.into())
+        let image = &mut Image(unsafe { RefGuard::from_raw_add_ref(image) });
+        obj.interface.set_window_icon(image)
     }
 
     extern "C" fn get_window_icon<I: ImplWindow>(self_: *mut _cef_window_t) -> *mut _cef_image_t {
@@ -20774,7 +21158,8 @@ mod impl_cef_window_t {
         image: *mut _cef_image_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_window_app_icon(image.into())
+        let image = &mut Image(unsafe { RefGuard::from_raw_add_ref(image) });
+        obj.interface.set_window_app_icon(image)
     }
 
     extern "C" fn get_window_app_icon<I: ImplWindow>(
@@ -20791,8 +21176,9 @@ mod impl_cef_window_t {
         can_activate: ::std::os::raw::c_int,
     ) -> *mut _cef_overlay_controller_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
+        let view = &mut View(unsafe { RefGuard::from_raw_add_ref(view) });
         obj.interface
-            .add_overlay_view(view.into(), docking_mode.into(), can_activate.into())
+            .add_overlay_view(view, docking_mode, can_activate)
             .into()
     }
 
@@ -20803,11 +21189,10 @@ mod impl_cef_window_t {
         anchor_position: cef_menu_anchor_position_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.show_menu(
-            menu_model.into(),
-            screen_point.into(),
-            anchor_position.into(),
-        )
+        let menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(menu_model) });
+        let screen_point = &Point(unsafe { RefGuard::from_raw_add_ref(screen_point) });
+        obj.interface
+            .show_menu(menu_model, screen_point, anchor_position)
     }
 
     extern "C" fn cancel_menu<I: ImplWindow>(self_: *mut _cef_window_t) {
@@ -20833,8 +21218,8 @@ mod impl_cef_window_t {
         regions: *const cef_draggable_region_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .set_draggable_regions(regions_count.into(), regions.into())
+        let regions = &DraggableRegion(unsafe { RefGuard::from_raw_add_ref(regions) });
+        obj.interface.set_draggable_regions(regions_count, regions)
     }
 
     extern "C" fn get_window_handle<I: ImplWindow>(
@@ -20850,8 +21235,7 @@ mod impl_cef_window_t {
         event_flags: u32,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .send_key_press(key_code.into(), event_flags.into())
+        obj.interface.send_key_press(key_code, event_flags)
     }
 
     extern "C" fn send_mouse_move<I: ImplWindow>(
@@ -20860,8 +21244,7 @@ mod impl_cef_window_t {
         screen_y: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface
-            .send_mouse_move(screen_x.into(), screen_y.into())
+        obj.interface.send_mouse_move(screen_x, screen_y)
     }
 
     extern "C" fn send_mouse_events<I: ImplWindow>(
@@ -20872,7 +21255,7 @@ mod impl_cef_window_t {
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface
-            .send_mouse_events(button.into(), mouse_down.into(), mouse_up.into())
+            .send_mouse_events(button, mouse_down, mouse_up)
     }
 
     extern "C" fn set_accelerator<I: ImplWindow>(
@@ -20886,12 +21269,12 @@ mod impl_cef_window_t {
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         obj.interface.set_accelerator(
-            command_id.into(),
-            key_code.into(),
-            shift_pressed.into(),
-            ctrl_pressed.into(),
-            alt_pressed.into(),
-            high_priority.into(),
+            command_id,
+            key_code,
+            shift_pressed,
+            ctrl_pressed,
+            alt_pressed,
+            high_priority,
         )
     }
 
@@ -20900,7 +21283,7 @@ mod impl_cef_window_t {
         command_id: ::std::os::raw::c_int,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.remove_accelerator(command_id.into())
+        obj.interface.remove_accelerator(command_id)
     }
 
     extern "C" fn remove_all_accelerators<I: ImplWindow>(self_: *mut _cef_window_t) {
@@ -20914,7 +21297,7 @@ mod impl_cef_window_t {
         color: cef_color_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        obj.interface.set_theme_color(color_id.into(), color.into())
+        obj.interface.set_theme_color(color_id, color)
     }
 
     extern "C" fn theme_changed<I: ImplWindow>(self_: *mut _cef_window_t) {
@@ -24235,116 +24618,140 @@ impl Default for TaskType {
 pub fn string_wide_set(
     src: *const wchar_t,
     src_len: usize,
-    output: CefStringWide,
+    output: &mut CefStringWide,
     copy: ::std::os::raw::c_int,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_wide_set(src.into(), src_len.into(), output.into(), copy.into()).into() }
+    unsafe {
+        cef_string_wide_set(
+            src.as_raw(),
+            src_len.as_raw(),
+            output.as_raw(),
+            copy.as_raw(),
+        )
+        .into()
+    }
 }
 
 pub fn string_utf8_set(
     src: *const ::std::os::raw::c_char,
     src_len: usize,
-    output: CefStringUtf8,
+    output: &mut CefStringUtf8,
     copy: ::std::os::raw::c_int,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf8_set(src.into(), src_len.into(), output.into(), copy.into()).into() }
+    unsafe {
+        cef_string_utf8_set(
+            src.as_raw(),
+            src_len.as_raw(),
+            output.as_raw(),
+            copy.as_raw(),
+        )
+        .into()
+    }
 }
 
 pub fn string_utf16_set(
     src: *const char16_t,
     src_len: usize,
-    output: CefStringUtf16,
+    output: &mut CefStringUtf16,
     copy: ::std::os::raw::c_int,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_set(src.into(), src_len.into(), output.into(), copy.into()).into() }
+    unsafe {
+        cef_string_utf16_set(
+            src.as_raw(),
+            src_len.as_raw(),
+            output.as_raw(),
+            copy.as_raw(),
+        )
+        .into()
+    }
 }
 
-pub fn string_wide_clear(str_: CefStringWide) {
-    unsafe { cef_string_wide_clear(str_.into()) }
+pub fn string_wide_clear(str_: &mut CefStringWide) {
+    unsafe { cef_string_wide_clear(str_.as_raw()) }
 }
 
-pub fn string_utf8_clear(str_: CefStringUtf8) {
-    unsafe { cef_string_utf8_clear(str_.into()) }
+pub fn string_utf8_clear(str_: &mut CefStringUtf8) {
+    unsafe { cef_string_utf8_clear(str_.as_raw()) }
 }
 
-pub fn string_utf16_clear(str_: CefStringUtf16) {
-    unsafe { cef_string_utf16_clear(str_.into()) }
+pub fn string_utf16_clear(str_: &mut CefStringUtf16) {
+    unsafe { cef_string_utf16_clear(str_.as_raw()) }
 }
 
-pub fn string_wide_cmp(str_1: CefStringWide, str_2: CefStringWide) -> ::std::os::raw::c_int {
-    unsafe { cef_string_wide_cmp(str_1.into(), str_2.into()).into() }
+pub fn string_wide_cmp(str_1: &CefStringWide, str_2: &CefStringWide) -> ::std::os::raw::c_int {
+    unsafe { cef_string_wide_cmp(str_1.as_raw(), str_2.as_raw()).into() }
 }
 
-pub fn string_utf8_cmp(str_1: CefStringUtf8, str_2: CefStringUtf8) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf8_cmp(str_1.into(), str_2.into()).into() }
+pub fn string_utf8_cmp(str_1: &CefStringUtf8, str_2: &CefStringUtf8) -> ::std::os::raw::c_int {
+    unsafe { cef_string_utf8_cmp(str_1.as_raw(), str_2.as_raw()).into() }
 }
 
-pub fn string_utf16_cmp(str_1: CefStringUtf16, str_2: CefStringUtf16) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_cmp(str_1.into(), str_2.into()).into() }
+pub fn string_utf16_cmp(str_1: &CefStringUtf16, str_2: &CefStringUtf16) -> ::std::os::raw::c_int {
+    unsafe { cef_string_utf16_cmp(str_1.as_raw(), str_2.as_raw()).into() }
 }
 
 pub fn string_wide_to_utf8(
     src: *const wchar_t,
     src_len: usize,
-    output: CefStringUtf8,
+    output: &mut CefStringUtf8,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_wide_to_utf8(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_wide_to_utf8(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_utf8_to_wide(
     src: *const ::std::os::raw::c_char,
     src_len: usize,
-    output: CefStringWide,
+    output: &mut CefStringWide,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf8_to_wide(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_utf8_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_wide_to_utf16(
     src: *const wchar_t,
     src_len: usize,
-    output: CefStringUtf16,
+    output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_wide_to_utf16(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_wide_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_utf16_to_wide(
     src: *const char16_t,
     src_len: usize,
-    output: CefStringWide,
+    output: &mut CefStringWide,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_to_wide(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_utf16_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_utf8_to_utf16(
     src: *const ::std::os::raw::c_char,
     src_len: usize,
-    output: CefStringUtf16,
+    output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf8_to_utf16(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_utf8_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_utf16_to_utf8(
     src: *const char16_t,
     src_len: usize,
-    output: CefStringUtf8,
+    output: &mut CefStringUtf8,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_to_utf8(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_utf16_to_utf8(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_ascii_to_wide(
     src: *const ::std::os::raw::c_char,
     src_len: usize,
-    output: CefStringWide,
+    output: &mut CefStringWide,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_ascii_to_wide(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_ascii_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_ascii_to_utf16(
     src: *const ::std::os::raw::c_char,
     src_len: usize,
-    output: CefStringUtf16,
+    output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_ascii_to_utf16(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_ascii_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_userfree_wide_alloc() -> CefStringUserfreeWide {
@@ -24360,31 +24767,31 @@ pub fn string_userfree_utf16_alloc() -> CefStringUserfreeUtf16 {
 }
 
 pub fn string_userfree_wide_free(str_: CefStringUserfreeWide) {
-    unsafe { cef_string_userfree_wide_free(str_.into()) }
+    unsafe { cef_string_userfree_wide_free(str_.as_raw()) }
 }
 
 pub fn string_userfree_utf8_free(str_: CefStringUserfreeUtf8) {
-    unsafe { cef_string_userfree_utf8_free(str_.into()) }
+    unsafe { cef_string_userfree_utf8_free(str_.as_raw()) }
 }
 
 pub fn string_userfree_utf16_free(str_: CefStringUserfreeUtf16) {
-    unsafe { cef_string_userfree_utf16_free(str_.into()) }
+    unsafe { cef_string_userfree_utf16_free(str_.as_raw()) }
 }
 
 pub fn string_utf16_to_lower(
     src: *const char16_t,
     src_len: usize,
-    output: CefStringUtf16,
+    output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_to_lower(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_utf16_to_lower(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_utf16_to_upper(
     src: *const char16_t,
     src_len: usize,
-    output: CefStringUtf16,
+    output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_to_upper(src.into(), src_len.into(), output.into()).into() }
+    unsafe { cef_string_utf16_to_upper(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
 }
 
 pub fn string_list_alloc() -> CefStringList {
@@ -24392,31 +24799,31 @@ pub fn string_list_alloc() -> CefStringList {
 }
 
 pub fn string_list_size(list: CefStringList) -> usize {
-    unsafe { cef_string_list_size(list.into()).into() }
+    unsafe { cef_string_list_size(list.as_raw()).into() }
 }
 
 pub fn string_list_value(
     list: CefStringList,
     index: usize,
-    value: CefString,
+    value: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_list_value(list.into(), index.into(), value.into()).into() }
+    unsafe { cef_string_list_value(list.as_raw(), index.as_raw(), value.as_raw()).into() }
 }
 
-pub fn string_list_append(list: CefStringList, value: CefString) {
-    unsafe { cef_string_list_append(list.into(), value.into()) }
+pub fn string_list_append(list: CefStringList, value: &CefString) {
+    unsafe { cef_string_list_append(list.as_raw(), value.as_raw()) }
 }
 
 pub fn string_list_clear(list: CefStringList) {
-    unsafe { cef_string_list_clear(list.into()) }
+    unsafe { cef_string_list_clear(list.as_raw()) }
 }
 
 pub fn string_list_free(list: CefStringList) {
-    unsafe { cef_string_list_free(list.into()) }
+    unsafe { cef_string_list_free(list.as_raw()) }
 }
 
 pub fn string_list_copy(list: CefStringList) -> CefStringList {
-    unsafe { cef_string_list_copy(list.into()).into() }
+    unsafe { cef_string_list_copy(list.as_raw()).into() }
 }
 
 pub fn string_map_alloc() -> CefStringMap {
@@ -24424,43 +24831,47 @@ pub fn string_map_alloc() -> CefStringMap {
 }
 
 pub fn string_map_size(map: CefStringMap) -> usize {
-    unsafe { cef_string_map_size(map.into()).into() }
+    unsafe { cef_string_map_size(map.as_raw()).into() }
 }
 
 pub fn string_map_find(
     map: CefStringMap,
-    key: CefString,
-    value: CefString,
+    key: &CefString,
+    value: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_map_find(map.into(), key.into(), value.into()).into() }
+    unsafe { cef_string_map_find(map.as_raw(), key.as_raw(), value.as_raw()).into() }
 }
 
-pub fn string_map_key(map: CefStringMap, index: usize, key: CefString) -> ::std::os::raw::c_int {
-    unsafe { cef_string_map_key(map.into(), index.into(), key.into()).into() }
+pub fn string_map_key(
+    map: CefStringMap,
+    index: usize,
+    key: &mut CefString,
+) -> ::std::os::raw::c_int {
+    unsafe { cef_string_map_key(map.as_raw(), index.as_raw(), key.as_raw()).into() }
 }
 
 pub fn string_map_value(
     map: CefStringMap,
     index: usize,
-    value: CefString,
+    value: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_map_value(map.into(), index.into(), value.into()).into() }
+    unsafe { cef_string_map_value(map.as_raw(), index.as_raw(), value.as_raw()).into() }
 }
 
 pub fn string_map_append(
     map: CefStringMap,
-    key: CefString,
-    value: CefString,
+    key: &CefString,
+    value: &CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_map_append(map.into(), key.into(), value.into()).into() }
+    unsafe { cef_string_map_append(map.as_raw(), key.as_raw(), value.as_raw()).into() }
 }
 
 pub fn string_map_clear(map: CefStringMap) {
-    unsafe { cef_string_map_clear(map.into()) }
+    unsafe { cef_string_map_clear(map.as_raw()) }
 }
 
 pub fn string_map_free(map: CefStringMap) {
-    unsafe { cef_string_map_free(map.into()) }
+    unsafe { cef_string_map_free(map.as_raw()) }
 }
 
 pub fn string_multimap_alloc() -> CefStringMultimap {
@@ -24468,75 +24879,80 @@ pub fn string_multimap_alloc() -> CefStringMultimap {
 }
 
 pub fn string_multimap_size(map: CefStringMultimap) -> usize {
-    unsafe { cef_string_multimap_size(map.into()).into() }
+    unsafe { cef_string_multimap_size(map.as_raw()).into() }
 }
 
-pub fn string_multimap_find_count(map: CefStringMultimap, key: CefString) -> usize {
-    unsafe { cef_string_multimap_find_count(map.into(), key.into()).into() }
+pub fn string_multimap_find_count(map: CefStringMultimap, key: &CefString) -> usize {
+    unsafe { cef_string_multimap_find_count(map.as_raw(), key.as_raw()).into() }
 }
 
 pub fn string_multimap_enumerate(
     map: CefStringMultimap,
-    key: CefString,
+    key: &CefString,
     value_index: usize,
-    value: CefString,
+    value: &mut CefString,
 ) -> ::std::os::raw::c_int {
     unsafe {
-        cef_string_multimap_enumerate(map.into(), key.into(), value_index.into(), value.into())
-            .into()
+        cef_string_multimap_enumerate(
+            map.as_raw(),
+            key.as_raw(),
+            value_index.as_raw(),
+            value.as_raw(),
+        )
+        .into()
     }
 }
 
 pub fn string_multimap_key(
     map: CefStringMultimap,
     index: usize,
-    key: CefString,
+    key: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_multimap_key(map.into(), index.into(), key.into()).into() }
+    unsafe { cef_string_multimap_key(map.as_raw(), index.as_raw(), key.as_raw()).into() }
 }
 
 pub fn string_multimap_value(
     map: CefStringMultimap,
     index: usize,
-    value: CefString,
+    value: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_multimap_value(map.into(), index.into(), value.into()).into() }
+    unsafe { cef_string_multimap_value(map.as_raw(), index.as_raw(), value.as_raw()).into() }
 }
 
 pub fn string_multimap_append(
     map: CefStringMultimap,
-    key: CefString,
-    value: CefString,
+    key: &CefString,
+    value: &CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_multimap_append(map.into(), key.into(), value.into()).into() }
+    unsafe { cef_string_multimap_append(map.as_raw(), key.as_raw(), value.as_raw()).into() }
 }
 
 pub fn string_multimap_clear(map: CefStringMultimap) {
-    unsafe { cef_string_multimap_clear(map.into()) }
+    unsafe { cef_string_multimap_clear(map.as_raw()) }
 }
 
 pub fn string_multimap_free(map: CefStringMultimap) {
-    unsafe { cef_string_multimap_free(map.into()) }
+    unsafe { cef_string_multimap_free(map.as_raw()) }
 }
 
-pub fn time_to_timet(cef_time: Time, time: *mut time_t) -> ::std::os::raw::c_int {
-    unsafe { cef_time_to_timet(cef_time.into(), time.into()).into() }
+pub fn time_to_timet(cef_time: &Time, time: *mut time_t) -> ::std::os::raw::c_int {
+    unsafe { cef_time_to_timet(cef_time.as_raw(), time.as_raw()).into() }
 }
 
-pub fn time_from_timet(time: time_t, cef_time: Time) -> ::std::os::raw::c_int {
-    unsafe { cef_time_from_timet(time.into(), cef_time.into()).into() }
+pub fn time_from_timet(time: time_t, cef_time: &mut Time) -> ::std::os::raw::c_int {
+    unsafe { cef_time_from_timet(time.as_raw(), cef_time.as_raw()).into() }
 }
 
-pub fn time_to_doublet(cef_time: Time, time: *mut f64) -> ::std::os::raw::c_int {
-    unsafe { cef_time_to_doublet(cef_time.into(), time.into()).into() }
+pub fn time_to_doublet(cef_time: &Time, time: *mut f64) -> ::std::os::raw::c_int {
+    unsafe { cef_time_to_doublet(cef_time.as_raw(), time.as_raw()).into() }
 }
 
-pub fn time_from_doublet(time: f64, cef_time: Time) -> ::std::os::raw::c_int {
-    unsafe { cef_time_from_doublet(time.into(), cef_time.into()).into() }
+pub fn time_from_doublet(time: f64, cef_time: &mut Time) -> ::std::os::raw::c_int {
+    unsafe { cef_time_from_doublet(time.as_raw(), cef_time.as_raw()).into() }
 }
 
-pub fn time_now(cef_time: Time) -> ::std::os::raw::c_int {
-    unsafe { cef_time_now(cef_time.into()).into() }
+pub fn time_now(cef_time: &mut Time) -> ::std::os::raw::c_int {
+    unsafe { cef_time_now(cef_time.as_raw()).into() }
 }
 
 pub fn basetime_now() -> Basetime {
@@ -24544,19 +24960,19 @@ pub fn basetime_now() -> Basetime {
 }
 
 pub fn time_delta(
-    cef_time_1: Time,
-    cef_time_2: Time,
+    cef_time_1: &Time,
+    cef_time_2: &Time,
     delta: *mut ::std::os::raw::c_longlong,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_time_delta(cef_time_1.into(), cef_time_2.into(), delta.into()).into() }
+    unsafe { cef_time_delta(cef_time_1.as_raw(), cef_time_2.as_raw(), delta.as_raw()).into() }
 }
 
-pub fn time_to_basetime(from: Time, to: Basetime) -> ::std::os::raw::c_int {
-    unsafe { cef_time_to_basetime(from.into(), to.into()).into() }
+pub fn time_to_basetime(from: &Time, to: &mut Basetime) -> ::std::os::raw::c_int {
+    unsafe { cef_time_to_basetime(from.as_raw(), to.as_raw()).into() }
 }
 
-pub fn time_from_basetime(from: Basetime, to: Time) -> ::std::os::raw::c_int {
-    unsafe { cef_time_from_basetime(from.into(), to.into()).into() }
+pub fn time_from_basetime(from: Basetime, to: &mut Time) -> ::std::os::raw::c_int {
+    unsafe { cef_time_from_basetime(from.as_raw(), to.as_raw()).into() }
 }
 
 pub fn get_xdisplay() -> *mut XDisplay {
@@ -24568,7 +24984,7 @@ pub fn value_create() -> Value {
 }
 
 pub fn binary_value_create(data: *const ::std::os::raw::c_void, data_size: usize) -> BinaryValue {
-    unsafe { cef_binary_value_create(data.into(), data_size.into()).into() }
+    unsafe { cef_binary_value_create(data.as_raw(), data_size.as_raw()).into() }
 }
 
 pub fn dictionary_value_create() -> DictionaryValue {
@@ -24583,35 +24999,35 @@ pub fn image_create() -> Image {
     unsafe { cef_image_create().into() }
 }
 
-pub fn stream_reader_create_for_file(file_name: CefString) -> StreamReader {
-    unsafe { cef_stream_reader_create_for_file(file_name.into()).into() }
+pub fn stream_reader_create_for_file(file_name: &CefString) -> StreamReader {
+    unsafe { cef_stream_reader_create_for_file(file_name.as_raw()).into() }
 }
 
 pub fn stream_reader_create_for_data(
     data: *mut ::std::os::raw::c_void,
     size: usize,
 ) -> StreamReader {
-    unsafe { cef_stream_reader_create_for_data(data.into(), size.into()).into() }
+    unsafe { cef_stream_reader_create_for_data(data.as_raw(), size.as_raw()).into() }
 }
 
-pub fn stream_reader_create_for_handler(handler: ReadHandler) -> StreamReader {
-    unsafe { cef_stream_reader_create_for_handler(handler.into()).into() }
+pub fn stream_reader_create_for_handler(handler: &mut ReadHandler) -> StreamReader {
+    unsafe { cef_stream_reader_create_for_handler(handler.as_raw()).into() }
 }
 
-pub fn stream_writer_create_for_file(file_name: CefString) -> StreamWriter {
-    unsafe { cef_stream_writer_create_for_file(file_name.into()).into() }
+pub fn stream_writer_create_for_file(file_name: &CefString) -> StreamWriter {
+    unsafe { cef_stream_writer_create_for_file(file_name.as_raw()).into() }
 }
 
-pub fn stream_writer_create_for_handler(handler: WriteHandler) -> StreamWriter {
-    unsafe { cef_stream_writer_create_for_handler(handler.into()).into() }
+pub fn stream_writer_create_for_handler(handler: &mut WriteHandler) -> StreamWriter {
+    unsafe { cef_stream_writer_create_for_handler(handler.as_raw()).into() }
 }
 
 pub fn drag_data_create() -> DragData {
     unsafe { cef_drag_data_create().into() }
 }
 
-pub fn process_message_create(name: CefString) -> ProcessMessage {
-    unsafe { cef_process_message_create(name.into()).into() }
+pub fn process_message_create(name: &CefString) -> ProcessMessage {
+    unsafe { cef_process_message_create(name.as_raw()).into() }
 }
 
 pub fn request_create() -> Request {
@@ -24626,12 +25042,12 @@ pub fn post_data_element_create() -> PostDataElement {
     unsafe { cef_post_data_element_create().into() }
 }
 
-pub fn cookie_manager_get_global_manager(callback: CompletionCallback) -> CookieManager {
-    unsafe { cef_cookie_manager_get_global_manager(callback.into()).into() }
+pub fn cookie_manager_get_global_manager(callback: &mut CompletionCallback) -> CookieManager {
+    unsafe { cef_cookie_manager_get_global_manager(callback.as_raw()).into() }
 }
 
-pub fn media_router_get_global(callback: CompletionCallback) -> MediaRouter {
-    unsafe { cef_media_router_get_global(callback.into()).into() }
+pub fn media_router_get_global(callback: &mut CompletionCallback) -> MediaRouter {
+    unsafe { cef_media_router_get_global(callback.as_raw()).into() }
 }
 
 pub fn preference_manager_get_global() -> PreferenceManager {
@@ -24643,67 +25059,67 @@ pub fn request_context_get_global_context() -> RequestContext {
 }
 
 pub fn request_context_create_context(
-    settings: RequestContextSettings,
-    handler: RequestContextHandler,
+    settings: &RequestContextSettings,
+    handler: &mut RequestContextHandler,
 ) -> RequestContext {
-    unsafe { cef_request_context_create_context(settings.into(), handler.into()).into() }
+    unsafe { cef_request_context_create_context(settings.as_raw(), handler.as_raw()).into() }
 }
 
 pub fn create_context_shared(
-    other: RequestContext,
-    handler: RequestContextHandler,
+    other: &mut RequestContext,
+    handler: &mut RequestContextHandler,
 ) -> RequestContext {
-    unsafe { cef_create_context_shared(other.into(), handler.into()).into() }
+    unsafe { cef_create_context_shared(other.as_raw(), handler.as_raw()).into() }
 }
 
 pub fn browser_host_create_browser(
-    window_info: WindowInfo,
-    client: Client,
-    url: CefString,
-    settings: BrowserSettings,
-    extra_info: DictionaryValue,
-    request_context: RequestContext,
+    window_info: &WindowInfo,
+    client: &mut Client,
+    url: &CefString,
+    settings: &BrowserSettings,
+    extra_info: &mut DictionaryValue,
+    request_context: &mut RequestContext,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_browser_host_create_browser(
-            window_info.into(),
-            client.into(),
-            url.into(),
-            settings.into(),
-            extra_info.into(),
-            request_context.into(),
+            window_info.as_raw(),
+            client.as_raw(),
+            url.as_raw(),
+            settings.as_raw(),
+            extra_info.as_raw(),
+            request_context.as_raw(),
         )
         .into()
     }
 }
 
 pub fn browser_host_create_browser_sync(
-    window_info: WindowInfo,
-    client: Client,
-    url: CefString,
-    settings: BrowserSettings,
-    extra_info: DictionaryValue,
-    request_context: RequestContext,
+    window_info: &WindowInfo,
+    client: &mut Client,
+    url: &CefString,
+    settings: &BrowserSettings,
+    extra_info: &mut DictionaryValue,
+    request_context: &mut RequestContext,
 ) -> Browser {
     unsafe {
         cef_browser_host_create_browser_sync(
-            window_info.into(),
-            client.into(),
-            url.into(),
-            settings.into(),
-            extra_info.into(),
-            request_context.into(),
+            window_info.as_raw(),
+            client.as_raw(),
+            url.as_raw(),
+            settings.as_raw(),
+            extra_info.as_raw(),
+            request_context.as_raw(),
         )
         .into()
     }
 }
 
 pub fn browser_host_get_browser_by_identifier(browser_id: ::std::os::raw::c_int) -> Browser {
-    unsafe { cef_browser_host_get_browser_by_identifier(browser_id.into()).into() }
+    unsafe { cef_browser_host_get_browser_by_identifier(browser_id.as_raw()).into() }
 }
 
-pub fn menu_model_create(delegate: MenuModelDelegate) -> MenuModel {
-    unsafe { cef_menu_model_create(delegate.into()).into() }
+pub fn menu_model_create(delegate: &mut MenuModelDelegate) -> MenuModel {
+    unsafe { cef_menu_model_create(delegate.as_raw()).into() }
 }
 
 pub fn print_settings_create() -> PrintSettings {
@@ -24715,7 +25131,7 @@ pub fn response_create() -> Response {
 }
 
 pub fn is_cert_status_error(status: CertStatus) -> ::std::os::raw::c_int {
-    unsafe { cef_is_cert_status_error(status.into()).into() }
+    unsafe { cef_is_cert_status_error(status.as_raw()).into() }
 }
 
 pub fn command_line_create() -> CommandLine {
@@ -24731,19 +25147,23 @@ pub fn task_runner_get_for_current_thread() -> TaskRunner {
 }
 
 pub fn task_runner_get_for_thread(thread_id: ThreadId) -> TaskRunner {
-    unsafe { cef_task_runner_get_for_thread(thread_id.into()).into() }
+    unsafe { cef_task_runner_get_for_thread(thread_id.as_raw()).into() }
 }
 
 pub fn currently_on(thread_id: ThreadId) -> ::std::os::raw::c_int {
-    unsafe { cef_currently_on(thread_id.into()).into() }
+    unsafe { cef_currently_on(thread_id.as_raw()).into() }
 }
 
-pub fn post_task(thread_id: ThreadId, task: Task) -> ::std::os::raw::c_int {
-    unsafe { cef_post_task(thread_id.into(), task.into()).into() }
+pub fn post_task(thread_id: ThreadId, task: &mut Task) -> ::std::os::raw::c_int {
+    unsafe { cef_post_task(thread_id.as_raw(), task.as_raw()).into() }
 }
 
-pub fn post_delayed_task(thread_id: ThreadId, task: Task, delay_ms: i64) -> ::std::os::raw::c_int {
-    unsafe { cef_post_delayed_task(thread_id.into(), task.into(), delay_ms.into()).into() }
+pub fn post_delayed_task(
+    thread_id: ThreadId,
+    task: &mut Task,
+    delay_ms: i64,
+) -> ::std::os::raw::c_int {
+    unsafe { cef_post_delayed_task(thread_id.as_raw(), task.as_raw(), delay_ms.as_raw()).into() }
 }
 
 pub fn v8context_get_current_context() -> V8context {
@@ -24767,44 +25187,47 @@ pub fn v8value_create_null() -> V8value {
 }
 
 pub fn v8value_create_bool(value: ::std::os::raw::c_int) -> V8value {
-    unsafe { cef_v8value_create_bool(value.into()).into() }
+    unsafe { cef_v8value_create_bool(value.as_raw()).into() }
 }
 
 pub fn v8value_create_int(value: i32) -> V8value {
-    unsafe { cef_v8value_create_int(value.into()).into() }
+    unsafe { cef_v8value_create_int(value.as_raw()).into() }
 }
 
 pub fn v8value_create_uint(value: u32) -> V8value {
-    unsafe { cef_v8value_create_uint(value.into()).into() }
+    unsafe { cef_v8value_create_uint(value.as_raw()).into() }
 }
 
 pub fn v8value_create_double(value: f64) -> V8value {
-    unsafe { cef_v8value_create_double(value.into()).into() }
+    unsafe { cef_v8value_create_double(value.as_raw()).into() }
 }
 
 pub fn v8value_create_date(date: Basetime) -> V8value {
-    unsafe { cef_v8value_create_date(date.into()).into() }
+    unsafe { cef_v8value_create_date(date.as_raw()).into() }
 }
 
-pub fn v8value_create_string(value: CefString) -> V8value {
-    unsafe { cef_v8value_create_string(value.into()).into() }
+pub fn v8value_create_string(value: &CefString) -> V8value {
+    unsafe { cef_v8value_create_string(value.as_raw()).into() }
 }
 
-pub fn v8value_create_object(accessor: V8accessor, interceptor: V8interceptor) -> V8value {
-    unsafe { cef_v8value_create_object(accessor.into(), interceptor.into()).into() }
+pub fn v8value_create_object(
+    accessor: &mut V8accessor,
+    interceptor: &mut V8interceptor,
+) -> V8value {
+    unsafe { cef_v8value_create_object(accessor.as_raw(), interceptor.as_raw()).into() }
 }
 
 pub fn v8value_create_array(length: ::std::os::raw::c_int) -> V8value {
-    unsafe { cef_v8value_create_array(length.into()).into() }
+    unsafe { cef_v8value_create_array(length.as_raw()).into() }
 }
 
 pub fn v8value_create_array_buffer(
     buffer: *mut ::std::os::raw::c_void,
     length: usize,
-    release_callback: V8arrayBufferReleaseCallback,
+    release_callback: &mut V8arrayBufferReleaseCallback,
 ) -> V8value {
     unsafe {
-        cef_v8value_create_array_buffer(buffer.into(), length.into(), release_callback.into())
+        cef_v8value_create_array_buffer(buffer.as_raw(), length.as_raw(), release_callback.as_raw())
             .into()
     }
 }
@@ -24813,11 +25236,11 @@ pub fn v8value_create_array_buffer_with_copy(
     buffer: *mut ::std::os::raw::c_void,
     length: usize,
 ) -> V8value {
-    unsafe { cef_v8value_create_array_buffer_with_copy(buffer.into(), length.into()).into() }
+    unsafe { cef_v8value_create_array_buffer_with_copy(buffer.as_raw(), length.as_raw()).into() }
 }
 
-pub fn v8value_create_function(name: CefString, handler: V8handler) -> V8value {
-    unsafe { cef_v8value_create_function(name.into(), handler.into()).into() }
+pub fn v8value_create_function(name: &CefString, handler: &mut V8handler) -> V8value {
+    unsafe { cef_v8value_create_function(name.as_raw(), handler.as_raw()).into() }
 }
 
 pub fn v8value_create_promise() -> V8value {
@@ -24825,32 +25248,36 @@ pub fn v8value_create_promise() -> V8value {
 }
 
 pub fn v8stack_trace_get_current(frame_limit: ::std::os::raw::c_int) -> V8stackTrace {
-    unsafe { cef_v8stack_trace_get_current(frame_limit.into()).into() }
+    unsafe { cef_v8stack_trace_get_current(frame_limit.as_raw()).into() }
 }
 
 pub fn register_extension(
-    extension_name: CefString,
-    javascript_code: CefString,
-    handler: V8handler,
+    extension_name: &CefString,
+    javascript_code: &CefString,
+    handler: &mut V8handler,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_register_extension(
-            extension_name.into(),
-            javascript_code.into(),
-            handler.into(),
+            extension_name.as_raw(),
+            javascript_code.as_raw(),
+            handler.as_raw(),
         )
         .into()
     }
 }
 
 pub fn register_scheme_handler_factory(
-    scheme_name: CefString,
-    domain_name: CefString,
-    factory: SchemeHandlerFactory,
+    scheme_name: &CefString,
+    domain_name: &CefString,
+    factory: &mut SchemeHandlerFactory,
 ) -> ::std::os::raw::c_int {
     unsafe {
-        cef_register_scheme_handler_factory(scheme_name.into(), domain_name.into(), factory.into())
-            .into()
+        cef_register_scheme_handler_factory(
+            scheme_name.as_raw(),
+            domain_name.as_raw(),
+            factory.as_raw(),
+        )
+        .into()
     }
 }
 
@@ -24859,27 +25286,32 @@ pub fn clear_scheme_handler_factories() -> ::std::os::raw::c_int {
 }
 
 pub fn execute_process(
-    args: MainArgs,
-    application: App,
+    args: &MainArgs,
+    application: &mut App,
     windows_sandbox_info: *mut ::std::os::raw::c_void,
 ) -> ::std::os::raw::c_int {
     unsafe {
-        cef_execute_process(args.into(), application.into(), windows_sandbox_info.into()).into()
+        cef_execute_process(
+            args.as_raw(),
+            application.as_raw(),
+            windows_sandbox_info.as_raw(),
+        )
+        .into()
     }
 }
 
 pub fn initialize(
-    args: MainArgs,
-    settings: Settings,
-    application: App,
+    args: &MainArgs,
+    settings: &Settings,
+    application: &mut App,
     windows_sandbox_info: *mut ::std::os::raw::c_void,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_initialize(
-            args.into(),
-            settings.into(),
-            application.into(),
-            windows_sandbox_info.into(),
+            args.as_raw(),
+            settings.as_raw(),
+            application.as_raw(),
+            windows_sandbox_info.as_raw(),
         )
         .into()
     }
@@ -24906,28 +25338,28 @@ pub fn quit_message_loop() {
 }
 
 pub fn browser_view_create(
-    client: Client,
-    url: CefString,
-    settings: BrowserSettings,
-    extra_info: DictionaryValue,
-    request_context: RequestContext,
-    delegate: BrowserViewDelegate,
+    client: &mut Client,
+    url: &CefString,
+    settings: &BrowserSettings,
+    extra_info: &mut DictionaryValue,
+    request_context: &mut RequestContext,
+    delegate: &mut BrowserViewDelegate,
 ) -> BrowserView {
     unsafe {
         cef_browser_view_create(
-            client.into(),
-            url.into(),
-            settings.into(),
-            extra_info.into(),
-            request_context.into(),
-            delegate.into(),
+            client.as_raw(),
+            url.as_raw(),
+            settings.as_raw(),
+            extra_info.as_raw(),
+            request_context.as_raw(),
+            delegate.as_raw(),
         )
         .into()
     }
 }
 
-pub fn browser_view_get_for_browser(browser: Browser) -> BrowserView {
-    unsafe { cef_browser_view_get_for_browser(browser.into()).into() }
+pub fn browser_view_get_for_browser(browser: &mut Browser) -> BrowserView {
+    unsafe { cef_browser_view_get_for_browser(browser.as_raw()).into() }
 }
 
 pub fn display_get_primary() -> Display {
@@ -24935,47 +25367,47 @@ pub fn display_get_primary() -> Display {
 }
 
 pub fn display_get_nearest_point(
-    point: Point,
+    point: &Point,
     input_pixel_coords: ::std::os::raw::c_int,
 ) -> Display {
-    unsafe { cef_display_get_nearest_point(point.into(), input_pixel_coords.into()).into() }
+    unsafe { cef_display_get_nearest_point(point.as_raw(), input_pixel_coords.as_raw()).into() }
 }
 
 pub fn display_get_matching_bounds(
-    bounds: Rect,
+    bounds: &Rect,
     input_pixel_coords: ::std::os::raw::c_int,
 ) -> Display {
-    unsafe { cef_display_get_matching_bounds(bounds.into(), input_pixel_coords.into()).into() }
+    unsafe { cef_display_get_matching_bounds(bounds.as_raw(), input_pixel_coords.as_raw()).into() }
 }
 
 pub fn display_get_count() -> usize {
     unsafe { cef_display_get_count().into() }
 }
 
-pub fn display_get_alls(displays_count: *mut usize, displays: *mut Display) {
-    unsafe { cef_display_get_alls(displays_count.into(), displays.into()) }
+pub fn display_get_alls(displays_count: *mut usize, displays: *mut &mut Display) {
+    unsafe { cef_display_get_alls(displays_count.as_raw(), displays.as_raw()) }
 }
 
-pub fn display_convert_screen_point_to_pixels(point: Point) -> Point {
-    unsafe { cef_display_convert_screen_point_to_pixels(point.into()).into() }
+pub fn display_convert_screen_point_to_pixels(point: &Point) -> Point {
+    unsafe { cef_display_convert_screen_point_to_pixels(point.as_raw()).into() }
 }
 
-pub fn display_convert_screen_point_from_pixels(point: Point) -> Point {
-    unsafe { cef_display_convert_screen_point_from_pixels(point.into()).into() }
+pub fn display_convert_screen_point_from_pixels(point: &Point) -> Point {
+    unsafe { cef_display_convert_screen_point_from_pixels(point.as_raw()).into() }
 }
 
-pub fn display_convert_screen_rect_to_pixels(rect: Rect) -> Rect {
-    unsafe { cef_display_convert_screen_rect_to_pixels(rect.into()).into() }
+pub fn display_convert_screen_rect_to_pixels(rect: &Rect) -> Rect {
+    unsafe { cef_display_convert_screen_rect_to_pixels(rect.as_raw()).into() }
 }
 
-pub fn display_convert_screen_rect_from_pixels(rect: Rect) -> Rect {
-    unsafe { cef_display_convert_screen_rect_from_pixels(rect.into()).into() }
+pub fn display_convert_screen_rect_from_pixels(rect: &Rect) -> Rect {
+    unsafe { cef_display_convert_screen_rect_from_pixels(rect.as_raw()).into() }
 }
 
-pub fn panel_create(delegate: PanelDelegate) -> Panel {
-    unsafe { cef_panel_create(delegate.into()).into() }
+pub fn panel_create(delegate: &mut PanelDelegate) -> Panel {
+    unsafe { cef_panel_create(delegate.as_raw()).into() }
 }
 
-pub fn window_create_top_level(delegate: WindowDelegate) -> Window {
-    unsafe { cef_window_create_top_level(delegate.into()).into() }
+pub fn window_create_top_level(delegate: &mut WindowDelegate) -> Window {
+    unsafe { cef_window_create_top_level(delegate.as_raw()).into() }
 }
