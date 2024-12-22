@@ -1,6 +1,6 @@
 #![allow(dead_code, non_camel_case_types, unused_variables)]
 use crate::{
-    rc::{ConvertParam, RcImpl, RefGuard},
+    rc::{ConvertParam, ConvertReturnValue, RcImpl, RefGuard},
     wrapper,
 };
 use cef_sys::*;
@@ -2519,7 +2519,7 @@ mod impl_cef_dictionary_value_t {
         keys: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let keys = &mut CefStringList::from(keys);
+        let keys = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(keys) });
         obj.interface.get_keys(keys).into()
     }
 
@@ -3997,7 +3997,7 @@ mod impl_cef_drag_data_t {
         names: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let names = &mut CefStringList::from(names);
+        let names = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(names) });
         obj.interface.get_file_names(names).into()
     }
 
@@ -4006,7 +4006,7 @@ mod impl_cef_drag_data_t {
         paths: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let paths = &mut CefStringList::from(paths);
+        let paths = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(paths) });
         obj.interface.get_file_paths(paths).into()
     }
 
@@ -4644,7 +4644,7 @@ mod impl_cef_domnode_t {
         attr_map: cef_string_map_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let attr_map = &mut CefStringMap::from(attr_map);
+        let attr_map = &mut CefStringMap(unsafe { RefGuard::from_raw_add_ref(attr_map) });
         obj.interface.get_element_attributes(attr_map)
     }
 
@@ -5039,7 +5039,7 @@ mod impl_cef_request_t {
         header_map: cef_string_multimap_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let header_map = &mut CefStringMultimap::from(header_map);
+        let header_map = &mut CefStringMultimap(unsafe { RefGuard::from_raw_add_ref(header_map) });
         obj.interface.get_header_map(header_map)
     }
 
@@ -5048,7 +5048,7 @@ mod impl_cef_request_t {
         header_map: cef_string_multimap_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let header_map = &mut CefStringMultimap::from(header_map);
+        let header_map = &mut CefStringMultimap(unsafe { RefGuard::from_raw_add_ref(header_map) });
         obj.interface.set_header_map(header_map)
     }
 
@@ -5084,7 +5084,7 @@ mod impl_cef_request_t {
         let url = &CefString::from(url);
         let method = &CefString::from(method);
         let post_data = &mut PostData(unsafe { RefGuard::from_raw_add_ref(post_data) });
-        let header_map = &mut CefStringMultimap::from(header_map);
+        let header_map = &mut CefStringMultimap(unsafe { RefGuard::from_raw_add_ref(header_map) });
         obj.interface.set(url, method, post_data, header_map)
     }
 
@@ -5654,7 +5654,7 @@ mod impl_cef_frame_t {
         visitor: *mut _cef_string_visitor_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let visitor = &mut CefStringVisitor::from(visitor);
+        let visitor = &mut CefStringVisitor(unsafe { RefGuard::from_raw_add_ref(visitor) });
         obj.interface.get_source(visitor)
     }
 
@@ -5663,7 +5663,7 @@ mod impl_cef_frame_t {
         visitor: *mut _cef_string_visitor_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let visitor = &mut CefStringVisitor::from(visitor);
+        let visitor = &mut CefStringVisitor(unsafe { RefGuard::from_raw_add_ref(visitor) });
         obj.interface.get_text(visitor)
     }
 
@@ -5859,7 +5859,7 @@ mod impl_cef_x509cert_principal_t {
         names: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let names = &mut CefStringList::from(names);
+        let names = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(names) });
         obj.interface.get_organization_names(names)
     }
 
@@ -5868,7 +5868,7 @@ mod impl_cef_x509cert_principal_t {
         names: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let names = &mut CefStringList::from(names);
+        let names = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(names) });
         obj.interface.get_organization_unit_names(names)
     }
 }
@@ -7288,7 +7288,7 @@ mod impl_cef_resolve_callback_t {
         resolved_ips: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let resolved_ips = &mut CefStringList::from(resolved_ips);
+        let resolved_ips = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(resolved_ips) });
         obj.interface.on_resolve_completed(result, resolved_ips)
     }
 }
@@ -7901,7 +7901,7 @@ mod impl_cef_browser_t {
         identifiers: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let identifiers = &mut CefStringList::from(identifiers);
+        let identifiers = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(identifiers) });
         obj.interface.get_frame_identifiers(identifiers)
     }
 
@@ -7910,7 +7910,7 @@ mod impl_cef_browser_t {
         names: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let names = &mut CefStringList::from(names);
+        let names = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(names) });
         obj.interface.get_frame_names(names)
     }
 }
@@ -7947,7 +7947,7 @@ mod impl_cef_run_file_dialog_callback_t {
         file_paths: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let file_paths = &mut CefStringList::from(file_paths);
+        let file_paths = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(file_paths) });
         obj.interface.on_file_dialog_dismissed(file_paths)
     }
 }
@@ -8690,7 +8690,8 @@ mod impl_cef_browser_host_t {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         let title = &CefString::from(title);
         let default_file_path = &CefString::from(default_file_path);
-        let accept_filters = &mut CefStringList::from(accept_filters);
+        let accept_filters =
+            &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(accept_filters) });
         let callback = &mut RunFileDialogCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
             .run_file_dialog(mode, title, default_file_path, accept_filters, callback)
@@ -11236,7 +11237,7 @@ mod impl_cef_context_menu_params_t {
         suggestions: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let suggestions = &mut CefStringList::from(suggestions);
+        let suggestions = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(suggestions) });
         obj.interface.get_dictionary_suggestions(suggestions).into()
     }
 
@@ -11302,7 +11303,7 @@ mod impl_cef_file_dialog_callback_t {
         file_paths: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let file_paths = &mut CefStringList::from(file_paths);
+        let file_paths = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(file_paths) });
         obj.interface.cont(file_paths)
     }
 
@@ -11374,9 +11375,12 @@ mod impl_cef_dialog_handler_t {
         let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
         let title = &CefString::from(title);
         let default_file_path = &CefString::from(default_file_path);
-        let accept_filters = &mut CefStringList::from(accept_filters);
-        let accept_extensions = &mut CefStringList::from(accept_extensions);
-        let accept_descriptions = &mut CefStringList::from(accept_descriptions);
+        let accept_filters =
+            &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(accept_filters) });
+        let accept_extensions =
+            &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(accept_extensions) });
+        let accept_descriptions =
+            &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(accept_descriptions) });
         let callback = &mut FileDialogCallback(unsafe { RefGuard::from_raw_add_ref(callback) });
         obj.interface
             .on_file_dialog(
@@ -11528,7 +11532,7 @@ mod impl_cef_display_handler_t {
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
         let browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(browser) });
-        let icon_urls = &mut CefStringList::from(icon_urls);
+        let icon_urls = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(icon_urls) });
         obj.interface.on_favicon_urlchange(browser, icon_urls)
     }
 
@@ -14454,7 +14458,7 @@ mod impl_cef_response_t {
         header_map: cef_string_multimap_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let header_map = &mut CefStringMultimap::from(header_map);
+        let header_map = &mut CefStringMultimap(unsafe { RefGuard::from_raw_add_ref(header_map) });
         obj.interface.get_header_map(header_map)
     }
 
@@ -14463,7 +14467,7 @@ mod impl_cef_response_t {
         header_map: cef_string_multimap_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let header_map = &mut CefStringMultimap::from(header_map);
+        let header_map = &mut CefStringMultimap(unsafe { RefGuard::from_raw_add_ref(header_map) });
         obj.interface.set_header_map(header_map)
     }
 
@@ -16151,7 +16155,7 @@ mod impl_cef_command_line_t {
         argv: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let argv = &mut CefStringList::from(argv);
+        let argv = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(argv) });
         obj.interface.get_argv(argv)
     }
 
@@ -16208,7 +16212,7 @@ mod impl_cef_command_line_t {
         switches: cef_string_map_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let switches = &mut CefStringMap::from(switches);
+        let switches = &mut CefStringMap(unsafe { RefGuard::from_raw_add_ref(switches) });
         obj.interface.get_switches(switches)
     }
 
@@ -16244,7 +16248,7 @@ mod impl_cef_command_line_t {
         arguments: cef_string_list_t,
     ) {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let arguments = &mut CefStringList::from(arguments);
+        let arguments = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(arguments) });
         obj.interface.get_arguments(arguments)
     }
 
@@ -17798,7 +17802,7 @@ mod impl_cef_v8value_t {
         keys: cef_string_list_t,
     ) -> ::std::os::raw::c_int {
         let obj: &RcImpl<_, I> = RcImpl::get(self_);
-        let keys = &mut CefStringList::from(keys);
+        let keys = &mut CefStringList(unsafe { RefGuard::from_raw_add_ref(keys) });
         obj.interface.get_keys(keys).into()
     }
 
@@ -24628,7 +24632,7 @@ pub fn string_wide_set(
             output.as_raw(),
             copy.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
@@ -24645,7 +24649,7 @@ pub fn string_utf8_set(
             output.as_raw(),
             copy.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
@@ -24662,7 +24666,7 @@ pub fn string_utf16_set(
             output.as_raw(),
             copy.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
@@ -24679,15 +24683,15 @@ pub fn string_utf16_clear(str_: &mut CefStringUtf16) {
 }
 
 pub fn string_wide_cmp(str_1: &CefStringWide, str_2: &CefStringWide) -> ::std::os::raw::c_int {
-    unsafe { cef_string_wide_cmp(str_1.as_raw(), str_2.as_raw()).into() }
+    unsafe { cef_string_wide_cmp(str_1.as_raw(), str_2.as_raw()).as_wrapper() }
 }
 
 pub fn string_utf8_cmp(str_1: &CefStringUtf8, str_2: &CefStringUtf8) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf8_cmp(str_1.as_raw(), str_2.as_raw()).into() }
+    unsafe { cef_string_utf8_cmp(str_1.as_raw(), str_2.as_raw()).as_wrapper() }
 }
 
 pub fn string_utf16_cmp(str_1: &CefStringUtf16, str_2: &CefStringUtf16) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_cmp(str_1.as_raw(), str_2.as_raw()).into() }
+    unsafe { cef_string_utf16_cmp(str_1.as_raw(), str_2.as_raw()).as_wrapper() }
 }
 
 pub fn string_wide_to_utf8(
@@ -24695,7 +24699,7 @@ pub fn string_wide_to_utf8(
     src_len: usize,
     output: &mut CefStringUtf8,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_wide_to_utf8(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe { cef_string_wide_to_utf8(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper() }
 }
 
 pub fn string_utf8_to_wide(
@@ -24703,7 +24707,7 @@ pub fn string_utf8_to_wide(
     src_len: usize,
     output: &mut CefStringWide,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf8_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe { cef_string_utf8_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper() }
 }
 
 pub fn string_wide_to_utf16(
@@ -24711,7 +24715,9 @@ pub fn string_wide_to_utf16(
     src_len: usize,
     output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_wide_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe {
+        cef_string_wide_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
+    }
 }
 
 pub fn string_utf16_to_wide(
@@ -24719,7 +24725,9 @@ pub fn string_utf16_to_wide(
     src_len: usize,
     output: &mut CefStringWide,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe {
+        cef_string_utf16_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
+    }
 }
 
 pub fn string_utf8_to_utf16(
@@ -24727,7 +24735,9 @@ pub fn string_utf8_to_utf16(
     src_len: usize,
     output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf8_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe {
+        cef_string_utf8_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
+    }
 }
 
 pub fn string_utf16_to_utf8(
@@ -24735,7 +24745,9 @@ pub fn string_utf16_to_utf8(
     src_len: usize,
     output: &mut CefStringUtf8,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_to_utf8(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe {
+        cef_string_utf16_to_utf8(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
+    }
 }
 
 pub fn string_ascii_to_wide(
@@ -24743,7 +24755,9 @@ pub fn string_ascii_to_wide(
     src_len: usize,
     output: &mut CefStringWide,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_ascii_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe {
+        cef_string_ascii_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
+    }
 }
 
 pub fn string_ascii_to_utf16(
@@ -24751,30 +24765,32 @@ pub fn string_ascii_to_utf16(
     src_len: usize,
     output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_ascii_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe {
+        cef_string_ascii_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
+    }
 }
 
 pub fn string_userfree_wide_alloc() -> CefStringUserfreeWide {
-    unsafe { cef_string_userfree_wide_alloc().into() }
+    unsafe { cef_string_userfree_wide_alloc().as_wrapper() }
 }
 
 pub fn string_userfree_utf8_alloc() -> CefStringUserfreeUtf8 {
-    unsafe { cef_string_userfree_utf8_alloc().into() }
+    unsafe { cef_string_userfree_utf8_alloc().as_wrapper() }
 }
 
 pub fn string_userfree_utf16_alloc() -> CefStringUserfreeUtf16 {
-    unsafe { cef_string_userfree_utf16_alloc().into() }
+    unsafe { cef_string_userfree_utf16_alloc().as_wrapper() }
 }
 
-pub fn string_userfree_wide_free(str_: CefStringUserfreeWide) {
+pub fn string_userfree_wide_free(str_: &mut CefStringUserfreeWide) {
     unsafe { cef_string_userfree_wide_free(str_.as_raw()) }
 }
 
-pub fn string_userfree_utf8_free(str_: CefStringUserfreeUtf8) {
+pub fn string_userfree_utf8_free(str_: &mut CefStringUserfreeUtf8) {
     unsafe { cef_string_userfree_utf8_free(str_.as_raw()) }
 }
 
-pub fn string_userfree_utf16_free(str_: CefStringUserfreeUtf16) {
+pub fn string_userfree_utf16_free(str_: &mut CefStringUserfreeUtf16) {
     unsafe { cef_string_userfree_utf16_free(str_.as_raw()) }
 }
 
@@ -24783,7 +24799,9 @@ pub fn string_utf16_to_lower(
     src_len: usize,
     output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_to_lower(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe {
+        cef_string_utf16_to_lower(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
+    }
 }
 
 pub fn string_utf16_to_upper(
@@ -24791,103 +24809,105 @@ pub fn string_utf16_to_upper(
     src_len: usize,
     output: &mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_utf16_to_upper(src.as_raw(), src_len.as_raw(), output.as_raw()).into() }
+    unsafe {
+        cef_string_utf16_to_upper(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
+    }
 }
 
 pub fn string_list_alloc() -> CefStringList {
-    unsafe { cef_string_list_alloc().into() }
+    unsafe { cef_string_list_alloc().as_wrapper() }
 }
 
-pub fn string_list_size(list: CefStringList) -> usize {
-    unsafe { cef_string_list_size(list.as_raw()).into() }
+pub fn string_list_size(list: &mut CefStringList) -> usize {
+    unsafe { cef_string_list_size(list.as_raw()).as_wrapper() }
 }
 
 pub fn string_list_value(
-    list: CefStringList,
+    list: &mut CefStringList,
     index: usize,
     value: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_list_value(list.as_raw(), index.as_raw(), value.as_raw()).into() }
+    unsafe { cef_string_list_value(list.as_raw(), index.as_raw(), value.as_raw()).as_wrapper() }
 }
 
-pub fn string_list_append(list: CefStringList, value: &CefString) {
+pub fn string_list_append(list: &mut CefStringList, value: &CefString) {
     unsafe { cef_string_list_append(list.as_raw(), value.as_raw()) }
 }
 
-pub fn string_list_clear(list: CefStringList) {
+pub fn string_list_clear(list: &mut CefStringList) {
     unsafe { cef_string_list_clear(list.as_raw()) }
 }
 
-pub fn string_list_free(list: CefStringList) {
+pub fn string_list_free(list: &mut CefStringList) {
     unsafe { cef_string_list_free(list.as_raw()) }
 }
 
-pub fn string_list_copy(list: CefStringList) -> CefStringList {
-    unsafe { cef_string_list_copy(list.as_raw()).into() }
+pub fn string_list_copy(list: &mut CefStringList) -> CefStringList {
+    unsafe { cef_string_list_copy(list.as_raw()).as_wrapper() }
 }
 
 pub fn string_map_alloc() -> CefStringMap {
-    unsafe { cef_string_map_alloc().into() }
+    unsafe { cef_string_map_alloc().as_wrapper() }
 }
 
-pub fn string_map_size(map: CefStringMap) -> usize {
-    unsafe { cef_string_map_size(map.as_raw()).into() }
+pub fn string_map_size(map: &mut CefStringMap) -> usize {
+    unsafe { cef_string_map_size(map.as_raw()).as_wrapper() }
 }
 
 pub fn string_map_find(
-    map: CefStringMap,
+    map: &mut CefStringMap,
     key: &CefString,
     value: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_map_find(map.as_raw(), key.as_raw(), value.as_raw()).into() }
+    unsafe { cef_string_map_find(map.as_raw(), key.as_raw(), value.as_raw()).as_wrapper() }
 }
 
 pub fn string_map_key(
-    map: CefStringMap,
+    map: &mut CefStringMap,
     index: usize,
     key: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_map_key(map.as_raw(), index.as_raw(), key.as_raw()).into() }
+    unsafe { cef_string_map_key(map.as_raw(), index.as_raw(), key.as_raw()).as_wrapper() }
 }
 
 pub fn string_map_value(
-    map: CefStringMap,
+    map: &mut CefStringMap,
     index: usize,
     value: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_map_value(map.as_raw(), index.as_raw(), value.as_raw()).into() }
+    unsafe { cef_string_map_value(map.as_raw(), index.as_raw(), value.as_raw()).as_wrapper() }
 }
 
 pub fn string_map_append(
-    map: CefStringMap,
+    map: &mut CefStringMap,
     key: &CefString,
     value: &CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_map_append(map.as_raw(), key.as_raw(), value.as_raw()).into() }
+    unsafe { cef_string_map_append(map.as_raw(), key.as_raw(), value.as_raw()).as_wrapper() }
 }
 
-pub fn string_map_clear(map: CefStringMap) {
+pub fn string_map_clear(map: &mut CefStringMap) {
     unsafe { cef_string_map_clear(map.as_raw()) }
 }
 
-pub fn string_map_free(map: CefStringMap) {
+pub fn string_map_free(map: &mut CefStringMap) {
     unsafe { cef_string_map_free(map.as_raw()) }
 }
 
 pub fn string_multimap_alloc() -> CefStringMultimap {
-    unsafe { cef_string_multimap_alloc().into() }
+    unsafe { cef_string_multimap_alloc().as_wrapper() }
 }
 
-pub fn string_multimap_size(map: CefStringMultimap) -> usize {
-    unsafe { cef_string_multimap_size(map.as_raw()).into() }
+pub fn string_multimap_size(map: &mut CefStringMultimap) -> usize {
+    unsafe { cef_string_multimap_size(map.as_raw()).as_wrapper() }
 }
 
-pub fn string_multimap_find_count(map: CefStringMultimap, key: &CefString) -> usize {
-    unsafe { cef_string_multimap_find_count(map.as_raw(), key.as_raw()).into() }
+pub fn string_multimap_find_count(map: &mut CefStringMultimap, key: &CefString) -> usize {
+    unsafe { cef_string_multimap_find_count(map.as_raw(), key.as_raw()).as_wrapper() }
 }
 
 pub fn string_multimap_enumerate(
-    map: CefStringMultimap,
+    map: &mut CefStringMultimap,
     key: &CefString,
     value_index: usize,
     value: &mut CefString,
@@ -24899,64 +24919,64 @@ pub fn string_multimap_enumerate(
             value_index.as_raw(),
             value.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
 pub fn string_multimap_key(
-    map: CefStringMultimap,
+    map: &mut CefStringMultimap,
     index: usize,
     key: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_multimap_key(map.as_raw(), index.as_raw(), key.as_raw()).into() }
+    unsafe { cef_string_multimap_key(map.as_raw(), index.as_raw(), key.as_raw()).as_wrapper() }
 }
 
 pub fn string_multimap_value(
-    map: CefStringMultimap,
+    map: &mut CefStringMultimap,
     index: usize,
     value: &mut CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_multimap_value(map.as_raw(), index.as_raw(), value.as_raw()).into() }
+    unsafe { cef_string_multimap_value(map.as_raw(), index.as_raw(), value.as_raw()).as_wrapper() }
 }
 
 pub fn string_multimap_append(
-    map: CefStringMultimap,
+    map: &mut CefStringMultimap,
     key: &CefString,
     value: &CefString,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_string_multimap_append(map.as_raw(), key.as_raw(), value.as_raw()).into() }
+    unsafe { cef_string_multimap_append(map.as_raw(), key.as_raw(), value.as_raw()).as_wrapper() }
 }
 
-pub fn string_multimap_clear(map: CefStringMultimap) {
+pub fn string_multimap_clear(map: &mut CefStringMultimap) {
     unsafe { cef_string_multimap_clear(map.as_raw()) }
 }
 
-pub fn string_multimap_free(map: CefStringMultimap) {
+pub fn string_multimap_free(map: &mut CefStringMultimap) {
     unsafe { cef_string_multimap_free(map.as_raw()) }
 }
 
 pub fn time_to_timet(cef_time: &Time, time: *mut time_t) -> ::std::os::raw::c_int {
-    unsafe { cef_time_to_timet(cef_time.as_raw(), time.as_raw()).into() }
+    unsafe { cef_time_to_timet(cef_time.as_raw(), time.as_raw()).as_wrapper() }
 }
 
 pub fn time_from_timet(time: time_t, cef_time: &mut Time) -> ::std::os::raw::c_int {
-    unsafe { cef_time_from_timet(time.as_raw(), cef_time.as_raw()).into() }
+    unsafe { cef_time_from_timet(time.as_raw(), cef_time.as_raw()).as_wrapper() }
 }
 
 pub fn time_to_doublet(cef_time: &Time, time: *mut f64) -> ::std::os::raw::c_int {
-    unsafe { cef_time_to_doublet(cef_time.as_raw(), time.as_raw()).into() }
+    unsafe { cef_time_to_doublet(cef_time.as_raw(), time.as_raw()).as_wrapper() }
 }
 
 pub fn time_from_doublet(time: f64, cef_time: &mut Time) -> ::std::os::raw::c_int {
-    unsafe { cef_time_from_doublet(time.as_raw(), cef_time.as_raw()).into() }
+    unsafe { cef_time_from_doublet(time.as_raw(), cef_time.as_raw()).as_wrapper() }
 }
 
 pub fn time_now(cef_time: &mut Time) -> ::std::os::raw::c_int {
-    unsafe { cef_time_now(cef_time.as_raw()).into() }
+    unsafe { cef_time_now(cef_time.as_raw()).as_wrapper() }
 }
 
 pub fn basetime_now() -> Basetime {
-    unsafe { cef_basetime_now().into() }
+    unsafe { cef_basetime_now().as_wrapper() }
 }
 
 pub fn time_delta(
@@ -24964,112 +24984,112 @@ pub fn time_delta(
     cef_time_2: &Time,
     delta: *mut ::std::os::raw::c_longlong,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_time_delta(cef_time_1.as_raw(), cef_time_2.as_raw(), delta.as_raw()).into() }
+    unsafe { cef_time_delta(cef_time_1.as_raw(), cef_time_2.as_raw(), delta.as_raw()).as_wrapper() }
 }
 
 pub fn time_to_basetime(from: &Time, to: &mut Basetime) -> ::std::os::raw::c_int {
-    unsafe { cef_time_to_basetime(from.as_raw(), to.as_raw()).into() }
+    unsafe { cef_time_to_basetime(from.as_raw(), to.as_raw()).as_wrapper() }
 }
 
-pub fn time_from_basetime(from: Basetime, to: &mut Time) -> ::std::os::raw::c_int {
-    unsafe { cef_time_from_basetime(from.as_raw(), to.as_raw()).into() }
+pub fn time_from_basetime(from: &mut Basetime, to: &mut Time) -> ::std::os::raw::c_int {
+    unsafe { cef_time_from_basetime(from.as_raw(), to.as_raw()).as_wrapper() }
 }
 
 pub fn get_xdisplay() -> *mut XDisplay {
-    unsafe { cef_get_xdisplay().into() }
+    unsafe { cef_get_xdisplay().as_wrapper() }
 }
 
 pub fn value_create() -> Value {
-    unsafe { cef_value_create().into() }
+    unsafe { cef_value_create().as_wrapper() }
 }
 
 pub fn binary_value_create(data: *const ::std::os::raw::c_void, data_size: usize) -> BinaryValue {
-    unsafe { cef_binary_value_create(data.as_raw(), data_size.as_raw()).into() }
+    unsafe { cef_binary_value_create(data.as_raw(), data_size.as_raw()).as_wrapper() }
 }
 
 pub fn dictionary_value_create() -> DictionaryValue {
-    unsafe { cef_dictionary_value_create().into() }
+    unsafe { cef_dictionary_value_create().as_wrapper() }
 }
 
 pub fn list_value_create() -> ListValue {
-    unsafe { cef_list_value_create().into() }
+    unsafe { cef_list_value_create().as_wrapper() }
 }
 
 pub fn image_create() -> Image {
-    unsafe { cef_image_create().into() }
+    unsafe { cef_image_create().as_wrapper() }
 }
 
 pub fn stream_reader_create_for_file(file_name: &CefString) -> StreamReader {
-    unsafe { cef_stream_reader_create_for_file(file_name.as_raw()).into() }
+    unsafe { cef_stream_reader_create_for_file(file_name.as_raw()).as_wrapper() }
 }
 
 pub fn stream_reader_create_for_data(
     data: *mut ::std::os::raw::c_void,
     size: usize,
 ) -> StreamReader {
-    unsafe { cef_stream_reader_create_for_data(data.as_raw(), size.as_raw()).into() }
+    unsafe { cef_stream_reader_create_for_data(data.as_raw(), size.as_raw()).as_wrapper() }
 }
 
 pub fn stream_reader_create_for_handler(handler: &mut ReadHandler) -> StreamReader {
-    unsafe { cef_stream_reader_create_for_handler(handler.as_raw()).into() }
+    unsafe { cef_stream_reader_create_for_handler(handler.as_raw()).as_wrapper() }
 }
 
 pub fn stream_writer_create_for_file(file_name: &CefString) -> StreamWriter {
-    unsafe { cef_stream_writer_create_for_file(file_name.as_raw()).into() }
+    unsafe { cef_stream_writer_create_for_file(file_name.as_raw()).as_wrapper() }
 }
 
 pub fn stream_writer_create_for_handler(handler: &mut WriteHandler) -> StreamWriter {
-    unsafe { cef_stream_writer_create_for_handler(handler.as_raw()).into() }
+    unsafe { cef_stream_writer_create_for_handler(handler.as_raw()).as_wrapper() }
 }
 
 pub fn drag_data_create() -> DragData {
-    unsafe { cef_drag_data_create().into() }
+    unsafe { cef_drag_data_create().as_wrapper() }
 }
 
 pub fn process_message_create(name: &CefString) -> ProcessMessage {
-    unsafe { cef_process_message_create(name.as_raw()).into() }
+    unsafe { cef_process_message_create(name.as_raw()).as_wrapper() }
 }
 
 pub fn request_create() -> Request {
-    unsafe { cef_request_create().into() }
+    unsafe { cef_request_create().as_wrapper() }
 }
 
 pub fn post_data_create() -> PostData {
-    unsafe { cef_post_data_create().into() }
+    unsafe { cef_post_data_create().as_wrapper() }
 }
 
 pub fn post_data_element_create() -> PostDataElement {
-    unsafe { cef_post_data_element_create().into() }
+    unsafe { cef_post_data_element_create().as_wrapper() }
 }
 
 pub fn cookie_manager_get_global_manager(callback: &mut CompletionCallback) -> CookieManager {
-    unsafe { cef_cookie_manager_get_global_manager(callback.as_raw()).into() }
+    unsafe { cef_cookie_manager_get_global_manager(callback.as_raw()).as_wrapper() }
 }
 
 pub fn media_router_get_global(callback: &mut CompletionCallback) -> MediaRouter {
-    unsafe { cef_media_router_get_global(callback.as_raw()).into() }
+    unsafe { cef_media_router_get_global(callback.as_raw()).as_wrapper() }
 }
 
 pub fn preference_manager_get_global() -> PreferenceManager {
-    unsafe { cef_preference_manager_get_global().into() }
+    unsafe { cef_preference_manager_get_global().as_wrapper() }
 }
 
 pub fn request_context_get_global_context() -> RequestContext {
-    unsafe { cef_request_context_get_global_context().into() }
+    unsafe { cef_request_context_get_global_context().as_wrapper() }
 }
 
 pub fn request_context_create_context(
     settings: &RequestContextSettings,
     handler: &mut RequestContextHandler,
 ) -> RequestContext {
-    unsafe { cef_request_context_create_context(settings.as_raw(), handler.as_raw()).into() }
+    unsafe { cef_request_context_create_context(settings.as_raw(), handler.as_raw()).as_wrapper() }
 }
 
 pub fn create_context_shared(
     other: &mut RequestContext,
     handler: &mut RequestContextHandler,
 ) -> RequestContext {
-    unsafe { cef_create_context_shared(other.as_raw(), handler.as_raw()).into() }
+    unsafe { cef_create_context_shared(other.as_raw(), handler.as_raw()).as_wrapper() }
 }
 
 pub fn browser_host_create_browser(
@@ -25089,7 +25109,7 @@ pub fn browser_host_create_browser(
             extra_info.as_raw(),
             request_context.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
@@ -25110,115 +25130,117 @@ pub fn browser_host_create_browser_sync(
             extra_info.as_raw(),
             request_context.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
 pub fn browser_host_get_browser_by_identifier(browser_id: ::std::os::raw::c_int) -> Browser {
-    unsafe { cef_browser_host_get_browser_by_identifier(browser_id.as_raw()).into() }
+    unsafe { cef_browser_host_get_browser_by_identifier(browser_id.as_raw()).as_wrapper() }
 }
 
 pub fn menu_model_create(delegate: &mut MenuModelDelegate) -> MenuModel {
-    unsafe { cef_menu_model_create(delegate.as_raw()).into() }
+    unsafe { cef_menu_model_create(delegate.as_raw()).as_wrapper() }
 }
 
 pub fn print_settings_create() -> PrintSettings {
-    unsafe { cef_print_settings_create().into() }
+    unsafe { cef_print_settings_create().as_wrapper() }
 }
 
 pub fn response_create() -> Response {
-    unsafe { cef_response_create().into() }
+    unsafe { cef_response_create().as_wrapper() }
 }
 
-pub fn is_cert_status_error(status: CertStatus) -> ::std::os::raw::c_int {
-    unsafe { cef_is_cert_status_error(status.as_raw()).into() }
+pub fn is_cert_status_error(status: &mut CertStatus) -> ::std::os::raw::c_int {
+    unsafe { cef_is_cert_status_error(status.as_raw()).as_wrapper() }
 }
 
 pub fn command_line_create() -> CommandLine {
-    unsafe { cef_command_line_create().into() }
+    unsafe { cef_command_line_create().as_wrapper() }
 }
 
 pub fn command_line_get_global() -> CommandLine {
-    unsafe { cef_command_line_get_global().into() }
+    unsafe { cef_command_line_get_global().as_wrapper() }
 }
 
 pub fn task_runner_get_for_current_thread() -> TaskRunner {
-    unsafe { cef_task_runner_get_for_current_thread().into() }
+    unsafe { cef_task_runner_get_for_current_thread().as_wrapper() }
 }
 
-pub fn task_runner_get_for_thread(thread_id: ThreadId) -> TaskRunner {
-    unsafe { cef_task_runner_get_for_thread(thread_id.as_raw()).into() }
+pub fn task_runner_get_for_thread(thread_id: &mut ThreadId) -> TaskRunner {
+    unsafe { cef_task_runner_get_for_thread(thread_id.as_raw()).as_wrapper() }
 }
 
-pub fn currently_on(thread_id: ThreadId) -> ::std::os::raw::c_int {
-    unsafe { cef_currently_on(thread_id.as_raw()).into() }
+pub fn currently_on(thread_id: &mut ThreadId) -> ::std::os::raw::c_int {
+    unsafe { cef_currently_on(thread_id.as_raw()).as_wrapper() }
 }
 
-pub fn post_task(thread_id: ThreadId, task: &mut Task) -> ::std::os::raw::c_int {
-    unsafe { cef_post_task(thread_id.as_raw(), task.as_raw()).into() }
+pub fn post_task(thread_id: &mut ThreadId, task: &mut Task) -> ::std::os::raw::c_int {
+    unsafe { cef_post_task(thread_id.as_raw(), task.as_raw()).as_wrapper() }
 }
 
 pub fn post_delayed_task(
-    thread_id: ThreadId,
+    thread_id: &mut ThreadId,
     task: &mut Task,
     delay_ms: i64,
 ) -> ::std::os::raw::c_int {
-    unsafe { cef_post_delayed_task(thread_id.as_raw(), task.as_raw(), delay_ms.as_raw()).into() }
+    unsafe {
+        cef_post_delayed_task(thread_id.as_raw(), task.as_raw(), delay_ms.as_raw()).as_wrapper()
+    }
 }
 
 pub fn v8context_get_current_context() -> V8context {
-    unsafe { cef_v8context_get_current_context().into() }
+    unsafe { cef_v8context_get_current_context().as_wrapper() }
 }
 
 pub fn v8context_get_entered_context() -> V8context {
-    unsafe { cef_v8context_get_entered_context().into() }
+    unsafe { cef_v8context_get_entered_context().as_wrapper() }
 }
 
 pub fn v8context_in_context() -> ::std::os::raw::c_int {
-    unsafe { cef_v8context_in_context().into() }
+    unsafe { cef_v8context_in_context().as_wrapper() }
 }
 
 pub fn v8value_create_undefined() -> V8value {
-    unsafe { cef_v8value_create_undefined().into() }
+    unsafe { cef_v8value_create_undefined().as_wrapper() }
 }
 
 pub fn v8value_create_null() -> V8value {
-    unsafe { cef_v8value_create_null().into() }
+    unsafe { cef_v8value_create_null().as_wrapper() }
 }
 
 pub fn v8value_create_bool(value: ::std::os::raw::c_int) -> V8value {
-    unsafe { cef_v8value_create_bool(value.as_raw()).into() }
+    unsafe { cef_v8value_create_bool(value.as_raw()).as_wrapper() }
 }
 
 pub fn v8value_create_int(value: i32) -> V8value {
-    unsafe { cef_v8value_create_int(value.as_raw()).into() }
+    unsafe { cef_v8value_create_int(value.as_raw()).as_wrapper() }
 }
 
 pub fn v8value_create_uint(value: u32) -> V8value {
-    unsafe { cef_v8value_create_uint(value.as_raw()).into() }
+    unsafe { cef_v8value_create_uint(value.as_raw()).as_wrapper() }
 }
 
 pub fn v8value_create_double(value: f64) -> V8value {
-    unsafe { cef_v8value_create_double(value.as_raw()).into() }
+    unsafe { cef_v8value_create_double(value.as_raw()).as_wrapper() }
 }
 
-pub fn v8value_create_date(date: Basetime) -> V8value {
-    unsafe { cef_v8value_create_date(date.as_raw()).into() }
+pub fn v8value_create_date(date: &mut Basetime) -> V8value {
+    unsafe { cef_v8value_create_date(date.as_raw()).as_wrapper() }
 }
 
 pub fn v8value_create_string(value: &CefString) -> V8value {
-    unsafe { cef_v8value_create_string(value.as_raw()).into() }
+    unsafe { cef_v8value_create_string(value.as_raw()).as_wrapper() }
 }
 
 pub fn v8value_create_object(
     accessor: &mut V8accessor,
     interceptor: &mut V8interceptor,
 ) -> V8value {
-    unsafe { cef_v8value_create_object(accessor.as_raw(), interceptor.as_raw()).into() }
+    unsafe { cef_v8value_create_object(accessor.as_raw(), interceptor.as_raw()).as_wrapper() }
 }
 
 pub fn v8value_create_array(length: ::std::os::raw::c_int) -> V8value {
-    unsafe { cef_v8value_create_array(length.as_raw()).into() }
+    unsafe { cef_v8value_create_array(length.as_raw()).as_wrapper() }
 }
 
 pub fn v8value_create_array_buffer(
@@ -25228,7 +25250,7 @@ pub fn v8value_create_array_buffer(
 ) -> V8value {
     unsafe {
         cef_v8value_create_array_buffer(buffer.as_raw(), length.as_raw(), release_callback.as_raw())
-            .into()
+            .as_wrapper()
     }
 }
 
@@ -25236,19 +25258,21 @@ pub fn v8value_create_array_buffer_with_copy(
     buffer: *mut ::std::os::raw::c_void,
     length: usize,
 ) -> V8value {
-    unsafe { cef_v8value_create_array_buffer_with_copy(buffer.as_raw(), length.as_raw()).into() }
+    unsafe {
+        cef_v8value_create_array_buffer_with_copy(buffer.as_raw(), length.as_raw()).as_wrapper()
+    }
 }
 
 pub fn v8value_create_function(name: &CefString, handler: &mut V8handler) -> V8value {
-    unsafe { cef_v8value_create_function(name.as_raw(), handler.as_raw()).into() }
+    unsafe { cef_v8value_create_function(name.as_raw(), handler.as_raw()).as_wrapper() }
 }
 
 pub fn v8value_create_promise() -> V8value {
-    unsafe { cef_v8value_create_promise().into() }
+    unsafe { cef_v8value_create_promise().as_wrapper() }
 }
 
 pub fn v8stack_trace_get_current(frame_limit: ::std::os::raw::c_int) -> V8stackTrace {
-    unsafe { cef_v8stack_trace_get_current(frame_limit.as_raw()).into() }
+    unsafe { cef_v8stack_trace_get_current(frame_limit.as_raw()).as_wrapper() }
 }
 
 pub fn register_extension(
@@ -25262,7 +25286,7 @@ pub fn register_extension(
             javascript_code.as_raw(),
             handler.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
@@ -25277,12 +25301,12 @@ pub fn register_scheme_handler_factory(
             domain_name.as_raw(),
             factory.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
 pub fn clear_scheme_handler_factories() -> ::std::os::raw::c_int {
-    unsafe { cef_clear_scheme_handler_factories().into() }
+    unsafe { cef_clear_scheme_handler_factories().as_wrapper() }
 }
 
 pub fn execute_process(
@@ -25296,7 +25320,7 @@ pub fn execute_process(
             application.as_raw(),
             windows_sandbox_info.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
@@ -25313,12 +25337,12 @@ pub fn initialize(
             application.as_raw(),
             windows_sandbox_info.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
 pub fn get_exit_code() -> ::std::os::raw::c_int {
-    unsafe { cef_get_exit_code().into() }
+    unsafe { cef_get_exit_code().as_wrapper() }
 }
 
 pub fn shutdown() {
@@ -25354,34 +25378,38 @@ pub fn browser_view_create(
             request_context.as_raw(),
             delegate.as_raw(),
         )
-        .into()
+        .as_wrapper()
     }
 }
 
 pub fn browser_view_get_for_browser(browser: &mut Browser) -> BrowserView {
-    unsafe { cef_browser_view_get_for_browser(browser.as_raw()).into() }
+    unsafe { cef_browser_view_get_for_browser(browser.as_raw()).as_wrapper() }
 }
 
 pub fn display_get_primary() -> Display {
-    unsafe { cef_display_get_primary().into() }
+    unsafe { cef_display_get_primary().as_wrapper() }
 }
 
 pub fn display_get_nearest_point(
     point: &Point,
     input_pixel_coords: ::std::os::raw::c_int,
 ) -> Display {
-    unsafe { cef_display_get_nearest_point(point.as_raw(), input_pixel_coords.as_raw()).into() }
+    unsafe {
+        cef_display_get_nearest_point(point.as_raw(), input_pixel_coords.as_raw()).as_wrapper()
+    }
 }
 
 pub fn display_get_matching_bounds(
     bounds: &Rect,
     input_pixel_coords: ::std::os::raw::c_int,
 ) -> Display {
-    unsafe { cef_display_get_matching_bounds(bounds.as_raw(), input_pixel_coords.as_raw()).into() }
+    unsafe {
+        cef_display_get_matching_bounds(bounds.as_raw(), input_pixel_coords.as_raw()).as_wrapper()
+    }
 }
 
 pub fn display_get_count() -> usize {
-    unsafe { cef_display_get_count().into() }
+    unsafe { cef_display_get_count().as_wrapper() }
 }
 
 pub fn display_get_alls(displays_count: *mut usize, displays: *mut &mut Display) {
@@ -25389,25 +25417,25 @@ pub fn display_get_alls(displays_count: *mut usize, displays: *mut &mut Display)
 }
 
 pub fn display_convert_screen_point_to_pixels(point: &Point) -> Point {
-    unsafe { cef_display_convert_screen_point_to_pixels(point.as_raw()).into() }
+    unsafe { cef_display_convert_screen_point_to_pixels(point.as_raw()).as_wrapper() }
 }
 
 pub fn display_convert_screen_point_from_pixels(point: &Point) -> Point {
-    unsafe { cef_display_convert_screen_point_from_pixels(point.as_raw()).into() }
+    unsafe { cef_display_convert_screen_point_from_pixels(point.as_raw()).as_wrapper() }
 }
 
 pub fn display_convert_screen_rect_to_pixels(rect: &Rect) -> Rect {
-    unsafe { cef_display_convert_screen_rect_to_pixels(rect.as_raw()).into() }
+    unsafe { cef_display_convert_screen_rect_to_pixels(rect.as_raw()).as_wrapper() }
 }
 
 pub fn display_convert_screen_rect_from_pixels(rect: &Rect) -> Rect {
-    unsafe { cef_display_convert_screen_rect_from_pixels(rect.as_raw()).into() }
+    unsafe { cef_display_convert_screen_rect_from_pixels(rect.as_raw()).as_wrapper() }
 }
 
 pub fn panel_create(delegate: &mut PanelDelegate) -> Panel {
-    unsafe { cef_panel_create(delegate.as_raw()).into() }
+    unsafe { cef_panel_create(delegate.as_raw()).as_wrapper() }
 }
 
 pub fn window_create_top_level(delegate: &mut WindowDelegate) -> Window {
-    unsafe { cef_window_create_top_level(delegate.as_raw()).into() }
+    unsafe { cef_window_create_top_level(delegate.as_raw()).as_wrapper() }
 }

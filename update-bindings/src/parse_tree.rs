@@ -304,7 +304,7 @@ impl ParseTree {
         let header = quote! {
             #![allow(dead_code, non_camel_case_types, unused_variables)]
             use crate::{
-                rc::{ConvertParam, RcImpl, RefGuard},
+                rc::{ConvertParam, ConvertReturnValue, RcImpl, RefGuard},
                 wrapper,
             };
             use cef_sys::*;
@@ -490,15 +490,13 @@ impl ParseTree {
                         .filter_map(|arg| {
                             let arg_name = &arg.rust_name;
                             let arg_ty = normalize_rust_type(&arg.ty).to_string();
-                            if arg_ty.starts_with("CefString") {
-                                let arg_ty = &arg.ty;
-                                Some(format!(r#"let {arg_name} = {arg_ty}::from({arg_name});"#))
-                            } else {
                                 lookup_rust_struct.get(arg_ty.as_str()).map(|_| {
                                     let arg_ty = &arg.ty;
                                     format!(r#"let {arg_name} = {arg_ty}(unsafe {{ RefGuard::from_raw_add_ref({arg_name}) }});"#)
-                                })
-                            }
+                                }).or_else(|| arg_ty.starts_with("CefString").then(|| {
+                                    let arg_ty = &arg.ty;
+                                    format!(r#"let {arg_name} = {arg_ty}::from({arg_name});"#)
+                                }))
                         });
                     for wrapped in wrapped_args {
                         write!(f, "\n{wrapped}")?;
@@ -680,7 +678,7 @@ impl ParseTree {
             let output = global_fn
                 .output
                 .as_deref()
-                .map(|_| String::from(".into()"))
+                .map(|_| String::from(".as_wrapper()"))
                 .unwrap_or_default();
             writeln!(
                 f,
@@ -788,6 +786,13 @@ impl TryFrom<&syn::File> for ParseTree {
                                     let rust_name = make_snake_case_value_name(&name);
                                     let cef_type = ty.to_token_stream().to_string();
                                     let ty = type_to_string(ty.as_ref());
+
+                                    let ty = if ty != cef_type && cef_type.starts_with("cef_") {
+                                        format!("&mut {ty}")
+                                    } else {
+                                        ty
+                                    };
+
                                     Some(MethodArgument {
                                         name,
                                         rust_name,

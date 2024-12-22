@@ -42,6 +42,7 @@
 
 use std::{
     fmt::Debug,
+    mem,
     ops::Deref,
     sync::atomic::{fence, AtomicUsize, Ordering},
 };
@@ -118,8 +119,7 @@ impl Rc for cef_base_ref_counted_t {
     }
 }
 
-pub trait ConvertParam<T: Sized>
-{
+pub trait ConvertParam<T: Sized> {
     fn as_raw(self) -> T;
 }
 
@@ -150,6 +150,20 @@ where
     }
 }
 
+pub trait ConvertReturnValue<T: Sized> {
+    fn as_wrapper(self) -> T;
+}
+
+impl<T, U> ConvertReturnValue<U> for T
+where
+    T: Sized + Into<U>,
+    U: Sized,
+{
+    fn as_wrapper(self) -> U {
+        self.into()
+    }
+}
+
 #[macro_export]
 macro_rules! gen_fn {
     ($visibility:vis fn $method:ident(
@@ -160,7 +174,7 @@ macro_rules! gen_fn {
         $visibility fn $method(&self $(,$arg: $t)*) $(-> $value)? {
             unsafe {
                 self.0.$method.map(|f|
-                    f(self.as_raw() $(, $arg.as_raw())*).into()
+                    f(self.as_raw() $(, $arg.as_raw())*).as_wrapper()
                 )
             }.unwrap_or_else(|| unsafe { std::mem::zeroed() })
         }
@@ -209,6 +223,18 @@ macro_rules! wrapper {
         impl crate::rc::ConvertParam<*mut $sys> for &mut $name {
             fn as_raw(self) -> *mut $sys {
                 unsafe { (&self.0).as_raw() }
+            }
+        }
+
+        impl crate::rc::ConvertReturnValue<$name> for *mut $sys {
+            fn as_wrapper(self) -> $name {
+                $name( unsafe { crate::rc::RefGuard::from_raw(self) })
+            }
+        }
+
+        impl Into<*mut $sys> for $name {
+            fn into(self) -> *mut $sys {
+                unsafe { self.0.into_raw() }
             }
         }
 
@@ -273,6 +299,18 @@ impl<T: Rc> RefGuard<T> {
     /// and memory safety issues.
     pub unsafe fn as_raw(&self) -> *mut T {
         self.object
+    }
+
+    /// Consume the [RefGuard] and return the raw pointer without decrease the reference count.
+    ///
+    /// # Safety
+    ///
+    /// This should be used when you need to pass wrapper type to the FFI function as **parameter**, and it is **not**
+    /// the `self` type (usually the first parameter). This means we pass the ownership of the
+    /// value to the function call. Using this method elsewehre may cause incorrect reference count
+    /// and memory safety issues.
+    pub unsafe fn into_raw(self) -> *mut T {
+        mem::ManuallyDrop::new(self).object
     }
 
     /// Convert the value to another value that is also reference counted.
