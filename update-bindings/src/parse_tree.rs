@@ -59,17 +59,15 @@ struct MethodDeclaration {
 }
 
 impl MethodDeclaration {
-    fn write(&self, tree: Option<&ParseTree>, f: &mut Formatter<'_>) -> fmt::Result {
-        let name = &self.name;
-        let args = self
-            .args
+    fn get_rust_args(&self, tree: Option<&ParseTree>) -> Vec<String> {
+        self.args
             .iter()
             .map(|arg| {
                 if arg.name == "self_" {
                     String::from("&self")
                 } else {
                     let normalized_ty = normalize_rust_type(&arg.ty);
-                    let ty = match tree.map(|tree| tree.is_enum_type(&normalized_ty)) {
+                    let ty = match tree.map(|tree| tree.is_value_type(&normalized_ty)) {
                         Some(true) => normalized_ty,
                         _ => Cow::from(&arg.ty),
                     };
@@ -77,19 +75,27 @@ impl MethodDeclaration {
                 }
             })
             .collect::<Vec<_>>()
-            .join(", ");
-        let output = self
-            .output
+    }
+
+    fn patch_rust_output(&self, _args: &mut Vec<String>) -> String {
+        self.output
             .as_deref()
             .map(|output| format!(" -> {output}"))
-            .unwrap_or_default();
+            .unwrap_or_default()
+    }
+
+    fn write_signature(&self, tree: Option<&ParseTree>, f: &mut Formatter<'_>) -> fmt::Result {
+        let name = &self.name;
+        let mut args = self.get_rust_args(tree);
+        let output = self.patch_rust_output(&mut args);
+        let args = args.join(", ");
         write!(f, "fn {name}({args}){output}")
     }
 }
 
 impl Display for MethodDeclaration {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        self.write(None, f)
+        self.write_signature(None, f)
     }
 }
 
@@ -294,8 +300,10 @@ impl BaseTypes {
 struct ParseTree {
     type_aliases: BTreeMap<String, String>,
     enums: Vec<String>,
+    lookup_rust_enum: BTreeMap<String, usize>,
     structs: Vec<StructDeclaration>,
     base_types: BaseTypes,
+    lookup_rust_struct: BTreeMap<String, usize>,
     globals: Vec<MethodDeclaration>,
 }
 
@@ -304,7 +312,7 @@ impl ParseTree {
         let header = quote! {
             #![allow(dead_code, non_camel_case_types, unused_variables)]
             use crate::{
-                rc::{ConvertParam, ConvertReturnValue, RcImpl, RefGuard},
+                rc::{ConvertParam, ConvertReturnValue, RcImpl, RefGuard, WrapParamRef},
                 wrapper,
             };
             use cef_sys::*;
@@ -316,9 +324,6 @@ impl ParseTree {
     pub fn write_aliases(&self, f: &mut Formatter<'_>) -> fmt::Result {
         writeln!(f, "\n// Type aliases")?;
         for (alias_name, alias_ty) in &self.type_aliases {
-            let alias_name = make_rust_type_name(&alias_name).unwrap_or_else(|| alias_name.clone());
-            let alias_ty = make_rust_type_name(&alias_ty).unwrap_or_else(|| alias_ty.clone());
-            let alias_ty = normalize_rust_type(&alias_ty);
             if alias_name != alias_ty {
                 writeln!(f, "pub type {} = {};", alias_name, alias_ty)?;
             }
@@ -327,9 +332,6 @@ impl ParseTree {
     }
 
     pub fn write_structs(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        //let lookup_cef_struct: BTreeMap<_, _> = self.structs.iter().map(|s| (&s.name, s)).collect();
-        let lookup_rust_struct = self.lookup_rust_struct();
-
         writeln!(f, "\n// Struct wrappers")?;
         for StructDeclaration {
             name,
@@ -355,7 +357,7 @@ impl ParseTree {
                 )?;
                 for method in methods {
                     write!(f, "\n    pub ")?;
-                    method.write(Some(self), f)?;
+                    method.write_signature(Some(self), f)?;
                     write!(f, ";")?;
                 }
 
@@ -382,10 +384,10 @@ impl ParseTree {
                     let output = method
                         .output
                         .as_deref()
-                        .map(|_| String::from(" Default::default() "))
+                        .map(|_| String::from(" unsafe { std::mem::zeroed() } "))
                         .unwrap_or_default();
                     write!(f, "    ")?;
-                    method.write(Some(self), f)?;
+                    method.write_signature(Some(self), f)?;
                     writeln!(f, " {{{output}}}")?;
                 }
 
@@ -393,7 +395,7 @@ impl ParseTree {
                 let mut base_structs = vec![];
                 while let Some(next_base) = base_rust_name
                     .filter(|base| *base != root)
-                    .and_then(|base| lookup_rust_struct.get(base))
+                    .and_then(|base| self.lookup_rust_struct(base))
                 {
                     base_rust_name = next_base
                         .rust_name
@@ -490,13 +492,25 @@ impl ParseTree {
                         .filter_map(|arg| {
                             let arg_name = &arg.rust_name;
                             let arg_ty = normalize_rust_type(&arg.ty).to_string();
-                                lookup_rust_struct.get(arg_ty.as_str()).map(|_| {
-                                    let arg_ty = &arg.ty;
-                                    format!(r#"let {arg_name} = {arg_ty}(unsafe {{ RefGuard::from_raw_add_ref({arg_name}) }});"#)
-                                }).or_else(|| arg_ty.starts_with("CefString").then(|| {
-                                    let arg_ty = &arg.ty;
-                                    format!(r#"let {arg_name} = {arg_ty}::from({arg_name});"#)
-                                }))
+
+                            (self.base_types.root(arg_ty.as_str()) == "BaseRefCounted").then(|| {
+                                let arg_ty = &arg.ty;
+                                format!(r#"let {arg_name} = {arg_ty}(unsafe {{ RefGuard::from_raw_add_ref({arg_name}) }});"#)
+                            })
+                            .or_else(|| {
+                                (arg.ty.starts_with("&mut ") && !self.is_value_type(arg_ty.as_str())).then(|| {
+                                    format!(r#"let mut {arg_name} = WrapParamRef::<{arg_ty}>::from({arg_name});
+                                            let {arg_name} = {arg_name}.as_mut();"#)
+                                })
+                            })
+                            .or_else(|| {
+                                (arg.ty.starts_with("&") && !self.is_value_type(arg_ty.as_str())).then(|| {
+                                    format!(r#"let {arg_name} = WrapParamRef::<{arg_ty}>::from({arg_name});
+                                            let {arg_name} = {arg_name}.as_ref();"#)
+                                })
+                            })
+                            .or_else(|| Some(format!(r#"let {arg_name} = {arg_name}.as_raw();"#)))
+
                         });
                     for wrapped in wrapped_args {
                         write!(f, "\n{wrapped}")?;
@@ -520,11 +534,24 @@ impl ParseTree {
                     f,
                     r#"
                         /// See [{name}] for more documentation.
+                        #[repr(transparent)]
                         pub struct {rust_name}({name});
 
                         impl From<{name}> for {rust_name} {{
                             fn from(value: {name}) -> Self {{
                                 Self(value)
+                            }}
+                        }}
+
+                        impl Into<*const {name}> for &{rust_name} {{
+                            fn into(self) -> *const {name} {{
+                                self.as_ref() as *const {name}
+                            }}
+                        }}
+
+                        impl Into<*mut {name}> for &mut {rust_name} {{
+                            fn into(self) -> *mut {name} {{
+                                self.as_mut() as *mut {name}
                             }}
                         }}
 
@@ -611,10 +638,18 @@ impl ParseTree {
         Ok(())
     }
 
-    fn is_enum_type(&self, rust_name: &str) -> bool {
-        self.enums
-            .iter()
-            .any(|enum_name| make_rust_type_name(enum_name).as_deref() == Some(rust_name))
+    fn is_value_type(&self, rust_name: &str) -> bool {
+        if rust_name.starts_with("Cef") {
+            false
+        } else if self.type_aliases.get(rust_name).is_some()
+            && self.lookup_rust_struct(rust_name).is_none()
+        {
+            true
+        } else if self.lookup_rust_enum(rust_name).is_some() {
+            true
+        } else {
+            false
+        }
     }
 
     pub fn write_enums(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -692,11 +727,16 @@ impl ParseTree {
         Ok(())
     }
 
-    fn lookup_rust_struct(&self) -> BTreeMap<&str, &StructDeclaration> {
-        self.structs
-            .iter()
-            .map(|s| (s.rust_name.as_deref().unwrap_or(&s.name), s))
-            .collect()
+    fn lookup_rust_struct(&self, name: &str) -> Option<&StructDeclaration> {
+        self.lookup_rust_struct
+            .get(name)
+            .and_then(|&i| self.structs.get(i))
+    }
+
+    fn lookup_rust_enum(&self, name: &str) -> Option<&str> {
+        self.lookup_rust_enum
+            .get(name)
+            .and_then(|&i| self.enums.get(i).map(String::as_str))
     }
 }
 
@@ -720,6 +760,11 @@ impl TryFrom<&syn::File> for ParseTree {
                 syn::Item::Type(item_type) => {
                     let alias_name = item_type.ident.to_string();
                     let alias_ty = type_to_string(&item_type.ty);
+                    let alias_name =
+                        make_rust_type_name(&alias_name).unwrap_or_else(|| alias_name.clone());
+                    let alias_ty =
+                        make_rust_type_name(&alias_ty).unwrap_or_else(|| alias_ty.clone());
+                    let alias_ty = normalize_rust_type(&alias_ty).to_string();
                     tree.type_aliases.insert(alias_name, alias_ty);
                 }
                 syn::Item::Struct(item_struct) => match &item_struct.fields {
@@ -825,7 +870,19 @@ impl TryFrom<&syn::File> for ParseTree {
             }
         }
 
+        tree.lookup_rust_enum = tree
+            .enums
+            .iter()
+            .enumerate()
+            .map(|(i, e)| (make_rust_type_name(e).unwrap_or_else(|| e.clone()), i))
+            .collect();
         tree.base_types = BaseTypes::new(tree.structs.iter());
+        tree.lookup_rust_struct = tree
+            .structs
+            .iter()
+            .enumerate()
+            .map(|(i, s)| (s.rust_name.as_deref().unwrap_or(&s.name).to_owned(), i))
+            .collect();
 
         Ok(tree)
     }

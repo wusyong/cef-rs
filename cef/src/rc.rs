@@ -150,6 +150,49 @@ where
     }
 }
 
+#[repr(transparent)]
+pub struct WrapParamRef<T>(mem::ManuallyDrop<T>);
+
+impl<T, U> From<*mut T> for WrapParamRef<U>
+where
+    T: Sized + Copy + Into<U>,
+    U: Sized,
+{
+    fn from(value: *mut T) -> Self {
+        let value = unsafe { value.as_ref() }
+            .map(|value| (*value).into())
+            .unwrap_or_else(|| unsafe { mem::zeroed() });
+
+        WrapParamRef(mem::ManuallyDrop::new(value))
+    }
+}
+
+impl<T, U> From<*const T> for WrapParamRef<U>
+where
+    T: Sized + Copy + Into<U>,
+    U: Sized,
+{
+    fn from(value: *const T) -> Self {
+        let value = unsafe { value.as_ref() }
+            .map(|value| (*value).into())
+            .unwrap_or_else(|| unsafe { mem::zeroed() });
+
+        WrapParamRef(mem::ManuallyDrop::new(value))
+    }
+}
+
+impl<T> AsMut<T> for WrapParamRef<T> {
+    fn as_mut(&mut self) -> &mut T {
+        &mut *self.0
+    }
+}
+
+impl<T> AsRef<T> for WrapParamRef<T> {
+    fn as_ref(&self) -> &T {
+        &*self.0
+    }
+}
+
 pub trait ConvertReturnValue<T: Sized> {
     fn as_wrapper(self) -> T;
 }
