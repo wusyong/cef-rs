@@ -68,8 +68,8 @@ impl MethodDeclaration {
                 } else {
                     let normalized_ty = normalize_rust_type(&arg.ty);
                     let ty = match tree.map(|tree| tree.is_value_type(&normalized_ty)) {
-                        Some(true) => normalized_ty,
-                        _ => Cow::from(&arg.ty),
+                        Some(true) => &normalized_ty,
+                        _ => arg.ty.as_str(),
                     };
                     format!("{}: {}", arg.rust_name, ty)
                 }
@@ -491,21 +491,22 @@ impl ParseTree {
                         .skip(1)
                         .filter_map(|arg| {
                             let arg_name = &arg.rust_name;
-                            let arg_ty = normalize_rust_type(&arg.ty).to_string();
+                            let normalized_ty = normalize_rust_type(&arg.ty);
+                            let normalized_ty = normalized_ty.as_ref();
 
-                            (self.base_types.root(arg_ty.as_str()) == "BaseRefCounted").then(|| {
+                            (self.base_types.root(normalized_ty) == "BaseRefCounted").then(|| {
                                 let arg_ty = &arg.ty;
                                 format!(r#"let {arg_name} = {arg_ty}(unsafe {{ RefGuard::from_raw_add_ref({arg_name}) }});"#)
                             })
                             .or_else(|| {
-                                (arg.ty.starts_with("&mut ") && !self.is_value_type(arg_ty.as_str())).then(|| {
-                                    format!(r#"let mut {arg_name} = WrapParamRef::<{arg_ty}>::from({arg_name});
+                                (arg.ty.starts_with("&mut ") && !self.is_value_type(normalized_ty)).then(|| {
+                                    format!(r#"let mut {arg_name} = WrapParamRef::<{normalized_ty}>::from({arg_name});
                                             let {arg_name} = {arg_name}.as_mut();"#)
                                 })
                             })
                             .or_else(|| {
-                                (arg.ty.starts_with("&") && !self.is_value_type(arg_ty.as_str())).then(|| {
-                                    format!(r#"let {arg_name} = WrapParamRef::<{arg_ty}>::from({arg_name});
+                                (arg.ty.starts_with("&") && !self.is_value_type(normalized_ty)).then(|| {
+                                    format!(r#"let {arg_name} = WrapParamRef::<{normalized_ty}>::from({arg_name});
                                             let {arg_name} = {arg_name}.as_ref();"#)
                                 })
                             })
@@ -958,7 +959,7 @@ fn make_rust_type_name(name: &str) -> Option<String> {
                 .from_case(Case::Snake)
                 .to_case(Case::UpperCamel);
             if name.starts_with("String") {
-                format!("Cef{}", name)
+                format!("Cef{name}")
             } else {
                 name
             }
