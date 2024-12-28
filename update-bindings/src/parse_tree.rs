@@ -1,5 +1,5 @@
 use convert_case::{Case, Casing};
-use quote::{quote, ToTokens};
+use quote::{format_ident, quote, ToTokens, TokenStreamExt};
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -16,7 +16,7 @@ use std::{
 pub fn generate_bindings(source_path: &Path) -> crate::Result<PathBuf> {
     let bindings = crate::read_bindings(source_path)?;
     let parsed = syn::parse_file(&bindings)?;
-    let parse_tree = ParseTree::try_from(&parsed)?;
+    let parse_tree = ParseTree::from(&parsed);
 
     let mut out_file = crate::dirs::get_out_dir();
     out_file.push("bindings.rs");
@@ -67,10 +67,11 @@ impl MethodDeclaration {
                     String::from("&self")
                 } else {
                     let normalized_ty = normalize_rust_type(&arg.ty);
-                    let ty = match tree.map(|tree| tree.is_value_type(&normalized_ty)) {
-                        Some(true) => &normalized_ty,
-                        _ => arg.ty.as_str(),
-                    };
+                    // let ty = match tree.map(|tree| tree.is_value_type(&normalized_ty)) {
+                    //     Some(true) => &normalized_ty,
+                    //     _ => arg.ty.as_str(),
+                    // };
+                    let ty = &normalized_ty;
                     format!("{}: {}", arg.rust_name, ty)
                 }
             })
@@ -99,10 +100,325 @@ impl Display for MethodDeclaration {
     }
 }
 
-impl TryFrom<&syn::Field> for MethodDeclaration {
+#[derive(Debug)]
+struct FieldDeclaration {
+    name: String,
+    rust_name: String,
+    ty: String,
+}
+
+impl Display for FieldDeclaration {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let rust_name = &self.rust_name;
+        let ty = &self.ty;
+        write!(f, "pub {rust_name}: {ty},")
+    }
+}
+
+#[derive(Debug, Default)]
+struct StructDeclaration {
+    name: String,
+    rust_name: Option<String>,
+    fields: Vec<FieldDeclaration>,
+    methods: Vec<MethodDeclaration>,
+}
+
+struct TypeAliasRef<'a> {
+    name: String,
+    ty: &'a syn::Type,
+}
+
+struct FieldRef<'a> {
+    name: String,
+    ty: &'a syn::Type,
+}
+
+impl<'a> TryFrom<&'a syn::Field> for FieldRef<'a> {
     type Error = Unrecognized;
 
-    fn try_from(value: &syn::Field) -> Result<Self, Self::Error> {
+    fn try_from(value: &'a syn::Field) -> Result<Self, Self::Error> {
+        let name = value
+            .ident
+            .as_ref()
+            .ok_or(Unrecognized::FieldType)?
+            .to_string();
+
+        Ok(Self {
+            name,
+            ty: &value.ty,
+        })
+    }
+}
+
+#[derive(Clone)]
+struct FnArgRef<'a> {
+    name: String,
+    ty: &'a syn::Type,
+}
+
+struct SignatureRef<'a> {
+    name: String,
+    inputs: Vec<FnArgRef<'a>>,
+    output: Option<&'a syn::Type>,
+}
+
+impl SignatureRef<'_> {
+    fn get_rust_args(&self, tree: &ParseTree) -> proc_macro2::TokenStream {
+        let mut args = self
+            .inputs
+            .iter()
+            .map(|arg| {
+                Some((
+                    make_snake_case_value_name(&arg.name),
+                    tree.resolve_argument_type(&arg.ty),
+                ))
+            })
+            .collect::<Vec<_>>();
+        for i in 1..(args.len()) {
+            let replacement = match (&args[i - 1], &args[i]) {
+                (Some((count_name, Some(count_ty))), Some((elem_name, Some(elem_ty))))
+                    if count_name.as_str() == format!("{elem_name}_count").as_str() =>
+                {
+                    if count_ty.ty.to_token_stream().to_string().as_str()
+                        != format_ident!("usize")
+                            .to_token_stream()
+                            .to_string()
+                            .as_str()
+                    {
+                        continue;
+                    }
+
+                    let elem_ty_string = elem_ty.ty.to_token_stream().to_string();
+                    match tree.cef_name_map.get(&elem_ty_string) {
+                        Some(NameMapEntry {
+                            name,
+                            ty: NameMapType::StructDeclaration,
+                        }) => {
+                            let name = format_ident!("{name}");
+                            let slice_ty =
+                                match (count_ty.modifiers.as_slice(), elem_ty.modifiers.as_slice())
+                                {
+                                    ([], [TypeModifier::ConstPtr, TypeModifier::MutPtr]) => {
+                                        quote! { &[#name] }
+                                    }
+                                    (
+                                        [TypeModifier::MutPtr],
+                                        [TypeModifier::MutPtr, TypeModifier::MutPtr],
+                                    ) => quote! { &mut [#name] },
+                                    _ => continue,
+                                };
+                            let Ok(slice_ty) = syn::parse2::<syn::Type>(slice_ty) else {
+                                continue;
+                            };
+
+                            // Remove the count argument and replace the element pointer argument
+                            // with an element slice.
+                            Some((
+                                elem_name.clone(),
+                                Some(ArgumentType {
+                                    modifiers: Default::default(),
+                                    ty: slice_ty,
+                                }),
+                            ))
+                        }
+                        entry => {
+                            let name = entry
+                                .map(|entry| entry.name.as_str())
+                                .unwrap_or(elem_ty_string.as_str());
+                            let name = format_ident!("{name}");
+                            let slice_ty =
+                                match (count_ty.modifiers.as_slice(), elem_ty.modifiers.as_slice())
+                                {
+                                    ([], [TypeModifier::ConstPtr]) => {
+                                        quote! { &[#name] }
+                                    }
+                                    ([TypeModifier::MutPtr], [TypeModifier::MutPtr]) => {
+                                        quote! { &mut [#name] }
+                                    }
+                                    _ => continue,
+                                };
+                            let Ok(slice_ty) = syn::parse2::<syn::Type>(slice_ty) else {
+                                continue;
+                            };
+
+                            // Remove the count argument and replace the element pointer argument
+                            // with an element slice.
+                            Some((
+                                elem_name.clone(),
+                                Some(ArgumentType {
+                                    modifiers: Default::default(),
+                                    ty: slice_ty,
+                                }),
+                            ))
+                        }
+                        _ => None,
+                    }
+                }
+                (Some((elem_name, Some(elem_ty))), Some((size_name, Some(size_ty))))
+                    if size_name.as_str() == format!("{elem_name}_size").as_str() =>
+                {
+                    if elem_ty.ty.to_token_stream().to_string().as_str()
+                        != quote! { ::std::os::raw::c_void }
+                            .to_token_stream()
+                            .to_string()
+                            .as_str()
+                        || size_ty.ty.to_token_stream().to_string().as_str()
+                            != format_ident!("usize")
+                                .to_token_stream()
+                                .to_string()
+                                .as_str()
+                    {
+                        continue;
+                    }
+
+                    let slice_ty =
+                        match (size_ty.modifiers.as_slice(), elem_ty.modifiers.as_slice()) {
+                            ([], [TypeModifier::ConstPtr]) => {
+                                quote! { &[u8] }
+                            }
+                            ([], [TypeModifier::MutPtr])
+                            | (
+                                [TypeModifier::MutPtr],
+                                [TypeModifier::MutPtr, TypeModifier::MutPtr],
+                            ) => quote! { &mut [u8] },
+                            _ => continue,
+                        };
+                    let Ok(slice_ty) = syn::parse2::<syn::Type>(slice_ty) else {
+                        continue;
+                    };
+
+                    // Remove the size argument and replace the buffer pointer argument with a
+                    // &[u8] slice or &mut Vec<u8>.
+                    Some((
+                        elem_name.clone(),
+                        Some(ArgumentType {
+                            modifiers: Default::default(),
+                            ty: slice_ty,
+                        }),
+                    ))
+                }
+                _ => None,
+            };
+
+            if let Some(replacement) = replacement {
+                args[i - 1] = Some(replacement);
+                args[i] = None;
+            }
+        }
+
+        let args = args.iter().flatten().filter_map(|(name, arg_ty)| {
+            if name.as_str() == "self_" {
+                Some(quote! { &self })
+            } else {
+                let arg_ty = arg_ty.as_ref()?;
+                let name = format_ident!("{name}");
+                let ty = arg_ty
+                    .get_signature_type(tree)
+                    .unwrap_or_else(|| arg_ty.ty.to_token_stream());
+                Some(quote! { #name: #ty })
+            }
+        });
+
+        quote! { #(#args),* }
+    }
+
+    fn get_rust_output(&self, tree: &ParseTree) -> Option<proc_macro2::TokenStream> {
+        self.output.map(|output| {
+            let ty = tree
+                .resolve_argument_type(output)
+                .and_then(|ty| ty.get_output_type(tree))
+                .unwrap_or_else(|| {
+                    let output = output.to_token_stream();
+                    quote! { #output }
+                });
+            quote! { -> #ty }
+        })
+    }
+
+    fn get_impl_wrapped_args(&self, tree: &ParseTree) -> proc_macro2::TokenStream {
+        let args = self.inputs.iter().skip(1).map(|arg| {
+            let name = make_snake_case_value_name(&arg.name);
+            let name = format_ident!("{name}");
+            let ty = tree.resolve_type_aliases(arg.ty);
+            let ty_string = ty.to_string();
+            let ty_string = ty_string.trim();
+            let normalized_ty = normalize_cef_type(ty_string);
+
+            (tree.root(&normalized_ty) == BASE_REF_COUNTED)
+                .then(|| {
+                    let arg_ty = tree.resolve_argument_type(arg.ty)?;
+                    let entry = tree.cef_name_map.get(normalized_ty.as_ref())?;
+                    let ty = match entry {
+                        NameMapEntry {
+                            name,
+                            ty: NameMapType::StructDeclaration,
+                        } => {
+                            let name = format_ident!("{name}");
+
+                            match arg_ty.modifiers.as_slice() {
+                                [TypeModifier::ConstPtr] => Some(quote! { &#name }),
+                                [TypeModifier::MutPtr] => Some(quote! { &mut #name }),
+                                _ => None,
+                            }
+                        }
+                        NameMapEntry {
+                            name,
+                            ty: NameMapType::EnumName,
+                        } => {
+                            let name = format_ident!("{name}");
+
+                            match arg_ty.modifiers.as_slice() {
+                                [] => Some(quote! { #name }),
+                                [TypeModifier::ConstPtr] => Some(quote! { &[#name] }),
+                                [TypeModifier::MutPtr] => Some(quote! { &mut [#name] }),
+                                _ => None,
+                            }
+                        }
+                        _ => None,
+                    }?;
+                    Some(quote! {
+                        let #name = #ty(unsafe { RefGuard::from_raw_add_ref(#name) });
+                    })
+                })
+                .flatten()
+                .or_else(|| {
+                    let arg_ty = tree.resolve_argument_type(arg.ty)?;
+                    let ty = tree
+                        .cef_name_map
+                        .get(normalized_ty.as_ref())
+                        .and_then(|entry| syn::parse_str::<syn::Type>(&entry.name).ok());
+                    let ty = ty.as_ref().unwrap_or(&arg_ty.ty);
+                    match arg_ty.modifiers.as_slice() {
+                        [TypeModifier::MutPtr, ..] => Some(quote! {
+                            let mut #name = WrapParamRef::<#ty>::from(#name);
+                            let #name = #name.as_mut();
+                        }),
+                        [TypeModifier::ConstPtr, ..] => Some(quote! {
+                            let #name = WrapParamRef::<#ty>::from(#name);
+                            let #name = #name.as_ref();
+                        }),
+                        _ => None,
+                    }
+                })
+                .unwrap_or(quote! { let #name = #name.as_raw(); })
+        });
+
+        quote! { #(#args)* }
+    }
+
+    fn get_signature(&self, tree: &ParseTree) -> proc_macro2::TokenStream {
+        let name = &self.name;
+        let name = format_ident!("{name}");
+        let args = self.get_rust_args(tree);
+        let output = self.get_rust_output(tree);
+        quote! { fn #name(#args) #output }
+    }
+}
+
+impl<'a> TryFrom<&'a syn::Field> for SignatureRef<'a> {
+    type Error = Unrecognized;
+
+    fn try_from(value: &'a syn::Field) -> Result<Self, Self::Error> {
         let name = value
             .ident
             .as_ref()
@@ -174,140 +490,268 @@ impl TryFrom<&syn::Field> for MethodDeclaration {
             return Err(Unrecognized::FieldType);
         }
 
-        // Looks like a match, convert it to a MethodDeclaration
-        let args = inputs
+        let inputs = inputs
             .iter()
             .filter_map(|arg| {
-                if let syn::BareFnArg {
-                    name: Some((name, _)),
-                    ty,
-                    ..
-                } = arg
-                {
-                    let name = name.to_string();
-                    let rust_name = make_snake_case_value_name(&name);
-                    let cef_type = ty.to_token_stream().to_string();
-                    let ty = type_to_string(ty);
-
-                    let ty = if ty != cef_type && cef_type.starts_with("cef_") {
-                        format!("&mut {ty}")
-                    } else {
-                        ty
-                    };
-
-                    Some(MethodArgument {
-                        name,
-                        rust_name,
-                        ty,
-                        cef_type,
-                    })
-                } else {
-                    None
-                }
+                arg.name.as_ref().map(|(ident, _)| FnArgRef {
+                    name: ident.to_string(),
+                    ty: &arg.ty,
+                })
             })
             .collect();
-        let (original_output, output) = match output {
-            syn::ReturnType::Type(_, ty) => (
-                Some(ty.to_token_stream().to_string()),
-                Some(normalize_rust_type(&type_to_string(ty)).to_string()),
-            ),
-            _ => (None, None),
+        let output = match output {
+            syn::ReturnType::Default => None,
+            syn::ReturnType::Type(_, ty) => Some(ty.as_ref()),
         };
 
         Ok(Self {
             name,
+            inputs,
+            output,
+        })
+    }
+}
+
+const BASE_REF_COUNTED: &str = "_cef_base_ref_counted_t";
+
+struct StructDeclarationRef<'a> {
+    name: String,
+    fields: Vec<FieldRef<'a>>,
+    methods: Vec<SignatureRef<'a>>,
+}
+
+#[derive(Clone, Copy, Debug)]
+enum NameMapType {
+    TypeAlias,
+    EnumName,
+    StructDeclaration,
+}
+
+struct NameMapEntry {
+    name: String,
+    ty: NameMapType,
+}
+
+#[derive(Debug)]
+enum TypeModifier {
+    MutPtr,
+    ConstPtr,
+    MutRef,
+    ConstRef,
+}
+
+struct ArgumentType {
+    modifiers: Vec<TypeModifier>,
+    ty: syn::Type,
+}
+
+impl ArgumentType {
+    fn get_signature_type(&self, tree: &ParseTree) -> Option<proc_macro2::TokenStream> {
+        let elem = self.ty.to_token_stream();
+        match tree.cef_name_map.get(&elem.to_string()) {
+            Some(NameMapEntry {
+                name,
+                ty: NameMapType::StructDeclaration,
+            }) => {
+                let name = format_ident!("{name}");
+
+                match self.modifiers.as_slice() {
+                    [TypeModifier::ConstPtr] => Some(quote! { &#name }),
+                    [TypeModifier::MutPtr] => Some(quote! { &mut #name }),
+                    [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
+                        Some(quote! { &mut Option<#name> })
+                    }
+                    [TypeModifier::ConstPtr, TypeModifier::MutPtr] => Some(quote! { &mut [#name] }),
+                    [TypeModifier::ConstPtr, TypeModifier::ConstPtr] => Some(quote! { &[#name] }),
+                    _ => None,
+                }
+            }
+            Some(NameMapEntry {
+                name,
+                ty: NameMapType::EnumName,
+            }) => {
+                let name = format_ident!("{name}");
+
+                match self.modifiers.as_slice() {
+                    [] => Some(quote! { #name }),
+                    [TypeModifier::ConstPtr] => Some(quote! { &[#name] }),
+                    [TypeModifier::MutPtr] => Some(quote! { &mut [#name] }),
+                    _ => None,
+                }
+            }
+            _ => match self.modifiers.as_slice() {
+                [TypeModifier::MutPtr] => Some(quote! { &mut #elem }),
+                [TypeModifier::ConstPtr] => Some(quote! { &[#elem] }),
+                _ => None,
+            },
+        }
+    }
+
+    fn get_output_type(&self, tree: &ParseTree) -> Option<proc_macro2::TokenStream> {
+        let elem = self.ty.to_token_stream();
+        tree.cef_name_map
+            .get(&elem.to_string())
+            .and_then(|entry| match entry {
+                NameMapEntry {
+                    name,
+                    ty: NameMapType::StructDeclaration,
+                } => {
+                    let name = format_ident!("{name}");
+
+                    match self.modifiers.as_slice() {
+                        [] | [TypeModifier::MutPtr] => Some(quote! { #name }),
+                        [TypeModifier::ConstPtr] => Some(quote! { &#name }),
+                        [TypeModifier::ConstPtr, TypeModifier::MutPtr] => {
+                            Some(quote! { &mut [#name>] })
+                        }
+                        [TypeModifier::ConstPtr, TypeModifier::ConstPtr] => {
+                            Some(quote! { &[#name] })
+                        }
+                        _ => None,
+                    }
+                }
+                NameMapEntry {
+                    name,
+                    ty: NameMapType::EnumName,
+                } => {
+                    let name = format_ident!("{name}");
+
+                    match self.modifiers.as_slice() {
+                        [] => Some(quote! { #name }),
+                        [TypeModifier::ConstPtr] => Some(quote! { &[#name] }),
+                        [TypeModifier::MutPtr] => Some(quote! { &mut [#name] }),
+                        _ => None,
+                    }
+                }
+                _ => match self.modifiers.as_slice() {
+                    [TypeModifier::MutPtr] => Some(quote! { &mut #elem }),
+                    [TypeModifier::ConstPtr] => Some(quote! { &[#elem] }),
+                    [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
+                        Some(quote! { Option<Vec<#elem>> })
+                    }
+                    _ => None,
+                },
+            })
+    }
+}
+
+impl syn::parse::Parse for ArgumentType {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let mut modifiers = vec![];
+        loop {
+            let lookahead = input.lookahead1();
+            if lookahead.peek(syn::Token![*]) {
+                let _ = input.parse::<syn::Token![*]>()?;
+                let lookahead = input.lookahead1();
+                if lookahead.peek(syn::Token![const]) {
+                    let _ = input.parse::<syn::Token![const]>()?;
+                    modifiers.push(TypeModifier::ConstPtr)
+                } else {
+                    let _ = input.parse::<syn::Token![mut]>()?;
+                    modifiers.push(TypeModifier::MutPtr)
+                }
+            } else if lookahead.peek(syn::Token![&]) {
+                let _ = input.parse::<syn::Token![&]>()?;
+                let lookahead = input.lookahead1();
+                if lookahead.peek(syn::Token![mut]) {
+                    let _ = input.parse::<syn::Token![mut]>()?;
+                    modifiers.push(TypeModifier::MutRef)
+                } else {
+                    modifiers.push(TypeModifier::ConstRef)
+                }
+            } else {
+                break;
+            }
+        }
+
+        let ty = input.parse()?;
+        Ok(Self { modifiers, ty })
+    }
+}
+
+#[derive(Default)]
+struct ParseTree<'a> {
+    type_aliases: Vec<TypeAliasRef<'a>>,
+    enum_names: Vec<String>,
+    struct_declarations: Vec<StructDeclarationRef<'a>>,
+    global_function_declarations: Vec<SignatureRef<'a>>,
+
+    cef_name_map: BTreeMap<String, NameMapEntry>,
+    rust_name_map: BTreeMap<String, NameMapEntry>,
+
+    lookup_type_alias: BTreeMap<String, usize>,
+    lookup_enum_name: BTreeMap<String, usize>,
+    lookup_struct_declaration: BTreeMap<String, usize>,
+    lookup_global_function_declaration: BTreeMap<String, usize>,
+
+    base_types: BTreeMap<String, String>,
+}
+
+impl<'a> ParseTree<'a> {
+    fn visit_method_declaration(
+        &mut self,
+        value: &syn::Field,
+    ) -> Result<MethodDeclaration, Unrecognized> {
+        let signature = SignatureRef::try_from(value)?;
+
+        // Looks like a match, convert it to a MethodDeclaration
+        let args = signature
+            .inputs
+            .iter()
+            .filter_map(|arg| {
+                let name = arg.name.clone();
+                let rust_name = make_snake_case_value_name(&name);
+                let cef_type = arg.ty.to_token_stream().to_string();
+                let ty = type_to_string(arg.ty);
+
+                let ty = if ty != cef_type && cef_type.starts_with("cef_") {
+                    format!("&mut {ty}")
+                } else {
+                    ty
+                };
+
+                Some(MethodArgument {
+                    name,
+                    rust_name,
+                    ty,
+                    cef_type,
+                })
+            })
+            .collect();
+        let (original_output, output) = signature
+            .output
+            .map(|output| {
+                (
+                    Some(output.to_token_stream().to_string()),
+                    Some(normalize_rust_type(&type_to_string(output)).to_string()),
+                )
+            })
+            .unwrap_or_default();
+
+        Ok(MethodDeclaration {
+            name: signature.name,
             original_name: None,
             args,
             output,
             original_output,
         })
     }
-}
 
-#[derive(Debug)]
-struct FieldDeclaration {
-    name: String,
-    rust_name: String,
-    ty: String,
-}
+    fn visit_field_declaration(
+        &mut self,
+        value: &syn::Field,
+    ) -> Result<FieldDeclaration, Unrecognized> {
+        let field = FieldRef::try_from(value)?;
+        let rust_name = make_snake_case_value_name(&field.name);
+        let ty = type_to_string(field.ty);
 
-impl Display for FieldDeclaration {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let rust_name = &self.rust_name;
-        let ty = &self.ty;
-        write!(f, "pub {rust_name}: {ty},")
-    }
-}
-
-impl TryFrom<&syn::Field> for FieldDeclaration {
-    type Error = Unrecognized;
-
-    fn try_from(value: &syn::Field) -> Result<Self, Self::Error> {
-        let name = value
-            .ident
-            .as_ref()
-            .ok_or(Unrecognized::FieldType)?
-            .to_string();
-        let rust_name = make_snake_case_value_name(&name);
-        let ty = type_to_string(&value.ty);
-
-        Ok(Self {
-            name,
+        Ok(FieldDeclaration {
+            name: field.name,
             rust_name,
             ty,
         })
     }
-}
 
-#[derive(Debug, Default)]
-struct StructDeclaration {
-    name: String,
-    rust_name: Option<String>,
-    fields: Vec<FieldDeclaration>,
-    methods: Vec<MethodDeclaration>,
-}
-
-#[derive(Debug, Default)]
-struct BaseTypes(BTreeMap<String, String>);
-
-impl BaseTypes {
-    fn new<'a>(structs: impl Iterator<Item = &'a StructDeclaration>) -> Self {
-        Self(
-            structs
-                .filter_map(|s| {
-                    if s.fields.iter().map(|f| f.name.as_str()).eq(["base"]) {
-                        s.fields
-                            .get(0)
-                            .and_then(|f| s.rust_name.as_ref().map(|n| (n.clone(), f.ty.clone())))
-                    } else {
-                        None
-                    }
-                })
-                .collect(),
-        )
-    }
-
-    fn base(&self, name: &str) -> Option<&str> {
-        self.0.get(name).map(String::as_str)
-    }
-
-    fn root<'a: 'b, 'b>(&'a self, name: &'b str) -> &'b str {
-        self.base(name).map(|base| self.root(base)).unwrap_or(name)
-    }
-}
-
-#[derive(Debug, Default)]
-struct ParseTree {
-    type_aliases: BTreeMap<String, String>,
-    enums: Vec<String>,
-    lookup_rust_enum: BTreeMap<String, usize>,
-    structs: Vec<StructDeclaration>,
-    base_types: BaseTypes,
-    lookup_rust_struct: BTreeMap<String, usize>,
-    globals: Vec<MethodDeclaration>,
-}
-
-impl ParseTree {
     pub fn write_prelude(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let header = quote! {
             #![allow(dead_code, non_camel_case_types, unused_variables)]
@@ -318,89 +762,150 @@ impl ParseTree {
             use cef_sys::*;
         }
         .to_string();
-        writeln!(f, "{}", header)
+        writeln!(f, "{header}")
+    }
+
+    fn resolve_type_aliases(&self, ty: &syn::Type) -> proc_macro2::TokenStream {
+        match ty {
+            syn::Type::Path(syn::TypePath { qself: None, path }) => {
+                let ty = path.to_token_stream().to_string();
+                match self.cef_name_map.get(&ty) {
+                    Some(NameMapEntry {
+                        ty: NameMapType::TypeAlias,
+                        ..
+                    }) => self
+                        .lookup_type_alias
+                        .get(&ty)
+                        .and_then(|&i| self.type_aliases.get(i))
+                        .map(|alias| self.resolve_type_aliases(&alias.ty))
+                        .unwrap_or_else(|| path.to_token_stream()),
+                    _ => path.to_token_stream(),
+                }
+            }
+            syn::Type::Tuple(syn::TypeTuple { elems, .. }) => {
+                let elems = elems.iter().map(|elem| self.resolve_type_aliases(elem));
+                quote! { #(#elems),* }
+            }
+            syn::Type::Array(syn::TypeArray { elem, len, .. }) => {
+                let elem = self.resolve_type_aliases(elem);
+                let len = len.to_token_stream();
+                quote! { [#elem; #len] }
+            }
+            syn::Type::Slice(syn::TypeSlice { elem, .. }) => {
+                let elem = self.resolve_type_aliases(elem);
+                quote! { [#elem] }
+            }
+            syn::Type::Ptr(syn::TypePtr {
+                const_token, elem, ..
+            }) => {
+                let elem = self.resolve_type_aliases(elem.as_ref());
+                if const_token.is_some() {
+                    quote! { *const #elem }
+                } else {
+                    quote! { *mut #elem }
+                }
+            }
+            _ => ty.to_token_stream(),
+        }
+    }
+
+    fn resolve_argument_type(&self, ty: &syn::Type) -> Option<ArgumentType> {
+        let ty = self.resolve_type_aliases(ty);
+        syn::parse2::<ArgumentType>(ty.clone()).ok()
     }
 
     pub fn write_aliases(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        writeln!(f, "\n// Type aliases")?;
-        for (alias_name, alias_ty) in &self.type_aliases {
-            if alias_name != alias_ty {
-                writeln!(f, "pub type {} = {};", alias_name, alias_ty)?;
-            }
+        let aliases = self
+            .type_aliases
+            .iter()
+            .filter_map(|TypeAliasRef { name, ty }| {
+                let rust_name = make_rust_type_name(name.as_str())?;
+                let arg_ty = self.resolve_argument_type(ty)?;
+                let ty = arg_ty.ty.to_token_stream().to_string();
+                let ty = make_rust_type_name(&ty).unwrap_or(ty);
+                (rust_name.as_str() != ty.as_str()).then(|| {
+                    let name = format_ident!("{rust_name}");
+                    let modifiers = arg_ty.modifiers.iter().map(|modifier| match modifier {
+                        TypeModifier::MutPtr => quote! { *mut },
+                        TypeModifier::ConstPtr => quote! { *const },
+                        TypeModifier::MutRef => quote! { &mut },
+                        TypeModifier::ConstRef => quote! { & },
+                    });
+                    let ty = format_ident!("{ty}");
+                    quote! {
+                        pub type #name = #(#modifiers)* #ty;
+                    }
+                })
+            });
+
+        let aliases = quote! {
+            #(#aliases)*
         }
-        Ok(())
+        .to_string();
+
+        writeln!(f, "\n// Type aliases")?;
+        writeln!(f, "{aliases}")
+    }
+
+    fn base(&self, name: &str) -> Option<&str> {
+        self.base_types.get(name).map(String::as_str)
+    }
+
+    fn root<'b: 'c, 'c>(&'b self, name: &'c str) -> &'c str {
+        self.base(name).map(|base| self.root(base)).unwrap_or(name)
     }
 
     pub fn write_structs(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        writeln!(f, "\n// Struct wrappers")?;
-        for StructDeclaration {
-            name,
-            rust_name,
-            fields,
-            methods,
-        } in &self.structs
-        {
-            let Some(rust_name) = rust_name.as_ref() else {
-                continue;
+        let declarations = self.struct_declarations.iter().filter_map(|s| {
+            let Some(NameMapEntry {
+                name: rust_name,
+                ty: NameMapType::StructDeclaration,
+            }) = self.cef_name_map.get(&s.name)
+            else {
+                return None;
             };
+            let rust_name = format_ident!("{rust_name}");
 
-            let root = self.base_types.root(rust_name);
-            if root == "BaseRefCounted" && root != rust_name {
-                write!(
-                    f,
-                    r#"
-                        wrapper!(
-                            #[doc = "See [{name}] for more documentation."]
-                            #[derive(Clone)]
-                            pub struct {rust_name}({name});
-                    "#
-                )?;
-                for method in methods {
-                    write!(f, "\n    pub ")?;
-                    method.write_signature(Some(self), f)?;
-                    write!(f, ";")?;
-                }
+            let name = s.name.as_str();
+            let name_ident = format_ident!("{name}");
+            let comment = format!(r#"See [{name}] for more documentation."#);
+            let root = self.root(&s.name);
 
-                let base_rust_name = self.base_types.base(rust_name);
-                let base_trait = base_rust_name
-                    .and_then(|base| {
-                        if base == root {
-                            Some(String::from(": Sized"))
-                        } else {
-                            Some(format!(": Impl{base}"))
-                        }
+            let wrapper = if root == BASE_REF_COUNTED && root != s.name {
+                let methods = s.methods.iter().map(|m| {
+                    let sig = m.get_signature(self);
+                    quote! {
+                        #sig;
+                    }
+                });
+
+                let base_name = self.base(name);
+                let impl_trait = format_ident!("Impl{rust_name}");
+                let impl_base_name = base_name
+                    .filter(|base| *base != BASE_REF_COUNTED)
+                    .and_then(|base| self.cef_name_map.get(base))
+                    .map(|entry| {
+                        let base = &entry.name;
+                        format_ident!("Impl{base}")
                     })
-                    .unwrap_or_default();
-                write!(
-                    f,
-                    r#"
-                        );
+                    .unwrap_or(format_ident!("Sized"));
+                let impl_methods = s.methods.iter().map(|m| {
+                    let sig = m.get_signature(self);
+                    quote! {
+                        #sig {
+                            unsafe { std::mem::zeroed() }
+                        }
+                    }
+                });
 
-                        pub trait Impl{rust_name}{base_trait} {{
-                    "#
-                )?;
-
-                for method in methods {
-                    let output = method
-                        .output
-                        .as_deref()
-                        .map(|_| String::from(" unsafe { std::mem::zeroed() } "))
-                        .unwrap_or_default();
-                    write!(f, "    ")?;
-                    method.write_signature(Some(self), f)?;
-                    writeln!(f, " {{{output}}}")?;
-                }
-
-                let mut base_rust_name = base_rust_name;
+                let mut base_name = base_name;
                 let mut base_structs = vec![];
-                while let Some(next_base) = base_rust_name
+                while let Some(next_base) = base_name
                     .filter(|base| *base != root)
-                    .and_then(|base| self.lookup_rust_struct(base))
+                    .and_then(|base| self.lookup_struct_declaration.get(base))
+                    .and_then(|&i| self.struct_declarations.get(i))
                 {
-                    base_rust_name = next_base
-                        .rust_name
-                        .as_ref()
-                        .and_then(|name| self.base_types.base(name.as_str()));
+                    base_name = self.base(&next_base.name);
                     base_structs.push(next_base);
                 }
 
@@ -409,339 +914,358 @@ impl ParseTree {
                     .enumerate()
                     .map(|(i, base_struct)| {
                         let name = &base_struct.name;
-                        let bases = iter::repeat_n("base", i + 1).collect::<Vec<_>>().join(".");
-                        format!(r#"impl{name}::init_methods::<Self>(&mut object.{bases});"#)
+                        let name = format_ident!("{name}");
+                        let impl_mod = format_ident!("impl{name}");
+                        let bases = iter::repeat_n(format_ident!("base"), i + 1);
+                        quote! {
+                            #impl_mod::init_methods::<Self>(&mut object.#(#bases).*);
+                        }
                     })
                     .collect::<Vec<_>>()
                     .into_iter()
                     .rev();
 
-                write!(
-                    f,
-                    r#"
-                            fn into_raw(self) -> *mut {name} {{
-                                let mut object: {name} = unsafe {{ std::mem::zeroed() }};"#
-                )?;
+                let name = &s.name;
+                let impl_mod = format_ident!("impl{name}");
+                let init_methods = s.methods.iter().map(|m| {
+                    let name = &m.name;
+                    let name = format_ident!("{name}");
+                    quote! {
+                        object.#name = Some(#name::<I>);
+                    }
+                });
 
-                for init_base in init_bases {
-                    write!(f, "\n{init_base}")?;
-                }
+                let wrapped_methods = s.methods.iter().map(|m| {
+                    let name = &m.name;
+                    let name = format_ident!("{name}");
+                    let args = m.inputs.iter().map(|arg| {
+                        let name = make_snake_case_value_name(&arg.name);
+                        let name = format_ident!("{name}");
+                        let ty = self.resolve_type_aliases(arg.ty);
+                        quote! { #name: #ty }
+                    });
+                    let wrapped_args = m.get_impl_wrapped_args(self);
+                    let forward_args = m.inputs.iter().skip(1).map(|arg| {
+                        let name = make_snake_case_value_name(&arg.name);
+                        let name = format_ident!("{name}");
+                        quote! { #name }
+                    });
+                    let original_output = m.output.map(|ty| self.resolve_type_aliases(ty));
+                    let output = original_output.as_ref().map(|output| {
+                        quote! { -> #output }
+                    });
+                    let forward_output = original_output.map(|_output| quote! { .into() });
 
-                write!(
-                    f,
-                    r#"
-                                impl{name}::init_methods::<Self>(&mut object);
-                                RcImpl::new(object, self) as *mut _
-                            }}
-                        }}
+                    quote! {
+                        extern "C" fn #name<I: #impl_trait>(#(#args),*) #output {
+                            let obj: &RcImpl<_, I> = RcImpl::get(self_);
+                            #wrapped_args
+                            obj.interface.#name(#(#forward_args),*)#forward_output
+                        }
+                    }
+                });
 
-                        mod impl{name} {{
-                            use super::*;
+                quote! {
+                    wrapper!(
+                        #[doc = #comment]
+                        #[derive(Clone)]
+                        pub struct #rust_name(#name_ident);
+                        #(#methods)*
+                    );
 
-                            pub fn init_methods<I: Impl{rust_name}>(object: &mut {name}) {{"#
-                )?;
+                    pub trait #impl_trait : #impl_base_name {
+                        #(#impl_methods)*
 
-                for method in methods {
-                    let name = &method.name;
-                    write!(f, r#"object.{name} = Some({name}::<I>);"#)?;
-                }
-
-                writeln!(
-                    f,
-                    r#"
-                            }}
-                    "#
-                )?;
-
-                for method in methods {
-                    let name = &method.name;
-                    let args = method
-                        .args
-                        .iter()
-                        .map(|arg| format!("{}: {}", arg.rust_name, arg.cef_type))
-                        .collect::<Vec<_>>()
-                        .join(", ");
-                    let forward_args = method
-                        .args
-                        .iter()
-                        .skip(1)
-                        .map(|arg| arg.rust_name.as_str())
-                        .collect::<Vec<_>>()
-                        .join(", ");
-                    let output = method
-                        .original_output
-                        .as_deref()
-                        .map(|output| format!(" -> {output}"))
-                        .unwrap_or_default();
-                    let forward_output = method
-                        .original_output
-                        .as_deref()
-                        .map(|_| String::from(".into()"))
-                        .unwrap_or_default();
-                    write!(
-                        f,
-                        r#"
-                            extern "C" fn {name}<I: Impl{rust_name}>({args}){output} {{
-                                let obj: &RcImpl<_, I> = RcImpl::get(self_);"#
-                    )?;
-
-                    let wrapped_args = method
-                        .args
-                        .iter()
-                        .skip(1)
-                        .filter_map(|arg| {
-                            let arg_name = &arg.rust_name;
-                            let normalized_ty = normalize_rust_type(&arg.ty);
-                            let normalized_ty = normalized_ty.as_ref();
-
-                            (self.base_types.root(normalized_ty) == "BaseRefCounted").then(|| {
-                                let arg_ty = &arg.ty;
-                                format!(r#"let {arg_name} = {arg_ty}(unsafe {{ RefGuard::from_raw_add_ref({arg_name}) }});"#)
-                            })
-                            .or_else(|| {
-                                (arg.ty.starts_with("&mut ") && !self.is_value_type(normalized_ty)).then(|| {
-                                    format!(r#"let mut {arg_name} = WrapParamRef::<{normalized_ty}>::from({arg_name});
-                                            let {arg_name} = {arg_name}.as_mut();"#)
-                                })
-                            })
-                            .or_else(|| {
-                                (arg.ty.starts_with("&") && !self.is_value_type(normalized_ty)).then(|| {
-                                    format!(r#"let {arg_name} = WrapParamRef::<{normalized_ty}>::from({arg_name});
-                                            let {arg_name} = {arg_name}.as_ref();"#)
-                                })
-                            })
-                            .or_else(|| Some(format!(r#"let {arg_name} = {arg_name}.as_raw();"#)))
-
-                        });
-                    for wrapped in wrapped_args {
-                        write!(f, "\n{wrapped}")?;
+                        fn into_raw(self) -> *mut #name_ident {
+                            let mut object: #name_ident = unsafe { std::mem::zeroed() };
+                            #(#init_bases)*
+                            #impl_mod::init_methods::<Self>(&mut object);
+                            RcImpl::new(object, self) as *mut _
+                        }
                     }
 
-                    writeln!(
-                        f,
-                        r#"
-                                obj.interface.{name}({forward_args}){forward_output}
-                            }}
-                        "#
-                    )?;
-                }
+                    mod #impl_mod {
+                        use super::*;
 
-                writeln!(f, r#"}}"#)?;
-            } else if !methods.is_empty()
-                || fields.is_empty()
-                || fields.iter().map(|f| f.name.as_str()).eq(["_unused"])
+                        pub fn init_methods<I: #impl_trait>(object: &mut #name_ident) {
+                            #(#init_methods)*
+                        }
+
+                        #(#wrapped_methods)*
+                    }
+                }
+            } else if !s.methods.is_empty()
+                || s.fields.is_empty()
+                || s.fields.iter().map(|f| f.name.as_str()).eq(["_unused"])
             {
-                write!(
-                    f,
-                    r#"
-                        /// See [{name}] for more documentation.
-                        #[repr(transparent)]
-                        pub struct {rust_name}({name});
+                quote! {
+                    #[doc = #comment]
+                    #[repr(transparent)]
+                    pub struct #rust_name(#name_ident);
 
-                        impl From<{name}> for {rust_name} {{
-                            fn from(value: {name}) -> Self {{
-                                Self(value)
-                            }}
-                        }}
+                    impl From<#name_ident> for #rust_name {
+                        fn from(value: #name_ident) -> Self {
+                            Self(value)
+                        }
+                    }
 
-                        impl Into<*const {name}> for &{rust_name} {{
-                            fn into(self) -> *const {name} {{
-                                self.as_ref() as *const {name}
-                            }}
-                        }}
+                    impl Into<*const #name_ident> for &#rust_name {
+                        fn into(self) -> *const #name_ident {
+                            self.as_ref() as *const #name_ident
+                        }
+                    }
 
-                        impl Into<*mut {name}> for &mut {rust_name} {{
-                            fn into(self) -> *mut {name} {{
-                                self.as_mut() as *mut {name}
-                            }}
-                        }}
+                    impl Into<*mut #name_ident> for &mut #rust_name {
+                        fn into(self) -> *mut #name_ident {
+                            self.as_mut() as *mut #name_ident
+                        }
+                    }
 
-                        impl Into<{name}> for {rust_name} {{
-                            fn into(self) -> {name} {{
-                                self.0
-                            }}
-                        }}
+                    impl Into<#name_ident> for #rust_name {
+                        fn into(self) -> #name_ident {
+                            self.0
+                        }
+                    }
 
-                        impl AsRef<{name}> for {rust_name} {{
-                            fn as_ref(&self) -> &{name} {{
-                                &self.0
-                            }}
-                        }}
+                    impl AsRef<#name_ident> for #rust_name {
+                        fn as_ref(&self) -> &#name_ident {
+                            &self.0
+                        }
+                    }
 
-                        impl AsMut<{name}> for {rust_name} {{
-                            fn as_mut(&mut self) -> &mut {name} {{
-                                &mut self.0
-                            }}
-                        }}
+                    impl AsMut<#name_ident> for #rust_name {
+                        fn as_mut(&mut self) -> &mut #name_ident {
+                            &mut self.0
+                        }
+                    }
 
-                        impl Default for {rust_name} {{
-                            fn default() -> Self {{
-                                unsafe {{ std::mem::zeroed() }}
-                            }}
-                        }}
-                    "#
-                )?;
+                    impl Default for #rust_name {
+                        fn default() -> Self {
+                            unsafe { std::mem::zeroed() }
+                        }
+                    }
+                }
             } else {
-                writeln!(f, "\n/// See [{name}] for more documentation.")?;
-                writeln!(f, "pub struct {rust_name} {{")?;
-                for field in fields {
-                    writeln!(f, "    {field}")?;
+                let fields = s
+                    .fields
+                    .iter()
+                    .map(|f| {
+                        let name = &f.name;
+                        let rust_name = make_snake_case_value_name(name);
+                        let rust_name = format_ident!("{rust_name}");
+                        let name = format_ident!("{name}");
+                        let ty = self.resolve_type_aliases(f.ty);
+                        let ty_string = ty.to_string();
+                        let ty = match self.cef_name_map.get(&ty_string) {
+                            Some(NameMapEntry { name, .. }) => {
+                                let name = format_ident!("{name}");
+                                quote! { #name }
+                            }
+                            _ => ty,
+                        };
+                        (rust_name, name.clone(), ty)
+                    })
+                    .collect::<Vec<_>>();
+                let fields_decl = fields.iter().map(|(rust_name, _, ty)| {
+                    quote! { #rust_name: #ty, }
+                });
+                let from_fields = fields.iter().map(|(rust_name, name, _)| {
+                    quote! { #rust_name: value.#name.into(), }
+                });
+                let into_fields = fields.iter().map(|(rust_name, name, _)| {
+                    quote! { #name: self.#rust_name.into(), }
+                });
+
+                quote! {
+                    #[doc = #comment]
+                    pub struct #rust_name {
+                        #(#fields_decl)*
+                    }
+
+                    impl From<#name_ident> for #rust_name {
+                        fn from(value: #name_ident) -> Self {
+                            Self {
+                                #(#from_fields)*
+                            }
+                        }
+                    }
+
+                    impl Into<#name_ident> for #rust_name {
+                        fn into(self) -> #name_ident {
+                            #name_ident {
+                                #(#into_fields)*
+                            }
+                        }
+                    }
+
+                    impl Default for #rust_name {
+                        fn default() -> Self {
+                            unsafe { std::mem::zeroed() }
+                        }
+                    }
                 }
-                writeln!(f, "}}")?;
-                write!(
-                    f,
-                    r#"
-                        impl From<{name}> for {rust_name} {{
-                            fn from(value: {name}) -> Self {{
-                                Self {{"#
-                )?;
+            };
 
-                for field in fields {
-                    let name = &field.name;
-                    let rust_name = &field.rust_name;
-                    write!(f, "\n{rust_name}: value.{name}.into(),")?;
-                }
+            Some(wrapper)
+        });
 
-                write!(
-                    f,
-                    r#"
-                                }}
-                            }}
-                        }}
-
-                        impl Into<{name}> for {rust_name} {{
-                            fn into(self) -> {name} {{
-                                {name} {{"#
-                )?;
-
-                for field in fields {
-                    let name = &field.name;
-                    let rust_name = &field.rust_name;
-                    write!(f, "\n{name}: self.{rust_name}.into(),")?;
-                }
-
-                write!(
-                    f,
-                    r#"
-                                }}
-                            }}
-                        }}
-
-                        impl Default for {rust_name} {{
-                            fn default() -> Self {{
-                                unsafe {{ std::mem::zeroed() }}
-                            }}
-                        }}
-                    "#
-                )?;
-            }
+        let declarations = quote! {
+            #(#declarations)*
         }
-        Ok(())
+        .to_string();
+
+        writeln!(f, "\n// Struct wrappers")?;
+        writeln!(f, "{declarations}")
     }
 
-    fn is_value_type(&self, rust_name: &str) -> bool {
-        if rust_name.starts_with("Cef") {
-            false
-        } else if self.type_aliases.get(rust_name).is_some()
-            && self.lookup_rust_struct(rust_name).is_none()
-        {
-            true
-        } else if self.lookup_rust_enum(rust_name).is_some() {
-            true
-        } else {
-            false
-        }
-    }
+    // fn patch_argument_references(&mut self) {
+    //     let args: Vec<_> = self
+    //         .structs
+    //         .iter_mut()
+    //         .flat_map(|s| s.methods.iter_mut())
+    //         .chain(self.globals.iter_mut())
+    //         .flat_map(|m| m.args.iter_mut())
+    //         .collect();
+
+    //     for arg in args {
+    //         if arg.ty != arg.cef_type && arg.cef_type.starts_with("cef_") {
+    //             let ty = &arg.ty;
+    //             let normalized_ty = normalize_rust_type(ty.as_str());
+    //             if !self.is_value_type(&normalized_ty) {
+    //                 arg.ty = format!("&mut {normalized_ty}");
+    //             }
+    //         }
+    //     }
+    // }
+
+    // fn is_value_type(&self, rust_name: &str) -> bool {
+    //     if rust_name.starts_with("Cef") {
+    //         false
+    //     } else if self.type_alias_map.get(rust_name).is_some()
+    //         && self.lookup_rust_struct(rust_name).is_none()
+    //     {
+    //         true
+    //     } else if self.lookup_rust_enum(rust_name).is_some() {
+    //         true
+    //     } else {
+    //         false
+    //     }
+    // }
 
     pub fn write_enums(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let enum_names = self
+            .enum_names
+            .iter()
+            .filter_map(|name| make_rust_type_name(name).map(|rust_name| (rust_name, name)));
+        let declarations = enum_names.map(|(rust_name, name)| {
+            let comment = format!(r#"See [{name}] for more documentation."#);
+            let name = format_ident!("{name}");
+            let rust_name = format_ident!("{rust_name}");
+            quote! {
+                #[doc = #comment]
+                #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+                pub struct #rust_name(#name);
+
+                impl AsRef<#name> for #rust_name {
+                    fn as_ref(&self) -> &#name {
+                        &self.0
+                    }
+                }
+
+                impl AsMut<#name> for #rust_name {
+                    fn as_mut(&mut self) -> &mut #name {
+                        &mut self.0
+                    }
+                }
+
+                impl From<#name> for #rust_name {
+                    fn from(value: #name) -> Self {
+                        Self(value)
+                    }
+                }
+
+                impl Into<#name> for #rust_name {
+                    fn into(self) -> #name {
+                        self.0
+                    }
+                }
+
+                impl Default for #rust_name {
+                    fn default() -> Self {
+                        unsafe { std::mem::zeroed() }
+                    }
+                }
+            }
+        });
+
+        let declarations = quote! {
+            #(#declarations)*
+        };
+
         writeln!(f, "\n// Enum aliases")?;
-        for name in &self.enums {
-            let Some(rust_name) = make_rust_type_name(name) else {
-                continue;
-            };
-            write!(
-                f,
-                r#"
-                    /// See [{name}] for more documentation.
-                    #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-                    pub struct {rust_name}({name});
-
-                    impl AsRef<{name}> for {rust_name} {{
-                        fn as_ref(&self) -> &{name} {{
-                            &self.0
-                        }}
-                    }}
-
-                    impl AsMut<{name}> for {rust_name} {{
-                        fn as_mut(&mut self) -> &mut {name} {{
-                            &mut self.0
-                        }}
-                    }}
-
-                    impl From<{name}> for {rust_name} {{
-                        fn from(value: {name}) -> Self {{
-                            Self(value)
-                        }}
-                    }}
-
-                    impl Into<{name}> for {rust_name} {{
-                        fn into(self) -> {name} {{
-                            self.0
-                        }}
-                    }}
-
-                    impl Default for {rust_name} {{
-                        fn default() -> Self {{
-                            unsafe {{ std::mem::zeroed() }}
-                        }}
-                    }}
-                "#
-            )?;
-        }
-        Ok(())
+        writeln!(f, "{declarations}")
     }
 
     pub fn write_globals(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        writeln!(f, "\n// Global function wrappers")?;
-        for global_fn in &self.globals {
-            let original_name = global_fn.original_name.as_ref().unwrap_or(&global_fn.name);
-            let args = global_fn
-                .args
+        let declarations = self.global_function_declarations.iter().map(|f| {
+            let original_name = f.name.as_str();
+            static PATTERN: OnceLock<Regex> = OnceLock::new();
+            let pattern = PATTERN.get_or_init(|| Regex::new(r"^cef_(\w+)$").unwrap());
+            let name = pattern
+                .captures(&original_name)
+                .and_then(|captures| captures.get(1))
+                .map(|name| name.as_str())
+                .unwrap_or(original_name);
+            let name = format_ident!("{name}");
+            let original_name = format_ident!("{original_name}");
+            let args = f.get_rust_args(self);
+            let output = f.get_rust_output(self);
+            let inputs = f
+                .inputs
                 .iter()
-                .map(|arg| format!("{}.as_raw()", arg.rust_name))
-                .collect::<Vec<_>>()
-                .join(", ");
-            let output = global_fn
-                .output
-                .as_deref()
-                .map(|_| String::from(".as_wrapper()"))
-                .unwrap_or_default();
-            writeln!(
-                f,
-                r#"
-                    pub {global_fn} {{
-                        unsafe {{ {original_name}({args}){output} }}
-                    }}
-                "#
-            )?;
+                .map(|arg| {
+                    let rust_name = make_snake_case_value_name(&arg.name);
+                    let rust_name = format_ident!("{rust_name}");
+                    let ty = self.resolve_type_aliases(arg.ty);
+                    (rust_name, ty)
+                })
+                .collect::<Vec<_>>();
+            let forward_args = inputs.iter().map(|(rust_name, _)| {
+                quote! { #rust_name.as_raw() }
+            });
+            let original_output = f.output.map(|ty| self.resolve_type_aliases(ty));
+            let forward_output = original_output.map(|_output| quote! { .as_wrapper() });
+
+            quote! {
+                pub fn #name(#args) #output {
+                    unsafe { #original_name(#(#forward_args),*)#forward_output }
+                }
+            }
+        });
+
+        let declarations = quote! {
+            #(#declarations)*
         }
-        Ok(())
+        .to_string();
+
+        writeln!(f, "\n// Global function wrappers")?;
+        writeln!(f, "{declarations}")
     }
 
-    fn lookup_rust_struct(&self, name: &str) -> Option<&StructDeclaration> {
-        self.lookup_rust_struct
-            .get(name)
-            .and_then(|&i| self.structs.get(i))
-    }
+    // fn lookup_rust_struct(&self, name: &str) -> Option<&StructDeclaration> {
+    //     self.lookup_rust_struct
+    //         .get(name)
+    //         .and_then(|&i| self.structs.get(i))
+    // }
 
-    fn lookup_rust_enum(&self, name: &str) -> Option<&str> {
-        self.lookup_rust_enum
-            .get(name)
-            .and_then(|&i| self.enums.get(i).map(String::as_str))
-    }
+    // fn lookup_rust_enum(&self, name: &str) -> Option<&str> {
+    //     self.lookup_rust_enum
+    //         .get(name)
+    //         .and_then(|&i| self.enums.get(i).map(String::as_str))
+    // }
 }
 
-impl Display for ParseTree {
+impl<'a> Display for ParseTree<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         self.write_prelude(f)?;
         self.write_aliases(f)?;
@@ -751,45 +1275,70 @@ impl Display for ParseTree {
     }
 }
 
-impl TryFrom<&syn::File> for ParseTree {
-    type Error = Unrecognized;
-
-    fn try_from(value: &syn::File) -> Result<Self, Self::Error> {
+impl<'a> From<&'a syn::File> for ParseTree<'a> {
+    fn from(value: &'a syn::File) -> Self {
         let mut tree = Self::default();
-        for item in &value.items {
-            match item {
-                syn::Item::Type(item_type) => {
-                    let alias_name = item_type.ident.to_string();
-                    let alias_ty = type_to_string(&item_type.ty);
-                    let alias_name =
-                        make_rust_type_name(&alias_name).unwrap_or_else(|| alias_name.clone());
-                    let alias_ty =
-                        make_rust_type_name(&alias_ty).unwrap_or_else(|| alias_ty.clone());
-                    let alias_ty = normalize_rust_type(&alias_ty).to_string();
-                    tree.type_aliases.insert(alias_name, alias_ty);
-                }
+
+        tree.type_aliases = value
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                syn::Item::Type(item_type) => Some(TypeAliasRef {
+                    name: item_type.ident.to_string(),
+                    ty: item_type.ty.as_ref(),
+                }),
+                _ => None,
+            })
+            .collect();
+
+        tree.enum_names = value
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                syn::Item::Enum(syn::ItemEnum { ident, .. }) => Some(ident.to_string()),
                 syn::Item::Struct(item_struct) => match &item_struct.fields {
-                    syn::Fields::Named(fields) => {
-                        let mut struct_decl = StructDeclaration::default();
-                        struct_decl.name = item_struct.ident.to_string();
-                        struct_decl.rust_name = make_rust_type_name(&struct_decl.name);
-                        for field in fields.named.iter() {
-                            if let Ok(field_decl) = MethodDeclaration::try_from(field) {
-                                struct_decl.methods.push(field_decl);
-                            } else if let Ok(field_decl) = FieldDeclaration::try_from(field) {
-                                struct_decl.fields.push(field_decl);
+                    syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
+                        Some(item_struct.ident.to_string())
+                    }
+                    _ => None,
+                },
+                _ => None,
+            })
+            .collect();
+
+        tree.struct_declarations = value
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                syn::Item::Struct(item_struct) => match &item_struct.fields {
+                    syn::Fields::Named(syn::FieldsNamed { named, .. }) => {
+                        let mut fields = vec![];
+                        let mut methods = vec![];
+
+                        for member in named.iter() {
+                            if let Ok(method) = SignatureRef::try_from(member) {
+                                methods.push(method);
+                            } else if let Ok(field) = FieldRef::try_from(member) {
+                                fields.push(field);
                             }
                         }
-                        tree.structs.push(struct_decl);
+
+                        Some(StructDeclarationRef {
+                            name: item_struct.ident.to_string(),
+                            fields,
+                            methods,
+                        })
                     }
-                    syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
-                        tree.enums.push(item_struct.ident.to_string());
-                    }
-                    _ => {}
+                    _ => None,
                 },
-                syn::Item::Enum(syn::ItemEnum { ident, .. }) => {
-                    tree.enums.push(ident.to_string());
-                }
+                _ => None,
+            })
+            .collect();
+
+        tree.global_function_declarations = value
+            .items
+            .iter()
+            .filter_map(|item| match item {
                 syn::Item::ForeignMod(syn::ItemForeignMod {
                     unsafety: Some(_),
                     abi:
@@ -798,94 +1347,282 @@ impl TryFrom<&syn::File> for ParseTree {
                         },
                     items,
                     ..
-                }) if abi.value() == "C" => {
-                    for item in items {
-                        if let syn::ForeignItem::Fn(item_fn) = item {
-                            let original_name = item_fn.sig.ident.to_string();
-                            static PATTERN: OnceLock<Regex> = OnceLock::new();
-                            let pattern =
-                                PATTERN.get_or_init(|| Regex::new(r"^cef_(\w+)$").unwrap());
-                            let name = pattern
-                                .captures(&original_name)
-                                .and_then(|captures| captures.get(1))
-                                .map(|name| name.as_str().to_string());
-                            let (name, original_name) = match name {
-                                Some(name) => (name, Some(original_name)),
-                                None => (original_name, None),
-                            };
-                            let args = item_fn
-                                .sig
-                                .inputs
-                                .iter()
-                                .filter_map(|arg| {
-                                    let syn::FnArg::Typed(syn::PatType { pat, ty, .. }) = arg
-                                    else {
-                                        return None;
-                                    };
-
-                                    let syn::Pat::Ident(syn::PatIdent { ident, .. }) = pat.as_ref()
-                                    else {
-                                        return None;
-                                    };
-
-                                    let name = ident.to_string();
-                                    let rust_name = make_snake_case_value_name(&name);
-                                    let cef_type = ty.to_token_stream().to_string();
-                                    let ty = type_to_string(ty.as_ref());
-
-                                    let ty = if ty != cef_type && cef_type.starts_with("cef_") {
-                                        format!("&mut {ty}")
-                                    } else {
-                                        ty
-                                    };
-
-                                    Some(MethodArgument {
-                                        name,
-                                        rust_name,
-                                        ty,
-                                        cef_type,
-                                    })
-                                })
-                                .collect();
-                            let (original_output, output) = match &item_fn.sig.output {
-                                syn::ReturnType::Type(_, ty) => (
-                                    Some(ty.to_token_stream().to_string()),
-                                    Some(
-                                        normalize_rust_type(&type_to_string(ty.as_ref()))
-                                            .to_string(),
-                                    ),
-                                ),
-                                _ => (None, None),
-                            };
-                            tree.globals.push(MethodDeclaration {
-                                name,
-                                original_name,
-                                args,
+                }) if abi.value() == "C" => Some(items),
+                _ => None,
+            })
+            .flat_map(|items| {
+                items.iter().filter_map(|item| match item {
+                    syn::ForeignItem::Fn(syn::ForeignItemFn {
+                        sig:
+                            syn::Signature {
+                                ident,
+                                inputs,
                                 output,
-                                original_output,
-                            });
-                        }
-                    }
+                                ..
+                            },
+                        ..
+                    }) => Some(SignatureRef {
+                        name: ident.to_string(),
+                        inputs: inputs
+                            .iter()
+                            .map(|arg| match arg {
+                                syn::FnArg::Receiver(_) => {
+                                    unreachable!("unexpected function receiver")
+                                }
+                                syn::FnArg::Typed(syn::PatType { pat, ty, .. }) => {
+                                    match pat.as_ref() {
+                                        syn::Pat::Ident(syn::PatIdent { ident, .. }) => FnArgRef {
+                                            name: ident.to_string(),
+                                            ty: ty.as_ref(),
+                                        },
+                                        _ => unreachable!("unexpected argument name type"),
+                                    }
+                                }
+                            })
+                            .collect(),
+                        output: match output {
+                            syn::ReturnType::Default => None,
+                            syn::ReturnType::Type(_, ty) => Some(ty.as_ref()),
+                        },
+                    }),
+                    _ => None,
+                })
+            })
+            .collect();
+
+        tree.cef_name_map = tree
+            .type_aliases
+            .iter()
+            .map(|alias| alias.name.as_str())
+            .map(|cef_name| (cef_name, NameMapType::TypeAlias))
+            .chain(
+                tree.enum_names
+                    .iter()
+                    .map(String::as_str)
+                    .map(|cef_name| (cef_name, NameMapType::EnumName)),
+            )
+            .chain(
+                tree.struct_declarations
+                    .iter()
+                    .map(|s| s.name.as_str())
+                    .map(|cef_name| (cef_name, NameMapType::StructDeclaration)),
+            )
+            .filter_map(|(cef_name, ty)| {
+                make_rust_type_name(cef_name).map(|rust_name| (cef_name, (rust_name, ty)))
+            })
+            .filter_map(|(cef_name, (rust_name, ty))| {
+                if cef_name == rust_name.as_str() {
+                    None
+                } else {
+                    Some((
+                        cef_name.to_owned(),
+                        NameMapEntry {
+                            name: rust_name,
+                            ty,
+                        },
+                    ))
                 }
-                _ => {}
-            }
-        }
-
-        tree.lookup_rust_enum = tree
-            .enums
-            .iter()
-            .enumerate()
-            .map(|(i, e)| (make_rust_type_name(e).unwrap_or_else(|| e.clone()), i))
+            })
             .collect();
-        tree.base_types = BaseTypes::new(tree.structs.iter());
-        tree.lookup_rust_struct = tree
-            .structs
+        tree.rust_name_map = tree
+            .cef_name_map
             .iter()
-            .enumerate()
-            .map(|(i, s)| (s.rust_name.as_deref().unwrap_or(&s.name).to_owned(), i))
+            .map(|(a, NameMapEntry { name: b, ty })| {
+                (
+                    b.clone(),
+                    NameMapEntry {
+                        name: a.clone(),
+                        ty: *ty,
+                    },
+                )
+            })
             .collect();
 
-        Ok(tree)
+        tree.lookup_type_alias = tree
+            .type_aliases
+            .iter()
+            .enumerate()
+            .map(|(index, alias)| (alias.name.clone(), index))
+            .collect();
+        tree.lookup_enum_name = tree
+            .enum_names
+            .iter()
+            .enumerate()
+            .map(|(index, name)| (name.clone(), index))
+            .collect();
+        tree.lookup_struct_declaration = tree
+            .struct_declarations
+            .iter()
+            .enumerate()
+            .map(|(index, s)| (s.name.clone(), index))
+            .collect();
+        tree.lookup_global_function_declaration = tree
+            .global_function_declarations
+            .iter()
+            .enumerate()
+            .map(|(index, f)| (f.name.clone(), index))
+            .collect();
+
+        tree.base_types = tree
+            .struct_declarations
+            .iter()
+            .filter_map(|s| match s.fields.as_slice() {
+                [FieldRef { name, ty }] if name.as_str() == "base" => {
+                    Some((s.name.clone(), tree.resolve_type_aliases(ty).to_string()))
+                }
+                _ => None,
+            })
+            .collect();
+
+        tree
+        // for item in &value.items {
+        //     match item {
+        //         syn::Item::Type(item_type) => {
+        //             let alias_name = item_type.ident.to_string();
+        //             let alias_ty = type_to_string(&item_type.ty);
+        //             let alias_name =
+        //                 make_rust_type_name(&alias_name).unwrap_or_else(|| alias_name.clone());
+        //             let alias_ty =
+        //                 make_rust_type_name(&alias_ty).unwrap_or_else(|| alias_ty.clone());
+        //             let alias_ty = normalize_rust_type(&alias_ty).to_string();
+        //             tree.type_alias_map.insert(alias_name, alias_ty);
+        //         }
+        //         syn::Item::Struct(item_struct) => match &item_struct.fields {
+        //             syn::Fields::Named(fields) => {
+        //                 let mut struct_decl = StructDeclaration::default();
+        //                 struct_decl.name = item_struct.ident.to_string();
+        //                 struct_decl.rust_name = make_rust_type_name(&struct_decl.name);
+        //                 for field in fields.named.iter() {
+        //                     if let Ok(field_decl) = tree.visit_method_declaration(field) {
+        //                         struct_decl.methods.push(field_decl);
+        //                     } else if let Ok(field_decl) = tree.visit_field_declaration(field) {
+        //                         struct_decl.fields.push(field_decl);
+        //                     }
+        //                 }
+        //                 tree.structs.push(struct_decl);
+        //             }
+        //             syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
+        //                 tree.enums.push(item_struct.ident.to_string());
+        //             }
+        //             _ => {}
+        //         },
+        //         syn::Item::Enum(syn::ItemEnum { ident, .. }) => {
+        //             tree.enums.push(ident.to_string());
+        //         }
+        //         syn::Item::ForeignMod(syn::ItemForeignMod {
+        //             unsafety: Some(_),
+        //             abi:
+        //                 syn::Abi {
+        //                     name: Some(abi), ..
+        //                 },
+        //             items,
+        //             ..
+        //         }) if abi.value() == "C" => {
+        //             for item in items {
+        //                 if let syn::ForeignItem::Fn(item_fn) = item {
+        //                     let original_name = item_fn.sig.ident.to_string();
+        //                     static PATTERN: OnceLock<Regex> = OnceLock::new();
+        //                     let pattern =
+        //                         PATTERN.get_or_init(|| Regex::new(r"^cef_(\w+)$").unwrap());
+        //                     let name = pattern
+        //                         .captures(&original_name)
+        //                         .and_then(|captures| captures.get(1))
+        //                         .map(|name| name.as_str().to_string());
+        //                     let (name, original_name) = match name {
+        //                         Some(name) => (name, Some(original_name)),
+        //                         None => (original_name, None),
+        //                     };
+        //                     let args = item_fn
+        //                         .sig
+        //                         .inputs
+        //                         .iter()
+        //                         .filter_map(|arg| {
+        //                             let syn::FnArg::Typed(syn::PatType { pat, ty, .. }) = arg
+        //                             else {
+        //                                 return None;
+        //                             };
+
+        //                             let syn::Pat::Ident(syn::PatIdent { ident, .. }) = pat.as_ref()
+        //                             else {
+        //                                 return None;
+        //                             };
+
+        //                             let name = ident.to_string();
+        //                             let rust_name = make_snake_case_value_name(&name);
+        //                             let cef_type = ty.to_token_stream().to_string();
+        //                             let ty = type_to_string(ty.as_ref());
+
+        //                             let ty = if ty != cef_type && cef_type.starts_with("cef_") {
+        //                                 format!("&mut {ty}")
+        //                             } else {
+        //                                 ty
+        //                             };
+
+        //                             Some(MethodArgument {
+        //                                 name,
+        //                                 rust_name,
+        //                                 ty,
+        //                                 cef_type,
+        //                             })
+        //                         })
+        //                         .collect();
+        //                     let (original_output, output) = match &item_fn.sig.output {
+        //                         syn::ReturnType::Type(_, ty) => (
+        //                             Some(ty.to_token_stream().to_string()),
+        //                             Some(
+        //                                 normalize_rust_type(&type_to_string(ty.as_ref()))
+        //                                     .to_string(),
+        //                             ),
+        //                         ),
+        //                         _ => (None, None),
+        //                     };
+        //                     tree.globals.push(MethodDeclaration {
+        //                         name,
+        //                         original_name,
+        //                         args,
+        //                         output,
+        //                         original_output,
+        //                     });
+        //                 }
+        //             }
+        //         }
+        //         _ => {}
+        //     }
+        // }
+
+        // let args: Vec<_> = tree
+        //     .structs
+        //     .iter_mut()
+        //     .flat_map(|s| s.methods.iter_mut())
+        //     .chain(tree.globals.iter_mut())
+        //     .flat_map(|m| m.args.iter_mut())
+        //     .collect();
+
+        // // for arg in args {
+        // //     if arg.ty != arg.cef_type && arg.cef_type.starts_with("cef_") {
+        // //         let ty = &arg.ty;
+        // //         let normalized_ty = normalize_rust_type(ty.as_str());
+        // //         if !tree.is_value_type(&normalized_ty) {
+        // //             arg.ty = format!("&mut {normalized_ty}");
+        // //         }
+        // //     }
+        // // }
+
+        // tree.lookup_rust_enum = tree
+        //     .enums
+        //     .iter()
+        //     .enumerate()
+        //     .map(|(i, e)| (make_rust_type_name(e).unwrap_or_else(|| e.clone()), i))
+        //     .collect();
+        // tree.base_types = BaseTypes::new(tree.structs.iter());
+        // tree.lookup_rust_struct = tree
+        //     .structs
+        //     .iter()
+        //     .enumerate()
+        //     .map(|(i, s)| (s.rust_name.as_deref().unwrap_or(&s.name).to_owned(), i))
+        //     .collect();
+
+        // Ok(tree)
     }
 }
 
@@ -939,6 +1676,12 @@ fn type_to_string(ty: &syn::Type) -> String {
         }
         _ => ty.to_token_stream().to_string(),
     }
+}
+
+fn normalize_cef_type(name: &str) -> Cow<'_, str> {
+    static PATTERN: OnceLock<Regex> = OnceLock::new();
+    let pattern = PATTERN.get_or_init(|| Regex::new(r"^(\s*\*\s*(const|mut)\s+)*").unwrap());
+    pattern.replace(name, "")
 }
 
 fn normalize_rust_type(name: &str) -> Cow<'_, str> {
