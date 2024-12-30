@@ -2,7 +2,6 @@ use convert_case::{Case, Casing};
 use quote::{format_ident, quote, ToTokens};
 use regex::Regex;
 use std::{
-    borrow::Cow,
     cell::OnceCell,
     collections::BTreeMap,
     fmt::{self, Debug, Display, Formatter},
@@ -175,12 +174,12 @@ impl SignatureRef<'_> {
                                         elem_ty.modifiers.as_slice(),
                                     ) {
                                         ([], [TypeModifier::ConstPtr, TypeModifier::MutPtr]) => {
-                                            quote! { Option<&[Option<#name>]> }
+                                            quote! { Option<&'a [Option<#name>]> }
                                         }
                                         (
                                             [TypeModifier::MutPtr],
                                             [TypeModifier::MutPtr, TypeModifier::MutPtr],
-                                        ) => quote! { Option<&mut &mut [Option<#name>]> },
+                                        ) => quote! { Option<&'a mut &'a mut [Option<#name>]> },
                                         _ => continue,
                                     };
                                     let Ok(slice_ty) = syn::parse2::<syn::Type>(slice_ty) else {
@@ -207,10 +206,10 @@ impl SignatureRef<'_> {
                                         elem_ty.modifiers.as_slice(),
                                     ) {
                                         ([], [TypeModifier::ConstPtr]) => {
-                                            quote! { Option<&[Option<#name>]> }
+                                            quote! { Option<&'a [Option<#name>]> }
                                         }
                                         ([TypeModifier::MutPtr], [TypeModifier::MutPtr]) => {
-                                            quote! { Option<&mut &mut [Option<#name>]> }
+                                            quote! { Option<&'a mut &'a mut [Option<#name>]> }
                                         }
                                         _ => continue,
                                     };
@@ -256,13 +255,13 @@ impl SignatureRef<'_> {
                                 elem_ty.modifiers.as_slice(),
                             ) {
                                 ([], [TypeModifier::ConstPtr]) => {
-                                    quote! { Option<&[u8]> }
+                                    quote! { Option<&'a [u8]> }
                                 }
                                 ([], [TypeModifier::MutPtr])
                                 | (
                                     [TypeModifier::MutPtr],
                                     [TypeModifier::MutPtr, TypeModifier::MutPtr],
-                                ) => quote! { Option<&mut &mut [u8]> },
+                                ) => quote! { Option<&'a mut &'a mut [u8]> },
                                 _ => continue,
                             };
                             let Ok(slice_ty) = syn::parse2::<syn::Type>(slice_ty) else {
@@ -430,7 +429,7 @@ impl SignatureRef<'_> {
                                 .map(|elem| elem
                                     .as_ref()
                                     .map(|elem| elem.as_raw())
-                                    .unwrap_or(std::ptr::null()))
+                                    .unwrap_or(std::ptr::null_mut()))
                                 .collect::<Vec<_>>())
                             .unwrap_or_default();
                         let #arg_name = if #vec_name.is_empty() {
@@ -480,7 +479,8 @@ impl SignatureRef<'_> {
                 let arg_name = format_ident!("arg_{slice_name}");
                 let out_size = format_ident!("out_{size_name}");
                 let arg_size = format_ident!("arg_{size_name}");
-                if slice_ty.to_token_stream().to_string() == quote! { Option<&[u8]> }.to_string() {
+                if slice_ty.to_token_stream().to_string() == quote! { Option<&'a [u8]> }.to_string()
+                {
                     Some(quote! {
                         let #arg_size = #arg_name
                             .map(|slice| slice.len())
@@ -496,7 +496,7 @@ impl SignatureRef<'_> {
                         .unwrap_or(std::ptr::null());
                     })
                 } else if slice_ty.to_token_stream().to_string()
-                    == quote! { Option<&mut &mut [u8]> }.to_string()
+                    == quote! { Option<&'a mut &'a mut [u8]> }.to_string()
                 {
                     let arg_size = match size_modifiers.as_slice() {
                         [] => Some(quote! {
@@ -570,14 +570,17 @@ impl SignatureRef<'_> {
             }
             MergedParam::Buffer {
                 slice_name,
-                slice_ty:
+                slice_ty: ModifiedType { ty: slice_ty, .. },
+                size_name,
+                size_ty:
                     ModifiedType {
-                        modifiers: slice_modifiers,
+                        modifiers: size_modifiers,
                         ..
                     },
-                size_name,
-                ..
-            } if matches!(slice_modifiers.as_slice(), [TypeModifier::MutPtr]) => {
+            } if matches!(size_modifiers.as_slice(), [TypeModifier::MutPtr])
+                && slice_ty.to_token_stream().to_string()
+                    == quote! { Option<&'a mut &'a mut [u8]> }.to_string() =>
+            {
                 let out_name = format_ident!("out_{slice_name}");
                 let out_size = format_ident!("out_{size_name}");
                 Some(quote! {
@@ -829,14 +832,14 @@ impl SignatureRef<'_> {
                 let arg_name = format_ident!("arg_{slice_name}");
                 let out_size = format_ident!("out_{size_name}");
                 let arg_size = format_ident!("arg_{size_name}");
-                if slice_ty.to_token_stream().to_string() == quote! { Option<&[u8]> }.to_string() {
+                if slice_ty.to_token_stream().to_string() == quote! { Option<&'a [u8]> }.to_string() {
                     Some(quote! {
                         let #arg_name = (!#arg_name.is_null() && #arg_size > 0).then(|| unsafe {
                             std::slice::from_raw_parts(#arg_name as *const u8, #arg_size)
                         });
                     })
                 } else if slice_ty.to_token_stream().to_string()
-                    == quote! { Option<&mut &mut [u8]> }.to_string()
+                    == quote! { Option<&'a mut &'a mut [u8]> }.to_string()
                 {
                     let out_size = match size_modifiers.as_slice() {
                         [TypeModifier::MutPtr] => Some(quote! {
@@ -939,7 +942,7 @@ impl SignatureRef<'_> {
         let name = format_ident!("{name}");
         let args = self.get_rust_args(tree);
         let output = self.get_rust_output(tree);
-        quote! { fn #name(#args) #output }
+        quote! { fn #name<'a>(#args) #output }
     }
 }
 
@@ -1090,13 +1093,17 @@ impl ModifiedType {
                 let name = format_ident!("{name}");
 
                 match self.modifiers.as_slice() {
-                    [TypeModifier::ConstPtr] => Some(quote! { &#name }),
-                    [TypeModifier::MutPtr] => Some(quote! { &mut #name }),
+                    [TypeModifier::ConstPtr] => Some(quote! { &'a #name }),
+                    [TypeModifier::MutPtr] => Some(quote! { &'a mut #name }),
                     [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
-                        Some(quote! { &mut Option<#name> })
+                        Some(quote! { &'a mut Option<#name> })
                     }
-                    [TypeModifier::ConstPtr, TypeModifier::MutPtr] => Some(quote! { &mut [#name] }),
-                    [TypeModifier::ConstPtr, TypeModifier::ConstPtr] => Some(quote! { &[#name] }),
+                    [TypeModifier::ConstPtr, TypeModifier::MutPtr] => {
+                        Some(quote! { &'a mut [#name] })
+                    }
+                    [TypeModifier::ConstPtr, TypeModifier::ConstPtr] => {
+                        Some(quote! { &'a [#name] })
+                    }
                     _ => None,
                 }
             }
@@ -1108,8 +1115,8 @@ impl ModifiedType {
 
                 match self.modifiers.as_slice() {
                     [] => Some(quote! { #name }),
-                    [TypeModifier::ConstPtr] => Some(quote! { &[#name] }),
-                    [TypeModifier::MutPtr] => Some(quote! { &mut [#name] }),
+                    [TypeModifier::ConstPtr] => Some(quote! { &'a [#name] }),
+                    [TypeModifier::MutPtr] => Some(quote! { &'a mut [#name] }),
                     _ => None,
                 }
             }
@@ -1130,8 +1137,8 @@ impl ModifiedType {
                 }
             }
             _ => match self.modifiers.as_slice() {
-                [TypeModifier::ConstPtr] => Some(quote! { &[#elem] }),
-                [TypeModifier::MutPtr] => Some(quote! { &mut #elem }),
+                [TypeModifier::ConstPtr] => Some(quote! { &'a [#elem] }),
+                [TypeModifier::MutPtr] => Some(quote! { &'a mut #elem }),
                 _ => None,
             },
         }
@@ -1836,7 +1843,7 @@ impl<'a> ParseTree<'a> {
             let forward_output = original_output.map(|_output| quote! { .as_wrapper() });
 
             quote! {
-                pub fn #name(#args) #output {
+                pub fn #name<'a>(#args) #output {
                     unsafe { #original_name(#(#forward_args),*)#forward_output }
                 }
             }
@@ -2071,12 +2078,6 @@ fn format_bindings(source_path: &Path) -> crate::Result<()> {
     cmd.arg(source_path);
     cmd.output()?;
     Ok(())
-}
-
-fn normalize_cef_type(name: &str) -> Cow<'_, str> {
-    static PATTERN: OnceLock<Regex> = OnceLock::new();
-    let pattern = PATTERN.get_or_init(|| Regex::new(r"^(\s*\*\s*(const|mut)\s+)*").unwrap());
-    pattern.replace(name, "")
 }
 
 fn make_rust_type_name(name: &str) -> Option<String> {

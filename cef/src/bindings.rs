@@ -1635,34 +1635,34 @@ impl Default for BaseScoped {
     }
 }
 pub trait ImplDevToolsMessageObserver: Sized {
-    fn on_dev_tools_message(
+    fn on_dev_tools_message<'a>(
         &self,
-        browser: &mut Browser,
-        message: Option<&[u8]>,
+        browser: &'a mut Browser,
+        message: Option<&'a [u8]>,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_dev_tools_method_result(
+    fn on_dev_tools_method_result<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         message_id: ::std::os::raw::c_int,
         success: ::std::os::raw::c_int,
-        result: Option<&[u8]>,
+        result: Option<&'a [u8]>,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_dev_tools_event(
+    fn on_dev_tools_event<'a>(
         &self,
-        browser: &mut Browser,
-        method: &CefStringUtf16,
-        params: Option<&[u8]>,
+        browser: &'a mut Browser,
+        method: &'a CefStringUtf16,
+        params: Option<&'a [u8]>,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_dev_tools_agent_attached(&self, browser: &mut Browser) {
+    fn on_dev_tools_agent_attached<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_dev_tools_agent_detached(&self, browser: &mut Browser) {
+    fn on_dev_tools_agent_detached<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_dev_tools_message_observer_t {
@@ -1767,10 +1767,10 @@ mod impl_cef_dev_tools_message_observer_t {
 #[derive(Clone)]
 pub struct DevToolsMessageObserver(RefGuard<_cef_dev_tools_message_observer_t>);
 impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
-    fn on_dev_tools_message(
+    fn on_dev_tools_message<'a>(
         &self,
-        browser: &mut Browser,
-        message: Option<&[u8]>,
+        browser: &'a mut Browser,
+        message: Option<&'a [u8]>,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -1796,12 +1796,12 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_dev_tools_method_result(
+    fn on_dev_tools_method_result<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         message_id: ::std::os::raw::c_int,
         success: ::std::os::raw::c_int,
-        result: Option<&[u8]>,
+        result: Option<&'a [u8]>,
     ) {
         unsafe {
             self.0
@@ -1837,11 +1837,11 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_dev_tools_event(
+    fn on_dev_tools_event<'a>(
         &self,
-        browser: &mut Browser,
-        method: &CefStringUtf16,
-        params: Option<&[u8]>,
+        browser: &'a mut Browser,
+        method: &'a CefStringUtf16,
+        params: Option<&'a [u8]>,
     ) {
         unsafe {
             self.0
@@ -1874,7 +1874,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_dev_tools_agent_attached(&self, browser: &mut Browser) {
+    fn on_dev_tools_agent_attached<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_dev_tools_agent_attached
@@ -1888,7 +1888,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_dev_tools_agent_detached(&self, browser: &mut Browser) {
+    fn on_dev_tools_agent_detached<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_dev_tools_agent_detached
@@ -1939,70 +1939,70 @@ impl Default for DevToolsMessageObserver {
     }
 }
 pub trait ImplValue: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_owned(&self) -> ::std::os::raw::c_int {
+    fn is_owned<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut Value) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut Value) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_equal(&self, that: &mut Value) -> ::std::os::raw::c_int {
+    fn is_equal<'a>(&self, that: &'a mut Value) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn copy(&self) -> Value {
+    fn copy<'a>(&self) -> Value {
         unsafe { std::mem::zeroed() }
     }
-    fn get_type(&self) -> ValueType {
+    fn get_type<'a>(&self) -> ValueType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bool(&self) -> ::std::os::raw::c_int {
+    fn get_bool<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_int(&self) -> ::std::os::raw::c_int {
+    fn get_int<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_double(&self) -> f64 {
+    fn get_double<'a>(&self) -> f64 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_string(&self) -> CefStringUtf16 {
+    fn get_string<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_binary(&self) -> BinaryValue {
+    fn get_binary<'a>(&self) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_dictionary(&self) -> DictionaryValue {
+    fn get_dictionary<'a>(&self) -> DictionaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_list(&self) -> ListValue {
+    fn get_list<'a>(&self) -> ListValue {
         unsafe { std::mem::zeroed() }
     }
-    fn set_null(&self) -> ::std::os::raw::c_int {
+    fn set_null<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_bool(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_bool<'a>(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_int(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_int<'a>(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_double(&self, value: f64) -> ::std::os::raw::c_int {
+    fn set_double<'a>(&self, value: f64) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_string(&self, value: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_string<'a>(&self, value: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_binary(&self, value: &mut BinaryValue) -> ::std::os::raw::c_int {
+    fn set_binary<'a>(&self, value: &'a mut BinaryValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_dictionary(&self, value: &mut DictionaryValue) -> ::std::os::raw::c_int {
+    fn set_dictionary<'a>(&self, value: &'a mut DictionaryValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_list(&self, value: &mut ListValue) -> ::std::os::raw::c_int {
+    fn set_list<'a>(&self, value: &'a mut ListValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_value_t {
@@ -2191,7 +2191,7 @@ mod impl_cef_value_t {
 #[derive(Clone)]
 pub struct Value(RefGuard<_cef_value_t>);
 impl ImplValue for Value {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -2203,7 +2203,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_owned(&self) -> ::std::os::raw::c_int {
+    fn is_owned<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_owned
@@ -2215,7 +2215,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -2227,7 +2227,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut Value) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut Value) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -2241,7 +2241,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_equal(&self, that: &mut Value) -> ::std::os::raw::c_int {
+    fn is_equal<'a>(&self, that: &'a mut Value) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_equal
@@ -2255,7 +2255,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn copy(&self) -> Value {
+    fn copy<'a>(&self) -> Value {
         unsafe {
             self.0
                 .copy
@@ -2267,7 +2267,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_type(&self) -> ValueType {
+    fn get_type<'a>(&self) -> ValueType {
         unsafe {
             self.0
                 .get_type
@@ -2279,7 +2279,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bool(&self) -> ::std::os::raw::c_int {
+    fn get_bool<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_bool
@@ -2291,7 +2291,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_int(&self) -> ::std::os::raw::c_int {
+    fn get_int<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_int
@@ -2303,7 +2303,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_double(&self) -> f64 {
+    fn get_double<'a>(&self) -> f64 {
         unsafe {
             self.0
                 .get_double
@@ -2315,7 +2315,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_string(&self) -> CefStringUtf16 {
+    fn get_string<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_string
@@ -2327,7 +2327,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_binary(&self) -> BinaryValue {
+    fn get_binary<'a>(&self) -> BinaryValue {
         unsafe {
             self.0
                 .get_binary
@@ -2339,7 +2339,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_dictionary(&self) -> DictionaryValue {
+    fn get_dictionary<'a>(&self) -> DictionaryValue {
         unsafe {
             self.0
                 .get_dictionary
@@ -2351,7 +2351,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_list(&self) -> ListValue {
+    fn get_list<'a>(&self) -> ListValue {
         unsafe {
             self.0
                 .get_list
@@ -2363,7 +2363,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_null(&self) -> ::std::os::raw::c_int {
+    fn set_null<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_null
@@ -2375,7 +2375,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_bool(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_bool<'a>(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_bool
@@ -2389,7 +2389,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_int(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_int<'a>(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_int
@@ -2403,7 +2403,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_double(&self, value: f64) -> ::std::os::raw::c_int {
+    fn set_double<'a>(&self, value: f64) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_double
@@ -2417,7 +2417,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_string(&self, value: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_string<'a>(&self, value: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_string
@@ -2431,7 +2431,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_binary(&self, value: &mut BinaryValue) -> ::std::os::raw::c_int {
+    fn set_binary<'a>(&self, value: &'a mut BinaryValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_binary
@@ -2445,7 +2445,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_dictionary(&self, value: &mut DictionaryValue) -> ::std::os::raw::c_int {
+    fn set_dictionary<'a>(&self, value: &'a mut DictionaryValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_dictionary
@@ -2459,7 +2459,7 @@ impl ImplValue for Value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_list(&self, value: &mut ListValue) -> ::std::os::raw::c_int {
+    fn set_list<'a>(&self, value: &'a mut ListValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_list
@@ -2510,28 +2510,28 @@ impl Default for Value {
     }
 }
 pub trait ImplBinaryValue: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_owned(&self) -> ::std::os::raw::c_int {
+    fn is_owned<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut BinaryValue) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut BinaryValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_equal(&self, that: &mut BinaryValue) -> ::std::os::raw::c_int {
+    fn is_equal<'a>(&self, that: &'a mut BinaryValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn copy(&self) -> BinaryValue {
+    fn copy<'a>(&self) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_raw_data(&self) -> *const ::std::os::raw::c_void {
+    fn get_raw_data<'a>(&self) -> *const ::std::os::raw::c_void {
         unsafe { std::mem::zeroed() }
     }
-    fn get_size(&self) -> usize {
+    fn get_size<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_data(&self, buffer: Option<&mut &mut [u8]>, data_offset: usize) -> usize {
+    fn get_data<'a>(&self, buffer: Option<&'a mut &'a mut [u8]>, data_offset: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_binary_value_t {
@@ -2627,7 +2627,7 @@ mod impl_cef_binary_value_t {
 #[derive(Clone)]
 pub struct BinaryValue(RefGuard<_cef_binary_value_t>);
 impl ImplBinaryValue for BinaryValue {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -2639,7 +2639,7 @@ impl ImplBinaryValue for BinaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_owned(&self) -> ::std::os::raw::c_int {
+    fn is_owned<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_owned
@@ -2651,7 +2651,7 @@ impl ImplBinaryValue for BinaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut BinaryValue) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut BinaryValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -2665,7 +2665,7 @@ impl ImplBinaryValue for BinaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_equal(&self, that: &mut BinaryValue) -> ::std::os::raw::c_int {
+    fn is_equal<'a>(&self, that: &'a mut BinaryValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_equal
@@ -2679,7 +2679,7 @@ impl ImplBinaryValue for BinaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn copy(&self) -> BinaryValue {
+    fn copy<'a>(&self) -> BinaryValue {
         unsafe {
             self.0
                 .copy
@@ -2691,7 +2691,7 @@ impl ImplBinaryValue for BinaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_raw_data(&self) -> *const ::std::os::raw::c_void {
+    fn get_raw_data<'a>(&self) -> *const ::std::os::raw::c_void {
         unsafe {
             self.0
                 .get_raw_data
@@ -2703,7 +2703,7 @@ impl ImplBinaryValue for BinaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_size(&self) -> usize {
+    fn get_size<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_size
@@ -2715,7 +2715,7 @@ impl ImplBinaryValue for BinaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_data(&self, buffer: Option<&mut &mut [u8]>, data_offset: usize) -> usize {
+    fn get_data<'a>(&self, buffer: Option<&'a mut &'a mut [u8]>, data_offset: usize) -> usize {
         unsafe {
             self.0
                 .get_data
@@ -2781,99 +2781,119 @@ impl Default for BinaryValue {
     }
 }
 pub trait ImplDictionaryValue: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_owned(&self) -> ::std::os::raw::c_int {
+    fn is_owned<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut DictionaryValue) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut DictionaryValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_equal(&self, that: &mut DictionaryValue) -> ::std::os::raw::c_int {
+    fn is_equal<'a>(&self, that: &'a mut DictionaryValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue {
+    fn copy<'a>(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_size(&self) -> usize {
+    fn get_size<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn clear(&self) -> ::std::os::raw::c_int {
+    fn clear<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_key(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_key<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_keys<'a>(&self, keys: &'a mut CefStringList) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn remove(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn remove<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_type(&self, key: &CefStringUtf16) -> ValueType {
+    fn get_type<'a>(&self, key: &'a CefStringUtf16) -> ValueType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_value(&self, key: &CefStringUtf16) -> Value {
+    fn get_value<'a>(&self, key: &'a CefStringUtf16) -> Value {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bool(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn get_bool<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_int(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn get_int<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_double(&self, key: &CefStringUtf16) -> f64 {
+    fn get_double<'a>(&self, key: &'a CefStringUtf16) -> f64 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_string(&self, key: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_string<'a>(&self, key: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_binary(&self, key: &CefStringUtf16) -> BinaryValue {
+    fn get_binary<'a>(&self, key: &'a CefStringUtf16) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_dictionary(&self, key: &CefStringUtf16) -> DictionaryValue {
+    fn get_dictionary<'a>(&self, key: &'a CefStringUtf16) -> DictionaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_list(&self, key: &CefStringUtf16) -> ListValue {
+    fn get_list<'a>(&self, key: &'a CefStringUtf16) -> ListValue {
         unsafe { std::mem::zeroed() }
     }
-    fn set_value(&self, key: &CefStringUtf16, value: &mut Value) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_null(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_bool(
+    fn set_value<'a>(
         &self,
-        key: &CefStringUtf16,
+        key: &'a CefStringUtf16,
+        value: &'a mut Value,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_null<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_bool<'a>(
+        &self,
+        key: &'a CefStringUtf16,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_int(&self, key: &CefStringUtf16, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_double(&self, key: &CefStringUtf16, value: f64) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_string(&self, key: &CefStringUtf16, value: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_binary(&self, key: &CefStringUtf16, value: &mut BinaryValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_dictionary(
+    fn set_int<'a>(
         &self,
-        key: &CefStringUtf16,
-        value: &mut DictionaryValue,
+        key: &'a CefStringUtf16,
+        value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_list(&self, key: &CefStringUtf16, value: &mut ListValue) -> ::std::os::raw::c_int {
+    fn set_double<'a>(&self, key: &'a CefStringUtf16, value: f64) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_string<'a>(
+        &self,
+        key: &'a CefStringUtf16,
+        value: &'a CefStringUtf16,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_binary<'a>(
+        &self,
+        key: &'a CefStringUtf16,
+        value: &'a mut BinaryValue,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_dictionary<'a>(
+        &self,
+        key: &'a CefStringUtf16,
+        value: &'a mut DictionaryValue,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_list<'a>(
+        &self,
+        key: &'a CefStringUtf16,
+        value: &'a mut ListValue,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_dictionary_value_t {
@@ -3210,7 +3230,7 @@ mod impl_cef_dictionary_value_t {
 #[derive(Clone)]
 pub struct DictionaryValue(RefGuard<_cef_dictionary_value_t>);
 impl ImplDictionaryValue for DictionaryValue {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -3222,7 +3242,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_owned(&self) -> ::std::os::raw::c_int {
+    fn is_owned<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_owned
@@ -3234,7 +3254,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -3246,7 +3266,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut DictionaryValue) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut DictionaryValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -3260,7 +3280,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_equal(&self, that: &mut DictionaryValue) -> ::std::os::raw::c_int {
+    fn is_equal<'a>(&self, that: &'a mut DictionaryValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_equal
@@ -3274,7 +3294,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue {
+    fn copy<'a>(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue {
         unsafe {
             self.0
                 .copy
@@ -3288,7 +3308,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_size(&self) -> usize {
+    fn get_size<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_size
@@ -3300,7 +3320,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear(&self) -> ::std::os::raw::c_int {
+    fn clear<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .clear
@@ -3312,7 +3332,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_key(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_key<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_key
@@ -3326,7 +3346,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_keys<'a>(&self, keys: &'a mut CefStringList) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_keys
@@ -3340,7 +3360,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn remove<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .remove
@@ -3354,7 +3374,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_type(&self, key: &CefStringUtf16) -> ValueType {
+    fn get_type<'a>(&self, key: &'a CefStringUtf16) -> ValueType {
         unsafe {
             self.0
                 .get_type
@@ -3368,7 +3388,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_value(&self, key: &CefStringUtf16) -> Value {
+    fn get_value<'a>(&self, key: &'a CefStringUtf16) -> Value {
         unsafe {
             self.0
                 .get_value
@@ -3382,7 +3402,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bool(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn get_bool<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_bool
@@ -3396,7 +3416,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_int(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn get_int<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_int
@@ -3410,7 +3430,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_double(&self, key: &CefStringUtf16) -> f64 {
+    fn get_double<'a>(&self, key: &'a CefStringUtf16) -> f64 {
         unsafe {
             self.0
                 .get_double
@@ -3424,7 +3444,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_string(&self, key: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_string<'a>(&self, key: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_string
@@ -3438,7 +3458,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_binary(&self, key: &CefStringUtf16) -> BinaryValue {
+    fn get_binary<'a>(&self, key: &'a CefStringUtf16) -> BinaryValue {
         unsafe {
             self.0
                 .get_binary
@@ -3452,7 +3472,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_dictionary(&self, key: &CefStringUtf16) -> DictionaryValue {
+    fn get_dictionary<'a>(&self, key: &'a CefStringUtf16) -> DictionaryValue {
         unsafe {
             self.0
                 .get_dictionary
@@ -3466,7 +3486,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_list(&self, key: &CefStringUtf16) -> ListValue {
+    fn get_list<'a>(&self, key: &'a CefStringUtf16) -> ListValue {
         unsafe {
             self.0
                 .get_list
@@ -3480,7 +3500,11 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_value(&self, key: &CefStringUtf16, value: &mut Value) -> ::std::os::raw::c_int {
+    fn set_value<'a>(
+        &self,
+        key: &'a CefStringUtf16,
+        value: &'a mut Value,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_value
@@ -3495,7 +3519,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_null(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_null<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_null
@@ -3509,9 +3533,9 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_bool(
+    fn set_bool<'a>(
         &self,
-        key: &CefStringUtf16,
+        key: &'a CefStringUtf16,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -3528,7 +3552,11 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_int(&self, key: &CefStringUtf16, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_int<'a>(
+        &self,
+        key: &'a CefStringUtf16,
+        value: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_int
@@ -3543,7 +3571,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_double(&self, key: &CefStringUtf16, value: f64) -> ::std::os::raw::c_int {
+    fn set_double<'a>(&self, key: &'a CefStringUtf16, value: f64) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_double
@@ -3558,7 +3586,11 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_string(&self, key: &CefStringUtf16, value: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_string<'a>(
+        &self,
+        key: &'a CefStringUtf16,
+        value: &'a CefStringUtf16,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_string
@@ -3573,7 +3605,11 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_binary(&self, key: &CefStringUtf16, value: &mut BinaryValue) -> ::std::os::raw::c_int {
+    fn set_binary<'a>(
+        &self,
+        key: &'a CefStringUtf16,
+        value: &'a mut BinaryValue,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_binary
@@ -3588,10 +3624,10 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_dictionary(
+    fn set_dictionary<'a>(
         &self,
-        key: &CefStringUtf16,
-        value: &mut DictionaryValue,
+        key: &'a CefStringUtf16,
+        value: &'a mut DictionaryValue,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -3607,7 +3643,11 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_list(&self, key: &CefStringUtf16, value: &mut ListValue) -> ::std::os::raw::c_int {
+    fn set_list<'a>(
+        &self,
+        key: &'a CefStringUtf16,
+        value: &'a mut ListValue,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_list
@@ -3659,88 +3699,92 @@ impl Default for DictionaryValue {
     }
 }
 pub trait ImplListValue: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_owned(&self) -> ::std::os::raw::c_int {
+    fn is_owned<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut ListValue) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut ListValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_equal(&self, that: &mut ListValue) -> ::std::os::raw::c_int {
+    fn is_equal<'a>(&self, that: &'a mut ListValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn copy(&self) -> ListValue {
+    fn copy<'a>(&self) -> ListValue {
         unsafe { std::mem::zeroed() }
     }
-    fn set_size(&self, size: usize) -> ::std::os::raw::c_int {
+    fn set_size<'a>(&self, size: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_size(&self) -> usize {
+    fn get_size<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn clear(&self) -> ::std::os::raw::c_int {
+    fn clear<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn remove(&self, index: usize) -> ::std::os::raw::c_int {
+    fn remove<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_type(&self, index: usize) -> ValueType {
+    fn get_type<'a>(&self, index: usize) -> ValueType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_value(&self, index: usize) -> Value {
+    fn get_value<'a>(&self, index: usize) -> Value {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bool(&self, index: usize) -> ::std::os::raw::c_int {
+    fn get_bool<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_int(&self, index: usize) -> ::std::os::raw::c_int {
+    fn get_int<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_double(&self, index: usize) -> f64 {
+    fn get_double<'a>(&self, index: usize) -> f64 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_string(&self, index: usize) -> CefStringUtf16 {
+    fn get_string<'a>(&self, index: usize) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_binary(&self, index: usize) -> BinaryValue {
+    fn get_binary<'a>(&self, index: usize) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_dictionary(&self, index: usize) -> DictionaryValue {
+    fn get_dictionary<'a>(&self, index: usize) -> DictionaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_list(&self, index: usize) -> ListValue {
+    fn get_list<'a>(&self, index: usize) -> ListValue {
         unsafe { std::mem::zeroed() }
     }
-    fn set_value(&self, index: usize, value: &mut Value) -> ::std::os::raw::c_int {
+    fn set_value<'a>(&self, index: usize, value: &'a mut Value) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_null(&self, index: usize) -> ::std::os::raw::c_int {
+    fn set_null<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_bool(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_bool<'a>(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_int(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_int<'a>(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_double(&self, index: usize, value: f64) -> ::std::os::raw::c_int {
+    fn set_double<'a>(&self, index: usize, value: f64) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_string(&self, index: usize, value: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_string<'a>(&self, index: usize, value: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_binary(&self, index: usize, value: &mut BinaryValue) -> ::std::os::raw::c_int {
+    fn set_binary<'a>(&self, index: usize, value: &'a mut BinaryValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_dictionary(&self, index: usize, value: &mut DictionaryValue) -> ::std::os::raw::c_int {
+    fn set_dictionary<'a>(
+        &self,
+        index: usize,
+        value: &'a mut DictionaryValue,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_list(&self, index: usize, value: &mut ListValue) -> ::std::os::raw::c_int {
+    fn set_list<'a>(&self, index: usize, value: &'a mut ListValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_list_value_t {
@@ -4037,7 +4081,7 @@ mod impl_cef_list_value_t {
 #[derive(Clone)]
 pub struct ListValue(RefGuard<_cef_list_value_t>);
 impl ImplListValue for ListValue {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -4049,7 +4093,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_owned(&self) -> ::std::os::raw::c_int {
+    fn is_owned<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_owned
@@ -4061,7 +4105,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -4073,7 +4117,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut ListValue) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut ListValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -4087,7 +4131,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_equal(&self, that: &mut ListValue) -> ::std::os::raw::c_int {
+    fn is_equal<'a>(&self, that: &'a mut ListValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_equal
@@ -4101,7 +4145,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn copy(&self) -> ListValue {
+    fn copy<'a>(&self) -> ListValue {
         unsafe {
             self.0
                 .copy
@@ -4113,7 +4157,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_size(&self, size: usize) -> ::std::os::raw::c_int {
+    fn set_size<'a>(&self, size: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_size
@@ -4127,7 +4171,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_size(&self) -> usize {
+    fn get_size<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_size
@@ -4139,7 +4183,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear(&self) -> ::std::os::raw::c_int {
+    fn clear<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .clear
@@ -4151,7 +4195,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove(&self, index: usize) -> ::std::os::raw::c_int {
+    fn remove<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .remove
@@ -4165,7 +4209,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_type(&self, index: usize) -> ValueType {
+    fn get_type<'a>(&self, index: usize) -> ValueType {
         unsafe {
             self.0
                 .get_type
@@ -4179,7 +4223,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_value(&self, index: usize) -> Value {
+    fn get_value<'a>(&self, index: usize) -> Value {
         unsafe {
             self.0
                 .get_value
@@ -4193,7 +4237,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bool(&self, index: usize) -> ::std::os::raw::c_int {
+    fn get_bool<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_bool
@@ -4207,7 +4251,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_int(&self, index: usize) -> ::std::os::raw::c_int {
+    fn get_int<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_int
@@ -4221,7 +4265,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_double(&self, index: usize) -> f64 {
+    fn get_double<'a>(&self, index: usize) -> f64 {
         unsafe {
             self.0
                 .get_double
@@ -4235,7 +4279,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_string(&self, index: usize) -> CefStringUtf16 {
+    fn get_string<'a>(&self, index: usize) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_string
@@ -4249,7 +4293,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_binary(&self, index: usize) -> BinaryValue {
+    fn get_binary<'a>(&self, index: usize) -> BinaryValue {
         unsafe {
             self.0
                 .get_binary
@@ -4263,7 +4307,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_dictionary(&self, index: usize) -> DictionaryValue {
+    fn get_dictionary<'a>(&self, index: usize) -> DictionaryValue {
         unsafe {
             self.0
                 .get_dictionary
@@ -4277,7 +4321,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_list(&self, index: usize) -> ListValue {
+    fn get_list<'a>(&self, index: usize) -> ListValue {
         unsafe {
             self.0
                 .get_list
@@ -4291,7 +4335,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_value(&self, index: usize, value: &mut Value) -> ::std::os::raw::c_int {
+    fn set_value<'a>(&self, index: usize, value: &'a mut Value) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_value
@@ -4306,7 +4350,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_null(&self, index: usize) -> ::std::os::raw::c_int {
+    fn set_null<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_null
@@ -4320,7 +4364,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_bool(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_bool<'a>(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_bool
@@ -4335,7 +4379,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_int(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_int<'a>(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_int
@@ -4350,7 +4394,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_double(&self, index: usize, value: f64) -> ::std::os::raw::c_int {
+    fn set_double<'a>(&self, index: usize, value: f64) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_double
@@ -4365,7 +4409,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_string(&self, index: usize, value: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_string<'a>(&self, index: usize, value: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_string
@@ -4380,7 +4424,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_binary(&self, index: usize, value: &mut BinaryValue) -> ::std::os::raw::c_int {
+    fn set_binary<'a>(&self, index: usize, value: &'a mut BinaryValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_binary
@@ -4395,7 +4439,11 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_dictionary(&self, index: usize, value: &mut DictionaryValue) -> ::std::os::raw::c_int {
+    fn set_dictionary<'a>(
+        &self,
+        index: usize,
+        value: &'a mut DictionaryValue,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_dictionary
@@ -4410,7 +4458,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_list(&self, index: usize, value: &mut ListValue) -> ::std::os::raw::c_int {
+    fn set_list<'a>(&self, index: usize, value: &'a mut ListValue) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_list
@@ -4462,75 +4510,79 @@ impl Default for ListValue {
     }
 }
 pub trait ImplImage: Sized {
-    fn is_empty(&self) -> ::std::os::raw::c_int {
+    fn is_empty<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut Image) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut Image) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn add_bitmap(
+    fn add_bitmap<'a>(
         &self,
         scale_factor: f32,
         pixel_width: ::std::os::raw::c_int,
         pixel_height: ::std::os::raw::c_int,
         color_type: ColorType,
         alpha_type: AlphaType,
-        pixel_data: Option<&[u8]>,
+        pixel_data: Option<&'a [u8]>,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn add_png(&self, scale_factor: f32, png_data: Option<&[u8]>) -> ::std::os::raw::c_int {
+    fn add_png<'a>(&self, scale_factor: f32, png_data: Option<&'a [u8]>) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn add_jpeg(&self, scale_factor: f32, jpeg_data: Option<&[u8]>) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_width(&self) -> usize {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_height(&self) -> usize {
-        unsafe { std::mem::zeroed() }
-    }
-    fn has_representation(&self, scale_factor: f32) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn remove_representation(&self, scale_factor: f32) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_representation_info(
+    fn add_jpeg<'a>(
         &self,
         scale_factor: f32,
-        actual_scale_factor: &mut f32,
-        pixel_width: &mut ::std::os::raw::c_int,
-        pixel_height: &mut ::std::os::raw::c_int,
+        jpeg_data: Option<&'a [u8]>,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_as_bitmap(
+    fn get_width<'a>(&self) -> usize {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_height<'a>(&self) -> usize {
+        unsafe { std::mem::zeroed() }
+    }
+    fn has_representation<'a>(&self, scale_factor: f32) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn remove_representation<'a>(&self, scale_factor: f32) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_representation_info<'a>(
+        &self,
+        scale_factor: f32,
+        actual_scale_factor: &'a mut f32,
+        pixel_width: &'a mut ::std::os::raw::c_int,
+        pixel_height: &'a mut ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_as_bitmap<'a>(
         &self,
         scale_factor: f32,
         color_type: ColorType,
         alpha_type: AlphaType,
-        pixel_width: &mut ::std::os::raw::c_int,
-        pixel_height: &mut ::std::os::raw::c_int,
+        pixel_width: &'a mut ::std::os::raw::c_int,
+        pixel_height: &'a mut ::std::os::raw::c_int,
     ) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_as_png(
+    fn get_as_png<'a>(
         &self,
         scale_factor: f32,
         with_transparency: ::std::os::raw::c_int,
-        pixel_width: &mut ::std::os::raw::c_int,
-        pixel_height: &mut ::std::os::raw::c_int,
+        pixel_width: &'a mut ::std::os::raw::c_int,
+        pixel_height: &'a mut ::std::os::raw::c_int,
     ) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_as_jpeg(
+    fn get_as_jpeg<'a>(
         &self,
         scale_factor: f32,
         quality: ::std::os::raw::c_int,
-        pixel_width: &mut ::std::os::raw::c_int,
-        pixel_height: &mut ::std::os::raw::c_int,
+        pixel_width: &'a mut ::std::os::raw::c_int,
+        pixel_height: &'a mut ::std::os::raw::c_int,
     ) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
@@ -4834,7 +4886,7 @@ mod impl_cef_image_t {
 #[derive(Clone)]
 pub struct Image(RefGuard<_cef_image_t>);
 impl ImplImage for Image {
-    fn is_empty(&self) -> ::std::os::raw::c_int {
+    fn is_empty<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_empty
@@ -4846,7 +4898,7 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut Image) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut Image) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -4860,14 +4912,14 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_bitmap(
+    fn add_bitmap<'a>(
         &self,
         scale_factor: f32,
         pixel_width: ::std::os::raw::c_int,
         pixel_height: ::std::os::raw::c_int,
         color_type: ColorType,
         alpha_type: AlphaType,
-        pixel_data: Option<&[u8]>,
+        pixel_data: Option<&'a [u8]>,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -4921,7 +4973,7 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_png(&self, scale_factor: f32, png_data: Option<&[u8]>) -> ::std::os::raw::c_int {
+    fn add_png<'a>(&self, scale_factor: f32, png_data: Option<&'a [u8]>) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .add_png
@@ -4947,7 +4999,11 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_jpeg(&self, scale_factor: f32, jpeg_data: Option<&[u8]>) -> ::std::os::raw::c_int {
+    fn add_jpeg<'a>(
+        &self,
+        scale_factor: f32,
+        jpeg_data: Option<&'a [u8]>,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .add_jpeg
@@ -4978,7 +5034,7 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_width(&self) -> usize {
+    fn get_width<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_width
@@ -4990,7 +5046,7 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_height(&self) -> usize {
+    fn get_height<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_height
@@ -5002,7 +5058,7 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_representation(&self, scale_factor: f32) -> ::std::os::raw::c_int {
+    fn has_representation<'a>(&self, scale_factor: f32) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_representation
@@ -5016,7 +5072,7 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_representation(&self, scale_factor: f32) -> ::std::os::raw::c_int {
+    fn remove_representation<'a>(&self, scale_factor: f32) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .remove_representation
@@ -5030,12 +5086,12 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_representation_info(
+    fn get_representation_info<'a>(
         &self,
         scale_factor: f32,
-        actual_scale_factor: &mut f32,
-        pixel_width: &mut ::std::os::raw::c_int,
-        pixel_height: &mut ::std::os::raw::c_int,
+        actual_scale_factor: &'a mut f32,
+        pixel_width: &'a mut ::std::os::raw::c_int,
+        pixel_height: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -5064,13 +5120,13 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_as_bitmap(
+    fn get_as_bitmap<'a>(
         &self,
         scale_factor: f32,
         color_type: ColorType,
         alpha_type: AlphaType,
-        pixel_width: &mut ::std::os::raw::c_int,
-        pixel_height: &mut ::std::os::raw::c_int,
+        pixel_width: &'a mut ::std::os::raw::c_int,
+        pixel_height: &'a mut ::std::os::raw::c_int,
     ) -> BinaryValue {
         unsafe {
             self.0
@@ -5108,12 +5164,12 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_as_png(
+    fn get_as_png<'a>(
         &self,
         scale_factor: f32,
         with_transparency: ::std::os::raw::c_int,
-        pixel_width: &mut ::std::os::raw::c_int,
-        pixel_height: &mut ::std::os::raw::c_int,
+        pixel_width: &'a mut ::std::os::raw::c_int,
+        pixel_height: &'a mut ::std::os::raw::c_int,
     ) -> BinaryValue {
         unsafe {
             self.0
@@ -5142,12 +5198,12 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_as_jpeg(
+    fn get_as_jpeg<'a>(
         &self,
         scale_factor: f32,
         quality: ::std::os::raw::c_int,
-        pixel_width: &mut ::std::os::raw::c_int,
-        pixel_height: &mut ::std::os::raw::c_int,
+        pixel_width: &'a mut ::std::os::raw::c_int,
+        pixel_height: &'a mut ::std::os::raw::c_int,
     ) -> BinaryValue {
         unsafe {
             self.0
@@ -5209,19 +5265,19 @@ impl Default for Image {
     }
 }
 pub trait ImplReadHandler: Sized {
-    fn read(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn read<'a>(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn seek<'a>(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn tell(&self) -> i64 {
+    fn tell<'a>(&self) -> i64 {
         unsafe { std::mem::zeroed() }
     }
-    fn eof(&self) -> ::std::os::raw::c_int {
+    fn eof<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn may_block(&self) -> ::std::os::raw::c_int {
+    fn may_block<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_read_handler_t {
@@ -5286,7 +5342,7 @@ mod impl_cef_read_handler_t {
 #[derive(Clone)]
 pub struct ReadHandler(RefGuard<_cef_read_handler_t>);
 impl ImplReadHandler for ReadHandler {
-    fn read(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn read<'a>(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe {
             self.0
                 .read
@@ -5302,7 +5358,7 @@ impl ImplReadHandler for ReadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn seek<'a>(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .seek
@@ -5317,7 +5373,7 @@ impl ImplReadHandler for ReadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn tell(&self) -> i64 {
+    fn tell<'a>(&self) -> i64 {
         unsafe {
             self.0
                 .tell
@@ -5329,7 +5385,7 @@ impl ImplReadHandler for ReadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn eof(&self) -> ::std::os::raw::c_int {
+    fn eof<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .eof
@@ -5341,7 +5397,7 @@ impl ImplReadHandler for ReadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn may_block(&self) -> ::std::os::raw::c_int {
+    fn may_block<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .may_block
@@ -5390,19 +5446,19 @@ impl Default for ReadHandler {
     }
 }
 pub trait ImplStreamReader: Sized {
-    fn read(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn read<'a>(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn seek<'a>(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn tell(&self) -> i64 {
+    fn tell<'a>(&self) -> i64 {
         unsafe { std::mem::zeroed() }
     }
-    fn eof(&self) -> ::std::os::raw::c_int {
+    fn eof<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn may_block(&self) -> ::std::os::raw::c_int {
+    fn may_block<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_stream_reader_t {
@@ -5467,7 +5523,7 @@ mod impl_cef_stream_reader_t {
 #[derive(Clone)]
 pub struct StreamReader(RefGuard<_cef_stream_reader_t>);
 impl ImplStreamReader for StreamReader {
-    fn read(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn read<'a>(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe {
             self.0
                 .read
@@ -5483,7 +5539,7 @@ impl ImplStreamReader for StreamReader {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn seek<'a>(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .seek
@@ -5498,7 +5554,7 @@ impl ImplStreamReader for StreamReader {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn tell(&self) -> i64 {
+    fn tell<'a>(&self) -> i64 {
         unsafe {
             self.0
                 .tell
@@ -5510,7 +5566,7 @@ impl ImplStreamReader for StreamReader {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn eof(&self) -> ::std::os::raw::c_int {
+    fn eof<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .eof
@@ -5522,7 +5578,7 @@ impl ImplStreamReader for StreamReader {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn may_block(&self) -> ::std::os::raw::c_int {
+    fn may_block<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .may_block
@@ -5571,19 +5627,19 @@ impl Default for StreamReader {
     }
 }
 pub trait ImplWriteHandler: Sized {
-    fn write(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn write<'a>(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn seek<'a>(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn tell(&self) -> i64 {
+    fn tell<'a>(&self) -> i64 {
         unsafe { std::mem::zeroed() }
     }
-    fn flush(&self) -> ::std::os::raw::c_int {
+    fn flush<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn may_block(&self) -> ::std::os::raw::c_int {
+    fn may_block<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_write_handler_t {
@@ -5648,7 +5704,7 @@ mod impl_cef_write_handler_t {
 #[derive(Clone)]
 pub struct WriteHandler(RefGuard<_cef_write_handler_t>);
 impl ImplWriteHandler for WriteHandler {
-    fn write(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn write<'a>(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe {
             self.0
                 .write
@@ -5664,7 +5720,7 @@ impl ImplWriteHandler for WriteHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn seek<'a>(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .seek
@@ -5679,7 +5735,7 @@ impl ImplWriteHandler for WriteHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn tell(&self) -> i64 {
+    fn tell<'a>(&self) -> i64 {
         unsafe {
             self.0
                 .tell
@@ -5691,7 +5747,7 @@ impl ImplWriteHandler for WriteHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn flush(&self) -> ::std::os::raw::c_int {
+    fn flush<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .flush
@@ -5703,7 +5759,7 @@ impl ImplWriteHandler for WriteHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn may_block(&self) -> ::std::os::raw::c_int {
+    fn may_block<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .may_block
@@ -5752,19 +5808,19 @@ impl Default for WriteHandler {
     }
 }
 pub trait ImplStreamWriter: Sized {
-    fn write(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn write<'a>(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn seek<'a>(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn tell(&self) -> i64 {
+    fn tell<'a>(&self) -> i64 {
         unsafe { std::mem::zeroed() }
     }
-    fn flush(&self) -> ::std::os::raw::c_int {
+    fn flush<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn may_block(&self) -> ::std::os::raw::c_int {
+    fn may_block<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_stream_writer_t {
@@ -5829,7 +5885,7 @@ mod impl_cef_stream_writer_t {
 #[derive(Clone)]
 pub struct StreamWriter(RefGuard<_cef_stream_writer_t>);
 impl ImplStreamWriter for StreamWriter {
-    fn write(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn write<'a>(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe {
             self.0
                 .write
@@ -5845,7 +5901,7 @@ impl ImplStreamWriter for StreamWriter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn seek<'a>(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .seek
@@ -5860,7 +5916,7 @@ impl ImplStreamWriter for StreamWriter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn tell(&self) -> i64 {
+    fn tell<'a>(&self) -> i64 {
         unsafe {
             self.0
                 .tell
@@ -5872,7 +5928,7 @@ impl ImplStreamWriter for StreamWriter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn flush(&self) -> ::std::os::raw::c_int {
+    fn flush<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .flush
@@ -5884,7 +5940,7 @@ impl ImplStreamWriter for StreamWriter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn may_block(&self) -> ::std::os::raw::c_int {
+    fn may_block<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .may_block
@@ -5933,85 +5989,85 @@ impl Default for StreamWriter {
     }
 }
 pub trait ImplDragData: Sized {
-    fn clone(&self) -> DragData {
+    fn clone<'a>(&self) -> DragData {
         unsafe { std::mem::zeroed() }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_link(&self) -> ::std::os::raw::c_int {
+    fn is_link<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_fragment(&self) -> ::std::os::raw::c_int {
+    fn is_fragment<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_file(&self) -> ::std::os::raw::c_int {
+    fn is_file<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_link_url(&self) -> CefStringUtf16 {
+    fn get_link_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_link_title(&self) -> CefStringUtf16 {
+    fn get_link_title<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_link_metadata(&self) -> CefStringUtf16 {
+    fn get_link_metadata<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_fragment_text(&self) -> CefStringUtf16 {
+    fn get_fragment_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_fragment_html(&self) -> CefStringUtf16 {
+    fn get_fragment_html<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_fragment_base_url(&self) -> CefStringUtf16 {
+    fn get_fragment_base_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_file_name(&self) -> CefStringUtf16 {
+    fn get_file_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_file_contents(&self, writer: &mut StreamWriter) -> usize {
+    fn get_file_contents<'a>(&self, writer: &'a mut StreamWriter) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_file_names(&self, names: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_file_names<'a>(&self, names: &'a mut CefStringList) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_file_paths(&self, paths: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_file_paths<'a>(&self, paths: &'a mut CefStringList) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_link_url(&self, url: &CefStringUtf16) {
+    fn set_link_url<'a>(&self, url: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_link_title(&self, title: &CefStringUtf16) {
+    fn set_link_title<'a>(&self, title: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_link_metadata(&self, data: &CefStringUtf16) {
+    fn set_link_metadata<'a>(&self, data: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_fragment_text(&self, text: &CefStringUtf16) {
+    fn set_fragment_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_fragment_html(&self, html: &CefStringUtf16) {
+    fn set_fragment_html<'a>(&self, html: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_fragment_base_url(&self, base_url: &CefStringUtf16) {
+    fn set_fragment_base_url<'a>(&self, base_url: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn reset_file_contents(&self) {
+    fn reset_file_contents<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn add_file(&self, path: &CefStringUtf16, display_name: &CefStringUtf16) {
+    fn add_file<'a>(&self, path: &'a CefStringUtf16, display_name: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn clear_filenames(&self) {
+    fn clear_filenames<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_image(&self) -> Image {
+    fn get_image<'a>(&self) -> Image {
         unsafe { std::mem::zeroed() }
     }
-    fn get_image_hotspot(&self) -> Point {
+    fn get_image_hotspot<'a>(&self) -> Point {
         unsafe { std::mem::zeroed() }
     }
-    fn has_image(&self) -> ::std::os::raw::c_int {
+    fn has_image<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_drag_data_t {
@@ -6263,7 +6319,7 @@ mod impl_cef_drag_data_t {
 #[derive(Clone)]
 pub struct DragData(RefGuard<_cef_drag_data_t>);
 impl ImplDragData for DragData {
-    fn clone(&self) -> DragData {
+    fn clone<'a>(&self) -> DragData {
         unsafe {
             self.0
                 .clone
@@ -6275,7 +6331,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -6287,7 +6343,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_link(&self) -> ::std::os::raw::c_int {
+    fn is_link<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_link
@@ -6299,7 +6355,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_fragment(&self) -> ::std::os::raw::c_int {
+    fn is_fragment<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_fragment
@@ -6311,7 +6367,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_file(&self) -> ::std::os::raw::c_int {
+    fn is_file<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_file
@@ -6323,7 +6379,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_link_url(&self) -> CefStringUtf16 {
+    fn get_link_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_link_url
@@ -6335,7 +6391,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_link_title(&self) -> CefStringUtf16 {
+    fn get_link_title<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_link_title
@@ -6347,7 +6403,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_link_metadata(&self) -> CefStringUtf16 {
+    fn get_link_metadata<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_link_metadata
@@ -6359,7 +6415,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_fragment_text(&self) -> CefStringUtf16 {
+    fn get_fragment_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_fragment_text
@@ -6371,7 +6427,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_fragment_html(&self) -> CefStringUtf16 {
+    fn get_fragment_html<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_fragment_html
@@ -6383,7 +6439,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_fragment_base_url(&self) -> CefStringUtf16 {
+    fn get_fragment_base_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_fragment_base_url
@@ -6395,7 +6451,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_file_name(&self) -> CefStringUtf16 {
+    fn get_file_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_file_name
@@ -6407,7 +6463,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_file_contents(&self, writer: &mut StreamWriter) -> usize {
+    fn get_file_contents<'a>(&self, writer: &'a mut StreamWriter) -> usize {
         unsafe {
             self.0
                 .get_file_contents
@@ -6421,7 +6477,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_file_names(&self, names: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_file_names<'a>(&self, names: &'a mut CefStringList) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_file_names
@@ -6435,7 +6491,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_file_paths(&self, paths: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_file_paths<'a>(&self, paths: &'a mut CefStringList) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_file_paths
@@ -6449,7 +6505,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_link_url(&self, url: &CefStringUtf16) {
+    fn set_link_url<'a>(&self, url: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_link_url
@@ -6463,7 +6519,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_link_title(&self, title: &CefStringUtf16) {
+    fn set_link_title<'a>(&self, title: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_link_title
@@ -6477,7 +6533,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_link_metadata(&self, data: &CefStringUtf16) {
+    fn set_link_metadata<'a>(&self, data: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_link_metadata
@@ -6491,7 +6547,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_fragment_text(&self, text: &CefStringUtf16) {
+    fn set_fragment_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_fragment_text
@@ -6505,7 +6561,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_fragment_html(&self, html: &CefStringUtf16) {
+    fn set_fragment_html<'a>(&self, html: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_fragment_html
@@ -6519,7 +6575,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_fragment_base_url(&self, base_url: &CefStringUtf16) {
+    fn set_fragment_base_url<'a>(&self, base_url: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_fragment_base_url
@@ -6533,7 +6589,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn reset_file_contents(&self) {
+    fn reset_file_contents<'a>(&self) {
         unsafe {
             self.0
                 .reset_file_contents
@@ -6545,7 +6601,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_file(&self, path: &CefStringUtf16, display_name: &CefStringUtf16) {
+    fn add_file<'a>(&self, path: &'a CefStringUtf16, display_name: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .add_file
@@ -6560,7 +6616,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear_filenames(&self) {
+    fn clear_filenames<'a>(&self) {
         unsafe {
             self.0
                 .clear_filenames
@@ -6572,7 +6628,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_image(&self) -> Image {
+    fn get_image<'a>(&self) -> Image {
         unsafe {
             self.0
                 .get_image
@@ -6584,7 +6640,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_image_hotspot(&self) -> Point {
+    fn get_image_hotspot<'a>(&self) -> Point {
         unsafe {
             self.0
                 .get_image_hotspot
@@ -6596,7 +6652,7 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_image(&self) -> ::std::os::raw::c_int {
+    fn has_image<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_image
@@ -6645,7 +6701,7 @@ impl Default for DragData {
     }
 }
 pub trait ImplDomvisitor: Sized {
-    fn visit(&self, document: &mut Domdocument) {
+    fn visit<'a>(&self, document: &'a mut Domdocument) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_domvisitor_t {
@@ -6673,7 +6729,7 @@ mod impl_cef_domvisitor_t {
 #[derive(Clone)]
 pub struct Domvisitor(RefGuard<_cef_domvisitor_t>);
 impl ImplDomvisitor for Domvisitor {
-    fn visit(&self, document: &mut Domdocument) {
+    fn visit<'a>(&self, document: &'a mut Domdocument) {
         unsafe {
             self.0
                 .visit
@@ -6724,46 +6780,46 @@ impl Default for Domvisitor {
     }
 }
 pub trait ImplDomdocument: Sized {
-    fn get_type(&self) -> DomDocumentType {
+    fn get_type<'a>(&self) -> DomDocumentType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_document(&self) -> Domnode {
+    fn get_document<'a>(&self) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn get_body(&self) -> Domnode {
+    fn get_body<'a>(&self) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn get_head(&self) -> Domnode {
+    fn get_head<'a>(&self) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_element_by_id(&self, id: &CefStringUtf16) -> Domnode {
+    fn get_element_by_id<'a>(&self, id: &'a CefStringUtf16) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn get_focused_node(&self) -> Domnode {
+    fn get_focused_node<'a>(&self) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn has_selection(&self) -> ::std::os::raw::c_int {
+    fn has_selection<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_selection_start_offset(&self) -> ::std::os::raw::c_int {
+    fn get_selection_start_offset<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_selection_end_offset(&self) -> ::std::os::raw::c_int {
+    fn get_selection_end_offset<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_selection_as_markup(&self) -> CefStringUtf16 {
+    fn get_selection_as_markup<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_selection_as_text(&self) -> CefStringUtf16 {
+    fn get_selection_as_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_base_url(&self) -> CefStringUtf16 {
+    fn get_base_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_complete_url(&self, partial_url: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_complete_url<'a>(&self, partial_url: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_domdocument_t {
@@ -6899,7 +6955,7 @@ mod impl_cef_domdocument_t {
 #[derive(Clone)]
 pub struct Domdocument(RefGuard<_cef_domdocument_t>);
 impl ImplDomdocument for Domdocument {
-    fn get_type(&self) -> DomDocumentType {
+    fn get_type<'a>(&self) -> DomDocumentType {
         unsafe {
             self.0
                 .get_type
@@ -6911,7 +6967,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_document(&self) -> Domnode {
+    fn get_document<'a>(&self) -> Domnode {
         unsafe {
             self.0
                 .get_document
@@ -6923,7 +6979,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_body(&self) -> Domnode {
+    fn get_body<'a>(&self) -> Domnode {
         unsafe {
             self.0
                 .get_body
@@ -6935,7 +6991,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_head(&self) -> Domnode {
+    fn get_head<'a>(&self) -> Domnode {
         unsafe {
             self.0
                 .get_head
@@ -6947,7 +7003,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_title
@@ -6959,7 +7015,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_element_by_id(&self, id: &CefStringUtf16) -> Domnode {
+    fn get_element_by_id<'a>(&self, id: &'a CefStringUtf16) -> Domnode {
         unsafe {
             self.0
                 .get_element_by_id
@@ -6973,7 +7029,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_focused_node(&self) -> Domnode {
+    fn get_focused_node<'a>(&self) -> Domnode {
         unsafe {
             self.0
                 .get_focused_node
@@ -6985,7 +7041,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_selection(&self) -> ::std::os::raw::c_int {
+    fn has_selection<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_selection
@@ -6997,7 +7053,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_selection_start_offset(&self) -> ::std::os::raw::c_int {
+    fn get_selection_start_offset<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_selection_start_offset
@@ -7009,7 +7065,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_selection_end_offset(&self) -> ::std::os::raw::c_int {
+    fn get_selection_end_offset<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_selection_end_offset
@@ -7021,7 +7077,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_selection_as_markup(&self) -> CefStringUtf16 {
+    fn get_selection_as_markup<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_selection_as_markup
@@ -7033,7 +7089,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_selection_as_text(&self) -> CefStringUtf16 {
+    fn get_selection_as_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_selection_as_text
@@ -7045,7 +7101,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_base_url(&self) -> CefStringUtf16 {
+    fn get_base_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_base_url
@@ -7057,7 +7113,7 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_complete_url(&self, partial_url: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_complete_url<'a>(&self, partial_url: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_complete_url
@@ -7108,86 +7164,86 @@ impl Default for Domdocument {
     }
 }
 pub trait ImplDomnode: Sized {
-    fn get_type(&self) -> DomNodeType {
+    fn get_type<'a>(&self) -> DomNodeType {
         unsafe { std::mem::zeroed() }
     }
-    fn is_text(&self) -> ::std::os::raw::c_int {
+    fn is_text<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_element(&self) -> ::std::os::raw::c_int {
+    fn is_element<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_editable(&self) -> ::std::os::raw::c_int {
+    fn is_editable<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_form_control_element(&self) -> ::std::os::raw::c_int {
+    fn is_form_control_element<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_form_control_element_type(&self) -> DomFormControlType {
+    fn get_form_control_element_type<'a>(&self) -> DomFormControlType {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut Domnode) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut Domnode) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_value(&self) -> CefStringUtf16 {
+    fn get_value<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_value(&self, value: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_value<'a>(&self, value: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_as_markup(&self) -> CefStringUtf16 {
+    fn get_as_markup<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_document(&self) -> Domdocument {
+    fn get_document<'a>(&self) -> Domdocument {
         unsafe { std::mem::zeroed() }
     }
-    fn get_parent(&self) -> Domnode {
+    fn get_parent<'a>(&self) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn get_previous_sibling(&self) -> Domnode {
+    fn get_previous_sibling<'a>(&self) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn get_next_sibling(&self) -> Domnode {
+    fn get_next_sibling<'a>(&self) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn has_children(&self) -> ::std::os::raw::c_int {
+    fn has_children<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_first_child(&self) -> Domnode {
+    fn get_first_child<'a>(&self) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn get_last_child(&self) -> Domnode {
+    fn get_last_child<'a>(&self) -> Domnode {
         unsafe { std::mem::zeroed() }
     }
-    fn get_element_tag_name(&self) -> CefStringUtf16 {
+    fn get_element_tag_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn has_element_attributes(&self) -> ::std::os::raw::c_int {
+    fn has_element_attributes<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_element_attribute(&self, attr_name: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_element_attribute<'a>(&self, attr_name: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_element_attribute(&self, attr_name: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_element_attribute<'a>(&self, attr_name: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_element_attributes(&self, attr_map: &mut CefStringMap) {
+    fn get_element_attributes<'a>(&self, attr_map: &'a mut CefStringMap) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_element_attribute(
+    fn set_element_attribute<'a>(
         &self,
-        attr_name: &CefStringUtf16,
-        value: &CefStringUtf16,
+        attr_name: &'a CefStringUtf16,
+        value: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_element_inner_text(&self) -> CefStringUtf16 {
+    fn get_element_inner_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_element_bounds(&self) -> Rect {
+    fn get_element_bounds<'a>(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_domnode_t {
@@ -7428,7 +7484,7 @@ mod impl_cef_domnode_t {
 #[derive(Clone)]
 pub struct Domnode(RefGuard<_cef_domnode_t>);
 impl ImplDomnode for Domnode {
-    fn get_type(&self) -> DomNodeType {
+    fn get_type<'a>(&self) -> DomNodeType {
         unsafe {
             self.0
                 .get_type
@@ -7440,7 +7496,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_text(&self) -> ::std::os::raw::c_int {
+    fn is_text<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_text
@@ -7452,7 +7508,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_element(&self) -> ::std::os::raw::c_int {
+    fn is_element<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_element
@@ -7464,7 +7520,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_editable(&self) -> ::std::os::raw::c_int {
+    fn is_editable<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_editable
@@ -7476,7 +7532,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_form_control_element(&self) -> ::std::os::raw::c_int {
+    fn is_form_control_element<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_form_control_element
@@ -7488,7 +7544,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_form_control_element_type(&self) -> DomFormControlType {
+    fn get_form_control_element_type<'a>(&self) -> DomFormControlType {
         unsafe {
             self.0
                 .get_form_control_element_type
@@ -7500,7 +7556,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut Domnode) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut Domnode) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -7514,7 +7570,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_name
@@ -7526,7 +7582,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_value(&self) -> CefStringUtf16 {
+    fn get_value<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_value
@@ -7538,7 +7594,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_value(&self, value: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_value<'a>(&self, value: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_value
@@ -7552,7 +7608,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_as_markup(&self) -> CefStringUtf16 {
+    fn get_as_markup<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_as_markup
@@ -7564,7 +7620,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_document(&self) -> Domdocument {
+    fn get_document<'a>(&self) -> Domdocument {
         unsafe {
             self.0
                 .get_document
@@ -7576,7 +7632,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_parent(&self) -> Domnode {
+    fn get_parent<'a>(&self) -> Domnode {
         unsafe {
             self.0
                 .get_parent
@@ -7588,7 +7644,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_previous_sibling(&self) -> Domnode {
+    fn get_previous_sibling<'a>(&self) -> Domnode {
         unsafe {
             self.0
                 .get_previous_sibling
@@ -7600,7 +7656,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_next_sibling(&self) -> Domnode {
+    fn get_next_sibling<'a>(&self) -> Domnode {
         unsafe {
             self.0
                 .get_next_sibling
@@ -7612,7 +7668,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_children(&self) -> ::std::os::raw::c_int {
+    fn has_children<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_children
@@ -7624,7 +7680,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_first_child(&self) -> Domnode {
+    fn get_first_child<'a>(&self) -> Domnode {
         unsafe {
             self.0
                 .get_first_child
@@ -7636,7 +7692,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_last_child(&self) -> Domnode {
+    fn get_last_child<'a>(&self) -> Domnode {
         unsafe {
             self.0
                 .get_last_child
@@ -7648,7 +7704,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_element_tag_name(&self) -> CefStringUtf16 {
+    fn get_element_tag_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_element_tag_name
@@ -7660,7 +7716,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_element_attributes(&self) -> ::std::os::raw::c_int {
+    fn has_element_attributes<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_element_attributes
@@ -7672,7 +7728,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_element_attribute(&self, attr_name: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_element_attribute<'a>(&self, attr_name: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_element_attribute
@@ -7686,7 +7742,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_element_attribute(&self, attr_name: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_element_attribute<'a>(&self, attr_name: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_element_attribute
@@ -7700,7 +7756,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_element_attributes(&self, attr_map: &mut CefStringMap) {
+    fn get_element_attributes<'a>(&self, attr_map: &'a mut CefStringMap) {
         unsafe {
             self.0
                 .get_element_attributes
@@ -7714,10 +7770,10 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_element_attribute(
+    fn set_element_attribute<'a>(
         &self,
-        attr_name: &CefStringUtf16,
-        value: &CefStringUtf16,
+        attr_name: &'a CefStringUtf16,
+        value: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -7733,7 +7789,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_element_inner_text(&self) -> CefStringUtf16 {
+    fn get_element_inner_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_element_inner_text
@@ -7745,7 +7801,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_element_bounds(&self) -> Rect {
+    fn get_element_bounds<'a>(&self) -> Rect {
         unsafe {
             self.0
                 .get_element_bounds
@@ -7794,13 +7850,13 @@ impl Default for Domnode {
     }
 }
 pub trait ImplSharedMemoryRegion: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn size(&self) -> usize {
+    fn size<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn memory(&self) -> *mut ::std::os::raw::c_void {
+    fn memory<'a>(&self) -> *mut ::std::os::raw::c_void {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_shared_memory_region_t {
@@ -7842,7 +7898,7 @@ mod impl_cef_shared_memory_region_t {
 #[derive(Clone)]
 pub struct SharedMemoryRegion(RefGuard<_cef_shared_memory_region_t>);
 impl ImplSharedMemoryRegion for SharedMemoryRegion {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -7854,7 +7910,7 @@ impl ImplSharedMemoryRegion for SharedMemoryRegion {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn size(&self) -> usize {
+    fn size<'a>(&self) -> usize {
         unsafe {
             self.0
                 .size
@@ -7866,7 +7922,7 @@ impl ImplSharedMemoryRegion for SharedMemoryRegion {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn memory(&self) -> *mut ::std::os::raw::c_void {
+    fn memory<'a>(&self) -> *mut ::std::os::raw::c_void {
         unsafe {
             self.0
                 .memory
@@ -7915,22 +7971,22 @@ impl Default for SharedMemoryRegion {
     }
 }
 pub trait ImplProcessMessage: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn copy(&self) -> ProcessMessage {
+    fn copy<'a>(&self) -> ProcessMessage {
         unsafe { std::mem::zeroed() }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_argument_list(&self) -> ListValue {
+    fn get_argument_list<'a>(&self) -> ListValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_shared_memory_region(&self) -> SharedMemoryRegion {
+    fn get_shared_memory_region<'a>(&self) -> SharedMemoryRegion {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_process_message_t {
@@ -7996,7 +8052,7 @@ mod impl_cef_process_message_t {
 #[derive(Clone)]
 pub struct ProcessMessage(RefGuard<_cef_process_message_t>);
 impl ImplProcessMessage for ProcessMessage {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -8008,7 +8064,7 @@ impl ImplProcessMessage for ProcessMessage {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -8020,7 +8076,7 @@ impl ImplProcessMessage for ProcessMessage {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn copy(&self) -> ProcessMessage {
+    fn copy<'a>(&self) -> ProcessMessage {
         unsafe {
             self.0
                 .copy
@@ -8032,7 +8088,7 @@ impl ImplProcessMessage for ProcessMessage {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_name
@@ -8044,7 +8100,7 @@ impl ImplProcessMessage for ProcessMessage {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_argument_list(&self) -> ListValue {
+    fn get_argument_list<'a>(&self) -> ListValue {
         unsafe {
             self.0
                 .get_argument_list
@@ -8056,7 +8112,7 @@ impl ImplProcessMessage for ProcessMessage {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_shared_memory_region(&self) -> SharedMemoryRegion {
+    fn get_shared_memory_region<'a>(&self) -> SharedMemoryRegion {
         unsafe {
             self.0
                 .get_shared_memory_region
@@ -8105,81 +8161,81 @@ impl Default for ProcessMessage {
     }
 }
 pub trait ImplRequest: Sized {
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_url(&self, url: &CefStringUtf16) {
+    fn set_url<'a>(&self, url: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_method(&self) -> CefStringUtf16 {
+    fn get_method<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_method(&self, method: &CefStringUtf16) {
+    fn set_method<'a>(&self, method: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_referrer(&self, referrer_url: &CefStringUtf16, policy: ReferrerPolicy) {
+    fn set_referrer<'a>(&self, referrer_url: &'a CefStringUtf16, policy: ReferrerPolicy) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_referrer_url(&self) -> CefStringUtf16 {
+    fn get_referrer_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_referrer_policy(&self) -> ReferrerPolicy {
+    fn get_referrer_policy<'a>(&self) -> ReferrerPolicy {
         unsafe { std::mem::zeroed() }
     }
-    fn get_post_data(&self) -> PostData {
+    fn get_post_data<'a>(&self) -> PostData {
         unsafe { std::mem::zeroed() }
     }
-    fn set_post_data(&self, post_data: &mut PostData) {
+    fn set_post_data<'a>(&self, post_data: &'a mut PostData) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_header_map(&self, header_map: &mut CefStringMultimap) {
+    fn get_header_map<'a>(&self, header_map: &'a mut CefStringMultimap) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_header_map(&self, header_map: &mut CefStringMultimap) {
+    fn set_header_map<'a>(&self, header_map: &'a mut CefStringMultimap) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_header_by_name(&self, name: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_header_by_name<'a>(&self, name: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_header_by_name(
+    fn set_header_by_name<'a>(
         &self,
-        name: &CefStringUtf16,
-        value: &CefStringUtf16,
+        name: &'a CefStringUtf16,
+        value: &'a CefStringUtf16,
         overwrite: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn set(
+    fn set<'a>(
         &self,
-        url: &CefStringUtf16,
-        method: &CefStringUtf16,
-        post_data: &mut PostData,
-        header_map: &mut CefStringMultimap,
+        url: &'a CefStringUtf16,
+        method: &'a CefStringUtf16,
+        post_data: &'a mut PostData,
+        header_map: &'a mut CefStringMultimap,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_flags(&self) -> ::std::os::raw::c_int {
+    fn get_flags<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_flags(&self, flags: ::std::os::raw::c_int) {
+    fn set_flags<'a>(&self, flags: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_first_party_for_cookies(&self) -> CefStringUtf16 {
+    fn get_first_party_for_cookies<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_first_party_for_cookies(&self, url: &CefStringUtf16) {
+    fn set_first_party_for_cookies<'a>(&self, url: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_resource_type(&self) -> ResourceType {
+    fn get_resource_type<'a>(&self) -> ResourceType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_transition_type(&self) -> TransitionType {
+    fn get_transition_type<'a>(&self) -> TransitionType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_identifier(&self) -> u64 {
+    fn get_identifier<'a>(&self) -> u64 {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_request_t {
@@ -8420,7 +8476,7 @@ mod impl_cef_request_t {
 #[derive(Clone)]
 pub struct Request(RefGuard<_cef_request_t>);
 impl ImplRequest for Request {
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -8432,7 +8488,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_url
@@ -8444,7 +8500,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_url(&self, url: &CefStringUtf16) {
+    fn set_url<'a>(&self, url: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_url
@@ -8458,7 +8514,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_method(&self) -> CefStringUtf16 {
+    fn get_method<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_method
@@ -8470,7 +8526,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_method(&self, method: &CefStringUtf16) {
+    fn set_method<'a>(&self, method: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_method
@@ -8484,7 +8540,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_referrer(&self, referrer_url: &CefStringUtf16, policy: ReferrerPolicy) {
+    fn set_referrer<'a>(&self, referrer_url: &'a CefStringUtf16, policy: ReferrerPolicy) {
         unsafe {
             self.0
                 .set_referrer
@@ -8499,7 +8555,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_referrer_url(&self) -> CefStringUtf16 {
+    fn get_referrer_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_referrer_url
@@ -8511,7 +8567,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_referrer_policy(&self) -> ReferrerPolicy {
+    fn get_referrer_policy<'a>(&self) -> ReferrerPolicy {
         unsafe {
             self.0
                 .get_referrer_policy
@@ -8523,7 +8579,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_post_data(&self) -> PostData {
+    fn get_post_data<'a>(&self) -> PostData {
         unsafe {
             self.0
                 .get_post_data
@@ -8535,7 +8591,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_post_data(&self, post_data: &mut PostData) {
+    fn set_post_data<'a>(&self, post_data: &'a mut PostData) {
         unsafe {
             self.0
                 .set_post_data
@@ -8549,7 +8605,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_header_map(&self, header_map: &mut CefStringMultimap) {
+    fn get_header_map<'a>(&self, header_map: &'a mut CefStringMultimap) {
         unsafe {
             self.0
                 .get_header_map
@@ -8563,7 +8619,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_header_map(&self, header_map: &mut CefStringMultimap) {
+    fn set_header_map<'a>(&self, header_map: &'a mut CefStringMultimap) {
         unsafe {
             self.0
                 .set_header_map
@@ -8577,7 +8633,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_header_by_name(&self, name: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_header_by_name<'a>(&self, name: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_header_by_name
@@ -8591,10 +8647,10 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_header_by_name(
+    fn set_header_by_name<'a>(
         &self,
-        name: &CefStringUtf16,
-        value: &CefStringUtf16,
+        name: &'a CefStringUtf16,
+        value: &'a CefStringUtf16,
         overwrite: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -8612,12 +8668,12 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set(
+    fn set<'a>(
         &self,
-        url: &CefStringUtf16,
-        method: &CefStringUtf16,
-        post_data: &mut PostData,
-        header_map: &mut CefStringMultimap,
+        url: &'a CefStringUtf16,
+        method: &'a CefStringUtf16,
+        post_data: &'a mut PostData,
+        header_map: &'a mut CefStringMultimap,
     ) {
         unsafe {
             self.0
@@ -8642,7 +8698,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_flags(&self) -> ::std::os::raw::c_int {
+    fn get_flags<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_flags
@@ -8654,7 +8710,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_flags(&self, flags: ::std::os::raw::c_int) {
+    fn set_flags<'a>(&self, flags: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_flags
@@ -8668,7 +8724,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_first_party_for_cookies(&self) -> CefStringUtf16 {
+    fn get_first_party_for_cookies<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_first_party_for_cookies
@@ -8680,7 +8736,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_first_party_for_cookies(&self, url: &CefStringUtf16) {
+    fn set_first_party_for_cookies<'a>(&self, url: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_first_party_for_cookies
@@ -8694,7 +8750,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_resource_type(&self) -> ResourceType {
+    fn get_resource_type<'a>(&self) -> ResourceType {
         unsafe {
             self.0
                 .get_resource_type
@@ -8706,7 +8762,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_transition_type(&self) -> TransitionType {
+    fn get_transition_type<'a>(&self) -> TransitionType {
         unsafe {
             self.0
                 .get_transition_type
@@ -8718,7 +8774,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_identifier(&self) -> u64 {
+    fn get_identifier<'a>(&self) -> u64 {
         unsafe {
             self.0
                 .get_identifier
@@ -8767,25 +8823,25 @@ impl Default for Request {
     }
 }
 pub trait ImplPostData: Sized {
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_excluded_elements(&self) -> ::std::os::raw::c_int {
+    fn has_excluded_elements<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_element_count(&self) -> usize {
+    fn get_element_count<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_elements(&self, elements: Option<&mut &mut [Option<PostDataElement>]>) {
+    fn get_elements<'a>(&self, elements: Option<&'a mut &'a mut [Option<PostDataElement>]>) {
         unsafe { std::mem::zeroed() }
     }
-    fn remove_element(&self, element: &mut PostDataElement) -> ::std::os::raw::c_int {
+    fn remove_element<'a>(&self, element: &'a mut PostDataElement) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn add_element(&self, element: &mut PostDataElement) -> ::std::os::raw::c_int {
+    fn add_element<'a>(&self, element: &'a mut PostDataElement) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn remove_elements(&self) {
+    fn remove_elements<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_post_data_t {
@@ -8862,7 +8918,7 @@ mod impl_cef_post_data_t {
 #[derive(Clone)]
 pub struct PostData(RefGuard<_cef_post_data_t>);
 impl ImplPostData for PostData {
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -8874,7 +8930,7 @@ impl ImplPostData for PostData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_excluded_elements(&self) -> ::std::os::raw::c_int {
+    fn has_excluded_elements<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_excluded_elements
@@ -8886,7 +8942,7 @@ impl ImplPostData for PostData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_element_count(&self) -> usize {
+    fn get_element_count<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_element_count
@@ -8898,7 +8954,7 @@ impl ImplPostData for PostData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_elements(&self, elements: Option<&mut &mut [Option<PostDataElement>]>) {
+    fn get_elements<'a>(&self, elements: Option<&'a mut &'a mut [Option<PostDataElement>]>) {
         unsafe {
             self.0
                 .get_elements
@@ -8946,7 +9002,7 @@ impl ImplPostData for PostData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_element(&self, element: &mut PostDataElement) -> ::std::os::raw::c_int {
+    fn remove_element<'a>(&self, element: &'a mut PostDataElement) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .remove_element
@@ -8960,7 +9016,7 @@ impl ImplPostData for PostData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_element(&self, element: &mut PostDataElement) -> ::std::os::raw::c_int {
+    fn add_element<'a>(&self, element: &'a mut PostDataElement) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .add_element
@@ -8974,7 +9030,7 @@ impl ImplPostData for PostData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_elements(&self) {
+    fn remove_elements<'a>(&self) {
         unsafe {
             self.0
                 .remove_elements
@@ -9023,28 +9079,28 @@ impl Default for PostData {
     }
 }
 pub trait ImplPostDataElement: Sized {
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_to_empty(&self) {
+    fn set_to_empty<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_to_file(&self, file_name: &CefStringUtf16) {
+    fn set_to_file<'a>(&self, file_name: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_to_bytes(&self, size: usize, bytes: *const ::std::os::raw::c_void) {
+    fn set_to_bytes<'a>(&self, size: usize, bytes: *const ::std::os::raw::c_void) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_type(&self) -> PostdataelementType {
+    fn get_type<'a>(&self) -> PostdataelementType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_file(&self) -> CefStringUtf16 {
+    fn get_file<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bytes_count(&self) -> usize {
+    fn get_bytes_count<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bytes(&self, size: usize, bytes: *mut ::std::os::raw::c_void) -> usize {
+    fn get_bytes<'a>(&self, size: usize, bytes: *mut ::std::os::raw::c_void) -> usize {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_post_data_element_t {
@@ -9133,7 +9189,7 @@ mod impl_cef_post_data_element_t {
 #[derive(Clone)]
 pub struct PostDataElement(RefGuard<_cef_post_data_element_t>);
 impl ImplPostDataElement for PostDataElement {
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -9145,7 +9201,7 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_to_empty(&self) {
+    fn set_to_empty<'a>(&self) {
         unsafe {
             self.0
                 .set_to_empty
@@ -9157,7 +9213,7 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_to_file(&self, file_name: &CefStringUtf16) {
+    fn set_to_file<'a>(&self, file_name: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_to_file
@@ -9171,7 +9227,7 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_to_bytes(&self, size: usize, bytes: *const ::std::os::raw::c_void) {
+    fn set_to_bytes<'a>(&self, size: usize, bytes: *const ::std::os::raw::c_void) {
         unsafe {
             self.0
                 .set_to_bytes
@@ -9186,7 +9242,7 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_type(&self) -> PostdataelementType {
+    fn get_type<'a>(&self) -> PostdataelementType {
         unsafe {
             self.0
                 .get_type
@@ -9198,7 +9254,7 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_file(&self) -> CefStringUtf16 {
+    fn get_file<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_file
@@ -9210,7 +9266,7 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bytes_count(&self) -> usize {
+    fn get_bytes_count<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_bytes_count
@@ -9222,7 +9278,7 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bytes(&self, size: usize, bytes: *mut ::std::os::raw::c_void) -> usize {
+    fn get_bytes<'a>(&self, size: usize, bytes: *mut ::std::os::raw::c_void) -> usize {
         unsafe {
             self.0
                 .get_bytes
@@ -9274,7 +9330,7 @@ impl Default for PostDataElement {
     }
 }
 pub trait ImplCefStringVisitor: Sized {
-    fn visit(&self, string: &CefStringUtf16) {
+    fn visit<'a>(&self, string: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_string_visitor_t {
@@ -9303,7 +9359,7 @@ mod impl_cef_string_visitor_t {
 #[derive(Clone)]
 pub struct CefStringVisitor(RefGuard<_cef_string_visitor_t>);
 impl ImplCefStringVisitor for CefStringVisitor {
-    fn visit(&self, string: &CefStringUtf16) {
+    fn visit<'a>(&self, string: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .visit
@@ -9354,91 +9410,91 @@ impl Default for CefStringVisitor {
     }
 }
 pub trait ImplFrame: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn undo(&self) {
+    fn undo<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn redo(&self) {
+    fn redo<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn cut(&self) {
+    fn cut<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn copy(&self) {
+    fn copy<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn paste(&self) {
+    fn paste<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn paste_and_match_style(&self) {
+    fn paste_and_match_style<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn del(&self) {
+    fn del<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn select_all(&self) {
+    fn select_all<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn view_source(&self) {
+    fn view_source<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_source(&self, visitor: &mut CefStringVisitor) {
+    fn get_source<'a>(&self, visitor: &'a mut CefStringVisitor) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_text(&self, visitor: &mut CefStringVisitor) {
+    fn get_text<'a>(&self, visitor: &'a mut CefStringVisitor) {
         unsafe { std::mem::zeroed() }
     }
-    fn load_request(&self, request: &mut Request) {
+    fn load_request<'a>(&self, request: &'a mut Request) {
         unsafe { std::mem::zeroed() }
     }
-    fn load_url(&self, url: &CefStringUtf16) {
+    fn load_url<'a>(&self, url: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn execute_java_script(
+    fn execute_java_script<'a>(
         &self,
-        code: &CefStringUtf16,
-        script_url: &CefStringUtf16,
+        code: &'a CefStringUtf16,
+        script_url: &'a CefStringUtf16,
         start_line: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_main(&self) -> ::std::os::raw::c_int {
+    fn is_main<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_focused(&self) -> ::std::os::raw::c_int {
+    fn is_focused<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_identifier(&self) -> CefStringUtf16 {
+    fn get_identifier<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_parent(&self) -> Frame {
+    fn get_parent<'a>(&self) -> Frame {
         unsafe { std::mem::zeroed() }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_browser(&self) -> Browser {
+    fn get_browser<'a>(&self) -> Browser {
         unsafe { std::mem::zeroed() }
     }
-    fn get_v8context(&self) -> V8context {
+    fn get_v8context<'a>(&self) -> V8context {
         unsafe { std::mem::zeroed() }
     }
-    fn visit_dom(&self, visitor: &mut Domvisitor) {
+    fn visit_dom<'a>(&self, visitor: &'a mut Domvisitor) {
         unsafe { std::mem::zeroed() }
     }
-    fn create_urlrequest(
+    fn create_urlrequest<'a>(
         &self,
-        request: &mut Request,
-        client: &mut UrlrequestClient,
+        request: &'a mut Request,
+        client: &'a mut UrlrequestClient,
     ) -> Urlrequest {
         unsafe { std::mem::zeroed() }
     }
-    fn send_process_message(&self, target_process: ProcessId, message: &mut ProcessMessage) {
+    fn send_process_message<'a>(&self, target_process: ProcessId, message: &'a mut ProcessMessage) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_frame_t {
@@ -9665,7 +9721,7 @@ mod impl_cef_frame_t {
 #[derive(Clone)]
 pub struct Frame(RefGuard<_cef_frame_t>);
 impl ImplFrame for Frame {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -9677,7 +9733,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn undo(&self) {
+    fn undo<'a>(&self) {
         unsafe {
             self.0
                 .undo
@@ -9689,7 +9745,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn redo(&self) {
+    fn redo<'a>(&self) {
         unsafe {
             self.0
                 .redo
@@ -9701,7 +9757,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cut(&self) {
+    fn cut<'a>(&self) {
         unsafe {
             self.0
                 .cut
@@ -9713,7 +9769,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn copy(&self) {
+    fn copy<'a>(&self) {
         unsafe {
             self.0
                 .copy
@@ -9725,7 +9781,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn paste(&self) {
+    fn paste<'a>(&self) {
         unsafe {
             self.0
                 .paste
@@ -9737,7 +9793,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn paste_and_match_style(&self) {
+    fn paste_and_match_style<'a>(&self) {
         unsafe {
             self.0
                 .paste_and_match_style
@@ -9749,7 +9805,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn del(&self) {
+    fn del<'a>(&self) {
         unsafe {
             self.0
                 .del
@@ -9761,7 +9817,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn select_all(&self) {
+    fn select_all<'a>(&self) {
         unsafe {
             self.0
                 .select_all
@@ -9773,7 +9829,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn view_source(&self) {
+    fn view_source<'a>(&self) {
         unsafe {
             self.0
                 .view_source
@@ -9785,7 +9841,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_source(&self, visitor: &mut CefStringVisitor) {
+    fn get_source<'a>(&self, visitor: &'a mut CefStringVisitor) {
         unsafe {
             self.0
                 .get_source
@@ -9799,7 +9855,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_text(&self, visitor: &mut CefStringVisitor) {
+    fn get_text<'a>(&self, visitor: &'a mut CefStringVisitor) {
         unsafe {
             self.0
                 .get_text
@@ -9813,7 +9869,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn load_request(&self, request: &mut Request) {
+    fn load_request<'a>(&self, request: &'a mut Request) {
         unsafe {
             self.0
                 .load_request
@@ -9827,7 +9883,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn load_url(&self, url: &CefStringUtf16) {
+    fn load_url<'a>(&self, url: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .load_url
@@ -9841,10 +9897,10 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn execute_java_script(
+    fn execute_java_script<'a>(
         &self,
-        code: &CefStringUtf16,
-        script_url: &CefStringUtf16,
+        code: &'a CefStringUtf16,
+        script_url: &'a CefStringUtf16,
         start_line: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -9862,7 +9918,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_main(&self) -> ::std::os::raw::c_int {
+    fn is_main<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_main
@@ -9874,7 +9930,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_focused(&self) -> ::std::os::raw::c_int {
+    fn is_focused<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_focused
@@ -9886,7 +9942,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_name
@@ -9898,7 +9954,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_identifier(&self) -> CefStringUtf16 {
+    fn get_identifier<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_identifier
@@ -9910,7 +9966,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_parent(&self) -> Frame {
+    fn get_parent<'a>(&self) -> Frame {
         unsafe {
             self.0
                 .get_parent
@@ -9922,7 +9978,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_url
@@ -9934,7 +9990,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_browser(&self) -> Browser {
+    fn get_browser<'a>(&self) -> Browser {
         unsafe {
             self.0
                 .get_browser
@@ -9946,7 +10002,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_v8context(&self) -> V8context {
+    fn get_v8context<'a>(&self) -> V8context {
         unsafe {
             self.0
                 .get_v8context
@@ -9958,7 +10014,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn visit_dom(&self, visitor: &mut Domvisitor) {
+    fn visit_dom<'a>(&self, visitor: &'a mut Domvisitor) {
         unsafe {
             self.0
                 .visit_dom
@@ -9972,10 +10028,10 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn create_urlrequest(
+    fn create_urlrequest<'a>(
         &self,
-        request: &mut Request,
-        client: &mut UrlrequestClient,
+        request: &'a mut Request,
+        client: &'a mut UrlrequestClient,
     ) -> Urlrequest {
         unsafe {
             self.0
@@ -9991,7 +10047,7 @@ impl ImplFrame for Frame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_process_message(&self, target_process: ProcessId, message: &mut ProcessMessage) {
+    fn send_process_message<'a>(&self, target_process: ProcessId, message: &'a mut ProcessMessage) {
         unsafe {
             self.0
                 .send_process_message
@@ -10043,25 +10099,25 @@ impl Default for Frame {
     }
 }
 pub trait ImplX509certPrincipal: Sized {
-    fn get_display_name(&self) -> CefStringUtf16 {
+    fn get_display_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_common_name(&self) -> CefStringUtf16 {
+    fn get_common_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_locality_name(&self) -> CefStringUtf16 {
+    fn get_locality_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_state_or_province_name(&self) -> CefStringUtf16 {
+    fn get_state_or_province_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_country_name(&self) -> CefStringUtf16 {
+    fn get_country_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_organization_names(&self, names: &mut CefStringList) {
+    fn get_organization_names<'a>(&self, names: &'a mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_organization_unit_names(&self, names: &mut CefStringList) {
+    fn get_organization_unit_names<'a>(&self, names: &'a mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_x509cert_principal_t {
@@ -10141,7 +10197,7 @@ mod impl_cef_x509cert_principal_t {
 #[derive(Clone)]
 pub struct X509certPrincipal(RefGuard<_cef_x509cert_principal_t>);
 impl ImplX509certPrincipal for X509certPrincipal {
-    fn get_display_name(&self) -> CefStringUtf16 {
+    fn get_display_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_display_name
@@ -10153,7 +10209,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_common_name(&self) -> CefStringUtf16 {
+    fn get_common_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_common_name
@@ -10165,7 +10221,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_locality_name(&self) -> CefStringUtf16 {
+    fn get_locality_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_locality_name
@@ -10177,7 +10233,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_state_or_province_name(&self) -> CefStringUtf16 {
+    fn get_state_or_province_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_state_or_province_name
@@ -10189,7 +10245,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_country_name(&self) -> CefStringUtf16 {
+    fn get_country_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_country_name
@@ -10201,7 +10257,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_organization_names(&self, names: &mut CefStringList) {
+    fn get_organization_names<'a>(&self, names: &'a mut CefStringList) {
         unsafe {
             self.0
                 .get_organization_names
@@ -10215,7 +10271,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_organization_unit_names(&self, names: &mut CefStringList) {
+    fn get_organization_unit_names<'a>(&self, names: &'a mut CefStringList) {
         unsafe {
             self.0
                 .get_organization_unit_names
@@ -10266,34 +10322,40 @@ impl Default for X509certPrincipal {
     }
 }
 pub trait ImplX509certificate: Sized {
-    fn get_subject(&self) -> X509certPrincipal {
+    fn get_subject<'a>(&self) -> X509certPrincipal {
         unsafe { std::mem::zeroed() }
     }
-    fn get_issuer(&self) -> X509certPrincipal {
+    fn get_issuer<'a>(&self) -> X509certPrincipal {
         unsafe { std::mem::zeroed() }
     }
-    fn get_serial_number(&self) -> BinaryValue {
+    fn get_serial_number<'a>(&self) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_valid_start(&self) -> Basetime {
+    fn get_valid_start<'a>(&self) -> Basetime {
         unsafe { std::mem::zeroed() }
     }
-    fn get_valid_expiry(&self) -> Basetime {
+    fn get_valid_expiry<'a>(&self) -> Basetime {
         unsafe { std::mem::zeroed() }
     }
-    fn get_derencoded(&self) -> BinaryValue {
+    fn get_derencoded<'a>(&self) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_pemencoded(&self) -> BinaryValue {
+    fn get_pemencoded<'a>(&self) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_issuer_chain_size(&self) -> usize {
+    fn get_issuer_chain_size<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_derencoded_issuer_chain(&self, chain: Option<&mut &mut [Option<BinaryValue>]>) {
+    fn get_derencoded_issuer_chain<'a>(
+        &self,
+        chain: Option<&'a mut &'a mut [Option<BinaryValue>]>,
+    ) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_pemencoded_issuer_chain(&self, chain: Option<&mut &mut [Option<BinaryValue>]>) {
+    fn get_pemencoded_issuer_chain<'a>(
+        &self,
+        chain: Option<&'a mut &'a mut [Option<BinaryValue>]>,
+    ) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_x509certificate_t {
@@ -10397,7 +10459,7 @@ mod impl_cef_x509certificate_t {
 #[derive(Clone)]
 pub struct X509certificate(RefGuard<_cef_x509certificate_t>);
 impl ImplX509certificate for X509certificate {
-    fn get_subject(&self) -> X509certPrincipal {
+    fn get_subject<'a>(&self) -> X509certPrincipal {
         unsafe {
             self.0
                 .get_subject
@@ -10409,7 +10471,7 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_issuer(&self) -> X509certPrincipal {
+    fn get_issuer<'a>(&self) -> X509certPrincipal {
         unsafe {
             self.0
                 .get_issuer
@@ -10421,7 +10483,7 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_serial_number(&self) -> BinaryValue {
+    fn get_serial_number<'a>(&self) -> BinaryValue {
         unsafe {
             self.0
                 .get_serial_number
@@ -10433,7 +10495,7 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_valid_start(&self) -> Basetime {
+    fn get_valid_start<'a>(&self) -> Basetime {
         unsafe {
             self.0
                 .get_valid_start
@@ -10445,7 +10507,7 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_valid_expiry(&self) -> Basetime {
+    fn get_valid_expiry<'a>(&self) -> Basetime {
         unsafe {
             self.0
                 .get_valid_expiry
@@ -10457,7 +10519,7 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_derencoded(&self) -> BinaryValue {
+    fn get_derencoded<'a>(&self) -> BinaryValue {
         unsafe {
             self.0
                 .get_derencoded
@@ -10469,7 +10531,7 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_pemencoded(&self) -> BinaryValue {
+    fn get_pemencoded<'a>(&self) -> BinaryValue {
         unsafe {
             self.0
                 .get_pemencoded
@@ -10481,7 +10543,7 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_issuer_chain_size(&self) -> usize {
+    fn get_issuer_chain_size<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_issuer_chain_size
@@ -10493,7 +10555,10 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_derencoded_issuer_chain(&self, chain: Option<&mut &mut [Option<BinaryValue>]>) {
+    fn get_derencoded_issuer_chain<'a>(
+        &self,
+        chain: Option<&'a mut &'a mut [Option<BinaryValue>]>,
+    ) {
         unsafe {
             self.0
                 .get_derencoded_issuer_chain
@@ -10541,7 +10606,10 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_pemencoded_issuer_chain(&self, chain: Option<&mut &mut [Option<BinaryValue>]>) {
+    fn get_pemencoded_issuer_chain<'a>(
+        &self,
+        chain: Option<&'a mut &'a mut [Option<BinaryValue>]>,
+    ) {
         unsafe {
             self.0
                 .get_pemencoded_issuer_chain
@@ -10626,19 +10694,19 @@ impl Default for X509certificate {
     }
 }
 pub trait ImplSslstatus: Sized {
-    fn is_secure_connection(&self) -> ::std::os::raw::c_int {
+    fn is_secure_connection<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_cert_status(&self) -> CertStatus {
+    fn get_cert_status<'a>(&self) -> CertStatus {
         unsafe { std::mem::zeroed() }
     }
-    fn get_sslversion(&self) -> SslVersion {
+    fn get_sslversion<'a>(&self) -> SslVersion {
         unsafe { std::mem::zeroed() }
     }
-    fn get_content_status(&self) -> SslContentStatus {
+    fn get_content_status<'a>(&self) -> SslContentStatus {
         unsafe { std::mem::zeroed() }
     }
-    fn get_x509certificate(&self) -> X509certificate {
+    fn get_x509certificate<'a>(&self) -> X509certificate {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_sslstatus_t {
@@ -10696,7 +10764,7 @@ mod impl_cef_sslstatus_t {
 #[derive(Clone)]
 pub struct Sslstatus(RefGuard<_cef_sslstatus_t>);
 impl ImplSslstatus for Sslstatus {
-    fn is_secure_connection(&self) -> ::std::os::raw::c_int {
+    fn is_secure_connection<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_secure_connection
@@ -10708,7 +10776,7 @@ impl ImplSslstatus for Sslstatus {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_cert_status(&self) -> CertStatus {
+    fn get_cert_status<'a>(&self) -> CertStatus {
         unsafe {
             self.0
                 .get_cert_status
@@ -10720,7 +10788,7 @@ impl ImplSslstatus for Sslstatus {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_sslversion(&self) -> SslVersion {
+    fn get_sslversion<'a>(&self) -> SslVersion {
         unsafe {
             self.0
                 .get_sslversion
@@ -10732,7 +10800,7 @@ impl ImplSslstatus for Sslstatus {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_content_status(&self) -> SslContentStatus {
+    fn get_content_status<'a>(&self) -> SslContentStatus {
         unsafe {
             self.0
                 .get_content_status
@@ -10744,7 +10812,7 @@ impl ImplSslstatus for Sslstatus {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_x509certificate(&self) -> X509certificate {
+    fn get_x509certificate<'a>(&self) -> X509certificate {
         unsafe {
             self.0
                 .get_x509certificate
@@ -10793,34 +10861,34 @@ impl Default for Sslstatus {
     }
 }
 pub trait ImplNavigationEntry: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_display_url(&self) -> CefStringUtf16 {
+    fn get_display_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_original_url(&self) -> CefStringUtf16 {
+    fn get_original_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_transition_type(&self) -> TransitionType {
+    fn get_transition_type<'a>(&self) -> TransitionType {
         unsafe { std::mem::zeroed() }
     }
-    fn has_post_data(&self) -> ::std::os::raw::c_int {
+    fn has_post_data<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_completion_time(&self) -> Basetime {
+    fn get_completion_time<'a>(&self) -> Basetime {
         unsafe { std::mem::zeroed() }
     }
-    fn get_http_status_code(&self) -> ::std::os::raw::c_int {
+    fn get_http_status_code<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_sslstatus(&self) -> Sslstatus {
+    fn get_sslstatus<'a>(&self) -> Sslstatus {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_navigation_entry_t {
@@ -10918,7 +10986,7 @@ mod impl_cef_navigation_entry_t {
 #[derive(Clone)]
 pub struct NavigationEntry(RefGuard<_cef_navigation_entry_t>);
 impl ImplNavigationEntry for NavigationEntry {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -10930,7 +10998,7 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_url
@@ -10942,7 +11010,7 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_display_url(&self) -> CefStringUtf16 {
+    fn get_display_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_display_url
@@ -10954,7 +11022,7 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_original_url(&self) -> CefStringUtf16 {
+    fn get_original_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_original_url
@@ -10966,7 +11034,7 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_title
@@ -10978,7 +11046,7 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_transition_type(&self) -> TransitionType {
+    fn get_transition_type<'a>(&self) -> TransitionType {
         unsafe {
             self.0
                 .get_transition_type
@@ -10990,7 +11058,7 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_post_data(&self) -> ::std::os::raw::c_int {
+    fn has_post_data<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_post_data
@@ -11002,7 +11070,7 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_completion_time(&self) -> Basetime {
+    fn get_completion_time<'a>(&self) -> Basetime {
         unsafe {
             self.0
                 .get_completion_time
@@ -11014,7 +11082,7 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_http_status_code(&self) -> ::std::os::raw::c_int {
+    fn get_http_status_code<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_http_status_code
@@ -11026,7 +11094,7 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_sslstatus(&self) -> Sslstatus {
+    fn get_sslstatus<'a>(&self) -> Sslstatus {
         unsafe {
             self.0
                 .get_sslstatus
@@ -11125,10 +11193,10 @@ impl Default for Registration {
     }
 }
 pub trait ImplCallback: Sized {
-    fn cont(&self) {
+    fn cont<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_callback_t {
@@ -11158,7 +11226,7 @@ mod impl_cef_callback_t {
 #[derive(Clone)]
 pub struct Callback(RefGuard<_cef_callback_t>);
 impl ImplCallback for Callback {
-    fn cont(&self) {
+    fn cont<'a>(&self) {
         unsafe {
             self.0
                 .cont
@@ -11170,7 +11238,7 @@ impl ImplCallback for Callback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -11219,7 +11287,7 @@ impl Default for Callback {
     }
 }
 pub trait ImplCompletionCallback: Sized {
-    fn on_complete(&self) {
+    fn on_complete<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_completion_callback_t {
@@ -11243,7 +11311,7 @@ mod impl_cef_completion_callback_t {
 #[derive(Clone)]
 pub struct CompletionCallback(RefGuard<_cef_completion_callback_t>);
 impl ImplCompletionCallback for CompletionCallback {
-    fn on_complete(&self) {
+    fn on_complete<'a>(&self) {
         unsafe {
             self.0
                 .on_complete
@@ -11292,34 +11360,34 @@ impl Default for CompletionCallback {
     }
 }
 pub trait ImplCookieManager: Sized {
-    fn visit_all_cookies(&self, visitor: &mut CookieVisitor) -> ::std::os::raw::c_int {
+    fn visit_all_cookies<'a>(&self, visitor: &'a mut CookieVisitor) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn visit_url_cookies(
+    fn visit_url_cookies<'a>(
         &self,
-        url: &CefStringUtf16,
+        url: &'a CefStringUtf16,
         include_http_only: ::std::os::raw::c_int,
-        visitor: &mut CookieVisitor,
+        visitor: &'a mut CookieVisitor,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_cookie(
+    fn set_cookie<'a>(
         &self,
-        url: &CefStringUtf16,
-        cookie: &Cookie,
-        callback: &mut SetCookieCallback,
+        url: &'a CefStringUtf16,
+        cookie: &'a Cookie,
+        callback: &'a mut SetCookieCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn delete_cookies(
+    fn delete_cookies<'a>(
         &self,
-        url: &CefStringUtf16,
-        cookie_name: &CefStringUtf16,
-        callback: &mut DeleteCookiesCallback,
+        url: &'a CefStringUtf16,
+        cookie_name: &'a CefStringUtf16,
+        callback: &'a mut DeleteCookiesCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn flush_store(&self, callback: &mut CompletionCallback) -> ::std::os::raw::c_int {
+    fn flush_store<'a>(&self, callback: &'a mut CompletionCallback) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_cookie_manager_t {
@@ -11418,7 +11486,7 @@ mod impl_cef_cookie_manager_t {
 #[derive(Clone)]
 pub struct CookieManager(RefGuard<_cef_cookie_manager_t>);
 impl ImplCookieManager for CookieManager {
-    fn visit_all_cookies(&self, visitor: &mut CookieVisitor) -> ::std::os::raw::c_int {
+    fn visit_all_cookies<'a>(&self, visitor: &'a mut CookieVisitor) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .visit_all_cookies
@@ -11432,11 +11500,11 @@ impl ImplCookieManager for CookieManager {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn visit_url_cookies(
+    fn visit_url_cookies<'a>(
         &self,
-        url: &CefStringUtf16,
+        url: &'a CefStringUtf16,
         include_http_only: ::std::os::raw::c_int,
-        visitor: &mut CookieVisitor,
+        visitor: &'a mut CookieVisitor,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -11454,11 +11522,11 @@ impl ImplCookieManager for CookieManager {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_cookie(
+    fn set_cookie<'a>(
         &self,
-        url: &CefStringUtf16,
-        cookie: &Cookie,
-        callback: &mut SetCookieCallback,
+        url: &'a CefStringUtf16,
+        cookie: &'a Cookie,
+        callback: &'a mut SetCookieCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -11475,11 +11543,11 @@ impl ImplCookieManager for CookieManager {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn delete_cookies(
+    fn delete_cookies<'a>(
         &self,
-        url: &CefStringUtf16,
-        cookie_name: &CefStringUtf16,
-        callback: &mut DeleteCookiesCallback,
+        url: &'a CefStringUtf16,
+        cookie_name: &'a CefStringUtf16,
+        callback: &'a mut DeleteCookiesCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -11496,7 +11564,7 @@ impl ImplCookieManager for CookieManager {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn flush_store(&self, callback: &mut CompletionCallback) -> ::std::os::raw::c_int {
+    fn flush_store<'a>(&self, callback: &'a mut CompletionCallback) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .flush_store
@@ -11547,12 +11615,12 @@ impl Default for CookieManager {
     }
 }
 pub trait ImplCookieVisitor: Sized {
-    fn visit(
+    fn visit<'a>(
         &self,
-        cookie: &Cookie,
+        cookie: &'a Cookie,
         count: ::std::os::raw::c_int,
         total: ::std::os::raw::c_int,
-        delete_cookie: &mut ::std::os::raw::c_int,
+        delete_cookie: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -11593,12 +11661,12 @@ mod impl_cef_cookie_visitor_t {
 #[derive(Clone)]
 pub struct CookieVisitor(RefGuard<_cef_cookie_visitor_t>);
 impl ImplCookieVisitor for CookieVisitor {
-    fn visit(
+    fn visit<'a>(
         &self,
-        cookie: &Cookie,
+        cookie: &'a Cookie,
         count: ::std::os::raw::c_int,
         total: ::std::os::raw::c_int,
-        delete_cookie: &mut ::std::os::raw::c_int,
+        delete_cookie: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -11660,7 +11728,7 @@ impl Default for CookieVisitor {
     }
 }
 pub trait ImplSetCookieCallback: Sized {
-    fn on_complete(&self, success: ::std::os::raw::c_int) {
+    fn on_complete<'a>(&self, success: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_set_cookie_callback_t {
@@ -11688,7 +11756,7 @@ mod impl_cef_set_cookie_callback_t {
 #[derive(Clone)]
 pub struct SetCookieCallback(RefGuard<_cef_set_cookie_callback_t>);
 impl ImplSetCookieCallback for SetCookieCallback {
-    fn on_complete(&self, success: ::std::os::raw::c_int) {
+    fn on_complete<'a>(&self, success: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .on_complete
@@ -11739,7 +11807,7 @@ impl Default for SetCookieCallback {
     }
 }
 pub trait ImplDeleteCookiesCallback: Sized {
-    fn on_complete(&self, num_deleted: ::std::os::raw::c_int) {
+    fn on_complete<'a>(&self, num_deleted: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_delete_cookies_callback_t {
@@ -11767,7 +11835,7 @@ mod impl_cef_delete_cookies_callback_t {
 #[derive(Clone)]
 pub struct DeleteCookiesCallback(RefGuard<_cef_delete_cookies_callback_t>);
 impl ImplDeleteCookiesCallback for DeleteCookiesCallback {
-    fn on_complete(&self, num_deleted: ::std::os::raw::c_int) {
+    fn on_complete<'a>(&self, num_deleted: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .on_complete
@@ -11818,24 +11886,24 @@ impl Default for DeleteCookiesCallback {
     }
 }
 pub trait ImplMediaRouter: Sized {
-    fn add_observer(&self, observer: &mut MediaObserver) -> Registration {
+    fn add_observer<'a>(&self, observer: &'a mut MediaObserver) -> Registration {
         unsafe { std::mem::zeroed() }
     }
-    fn get_source(&self, urn: &CefStringUtf16) -> MediaSource {
+    fn get_source<'a>(&self, urn: &'a CefStringUtf16) -> MediaSource {
         unsafe { std::mem::zeroed() }
     }
-    fn notify_current_sinks(&self) {
+    fn notify_current_sinks<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn create_route(
+    fn create_route<'a>(
         &self,
-        source: &mut MediaSource,
-        sink: &mut MediaSink,
-        callback: &mut MediaRouteCreateCallback,
+        source: &'a mut MediaSource,
+        sink: &'a mut MediaSink,
+        callback: &'a mut MediaRouteCreateCallback,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn notify_current_routes(&self) {
+    fn notify_current_routes<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_media_router_t {
@@ -11903,7 +11971,7 @@ mod impl_cef_media_router_t {
 #[derive(Clone)]
 pub struct MediaRouter(RefGuard<_cef_media_router_t>);
 impl ImplMediaRouter for MediaRouter {
-    fn add_observer(&self, observer: &mut MediaObserver) -> Registration {
+    fn add_observer<'a>(&self, observer: &'a mut MediaObserver) -> Registration {
         unsafe {
             self.0
                 .add_observer
@@ -11917,7 +11985,7 @@ impl ImplMediaRouter for MediaRouter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_source(&self, urn: &CefStringUtf16) -> MediaSource {
+    fn get_source<'a>(&self, urn: &'a CefStringUtf16) -> MediaSource {
         unsafe {
             self.0
                 .get_source
@@ -11931,7 +11999,7 @@ impl ImplMediaRouter for MediaRouter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn notify_current_sinks(&self) {
+    fn notify_current_sinks<'a>(&self) {
         unsafe {
             self.0
                 .notify_current_sinks
@@ -11943,11 +12011,11 @@ impl ImplMediaRouter for MediaRouter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn create_route(
+    fn create_route<'a>(
         &self,
-        source: &mut MediaSource,
-        sink: &mut MediaSink,
-        callback: &mut MediaRouteCreateCallback,
+        source: &'a mut MediaSource,
+        sink: &'a mut MediaSink,
+        callback: &'a mut MediaRouteCreateCallback,
     ) {
         unsafe {
             self.0
@@ -11964,7 +12032,7 @@ impl ImplMediaRouter for MediaRouter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn notify_current_routes(&self) {
+    fn notify_current_routes<'a>(&self) {
         unsafe {
             self.0
                 .notify_current_routes
@@ -12013,16 +12081,20 @@ impl Default for MediaRouter {
     }
 }
 pub trait ImplMediaObserver: Sized {
-    fn on_sinks(&self, sinks: Option<&[Option<MediaSink>]>) {
+    fn on_sinks<'a>(&self, sinks: Option<&'a [Option<MediaSink>]>) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_routes(&self, routes: Option<&[Option<MediaRoute>]>) {
+    fn on_routes<'a>(&self, routes: Option<&'a [Option<MediaRoute>]>) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_route_state_changed(&self, route: &mut MediaRoute, state: MediaRouteConnectionState) {
+    fn on_route_state_changed<'a>(
+        &self,
+        route: &'a mut MediaRoute,
+        state: MediaRouteConnectionState,
+    ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_route_message_received(&self, route: &mut MediaRoute, message: Option<&[u8]>) {
+    fn on_route_message_received<'a>(&self, route: &'a mut MediaRoute, message: Option<&'a [u8]>) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_media_observer_t {
@@ -12094,7 +12166,7 @@ mod impl_cef_media_observer_t {
 #[derive(Clone)]
 pub struct MediaObserver(RefGuard<_cef_media_observer_t>);
 impl ImplMediaObserver for MediaObserver {
-    fn on_sinks(&self, sinks: Option<&[Option<MediaSink>]>) {
+    fn on_sinks<'a>(&self, sinks: Option<&'a [Option<MediaSink>]>) {
         unsafe {
             self.0
                 .on_sinks
@@ -12111,7 +12183,7 @@ impl ImplMediaObserver for MediaObserver {
                                 .map(|elem| {
                                     elem.as_ref()
                                         .map(|elem| elem.as_raw())
-                                        .unwrap_or(std::ptr::null())
+                                        .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
                         })
@@ -12127,7 +12199,7 @@ impl ImplMediaObserver for MediaObserver {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_routes(&self, routes: Option<&[Option<MediaRoute>]>) {
+    fn on_routes<'a>(&self, routes: Option<&'a [Option<MediaRoute>]>) {
         unsafe {
             self.0
                 .on_routes
@@ -12144,7 +12216,7 @@ impl ImplMediaObserver for MediaObserver {
                                 .map(|elem| {
                                     elem.as_ref()
                                         .map(|elem| elem.as_raw())
-                                        .unwrap_or(std::ptr::null())
+                                        .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
                         })
@@ -12160,7 +12232,11 @@ impl ImplMediaObserver for MediaObserver {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_route_state_changed(&self, route: &mut MediaRoute, state: MediaRouteConnectionState) {
+    fn on_route_state_changed<'a>(
+        &self,
+        route: &'a mut MediaRoute,
+        state: MediaRouteConnectionState,
+    ) {
         unsafe {
             self.0
                 .on_route_state_changed
@@ -12175,7 +12251,7 @@ impl ImplMediaObserver for MediaObserver {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_route_message_received(&self, route: &mut MediaRoute, message: Option<&[u8]>) {
+    fn on_route_message_received<'a>(&self, route: &'a mut MediaRoute, message: Option<&'a [u8]>) {
         unsafe {
             self.0
                 .on_route_message_received
@@ -12237,19 +12313,19 @@ impl Default for MediaObserver {
     }
 }
 pub trait ImplMediaRoute: Sized {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_source(&self) -> MediaSource {
+    fn get_source<'a>(&self) -> MediaSource {
         unsafe { std::mem::zeroed() }
     }
-    fn get_sink(&self) -> MediaSink {
+    fn get_sink<'a>(&self) -> MediaSink {
         unsafe { std::mem::zeroed() }
     }
-    fn send_route_message(&self, message: Option<&[u8]>) {
+    fn send_route_message<'a>(&self, message: Option<&'a [u8]>) {
         unsafe { std::mem::zeroed() }
     }
-    fn terminate(&self) {
+    fn terminate<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_media_route_t {
@@ -12310,7 +12386,7 @@ mod impl_cef_media_route_t {
 #[derive(Clone)]
 pub struct MediaRoute(RefGuard<_cef_media_route_t>);
 impl ImplMediaRoute for MediaRoute {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_id
@@ -12322,7 +12398,7 @@ impl ImplMediaRoute for MediaRoute {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_source(&self) -> MediaSource {
+    fn get_source<'a>(&self) -> MediaSource {
         unsafe {
             self.0
                 .get_source
@@ -12334,7 +12410,7 @@ impl ImplMediaRoute for MediaRoute {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_sink(&self) -> MediaSink {
+    fn get_sink<'a>(&self) -> MediaSink {
         unsafe {
             self.0
                 .get_sink
@@ -12346,7 +12422,7 @@ impl ImplMediaRoute for MediaRoute {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_route_message(&self, message: Option<&[u8]>) {
+    fn send_route_message<'a>(&self, message: Option<&'a [u8]>) {
         unsafe {
             self.0
                 .send_route_message
@@ -12370,7 +12446,7 @@ impl ImplMediaRoute for MediaRoute {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn terminate(&self) {
+    fn terminate<'a>(&self) {
         unsafe {
             self.0
                 .terminate
@@ -12419,11 +12495,11 @@ impl Default for MediaRoute {
     }
 }
 pub trait ImplMediaRouteCreateCallback: Sized {
-    fn on_media_route_create_finished(
+    fn on_media_route_create_finished<'a>(
         &self,
         result: MediaRouteCreateResult,
-        error: &CefStringUtf16,
-        route: &mut MediaRoute,
+        error: &'a CefStringUtf16,
+        route: &'a mut MediaRoute,
     ) {
         unsafe { std::mem::zeroed() }
     }
@@ -12461,11 +12537,11 @@ mod impl_cef_media_route_create_callback_t {
 #[derive(Clone)]
 pub struct MediaRouteCreateCallback(RefGuard<_cef_media_route_create_callback_t>);
 impl ImplMediaRouteCreateCallback for MediaRouteCreateCallback {
-    fn on_media_route_create_finished(
+    fn on_media_route_create_finished<'a>(
         &self,
         result: MediaRouteCreateResult,
-        error: &CefStringUtf16,
-        route: &mut MediaRoute,
+        error: &'a CefStringUtf16,
+        route: &'a mut MediaRoute,
     ) {
         unsafe {
             self.0
@@ -12519,25 +12595,25 @@ impl Default for MediaRouteCreateCallback {
     }
 }
 pub trait ImplMediaSink: Sized {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_icon_type(&self) -> MediaSinkIconType {
+    fn get_icon_type<'a>(&self) -> MediaSinkIconType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_device_info(&self, callback: &mut MediaSinkDeviceInfoCallback) {
+    fn get_device_info<'a>(&self, callback: &'a mut MediaSinkDeviceInfoCallback) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_cast_sink(&self) -> ::std::os::raw::c_int {
+    fn is_cast_sink<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_dial_sink(&self) -> ::std::os::raw::c_int {
+    fn is_dial_sink<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_compatible_with(&self, source: &mut MediaSource) -> ::std::os::raw::c_int {
+    fn is_compatible_with<'a>(&self, source: &'a mut MediaSource) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_media_sink_t {
@@ -12616,7 +12692,7 @@ mod impl_cef_media_sink_t {
 #[derive(Clone)]
 pub struct MediaSink(RefGuard<_cef_media_sink_t>);
 impl ImplMediaSink for MediaSink {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_id
@@ -12628,7 +12704,7 @@ impl ImplMediaSink for MediaSink {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_name
@@ -12640,7 +12716,7 @@ impl ImplMediaSink for MediaSink {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_icon_type(&self) -> MediaSinkIconType {
+    fn get_icon_type<'a>(&self) -> MediaSinkIconType {
         unsafe {
             self.0
                 .get_icon_type
@@ -12652,7 +12728,7 @@ impl ImplMediaSink for MediaSink {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_device_info(&self, callback: &mut MediaSinkDeviceInfoCallback) {
+    fn get_device_info<'a>(&self, callback: &'a mut MediaSinkDeviceInfoCallback) {
         unsafe {
             self.0
                 .get_device_info
@@ -12666,7 +12742,7 @@ impl ImplMediaSink for MediaSink {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_cast_sink(&self) -> ::std::os::raw::c_int {
+    fn is_cast_sink<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_cast_sink
@@ -12678,7 +12754,7 @@ impl ImplMediaSink for MediaSink {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_dial_sink(&self) -> ::std::os::raw::c_int {
+    fn is_dial_sink<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_dial_sink
@@ -12690,7 +12766,7 @@ impl ImplMediaSink for MediaSink {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_compatible_with(&self, source: &mut MediaSource) -> ::std::os::raw::c_int {
+    fn is_compatible_with<'a>(&self, source: &'a mut MediaSource) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_compatible_with
@@ -12741,7 +12817,7 @@ impl Default for MediaSink {
     }
 }
 pub trait ImplMediaSinkDeviceInfoCallback: Sized {
-    fn on_media_sink_device_info(&self, device_info: &MediaSinkDeviceInfo) {
+    fn on_media_sink_device_info<'a>(&self, device_info: &'a MediaSinkDeviceInfo) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_media_sink_device_info_callback_t {
@@ -12774,7 +12850,7 @@ mod impl_cef_media_sink_device_info_callback_t {
 #[derive(Clone)]
 pub struct MediaSinkDeviceInfoCallback(RefGuard<_cef_media_sink_device_info_callback_t>);
 impl ImplMediaSinkDeviceInfoCallback for MediaSinkDeviceInfoCallback {
-    fn on_media_sink_device_info(&self, device_info: &MediaSinkDeviceInfo) {
+    fn on_media_sink_device_info<'a>(&self, device_info: &'a MediaSinkDeviceInfo) {
         unsafe {
             self.0
                 .on_media_sink_device_info
@@ -12829,13 +12905,13 @@ impl Default for MediaSinkDeviceInfoCallback {
     }
 }
 pub trait ImplMediaSource: Sized {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn is_cast_source(&self) -> ::std::os::raw::c_int {
+    fn is_cast_source<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_dial_source(&self) -> ::std::os::raw::c_int {
+    fn is_dial_source<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_media_source_t {
@@ -12877,7 +12953,7 @@ mod impl_cef_media_source_t {
 #[derive(Clone)]
 pub struct MediaSource(RefGuard<_cef_media_source_t>);
 impl ImplMediaSource for MediaSource {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_id
@@ -12889,7 +12965,7 @@ impl ImplMediaSource for MediaSource {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_cast_source(&self) -> ::std::os::raw::c_int {
+    fn is_cast_source<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_cast_source
@@ -12901,7 +12977,7 @@ impl ImplMediaSource for MediaSource {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_dial_source(&self) -> ::std::os::raw::c_int {
+    fn is_dial_source<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_dial_source
@@ -12988,23 +13064,23 @@ impl Default for PreferenceRegistrar {
     }
 }
 pub trait ImplPreferenceManager: Sized {
-    fn has_preference(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_preference<'a>(&self, name: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_preference(&self, name: &CefStringUtf16) -> Value {
+    fn get_preference<'a>(&self, name: &'a CefStringUtf16) -> Value {
         unsafe { std::mem::zeroed() }
     }
-    fn get_all_preferences(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
+    fn get_all_preferences<'a>(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn can_set_preference(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn can_set_preference<'a>(&self, name: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_preference(
+    fn set_preference<'a>(
         &self,
-        name: &CefStringUtf16,
-        value: &mut Value,
-        error: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        value: &'a mut Value,
+        error: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -13088,7 +13164,7 @@ mod impl_cef_preference_manager_t {
 #[derive(Clone)]
 pub struct PreferenceManager(RefGuard<_cef_preference_manager_t>);
 impl ImplPreferenceManager for PreferenceManager {
-    fn has_preference(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_preference<'a>(&self, name: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_preference
@@ -13102,7 +13178,7 @@ impl ImplPreferenceManager for PreferenceManager {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_preference(&self, name: &CefStringUtf16) -> Value {
+    fn get_preference<'a>(&self, name: &'a CefStringUtf16) -> Value {
         unsafe {
             self.0
                 .get_preference
@@ -13116,7 +13192,7 @@ impl ImplPreferenceManager for PreferenceManager {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_all_preferences(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
+    fn get_all_preferences<'a>(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
         unsafe {
             self.0
                 .get_all_preferences
@@ -13130,7 +13206,7 @@ impl ImplPreferenceManager for PreferenceManager {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_set_preference(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn can_set_preference<'a>(&self, name: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .can_set_preference
@@ -13144,11 +13220,11 @@ impl ImplPreferenceManager for PreferenceManager {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_preference(
+    fn set_preference<'a>(
         &self,
-        name: &CefStringUtf16,
-        value: &mut Value,
-        error: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        value: &'a mut Value,
+        error: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -13202,7 +13278,7 @@ impl Default for PreferenceManager {
     }
 }
 pub trait ImplResolveCallback: Sized {
-    fn on_resolve_completed(&self, result: Errorcode, resolved_ips: &mut CefStringList) {
+    fn on_resolve_completed<'a>(&self, result: Errorcode, resolved_ips: &'a mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_resolve_callback_t {
@@ -13235,7 +13311,7 @@ mod impl_cef_resolve_callback_t {
 #[derive(Clone)]
 pub struct ResolveCallback(RefGuard<_cef_resolve_callback_t>);
 impl ImplResolveCallback for ResolveCallback {
-    fn on_resolve_completed(&self, result: Errorcode, resolved_ips: &mut CefStringList) {
+    fn on_resolve_completed<'a>(&self, result: Errorcode, resolved_ips: &'a mut CefStringList) {
         unsafe {
             self.0
                 .on_resolve_completed
@@ -13287,94 +13363,94 @@ impl Default for ResolveCallback {
     }
 }
 pub trait ImplRequestContext: ImplPreferenceManager {
-    fn is_same(&self, other: &mut RequestContext) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, other: &'a mut RequestContext) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_sharing_with(&self, other: &mut RequestContext) -> ::std::os::raw::c_int {
+    fn is_sharing_with<'a>(&self, other: &'a mut RequestContext) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_global(&self) -> ::std::os::raw::c_int {
+    fn is_global<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_handler(&self) -> RequestContextHandler {
+    fn get_handler<'a>(&self) -> RequestContextHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_cache_path(&self) -> CefStringUtf16 {
+    fn get_cache_path<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_cookie_manager(&self, callback: &mut CompletionCallback) -> CookieManager {
+    fn get_cookie_manager<'a>(&self, callback: &'a mut CompletionCallback) -> CookieManager {
         unsafe { std::mem::zeroed() }
     }
-    fn register_scheme_handler_factory(
+    fn register_scheme_handler_factory<'a>(
         &self,
-        scheme_name: &CefStringUtf16,
-        domain_name: &CefStringUtf16,
-        factory: &mut SchemeHandlerFactory,
+        scheme_name: &'a CefStringUtf16,
+        domain_name: &'a CefStringUtf16,
+        factory: &'a mut SchemeHandlerFactory,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn clear_scheme_handler_factories(&self) -> ::std::os::raw::c_int {
+    fn clear_scheme_handler_factories<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn clear_certificate_exceptions(&self, callback: &mut CompletionCallback) {
+    fn clear_certificate_exceptions<'a>(&self, callback: &'a mut CompletionCallback) {
         unsafe { std::mem::zeroed() }
     }
-    fn clear_http_auth_credentials(&self, callback: &mut CompletionCallback) {
+    fn clear_http_auth_credentials<'a>(&self, callback: &'a mut CompletionCallback) {
         unsafe { std::mem::zeroed() }
     }
-    fn close_all_connections(&self, callback: &mut CompletionCallback) {
+    fn close_all_connections<'a>(&self, callback: &'a mut CompletionCallback) {
         unsafe { std::mem::zeroed() }
     }
-    fn resolve_host(&self, origin: &CefStringUtf16, callback: &mut ResolveCallback) {
+    fn resolve_host<'a>(&self, origin: &'a CefStringUtf16, callback: &'a mut ResolveCallback) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_media_router(&self, callback: &mut CompletionCallback) -> MediaRouter {
+    fn get_media_router<'a>(&self, callback: &'a mut CompletionCallback) -> MediaRouter {
         unsafe { std::mem::zeroed() }
     }
-    fn get_website_setting(
+    fn get_website_setting<'a>(
         &self,
-        requesting_url: &CefStringUtf16,
-        top_level_url: &CefStringUtf16,
+        requesting_url: &'a CefStringUtf16,
+        top_level_url: &'a CefStringUtf16,
         content_type: ContentSettingTypes,
     ) -> Value {
         unsafe { std::mem::zeroed() }
     }
-    fn set_website_setting(
+    fn set_website_setting<'a>(
         &self,
-        requesting_url: &CefStringUtf16,
-        top_level_url: &CefStringUtf16,
+        requesting_url: &'a CefStringUtf16,
+        top_level_url: &'a CefStringUtf16,
         content_type: ContentSettingTypes,
-        value: &mut Value,
+        value: &'a mut Value,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_content_setting(
+    fn get_content_setting<'a>(
         &self,
-        requesting_url: &CefStringUtf16,
-        top_level_url: &CefStringUtf16,
+        requesting_url: &'a CefStringUtf16,
+        top_level_url: &'a CefStringUtf16,
         content_type: ContentSettingTypes,
     ) -> ContentSettingValues {
         unsafe { std::mem::zeroed() }
     }
-    fn set_content_setting(
+    fn set_content_setting<'a>(
         &self,
-        requesting_url: &CefStringUtf16,
-        top_level_url: &CefStringUtf16,
+        requesting_url: &'a CefStringUtf16,
+        top_level_url: &'a CefStringUtf16,
         content_type: ContentSettingTypes,
         value: ContentSettingValues,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_chrome_color_scheme(&self, variant: ColorVariant, user_color: u32) {
+    fn set_chrome_color_scheme<'a>(&self, variant: ColorVariant, user_color: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_chrome_color_scheme_mode(&self) -> ColorVariant {
+    fn get_chrome_color_scheme_mode<'a>(&self) -> ColorVariant {
         unsafe { std::mem::zeroed() }
     }
-    fn get_chrome_color_scheme_color(&self) -> cef_color_t {
+    fn get_chrome_color_scheme_color<'a>(&self) -> cef_color_t {
         unsafe { std::mem::zeroed() }
     }
-    fn get_chrome_color_scheme_variant(&self) -> ColorVariant {
+    fn get_chrome_color_scheme_variant<'a>(&self) -> ColorVariant {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_request_context_t {
@@ -13665,7 +13741,7 @@ mod impl_cef_request_context_t {
 #[derive(Clone)]
 pub struct RequestContext(RefGuard<_cef_request_context_t>);
 impl ImplRequestContext for RequestContext {
-    fn is_same(&self, other: &mut RequestContext) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, other: &'a mut RequestContext) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -13679,7 +13755,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_sharing_with(&self, other: &mut RequestContext) -> ::std::os::raw::c_int {
+    fn is_sharing_with<'a>(&self, other: &'a mut RequestContext) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_sharing_with
@@ -13693,7 +13769,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_global(&self) -> ::std::os::raw::c_int {
+    fn is_global<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_global
@@ -13705,7 +13781,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_handler(&self) -> RequestContextHandler {
+    fn get_handler<'a>(&self) -> RequestContextHandler {
         unsafe {
             self.0
                 .get_handler
@@ -13717,7 +13793,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_cache_path(&self) -> CefStringUtf16 {
+    fn get_cache_path<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_cache_path
@@ -13729,7 +13805,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_cookie_manager(&self, callback: &mut CompletionCallback) -> CookieManager {
+    fn get_cookie_manager<'a>(&self, callback: &'a mut CompletionCallback) -> CookieManager {
         unsafe {
             self.0
                 .get_cookie_manager
@@ -13743,11 +13819,11 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn register_scheme_handler_factory(
+    fn register_scheme_handler_factory<'a>(
         &self,
-        scheme_name: &CefStringUtf16,
-        domain_name: &CefStringUtf16,
-        factory: &mut SchemeHandlerFactory,
+        scheme_name: &'a CefStringUtf16,
+        domain_name: &'a CefStringUtf16,
+        factory: &'a mut SchemeHandlerFactory,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -13765,7 +13841,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear_scheme_handler_factories(&self) -> ::std::os::raw::c_int {
+    fn clear_scheme_handler_factories<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .clear_scheme_handler_factories
@@ -13777,7 +13853,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear_certificate_exceptions(&self, callback: &mut CompletionCallback) {
+    fn clear_certificate_exceptions<'a>(&self, callback: &'a mut CompletionCallback) {
         unsafe {
             self.0
                 .clear_certificate_exceptions
@@ -13791,7 +13867,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear_http_auth_credentials(&self, callback: &mut CompletionCallback) {
+    fn clear_http_auth_credentials<'a>(&self, callback: &'a mut CompletionCallback) {
         unsafe {
             self.0
                 .clear_http_auth_credentials
@@ -13805,7 +13881,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn close_all_connections(&self, callback: &mut CompletionCallback) {
+    fn close_all_connections<'a>(&self, callback: &'a mut CompletionCallback) {
         unsafe {
             self.0
                 .close_all_connections
@@ -13819,7 +13895,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn resolve_host(&self, origin: &CefStringUtf16, callback: &mut ResolveCallback) {
+    fn resolve_host<'a>(&self, origin: &'a CefStringUtf16, callback: &'a mut ResolveCallback) {
         unsafe {
             self.0
                 .resolve_host
@@ -13834,7 +13910,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_media_router(&self, callback: &mut CompletionCallback) -> MediaRouter {
+    fn get_media_router<'a>(&self, callback: &'a mut CompletionCallback) -> MediaRouter {
         unsafe {
             self.0
                 .get_media_router
@@ -13848,10 +13924,10 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_website_setting(
+    fn get_website_setting<'a>(
         &self,
-        requesting_url: &CefStringUtf16,
-        top_level_url: &CefStringUtf16,
+        requesting_url: &'a CefStringUtf16,
+        top_level_url: &'a CefStringUtf16,
         content_type: ContentSettingTypes,
     ) -> Value {
         unsafe {
@@ -13875,12 +13951,12 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_website_setting(
+    fn set_website_setting<'a>(
         &self,
-        requesting_url: &CefStringUtf16,
-        top_level_url: &CefStringUtf16,
+        requesting_url: &'a CefStringUtf16,
+        top_level_url: &'a CefStringUtf16,
         content_type: ContentSettingTypes,
-        value: &mut Value,
+        value: &'a mut Value,
     ) {
         unsafe {
             self.0
@@ -13905,10 +13981,10 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_content_setting(
+    fn get_content_setting<'a>(
         &self,
-        requesting_url: &CefStringUtf16,
-        top_level_url: &CefStringUtf16,
+        requesting_url: &'a CefStringUtf16,
+        top_level_url: &'a CefStringUtf16,
         content_type: ContentSettingTypes,
     ) -> ContentSettingValues {
         unsafe {
@@ -13932,10 +14008,10 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_content_setting(
+    fn set_content_setting<'a>(
         &self,
-        requesting_url: &CefStringUtf16,
-        top_level_url: &CefStringUtf16,
+        requesting_url: &'a CefStringUtf16,
+        top_level_url: &'a CefStringUtf16,
         content_type: ContentSettingTypes,
         value: ContentSettingValues,
     ) {
@@ -13962,7 +14038,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_chrome_color_scheme(&self, variant: ColorVariant, user_color: u32) {
+    fn set_chrome_color_scheme<'a>(&self, variant: ColorVariant, user_color: u32) {
         unsafe {
             self.0
                 .set_chrome_color_scheme
@@ -13977,7 +14053,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_chrome_color_scheme_mode(&self) -> ColorVariant {
+    fn get_chrome_color_scheme_mode<'a>(&self) -> ColorVariant {
         unsafe {
             self.0
                 .get_chrome_color_scheme_mode
@@ -13989,7 +14065,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_chrome_color_scheme_color(&self) -> cef_color_t {
+    fn get_chrome_color_scheme_color<'a>(&self) -> cef_color_t {
         unsafe {
             self.0
                 .get_chrome_color_scheme_color
@@ -14001,7 +14077,7 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_chrome_color_scheme_variant(&self) -> ColorVariant {
+    fn get_chrome_color_scheme_variant<'a>(&self) -> ColorVariant {
         unsafe {
             self.0
                 .get_chrome_color_scheme_variant
@@ -14050,67 +14126,67 @@ impl Default for RequestContext {
     }
 }
 pub trait ImplBrowser: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_host(&self) -> BrowserHost {
+    fn get_host<'a>(&self) -> BrowserHost {
         unsafe { std::mem::zeroed() }
     }
-    fn can_go_back(&self) -> ::std::os::raw::c_int {
+    fn can_go_back<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn go_back(&self) {
+    fn go_back<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn can_go_forward(&self) -> ::std::os::raw::c_int {
+    fn can_go_forward<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn go_forward(&self) {
+    fn go_forward<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_loading(&self) -> ::std::os::raw::c_int {
+    fn is_loading<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn reload(&self) {
+    fn reload<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn reload_ignore_cache(&self) {
+    fn reload_ignore_cache<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn stop_load(&self) {
+    fn stop_load<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_identifier(&self) -> ::std::os::raw::c_int {
+    fn get_identifier<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut Browser) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut Browser) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_popup(&self) -> ::std::os::raw::c_int {
+    fn is_popup<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_document(&self) -> ::std::os::raw::c_int {
+    fn has_document<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_main_frame(&self) -> Frame {
+    fn get_main_frame<'a>(&self) -> Frame {
         unsafe { std::mem::zeroed() }
     }
-    fn get_focused_frame(&self) -> Frame {
+    fn get_focused_frame<'a>(&self) -> Frame {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame_by_identifier(&self, identifier: &CefStringUtf16) -> Frame {
+    fn get_frame_by_identifier<'a>(&self, identifier: &'a CefStringUtf16) -> Frame {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame_by_name(&self, name: &CefStringUtf16) -> Frame {
+    fn get_frame_by_name<'a>(&self, name: &'a CefStringUtf16) -> Frame {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame_count(&self) -> usize {
+    fn get_frame_count<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame_identifiers(&self, identifiers: &mut CefStringList) {
+    fn get_frame_identifiers<'a>(&self, identifiers: &'a mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame_names(&self, names: &mut CefStringList) {
+    fn get_frame_names<'a>(&self, names: &'a mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_browser_t {
@@ -14289,7 +14365,7 @@ mod impl_cef_browser_t {
 #[derive(Clone)]
 pub struct Browser(RefGuard<_cef_browser_t>);
 impl ImplBrowser for Browser {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -14301,7 +14377,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_host(&self) -> BrowserHost {
+    fn get_host<'a>(&self) -> BrowserHost {
         unsafe {
             self.0
                 .get_host
@@ -14313,7 +14389,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_go_back(&self) -> ::std::os::raw::c_int {
+    fn can_go_back<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .can_go_back
@@ -14325,7 +14401,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn go_back(&self) {
+    fn go_back<'a>(&self) {
         unsafe {
             self.0
                 .go_back
@@ -14337,7 +14413,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_go_forward(&self) -> ::std::os::raw::c_int {
+    fn can_go_forward<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .can_go_forward
@@ -14349,7 +14425,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn go_forward(&self) {
+    fn go_forward<'a>(&self) {
         unsafe {
             self.0
                 .go_forward
@@ -14361,7 +14437,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_loading(&self) -> ::std::os::raw::c_int {
+    fn is_loading<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_loading
@@ -14373,7 +14449,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn reload(&self) {
+    fn reload<'a>(&self) {
         unsafe {
             self.0
                 .reload
@@ -14385,7 +14461,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn reload_ignore_cache(&self) {
+    fn reload_ignore_cache<'a>(&self) {
         unsafe {
             self.0
                 .reload_ignore_cache
@@ -14397,7 +14473,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn stop_load(&self) {
+    fn stop_load<'a>(&self) {
         unsafe {
             self.0
                 .stop_load
@@ -14409,7 +14485,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_identifier(&self) -> ::std::os::raw::c_int {
+    fn get_identifier<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_identifier
@@ -14421,7 +14497,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut Browser) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut Browser) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -14435,7 +14511,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_popup(&self) -> ::std::os::raw::c_int {
+    fn is_popup<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_popup
@@ -14447,7 +14523,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_document(&self) -> ::std::os::raw::c_int {
+    fn has_document<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_document
@@ -14459,7 +14535,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_main_frame(&self) -> Frame {
+    fn get_main_frame<'a>(&self) -> Frame {
         unsafe {
             self.0
                 .get_main_frame
@@ -14471,7 +14547,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_focused_frame(&self) -> Frame {
+    fn get_focused_frame<'a>(&self) -> Frame {
         unsafe {
             self.0
                 .get_focused_frame
@@ -14483,7 +14559,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame_by_identifier(&self, identifier: &CefStringUtf16) -> Frame {
+    fn get_frame_by_identifier<'a>(&self, identifier: &'a CefStringUtf16) -> Frame {
         unsafe {
             self.0
                 .get_frame_by_identifier
@@ -14497,7 +14573,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame_by_name(&self, name: &CefStringUtf16) -> Frame {
+    fn get_frame_by_name<'a>(&self, name: &'a CefStringUtf16) -> Frame {
         unsafe {
             self.0
                 .get_frame_by_name
@@ -14511,7 +14587,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame_count(&self) -> usize {
+    fn get_frame_count<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_frame_count
@@ -14523,7 +14599,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame_identifiers(&self, identifiers: &mut CefStringList) {
+    fn get_frame_identifiers<'a>(&self, identifiers: &'a mut CefStringList) {
         unsafe {
             self.0
                 .get_frame_identifiers
@@ -14537,7 +14613,7 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame_names(&self, names: &mut CefStringList) {
+    fn get_frame_names<'a>(&self, names: &'a mut CefStringList) {
         unsafe {
             self.0
                 .get_frame_names
@@ -14588,7 +14664,7 @@ impl Default for Browser {
     }
 }
 pub trait ImplRunFileDialogCallback: Sized {
-    fn on_file_dialog_dismissed(&self, file_paths: &mut CefStringList) {
+    fn on_file_dialog_dismissed<'a>(&self, file_paths: &'a mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_run_file_dialog_callback_t {
@@ -14619,7 +14695,7 @@ mod impl_cef_run_file_dialog_callback_t {
 #[derive(Clone)]
 pub struct RunFileDialogCallback(RefGuard<_cef_run_file_dialog_callback_t>);
 impl ImplRunFileDialogCallback for RunFileDialogCallback {
-    fn on_file_dialog_dismissed(&self, file_paths: &mut CefStringList) {
+    fn on_file_dialog_dismissed<'a>(&self, file_paths: &'a mut CefStringList) {
         unsafe {
             self.0
                 .on_file_dialog_dismissed
@@ -14670,9 +14746,9 @@ impl Default for RunFileDialogCallback {
     }
 }
 pub trait ImplNavigationEntryVisitor: Sized {
-    fn visit(
+    fn visit<'a>(
         &self,
-        entry: &mut NavigationEntry,
+        entry: &'a mut NavigationEntry,
         current: ::std::os::raw::c_int,
         index: ::std::os::raw::c_int,
         total: ::std::os::raw::c_int,
@@ -14716,9 +14792,9 @@ mod impl_cef_navigation_entry_visitor_t {
 #[derive(Clone)]
 pub struct NavigationEntryVisitor(RefGuard<_cef_navigation_entry_visitor_t>);
 impl ImplNavigationEntryVisitor for NavigationEntryVisitor {
-    fn visit(
+    fn visit<'a>(
         &self,
-        entry: &mut NavigationEntry,
+        entry: &'a mut NavigationEntry,
         current: ::std::os::raw::c_int,
         index: ::std::os::raw::c_int,
         total: ::std::os::raw::c_int,
@@ -14777,7 +14853,7 @@ impl Default for NavigationEntryVisitor {
     }
 }
 pub trait ImplPdfPrintCallback: Sized {
-    fn on_pdf_print_finished(&self, path: &CefStringUtf16, ok: ::std::os::raw::c_int) {
+    fn on_pdf_print_finished<'a>(&self, path: &'a CefStringUtf16, ok: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_pdf_print_callback_t {
@@ -14808,7 +14884,7 @@ mod impl_cef_pdf_print_callback_t {
 #[derive(Clone)]
 pub struct PdfPrintCallback(RefGuard<_cef_pdf_print_callback_t>);
 impl ImplPdfPrintCallback for PdfPrintCallback {
-    fn on_pdf_print_finished(&self, path: &CefStringUtf16, ok: ::std::os::raw::c_int) {
+    fn on_pdf_print_finished<'a>(&self, path: &'a CefStringUtf16, ok: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .on_pdf_print_finished
@@ -14860,11 +14936,11 @@ impl Default for PdfPrintCallback {
     }
 }
 pub trait ImplDownloadImageCallback: Sized {
-    fn on_download_image_finished(
+    fn on_download_image_finished<'a>(
         &self,
-        image_url: &CefStringUtf16,
+        image_url: &'a CefStringUtf16,
         http_status_code: ::std::os::raw::c_int,
-        image: &mut Image,
+        image: &'a mut Image,
     ) {
         unsafe { std::mem::zeroed() }
     }
@@ -14903,11 +14979,11 @@ mod impl_cef_download_image_callback_t {
 #[derive(Clone)]
 pub struct DownloadImageCallback(RefGuard<_cef_download_image_callback_t>);
 impl ImplDownloadImageCallback for DownloadImageCallback {
-    fn on_download_image_finished(
+    fn on_download_image_finished<'a>(
         &self,
-        image_url: &CefStringUtf16,
+        image_url: &'a CefStringUtf16,
         http_status_code: ::std::os::raw::c_int,
-        image: &mut Image,
+        image: &'a mut Image,
     ) {
         unsafe {
             self.0
@@ -14962,243 +15038,243 @@ impl Default for DownloadImageCallback {
     }
 }
 pub trait ImplBrowserHost: Sized {
-    fn get_browser(&self) -> Browser {
+    fn get_browser<'a>(&self) -> Browser {
         unsafe { std::mem::zeroed() }
     }
-    fn close_browser(&self, force_close: ::std::os::raw::c_int) {
+    fn close_browser<'a>(&self, force_close: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn try_close_browser(&self) -> ::std::os::raw::c_int {
+    fn try_close_browser<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_ready_to_be_closed(&self) -> ::std::os::raw::c_int {
+    fn is_ready_to_be_closed<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_focus(&self, focus: ::std::os::raw::c_int) {
+    fn set_focus<'a>(&self, focus: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_window_handle(&self) -> ::std::os::raw::c_ulong {
+    fn get_window_handle<'a>(&self) -> ::std::os::raw::c_ulong {
         unsafe { std::mem::zeroed() }
     }
-    fn get_opener_window_handle(&self) -> ::std::os::raw::c_ulong {
+    fn get_opener_window_handle<'a>(&self) -> ::std::os::raw::c_ulong {
         unsafe { std::mem::zeroed() }
     }
-    fn get_opener_identifier(&self) -> ::std::os::raw::c_int {
+    fn get_opener_identifier<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_view(&self) -> ::std::os::raw::c_int {
+    fn has_view<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_client(&self) -> Client {
+    fn get_client<'a>(&self) -> Client {
         unsafe { std::mem::zeroed() }
     }
-    fn get_request_context(&self) -> RequestContext {
+    fn get_request_context<'a>(&self) -> RequestContext {
         unsafe { std::mem::zeroed() }
     }
-    fn can_zoom(&self, command: ZoomCommand) -> ::std::os::raw::c_int {
+    fn can_zoom<'a>(&self, command: ZoomCommand) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn zoom(&self, command: ZoomCommand) {
+    fn zoom<'a>(&self, command: ZoomCommand) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_default_zoom_level(&self) -> f64 {
+    fn get_default_zoom_level<'a>(&self) -> f64 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_zoom_level(&self) -> f64 {
+    fn get_zoom_level<'a>(&self) -> f64 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_zoom_level(&self, zoom_level: f64) {
+    fn set_zoom_level<'a>(&self, zoom_level: f64) {
         unsafe { std::mem::zeroed() }
     }
-    fn run_file_dialog(
+    fn run_file_dialog<'a>(
         &self,
         mode: FileDialogMode,
-        title: &CefStringUtf16,
-        default_file_path: &CefStringUtf16,
-        accept_filters: &mut CefStringList,
-        callback: &mut RunFileDialogCallback,
+        title: &'a CefStringUtf16,
+        default_file_path: &'a CefStringUtf16,
+        accept_filters: &'a mut CefStringList,
+        callback: &'a mut RunFileDialogCallback,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn start_download(&self, url: &CefStringUtf16) {
+    fn start_download<'a>(&self, url: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn download_image(
+    fn download_image<'a>(
         &self,
-        image_url: &CefStringUtf16,
+        image_url: &'a CefStringUtf16,
         is_favicon: ::std::os::raw::c_int,
         max_image_size: u32,
         bypass_cache: ::std::os::raw::c_int,
-        callback: &mut DownloadImageCallback,
+        callback: &'a mut DownloadImageCallback,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn print(&self) {
+    fn print<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn print_to_pdf(
+    fn print_to_pdf<'a>(
         &self,
-        path: &CefStringUtf16,
-        settings: &PdfPrintSettings,
-        callback: &mut PdfPrintCallback,
+        path: &'a CefStringUtf16,
+        settings: &'a PdfPrintSettings,
+        callback: &'a mut PdfPrintCallback,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn find(
+    fn find<'a>(
         &self,
-        search_text: &CefStringUtf16,
+        search_text: &'a CefStringUtf16,
         forward: ::std::os::raw::c_int,
         match_case: ::std::os::raw::c_int,
         find_next: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn stop_finding(&self, clear_selection: ::std::os::raw::c_int) {
+    fn stop_finding<'a>(&self, clear_selection: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn show_dev_tools(
+    fn show_dev_tools<'a>(
         &self,
-        window_info: &WindowInfo,
-        client: &mut Client,
-        settings: &BrowserSettings,
-        inspect_element_at: &Point,
+        window_info: &'a WindowInfo,
+        client: &'a mut Client,
+        settings: &'a BrowserSettings,
+        inspect_element_at: &'a Point,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn close_dev_tools(&self) {
+    fn close_dev_tools<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn has_dev_tools(&self) -> ::std::os::raw::c_int {
+    fn has_dev_tools<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn send_dev_tools_message(&self, message: Option<&[u8]>) -> ::std::os::raw::c_int {
+    fn send_dev_tools_message<'a>(&self, message: Option<&'a [u8]>) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn execute_dev_tools_method(
+    fn execute_dev_tools_method<'a>(
         &self,
         message_id: ::std::os::raw::c_int,
-        method: &CefStringUtf16,
-        params: &mut DictionaryValue,
+        method: &'a CefStringUtf16,
+        params: &'a mut DictionaryValue,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn add_dev_tools_message_observer(
+    fn add_dev_tools_message_observer<'a>(
         &self,
-        observer: &mut DevToolsMessageObserver,
+        observer: &'a mut DevToolsMessageObserver,
     ) -> Registration {
         unsafe { std::mem::zeroed() }
     }
-    fn get_navigation_entries(
+    fn get_navigation_entries<'a>(
         &self,
-        visitor: &mut NavigationEntryVisitor,
+        visitor: &'a mut NavigationEntryVisitor,
         current_only: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn replace_misspelling(&self, word: &CefStringUtf16) {
+    fn replace_misspelling<'a>(&self, word: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn add_word_to_dictionary(&self, word: &CefStringUtf16) {
+    fn add_word_to_dictionary<'a>(&self, word: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_window_rendering_disabled(&self) -> ::std::os::raw::c_int {
+    fn is_window_rendering_disabled<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn was_resized(&self) {
+    fn was_resized<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn was_hidden(&self, hidden: ::std::os::raw::c_int) {
+    fn was_hidden<'a>(&self, hidden: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn notify_screen_info_changed(&self) {
+    fn notify_screen_info_changed<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn invalidate(&self, type_: PaintElementType) {
+    fn invalidate<'a>(&self, type_: PaintElementType) {
         unsafe { std::mem::zeroed() }
     }
-    fn send_external_begin_frame(&self) {
+    fn send_external_begin_frame<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn send_key_event(&self, event: &KeyEvent) {
+    fn send_key_event<'a>(&self, event: &'a KeyEvent) {
         unsafe { std::mem::zeroed() }
     }
-    fn send_mouse_click_event(
+    fn send_mouse_click_event<'a>(
         &self,
-        event: &MouseEvent,
+        event: &'a MouseEvent,
         type_: MouseButtonType,
         mouse_up: ::std::os::raw::c_int,
         click_count: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn send_mouse_move_event(&self, event: &MouseEvent, mouse_leave: ::std::os::raw::c_int) {
+    fn send_mouse_move_event<'a>(&self, event: &'a MouseEvent, mouse_leave: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn send_mouse_wheel_event(
+    fn send_mouse_wheel_event<'a>(
         &self,
-        event: &MouseEvent,
+        event: &'a MouseEvent,
         delta_x: ::std::os::raw::c_int,
         delta_y: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn send_touch_event(&self, event: &TouchEvent) {
+    fn send_touch_event<'a>(&self, event: &'a TouchEvent) {
         unsafe { std::mem::zeroed() }
     }
-    fn send_capture_lost_event(&self) {
+    fn send_capture_lost_event<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn notify_move_or_resize_started(&self) {
+    fn notify_move_or_resize_started<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_windowless_frame_rate(&self) -> ::std::os::raw::c_int {
+    fn get_windowless_frame_rate<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_windowless_frame_rate(&self, frame_rate: ::std::os::raw::c_int) {
+    fn set_windowless_frame_rate<'a>(&self, frame_rate: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn ime_set_composition(
+    fn ime_set_composition<'a>(
         &self,
-        text: &CefStringUtf16,
+        text: &'a CefStringUtf16,
         underlines_count: usize,
-        underlines: &CompositionUnderline,
-        replacement_range: &Range,
-        selection_range: &Range,
+        underlines: &'a CompositionUnderline,
+        replacement_range: &'a Range,
+        selection_range: &'a Range,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn ime_commit_text(
+    fn ime_commit_text<'a>(
         &self,
-        text: &CefStringUtf16,
-        replacement_range: &Range,
+        text: &'a CefStringUtf16,
+        replacement_range: &'a Range,
         relative_cursor_pos: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn ime_finish_composing_text(&self, keep_selection: ::std::os::raw::c_int) {
+    fn ime_finish_composing_text<'a>(&self, keep_selection: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn ime_cancel_composition(&self) {
+    fn ime_cancel_composition<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn drag_target_drag_enter(
+    fn drag_target_drag_enter<'a>(
         &self,
-        drag_data: &mut DragData,
-        event: &MouseEvent,
+        drag_data: &'a mut DragData,
+        event: &'a MouseEvent,
         allowed_ops: DragOperationsMask,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn drag_target_drag_over(&self, event: &MouseEvent, allowed_ops: DragOperationsMask) {
+    fn drag_target_drag_over<'a>(&self, event: &'a MouseEvent, allowed_ops: DragOperationsMask) {
         unsafe { std::mem::zeroed() }
     }
-    fn drag_target_drag_leave(&self) {
+    fn drag_target_drag_leave<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn drag_target_drop(&self, event: &MouseEvent) {
+    fn drag_target_drop<'a>(&self, event: &'a MouseEvent) {
         unsafe { std::mem::zeroed() }
     }
-    fn drag_source_ended_at(
+    fn drag_source_ended_at<'a>(
         &self,
         x: ::std::os::raw::c_int,
         y: ::std::os::raw::c_int,
@@ -15206,52 +15282,52 @@ pub trait ImplBrowserHost: Sized {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn drag_source_system_drag_ended(&self) {
+    fn drag_source_system_drag_ended<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_visible_navigation_entry(&self) -> NavigationEntry {
+    fn get_visible_navigation_entry<'a>(&self) -> NavigationEntry {
         unsafe { std::mem::zeroed() }
     }
-    fn set_accessibility_state(&self, accessibility_state: State) {
+    fn set_accessibility_state<'a>(&self, accessibility_state: State) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_auto_resize_enabled(
+    fn set_auto_resize_enabled<'a>(
         &self,
         enabled: ::std::os::raw::c_int,
-        min_size: &Size,
-        max_size: &Size,
+        min_size: &'a Size,
+        max_size: &'a Size,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_audio_muted(&self, mute: ::std::os::raw::c_int) {
+    fn set_audio_muted<'a>(&self, mute: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_audio_muted(&self) -> ::std::os::raw::c_int {
+    fn is_audio_muted<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_fullscreen(&self) -> ::std::os::raw::c_int {
+    fn is_fullscreen<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn exit_fullscreen(&self, will_cause_resize: ::std::os::raw::c_int) {
+    fn exit_fullscreen<'a>(&self, will_cause_resize: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn can_execute_chrome_command(
+    fn can_execute_chrome_command<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn execute_chrome_command(
+    fn execute_chrome_command<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         disposition: WindowOpenDisposition,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_render_process_unresponsive(&self) -> ::std::os::raw::c_int {
+    fn is_render_process_unresponsive<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_runtime_style(&self) -> RuntimeStyle {
+    fn get_runtime_style<'a>(&self) -> RuntimeStyle {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_browser_host_t {
@@ -16108,7 +16184,7 @@ mod impl_cef_browser_host_t {
 #[derive(Clone)]
 pub struct BrowserHost(RefGuard<_cef_browser_host_t>);
 impl ImplBrowserHost for BrowserHost {
-    fn get_browser(&self) -> Browser {
+    fn get_browser<'a>(&self) -> Browser {
         unsafe {
             self.0
                 .get_browser
@@ -16120,7 +16196,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn close_browser(&self, force_close: ::std::os::raw::c_int) {
+    fn close_browser<'a>(&self, force_close: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .close_browser
@@ -16134,7 +16210,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn try_close_browser(&self) -> ::std::os::raw::c_int {
+    fn try_close_browser<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .try_close_browser
@@ -16146,7 +16222,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_ready_to_be_closed(&self) -> ::std::os::raw::c_int {
+    fn is_ready_to_be_closed<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_ready_to_be_closed
@@ -16158,7 +16234,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_focus(&self, focus: ::std::os::raw::c_int) {
+    fn set_focus<'a>(&self, focus: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_focus
@@ -16172,7 +16248,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_window_handle(&self) -> ::std::os::raw::c_ulong {
+    fn get_window_handle<'a>(&self) -> ::std::os::raw::c_ulong {
         unsafe {
             self.0
                 .get_window_handle
@@ -16184,7 +16260,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_opener_window_handle(&self) -> ::std::os::raw::c_ulong {
+    fn get_opener_window_handle<'a>(&self) -> ::std::os::raw::c_ulong {
         unsafe {
             self.0
                 .get_opener_window_handle
@@ -16196,7 +16272,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_opener_identifier(&self) -> ::std::os::raw::c_int {
+    fn get_opener_identifier<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_opener_identifier
@@ -16208,7 +16284,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_view(&self) -> ::std::os::raw::c_int {
+    fn has_view<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_view
@@ -16220,7 +16296,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_client(&self) -> Client {
+    fn get_client<'a>(&self) -> Client {
         unsafe {
             self.0
                 .get_client
@@ -16232,7 +16308,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_request_context(&self) -> RequestContext {
+    fn get_request_context<'a>(&self) -> RequestContext {
         unsafe {
             self.0
                 .get_request_context
@@ -16244,7 +16320,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_zoom(&self, command: ZoomCommand) -> ::std::os::raw::c_int {
+    fn can_zoom<'a>(&self, command: ZoomCommand) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .can_zoom
@@ -16258,7 +16334,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn zoom(&self, command: ZoomCommand) {
+    fn zoom<'a>(&self, command: ZoomCommand) {
         unsafe {
             self.0
                 .zoom
@@ -16272,7 +16348,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_default_zoom_level(&self) -> f64 {
+    fn get_default_zoom_level<'a>(&self) -> f64 {
         unsafe {
             self.0
                 .get_default_zoom_level
@@ -16284,7 +16360,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_zoom_level(&self) -> f64 {
+    fn get_zoom_level<'a>(&self) -> f64 {
         unsafe {
             self.0
                 .get_zoom_level
@@ -16296,7 +16372,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_zoom_level(&self, zoom_level: f64) {
+    fn set_zoom_level<'a>(&self, zoom_level: f64) {
         unsafe {
             self.0
                 .set_zoom_level
@@ -16310,13 +16386,13 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn run_file_dialog(
+    fn run_file_dialog<'a>(
         &self,
         mode: FileDialogMode,
-        title: &CefStringUtf16,
-        default_file_path: &CefStringUtf16,
-        accept_filters: &mut CefStringList,
-        callback: &mut RunFileDialogCallback,
+        title: &'a CefStringUtf16,
+        default_file_path: &'a CefStringUtf16,
+        accept_filters: &'a mut CefStringList,
+        callback: &'a mut RunFileDialogCallback,
     ) {
         unsafe {
             self.0
@@ -16348,7 +16424,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn start_download(&self, url: &CefStringUtf16) {
+    fn start_download<'a>(&self, url: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .start_download
@@ -16362,13 +16438,13 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn download_image(
+    fn download_image<'a>(
         &self,
-        image_url: &CefStringUtf16,
+        image_url: &'a CefStringUtf16,
         is_favicon: ::std::os::raw::c_int,
         max_image_size: u32,
         bypass_cache: ::std::os::raw::c_int,
-        callback: &mut DownloadImageCallback,
+        callback: &'a mut DownloadImageCallback,
     ) {
         unsafe {
             self.0
@@ -16406,7 +16482,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn print(&self) {
+    fn print<'a>(&self) {
         unsafe {
             self.0
                 .print
@@ -16418,11 +16494,11 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn print_to_pdf(
+    fn print_to_pdf<'a>(
         &self,
-        path: &CefStringUtf16,
-        settings: &PdfPrintSettings,
-        callback: &mut PdfPrintCallback,
+        path: &'a CefStringUtf16,
+        settings: &'a PdfPrintSettings,
+        callback: &'a mut PdfPrintCallback,
     ) {
         unsafe {
             self.0
@@ -16439,9 +16515,9 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn find(
+    fn find<'a>(
         &self,
-        search_text: &CefStringUtf16,
+        search_text: &'a CefStringUtf16,
         forward: ::std::os::raw::c_int,
         match_case: ::std::os::raw::c_int,
         find_next: ::std::os::raw::c_int,
@@ -16469,7 +16545,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn stop_finding(&self, clear_selection: ::std::os::raw::c_int) {
+    fn stop_finding<'a>(&self, clear_selection: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .stop_finding
@@ -16483,12 +16559,12 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn show_dev_tools(
+    fn show_dev_tools<'a>(
         &self,
-        window_info: &WindowInfo,
-        client: &mut Client,
-        settings: &BrowserSettings,
-        inspect_element_at: &Point,
+        window_info: &'a WindowInfo,
+        client: &'a mut Client,
+        settings: &'a BrowserSettings,
+        inspect_element_at: &'a Point,
     ) {
         unsafe {
             self.0
@@ -16513,7 +16589,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn close_dev_tools(&self) {
+    fn close_dev_tools<'a>(&self) {
         unsafe {
             self.0
                 .close_dev_tools
@@ -16525,7 +16601,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_dev_tools(&self) -> ::std::os::raw::c_int {
+    fn has_dev_tools<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_dev_tools
@@ -16537,7 +16613,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_dev_tools_message(&self, message: Option<&[u8]>) -> ::std::os::raw::c_int {
+    fn send_dev_tools_message<'a>(&self, message: Option<&'a [u8]>) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .send_dev_tools_message
@@ -16561,11 +16637,11 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn execute_dev_tools_method(
+    fn execute_dev_tools_method<'a>(
         &self,
         message_id: ::std::os::raw::c_int,
-        method: &CefStringUtf16,
-        params: &mut DictionaryValue,
+        method: &'a CefStringUtf16,
+        params: &'a mut DictionaryValue,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -16582,9 +16658,9 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_dev_tools_message_observer(
+    fn add_dev_tools_message_observer<'a>(
         &self,
-        observer: &mut DevToolsMessageObserver,
+        observer: &'a mut DevToolsMessageObserver,
     ) -> Registration {
         unsafe {
             self.0
@@ -16599,9 +16675,9 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_navigation_entries(
+    fn get_navigation_entries<'a>(
         &self,
-        visitor: &mut NavigationEntryVisitor,
+        visitor: &'a mut NavigationEntryVisitor,
         current_only: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -16618,7 +16694,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn replace_misspelling(&self, word: &CefStringUtf16) {
+    fn replace_misspelling<'a>(&self, word: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .replace_misspelling
@@ -16632,7 +16708,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_word_to_dictionary(&self, word: &CefStringUtf16) {
+    fn add_word_to_dictionary<'a>(&self, word: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .add_word_to_dictionary
@@ -16646,7 +16722,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_window_rendering_disabled(&self) -> ::std::os::raw::c_int {
+    fn is_window_rendering_disabled<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_window_rendering_disabled
@@ -16658,7 +16734,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn was_resized(&self) {
+    fn was_resized<'a>(&self) {
         unsafe {
             self.0
                 .was_resized
@@ -16670,7 +16746,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn was_hidden(&self, hidden: ::std::os::raw::c_int) {
+    fn was_hidden<'a>(&self, hidden: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .was_hidden
@@ -16684,7 +16760,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn notify_screen_info_changed(&self) {
+    fn notify_screen_info_changed<'a>(&self) {
         unsafe {
             self.0
                 .notify_screen_info_changed
@@ -16696,7 +16772,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn invalidate(&self, type_: PaintElementType) {
+    fn invalidate<'a>(&self, type_: PaintElementType) {
         unsafe {
             self.0
                 .invalidate
@@ -16710,7 +16786,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_external_begin_frame(&self) {
+    fn send_external_begin_frame<'a>(&self) {
         unsafe {
             self.0
                 .send_external_begin_frame
@@ -16722,7 +16798,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_key_event(&self, event: &KeyEvent) {
+    fn send_key_event<'a>(&self, event: &'a KeyEvent) {
         unsafe {
             self.0
                 .send_key_event
@@ -16736,9 +16812,9 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_mouse_click_event(
+    fn send_mouse_click_event<'a>(
         &self,
-        event: &MouseEvent,
+        event: &'a MouseEvent,
         type_: MouseButtonType,
         mouse_up: ::std::os::raw::c_int,
         click_count: ::std::os::raw::c_int,
@@ -16766,7 +16842,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_mouse_move_event(&self, event: &MouseEvent, mouse_leave: ::std::os::raw::c_int) {
+    fn send_mouse_move_event<'a>(&self, event: &'a MouseEvent, mouse_leave: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .send_mouse_move_event
@@ -16781,9 +16857,9 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_mouse_wheel_event(
+    fn send_mouse_wheel_event<'a>(
         &self,
-        event: &MouseEvent,
+        event: &'a MouseEvent,
         delta_x: ::std::os::raw::c_int,
         delta_y: ::std::os::raw::c_int,
     ) {
@@ -16802,7 +16878,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_touch_event(&self, event: &TouchEvent) {
+    fn send_touch_event<'a>(&self, event: &'a TouchEvent) {
         unsafe {
             self.0
                 .send_touch_event
@@ -16816,7 +16892,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_capture_lost_event(&self) {
+    fn send_capture_lost_event<'a>(&self) {
         unsafe {
             self.0
                 .send_capture_lost_event
@@ -16828,7 +16904,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn notify_move_or_resize_started(&self) {
+    fn notify_move_or_resize_started<'a>(&self) {
         unsafe {
             self.0
                 .notify_move_or_resize_started
@@ -16840,7 +16916,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_windowless_frame_rate(&self) -> ::std::os::raw::c_int {
+    fn get_windowless_frame_rate<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_windowless_frame_rate
@@ -16852,7 +16928,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_windowless_frame_rate(&self, frame_rate: ::std::os::raw::c_int) {
+    fn set_windowless_frame_rate<'a>(&self, frame_rate: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_windowless_frame_rate
@@ -16866,13 +16942,13 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn ime_set_composition(
+    fn ime_set_composition<'a>(
         &self,
-        text: &CefStringUtf16,
+        text: &'a CefStringUtf16,
         underlines_count: usize,
-        underlines: &CompositionUnderline,
-        replacement_range: &Range,
-        selection_range: &Range,
+        underlines: &'a CompositionUnderline,
+        replacement_range: &'a Range,
+        selection_range: &'a Range,
     ) {
         unsafe {
             self.0
@@ -16910,10 +16986,10 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn ime_commit_text(
+    fn ime_commit_text<'a>(
         &self,
-        text: &CefStringUtf16,
-        replacement_range: &Range,
+        text: &'a CefStringUtf16,
+        replacement_range: &'a Range,
         relative_cursor_pos: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -16937,7 +17013,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn ime_finish_composing_text(&self, keep_selection: ::std::os::raw::c_int) {
+    fn ime_finish_composing_text<'a>(&self, keep_selection: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .ime_finish_composing_text
@@ -16951,7 +17027,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn ime_cancel_composition(&self) {
+    fn ime_cancel_composition<'a>(&self) {
         unsafe {
             self.0
                 .ime_cancel_composition
@@ -16963,10 +17039,10 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn drag_target_drag_enter(
+    fn drag_target_drag_enter<'a>(
         &self,
-        drag_data: &mut DragData,
-        event: &MouseEvent,
+        drag_data: &'a mut DragData,
+        event: &'a MouseEvent,
         allowed_ops: DragOperationsMask,
     ) {
         unsafe {
@@ -16985,7 +17061,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn drag_target_drag_over(&self, event: &MouseEvent, allowed_ops: DragOperationsMask) {
+    fn drag_target_drag_over<'a>(&self, event: &'a MouseEvent, allowed_ops: DragOperationsMask) {
         unsafe {
             self.0
                 .drag_target_drag_over
@@ -17000,7 +17076,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn drag_target_drag_leave(&self) {
+    fn drag_target_drag_leave<'a>(&self) {
         unsafe {
             self.0
                 .drag_target_drag_leave
@@ -17012,7 +17088,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn drag_target_drop(&self, event: &MouseEvent) {
+    fn drag_target_drop<'a>(&self, event: &'a MouseEvent) {
         unsafe {
             self.0
                 .drag_target_drop
@@ -17026,7 +17102,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn drag_source_ended_at(
+    fn drag_source_ended_at<'a>(
         &self,
         x: ::std::os::raw::c_int,
         y: ::std::os::raw::c_int,
@@ -17047,7 +17123,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn drag_source_system_drag_ended(&self) {
+    fn drag_source_system_drag_ended<'a>(&self) {
         unsafe {
             self.0
                 .drag_source_system_drag_ended
@@ -17059,7 +17135,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_visible_navigation_entry(&self) -> NavigationEntry {
+    fn get_visible_navigation_entry<'a>(&self) -> NavigationEntry {
         unsafe {
             self.0
                 .get_visible_navigation_entry
@@ -17071,7 +17147,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_accessibility_state(&self, accessibility_state: State) {
+    fn set_accessibility_state<'a>(&self, accessibility_state: State) {
         unsafe {
             self.0
                 .set_accessibility_state
@@ -17085,11 +17161,11 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_auto_resize_enabled(
+    fn set_auto_resize_enabled<'a>(
         &self,
         enabled: ::std::os::raw::c_int,
-        min_size: &Size,
-        max_size: &Size,
+        min_size: &'a Size,
+        max_size: &'a Size,
     ) {
         unsafe {
             self.0
@@ -17106,7 +17182,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_audio_muted(&self, mute: ::std::os::raw::c_int) {
+    fn set_audio_muted<'a>(&self, mute: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_audio_muted
@@ -17120,7 +17196,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_audio_muted(&self) -> ::std::os::raw::c_int {
+    fn is_audio_muted<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_audio_muted
@@ -17132,7 +17208,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_fullscreen(&self) -> ::std::os::raw::c_int {
+    fn is_fullscreen<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_fullscreen
@@ -17144,7 +17220,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn exit_fullscreen(&self, will_cause_resize: ::std::os::raw::c_int) {
+    fn exit_fullscreen<'a>(&self, will_cause_resize: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .exit_fullscreen
@@ -17158,7 +17234,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_execute_chrome_command(
+    fn can_execute_chrome_command<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -17175,7 +17251,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn execute_chrome_command(
+    fn execute_chrome_command<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         disposition: WindowOpenDisposition,
@@ -17194,7 +17270,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_render_process_unresponsive(&self) -> ::std::os::raw::c_int {
+    fn is_render_process_unresponsive<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_render_process_unresponsive
@@ -17206,7 +17282,7 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_runtime_style(&self) -> RuntimeStyle {
+    fn get_runtime_style<'a>(&self) -> RuntimeStyle {
         unsafe {
             self.0
                 .get_runtime_style
@@ -17255,34 +17331,34 @@ impl Default for BrowserHost {
     }
 }
 pub trait ImplAudioHandler: Sized {
-    fn get_audio_parameters(
+    fn get_audio_parameters<'a>(
         &self,
-        browser: &mut Browser,
-        params: &mut AudioParameters,
+        browser: &'a mut Browser,
+        params: &'a mut AudioParameters,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_audio_stream_started(
+    fn on_audio_stream_started<'a>(
         &self,
-        browser: &mut Browser,
-        params: &AudioParameters,
+        browser: &'a mut Browser,
+        params: &'a AudioParameters,
         channels: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_audio_stream_packet(
+    fn on_audio_stream_packet<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         data: f32,
         frames: ::std::os::raw::c_int,
         pts: i64,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_audio_stream_stopped(&self, browser: &mut Browser) {
+    fn on_audio_stream_stopped<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_audio_stream_error(&self, browser: &mut Browser, message: &CefStringUtf16) {
+    fn on_audio_stream_error<'a>(&self, browser: &'a mut Browser, message: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_audio_handler_t {
@@ -17378,10 +17454,10 @@ mod impl_cef_audio_handler_t {
 #[derive(Clone)]
 pub struct AudioHandler(RefGuard<_cef_audio_handler_t>);
 impl ImplAudioHandler for AudioHandler {
-    fn get_audio_parameters(
+    fn get_audio_parameters<'a>(
         &self,
-        browser: &mut Browser,
-        params: &mut AudioParameters,
+        browser: &'a mut Browser,
+        params: &'a mut AudioParameters,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -17397,10 +17473,10 @@ impl ImplAudioHandler for AudioHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_audio_stream_started(
+    fn on_audio_stream_started<'a>(
         &self,
-        browser: &mut Browser,
-        params: &AudioParameters,
+        browser: &'a mut Browser,
+        params: &'a AudioParameters,
         channels: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -17418,9 +17494,9 @@ impl ImplAudioHandler for AudioHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_audio_stream_packet(
+    fn on_audio_stream_packet<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         data: f32,
         frames: ::std::os::raw::c_int,
         pts: i64,
@@ -17441,7 +17517,7 @@ impl ImplAudioHandler for AudioHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_audio_stream_stopped(&self, browser: &mut Browser) {
+    fn on_audio_stream_stopped<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_audio_stream_stopped
@@ -17455,7 +17531,7 @@ impl ImplAudioHandler for AudioHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_audio_stream_error(&self, browser: &mut Browser, message: &CefStringUtf16) {
+    fn on_audio_stream_error<'a>(&self, browser: &'a mut Browser, message: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .on_audio_stream_error
@@ -17507,35 +17583,35 @@ impl Default for AudioHandler {
     }
 }
 pub trait ImplCommandHandler: Sized {
-    fn on_chrome_command(
+    fn on_chrome_command<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         command_id: ::std::os::raw::c_int,
         disposition: WindowOpenDisposition,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_chrome_app_menu_item_visible(
+    fn is_chrome_app_menu_item_visible<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_chrome_app_menu_item_enabled(
+    fn is_chrome_app_menu_item_enabled<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_chrome_page_action_icon_visible(
+    fn is_chrome_page_action_icon_visible<'a>(
         &self,
         icon_type: ChromePageActionIconType,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_chrome_toolbar_button_visible(
+    fn is_chrome_toolbar_button_visible<'a>(
         &self,
         button_type: ChromeToolbarButtonType,
     ) -> ::std::os::raw::c_int {
@@ -17630,9 +17706,9 @@ mod impl_cef_command_handler_t {
 #[derive(Clone)]
 pub struct CommandHandler(RefGuard<_cef_command_handler_t>);
 impl ImplCommandHandler for CommandHandler {
-    fn on_chrome_command(
+    fn on_chrome_command<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         command_id: ::std::os::raw::c_int,
         disposition: WindowOpenDisposition,
     ) -> ::std::os::raw::c_int {
@@ -17652,9 +17728,9 @@ impl ImplCommandHandler for CommandHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_chrome_app_menu_item_visible(
+    fn is_chrome_app_menu_item_visible<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -17671,9 +17747,9 @@ impl ImplCommandHandler for CommandHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_chrome_app_menu_item_enabled(
+    fn is_chrome_app_menu_item_enabled<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -17690,7 +17766,7 @@ impl ImplCommandHandler for CommandHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_chrome_page_action_icon_visible(
+    fn is_chrome_page_action_icon_visible<'a>(
         &self,
         icon_type: ChromePageActionIconType,
     ) -> ::std::os::raw::c_int {
@@ -17707,7 +17783,7 @@ impl ImplCommandHandler for CommandHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_chrome_toolbar_button_visible(
+    fn is_chrome_toolbar_button_visible<'a>(
         &self,
         button_type: ChromeToolbarButtonType,
     ) -> ::std::os::raw::c_int {
@@ -17761,33 +17837,41 @@ impl Default for CommandHandler {
     }
 }
 pub trait ImplMenuModelDelegate: Sized {
-    fn execute_command(
+    fn execute_command<'a>(
         &self,
-        menu_model: &mut MenuModel,
+        menu_model: &'a mut MenuModel,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn mouse_outside_menu(&self, menu_model: &mut MenuModel, screen_point: &Point) {
+    fn mouse_outside_menu<'a>(&self, menu_model: &'a mut MenuModel, screen_point: &'a Point) {
         unsafe { std::mem::zeroed() }
     }
-    fn unhandled_open_submenu(&self, menu_model: &mut MenuModel, is_rtl: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn unhandled_close_submenu(&self, menu_model: &mut MenuModel, is_rtl: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn menu_will_show(&self, menu_model: &mut MenuModel) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn menu_closed(&self, menu_model: &mut MenuModel) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn format_label(
+    fn unhandled_open_submenu<'a>(
         &self,
-        menu_model: &mut MenuModel,
-        label: &mut CefStringUtf16,
+        menu_model: &'a mut MenuModel,
+        is_rtl: ::std::os::raw::c_int,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn unhandled_close_submenu<'a>(
+        &self,
+        menu_model: &'a mut MenuModel,
+        is_rtl: ::std::os::raw::c_int,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn menu_will_show<'a>(&self, menu_model: &'a mut MenuModel) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn menu_closed<'a>(&self, menu_model: &'a mut MenuModel) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn format_label<'a>(
+        &self,
+        menu_model: &'a mut MenuModel,
+        label: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -17902,9 +17986,9 @@ mod impl_cef_menu_model_delegate_t {
 #[derive(Clone)]
 pub struct MenuModelDelegate(RefGuard<_cef_menu_model_delegate_t>);
 impl ImplMenuModelDelegate for MenuModelDelegate {
-    fn execute_command(
+    fn execute_command<'a>(
         &self,
-        menu_model: &mut MenuModel,
+        menu_model: &'a mut MenuModel,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) {
@@ -17924,7 +18008,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn mouse_outside_menu(&self, menu_model: &mut MenuModel, screen_point: &Point) {
+    fn mouse_outside_menu<'a>(&self, menu_model: &'a mut MenuModel, screen_point: &'a Point) {
         unsafe {
             self.0
                 .mouse_outside_menu
@@ -17939,7 +18023,11 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn unhandled_open_submenu(&self, menu_model: &mut MenuModel, is_rtl: ::std::os::raw::c_int) {
+    fn unhandled_open_submenu<'a>(
+        &self,
+        menu_model: &'a mut MenuModel,
+        is_rtl: ::std::os::raw::c_int,
+    ) {
         unsafe {
             self.0
                 .unhandled_open_submenu
@@ -17954,7 +18042,11 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn unhandled_close_submenu(&self, menu_model: &mut MenuModel, is_rtl: ::std::os::raw::c_int) {
+    fn unhandled_close_submenu<'a>(
+        &self,
+        menu_model: &'a mut MenuModel,
+        is_rtl: ::std::os::raw::c_int,
+    ) {
         unsafe {
             self.0
                 .unhandled_close_submenu
@@ -17969,7 +18061,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn menu_will_show(&self, menu_model: &mut MenuModel) {
+    fn menu_will_show<'a>(&self, menu_model: &'a mut MenuModel) {
         unsafe {
             self.0
                 .menu_will_show
@@ -17983,7 +18075,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn menu_closed(&self, menu_model: &mut MenuModel) {
+    fn menu_closed<'a>(&self, menu_model: &'a mut MenuModel) {
         unsafe {
             self.0
                 .menu_closed
@@ -17997,10 +18089,10 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn format_label(
+    fn format_label<'a>(
         &self,
-        menu_model: &mut MenuModel,
-        label: &mut CefStringUtf16,
+        menu_model: &'a mut MenuModel,
+        label: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -18053,213 +18145,217 @@ impl Default for MenuModelDelegate {
     }
 }
 pub trait ImplMenuModel: Sized {
-    fn is_sub_menu(&self) -> ::std::os::raw::c_int {
+    fn is_sub_menu<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn clear(&self) -> ::std::os::raw::c_int {
+    fn clear<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_count(&self) -> usize {
+    fn get_count<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn add_separator(&self) -> ::std::os::raw::c_int {
+    fn add_separator<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn add_item(
+    fn add_item<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn add_check_item(
+    fn add_check_item<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn add_radio_item(
+    fn add_radio_item<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn add_sub_menu(&self, command_id: ::std::os::raw::c_int, label: &CefStringUtf16) -> MenuModel {
-        unsafe { std::mem::zeroed() }
-    }
-    fn insert_separator_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn insert_item_at(
+    fn add_sub_menu<'a>(
         &self,
-        index: usize,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
-    ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn insert_check_item_at(
-        &self,
-        index: usize,
-        command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
-    ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn insert_radio_item_at(
-        &self,
-        index: usize,
-        command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
-        group_id: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn insert_sub_menu_at(
-        &self,
-        index: usize,
-        command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> MenuModel {
         unsafe { std::mem::zeroed() }
     }
-    fn remove(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn insert_separator_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn remove_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn insert_item_at<'a>(
+        &self,
+        index: usize,
+        command_id: ::std::os::raw::c_int,
+        label: &'a CefStringUtf16,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_index_of(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn insert_check_item_at<'a>(
+        &self,
+        index: usize,
+        command_id: ::std::os::raw::c_int,
+        label: &'a CefStringUtf16,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_command_id_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn insert_radio_item_at<'a>(
+        &self,
+        index: usize,
+        command_id: ::std::os::raw::c_int,
+        label: &'a CefStringUtf16,
+        group_id: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_command_id_at(
+    fn insert_sub_menu_at<'a>(
+        &self,
+        index: usize,
+        command_id: ::std::os::raw::c_int,
+        label: &'a CefStringUtf16,
+    ) -> MenuModel {
+        unsafe { std::mem::zeroed() }
+    }
+    fn remove<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn remove_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_index_of<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_command_id_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_command_id_at<'a>(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_label(&self, command_id: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn get_label<'a>(&self, command_id: ::std::os::raw::c_int) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_label_at(&self, index: usize) -> CefStringUtf16 {
+    fn get_label_at<'a>(&self, index: usize) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_label(
+    fn set_label<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_label_at(&self, index: usize, label: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_label_at<'a>(&self, index: usize, label: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_type(&self, command_id: ::std::os::raw::c_int) -> MenuItemType {
+    fn get_type<'a>(&self, command_id: ::std::os::raw::c_int) -> MenuItemType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_type_at(&self, index: usize) -> MenuItemType {
+    fn get_type_at<'a>(&self, index: usize) -> MenuItemType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_group_id(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn get_group_id<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_group_id_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn get_group_id_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_group_id(
+    fn set_group_id<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_group_id_at(
+    fn set_group_id_at<'a>(
         &self,
         index: usize,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_sub_menu(&self, command_id: ::std::os::raw::c_int) -> MenuModel {
+    fn get_sub_menu<'a>(&self, command_id: ::std::os::raw::c_int) -> MenuModel {
         unsafe { std::mem::zeroed() }
     }
-    fn get_sub_menu_at(&self, index: usize) -> MenuModel {
+    fn get_sub_menu_at<'a>(&self, index: usize) -> MenuModel {
         unsafe { std::mem::zeroed() }
     }
-    fn is_visible(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn is_visible<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_visible_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn is_visible_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_visible(
+    fn set_visible<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         visible: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_visible_at(
+    fn set_visible_at<'a>(
         &self,
         index: usize,
         visible: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_enabled(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn is_enabled<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_enabled_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn is_enabled_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_enabled(
+    fn set_enabled<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         enabled: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_enabled_at(
+    fn set_enabled_at<'a>(
         &self,
         index: usize,
         enabled: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_checked(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn is_checked<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_checked_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn is_checked_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_checked(
+    fn set_checked<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         checked: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_checked_at(
+    fn set_checked_at<'a>(
         &self,
         index: usize,
         checked: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_accelerator(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn has_accelerator<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_accelerator_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn has_accelerator_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_accelerator(
+    fn set_accelerator<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         key_code: ::std::os::raw::c_int,
@@ -18269,7 +18365,7 @@ pub trait ImplMenuModel: Sized {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_accelerator_at(
+    fn set_accelerator_at<'a>(
         &self,
         index: usize,
         key_code: ::std::os::raw::c_int,
@@ -18279,33 +18375,33 @@ pub trait ImplMenuModel: Sized {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn remove_accelerator(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn remove_accelerator<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn remove_accelerator_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn remove_accelerator_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_accelerator(
+    fn get_accelerator<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        key_code: &mut ::std::os::raw::c_int,
-        shift_pressed: &mut ::std::os::raw::c_int,
-        ctrl_pressed: &mut ::std::os::raw::c_int,
-        alt_pressed: &mut ::std::os::raw::c_int,
+        key_code: &'a mut ::std::os::raw::c_int,
+        shift_pressed: &'a mut ::std::os::raw::c_int,
+        ctrl_pressed: &'a mut ::std::os::raw::c_int,
+        alt_pressed: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_accelerator_at(
+    fn get_accelerator_at<'a>(
         &self,
         index: usize,
-        key_code: &mut ::std::os::raw::c_int,
-        shift_pressed: &mut ::std::os::raw::c_int,
-        ctrl_pressed: &mut ::std::os::raw::c_int,
-        alt_pressed: &mut ::std::os::raw::c_int,
+        key_code: &'a mut ::std::os::raw::c_int,
+        shift_pressed: &'a mut ::std::os::raw::c_int,
+        ctrl_pressed: &'a mut ::std::os::raw::c_int,
+        alt_pressed: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_color(
+    fn set_color<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         color_type: MenuColorType,
@@ -18313,7 +18409,7 @@ pub trait ImplMenuModel: Sized {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_color_at(
+    fn set_color_at<'a>(
         &self,
         index: ::std::os::raw::c_int,
         color_type: MenuColorType,
@@ -18321,33 +18417,33 @@ pub trait ImplMenuModel: Sized {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_color(
+    fn get_color<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: &mut u32,
+        color: &'a mut u32,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_color_at(
+    fn get_color_at<'a>(
         &self,
         index: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: &mut u32,
+        color: &'a mut u32,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_font_list(
+    fn set_font_list<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        font_list: &CefStringUtf16,
+        font_list: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_font_list_at(
+    fn set_font_list_at<'a>(
         &self,
         index: ::std::os::raw::c_int,
-        font_list: &CefStringUtf16,
+        font_list: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -19212,7 +19308,7 @@ mod impl_cef_menu_model_t {
 #[derive(Clone)]
 pub struct MenuModel(RefGuard<_cef_menu_model_t>);
 impl ImplMenuModel for MenuModel {
-    fn is_sub_menu(&self) -> ::std::os::raw::c_int {
+    fn is_sub_menu<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_sub_menu
@@ -19224,7 +19320,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear(&self) -> ::std::os::raw::c_int {
+    fn clear<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .clear
@@ -19236,7 +19332,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_count(&self) -> usize {
+    fn get_count<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_count
@@ -19248,7 +19344,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_separator(&self) -> ::std::os::raw::c_int {
+    fn add_separator<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .add_separator
@@ -19260,10 +19356,10 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_item(
+    fn add_item<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -19279,10 +19375,10 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_check_item(
+    fn add_check_item<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -19298,10 +19394,10 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_radio_item(
+    fn add_radio_item<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -19319,7 +19415,11 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_sub_menu(&self, command_id: ::std::os::raw::c_int, label: &CefStringUtf16) -> MenuModel {
+    fn add_sub_menu<'a>(
+        &self,
+        command_id: ::std::os::raw::c_int,
+        label: &'a CefStringUtf16,
+    ) -> MenuModel {
         unsafe {
             self.0
                 .add_sub_menu
@@ -19334,7 +19434,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn insert_separator_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn insert_separator_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .insert_separator_at
@@ -19348,11 +19448,11 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn insert_item_at(
+    fn insert_item_at<'a>(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -19369,11 +19469,11 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn insert_check_item_at(
+    fn insert_check_item_at<'a>(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -19390,11 +19490,11 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn insert_radio_item_at(
+    fn insert_radio_item_at<'a>(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -19420,11 +19520,11 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn insert_sub_menu_at(
+    fn insert_sub_menu_at<'a>(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> MenuModel {
         unsafe {
             self.0
@@ -19441,7 +19541,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn remove<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .remove
@@ -19455,7 +19555,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn remove_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .remove_at
@@ -19469,7 +19569,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_index_of(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn get_index_of<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_index_of
@@ -19483,7 +19583,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_command_id_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn get_command_id_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_command_id_at
@@ -19497,7 +19597,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_command_id_at(
+    fn set_command_id_at<'a>(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
@@ -19516,7 +19616,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_label(&self, command_id: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn get_label<'a>(&self, command_id: ::std::os::raw::c_int) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_label
@@ -19530,7 +19630,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_label_at(&self, index: usize) -> CefStringUtf16 {
+    fn get_label_at<'a>(&self, index: usize) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_label_at
@@ -19544,10 +19644,10 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_label(
+    fn set_label<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        label: &CefStringUtf16,
+        label: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -19563,7 +19663,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_label_at(&self, index: usize, label: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn set_label_at<'a>(&self, index: usize, label: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_label_at
@@ -19578,7 +19678,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_type(&self, command_id: ::std::os::raw::c_int) -> MenuItemType {
+    fn get_type<'a>(&self, command_id: ::std::os::raw::c_int) -> MenuItemType {
         unsafe {
             self.0
                 .get_type
@@ -19592,7 +19692,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_type_at(&self, index: usize) -> MenuItemType {
+    fn get_type_at<'a>(&self, index: usize) -> MenuItemType {
         unsafe {
             self.0
                 .get_type_at
@@ -19606,7 +19706,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_group_id(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn get_group_id<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_group_id
@@ -19620,7 +19720,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_group_id_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn get_group_id_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_group_id_at
@@ -19634,7 +19734,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_group_id(
+    fn set_group_id<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         group_id: ::std::os::raw::c_int,
@@ -19653,7 +19753,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_group_id_at(
+    fn set_group_id_at<'a>(
         &self,
         index: usize,
         group_id: ::std::os::raw::c_int,
@@ -19672,7 +19772,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_sub_menu(&self, command_id: ::std::os::raw::c_int) -> MenuModel {
+    fn get_sub_menu<'a>(&self, command_id: ::std::os::raw::c_int) -> MenuModel {
         unsafe {
             self.0
                 .get_sub_menu
@@ -19686,7 +19786,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_sub_menu_at(&self, index: usize) -> MenuModel {
+    fn get_sub_menu_at<'a>(&self, index: usize) -> MenuModel {
         unsafe {
             self.0
                 .get_sub_menu_at
@@ -19700,7 +19800,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_visible(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn is_visible<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_visible
@@ -19714,7 +19814,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_visible_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn is_visible_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_visible_at
@@ -19728,7 +19828,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_visible(
+    fn set_visible<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         visible: ::std::os::raw::c_int,
@@ -19747,7 +19847,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_visible_at(
+    fn set_visible_at<'a>(
         &self,
         index: usize,
         visible: ::std::os::raw::c_int,
@@ -19766,7 +19866,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_enabled(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn is_enabled<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_enabled
@@ -19780,7 +19880,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_enabled_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn is_enabled_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_enabled_at
@@ -19794,7 +19894,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_enabled(
+    fn set_enabled<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         enabled: ::std::os::raw::c_int,
@@ -19813,7 +19913,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_enabled_at(
+    fn set_enabled_at<'a>(
         &self,
         index: usize,
         enabled: ::std::os::raw::c_int,
@@ -19832,7 +19932,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_checked(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn is_checked<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_checked
@@ -19846,7 +19946,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_checked_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn is_checked_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_checked_at
@@ -19860,7 +19960,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_checked(
+    fn set_checked<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         checked: ::std::os::raw::c_int,
@@ -19879,7 +19979,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_checked_at(
+    fn set_checked_at<'a>(
         &self,
         index: usize,
         checked: ::std::os::raw::c_int,
@@ -19898,7 +19998,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_accelerator(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn has_accelerator<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_accelerator
@@ -19912,7 +20012,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_accelerator_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn has_accelerator_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_accelerator_at
@@ -19926,7 +20026,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_accelerator(
+    fn set_accelerator<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         key_code: ::std::os::raw::c_int,
@@ -19970,7 +20070,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_accelerator_at(
+    fn set_accelerator_at<'a>(
         &self,
         index: usize,
         key_code: ::std::os::raw::c_int,
@@ -20008,7 +20108,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_accelerator(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn remove_accelerator<'a>(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .remove_accelerator
@@ -20022,7 +20122,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_accelerator_at(&self, index: usize) -> ::std::os::raw::c_int {
+    fn remove_accelerator_at<'a>(&self, index: usize) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .remove_accelerator_at
@@ -20036,13 +20136,13 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_accelerator(
+    fn get_accelerator<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        key_code: &mut ::std::os::raw::c_int,
-        shift_pressed: &mut ::std::os::raw::c_int,
-        ctrl_pressed: &mut ::std::os::raw::c_int,
-        alt_pressed: &mut ::std::os::raw::c_int,
+        key_code: &'a mut ::std::os::raw::c_int,
+        shift_pressed: &'a mut ::std::os::raw::c_int,
+        ctrl_pressed: &'a mut ::std::os::raw::c_int,
+        alt_pressed: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -20080,13 +20180,13 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_accelerator_at(
+    fn get_accelerator_at<'a>(
         &self,
         index: usize,
-        key_code: &mut ::std::os::raw::c_int,
-        shift_pressed: &mut ::std::os::raw::c_int,
-        ctrl_pressed: &mut ::std::os::raw::c_int,
-        alt_pressed: &mut ::std::os::raw::c_int,
+        key_code: &'a mut ::std::os::raw::c_int,
+        shift_pressed: &'a mut ::std::os::raw::c_int,
+        ctrl_pressed: &'a mut ::std::os::raw::c_int,
+        alt_pressed: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -20118,7 +20218,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_color(
+    fn set_color<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         color_type: MenuColorType,
@@ -20140,7 +20240,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_color_at(
+    fn set_color_at<'a>(
         &self,
         index: ::std::os::raw::c_int,
         color_type: MenuColorType,
@@ -20161,11 +20261,11 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_color(
+    fn get_color<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: &mut u32,
+        color: &'a mut u32,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -20183,11 +20283,11 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_color_at(
+    fn get_color_at<'a>(
         &self,
         index: ::std::os::raw::c_int,
         color_type: MenuColorType,
-        color: &mut u32,
+        color: &'a mut u32,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -20204,10 +20304,10 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_font_list(
+    fn set_font_list<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
-        font_list: &CefStringUtf16,
+        font_list: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -20223,10 +20323,10 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_font_list_at(
+    fn set_font_list_at<'a>(
         &self,
         index: ::std::os::raw::c_int,
-        font_list: &CefStringUtf16,
+        font_list: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -20279,10 +20379,10 @@ impl Default for MenuModel {
     }
 }
 pub trait ImplRunContextMenuCallback: Sized {
-    fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
+    fn cont<'a>(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_run_context_menu_callback_t {
@@ -20322,7 +20422,7 @@ mod impl_cef_run_context_menu_callback_t {
 #[derive(Clone)]
 pub struct RunContextMenuCallback(RefGuard<_cef_run_context_menu_callback_t>);
 impl ImplRunContextMenuCallback for RunContextMenuCallback {
-    fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
+    fn cont<'a>(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
         unsafe {
             self.0
                 .cont
@@ -20337,7 +20437,7 @@ impl ImplRunContextMenuCallback for RunContextMenuCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -20386,10 +20486,10 @@ impl Default for RunContextMenuCallback {
     }
 }
 pub trait ImplRunQuickMenuCallback: Sized {
-    fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
+    fn cont<'a>(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_run_quick_menu_callback_t {
@@ -20425,7 +20525,7 @@ mod impl_cef_run_quick_menu_callback_t {
 #[derive(Clone)]
 pub struct RunQuickMenuCallback(RefGuard<_cef_run_quick_menu_callback_t>);
 impl ImplRunQuickMenuCallback for RunQuickMenuCallback {
-    fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
+    fn cont<'a>(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
         unsafe {
             self.0
                 .cont
@@ -20440,7 +20540,7 @@ impl ImplRunQuickMenuCallback for RunQuickMenuCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -20489,59 +20589,59 @@ impl Default for RunQuickMenuCallback {
     }
 }
 pub trait ImplContextMenuHandler: Sized {
-    fn on_before_context_menu(
+    fn on_before_context_menu<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        params: &mut ContextMenuParams,
-        model: &mut MenuModel,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        params: &'a mut ContextMenuParams,
+        model: &'a mut MenuModel,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn run_context_menu(
+    fn run_context_menu<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        params: &mut ContextMenuParams,
-        model: &mut MenuModel,
-        callback: &mut RunContextMenuCallback,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        params: &'a mut ContextMenuParams,
+        model: &'a mut MenuModel,
+        callback: &'a mut RunContextMenuCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_context_menu_command(
+    fn on_context_menu_command<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        params: &mut ContextMenuParams,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        params: &'a mut ContextMenuParams,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_context_menu_dismissed(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_context_menu_dismissed<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe { std::mem::zeroed() }
     }
-    fn run_quick_menu(
+    fn run_quick_menu<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        location: &Point,
-        size: &Size,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        location: &'a Point,
+        size: &'a Size,
         edit_state_flags: QuickMenuEditStateFlags,
-        callback: &mut RunQuickMenuCallback,
+        callback: &'a mut RunQuickMenuCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_quick_menu_command(
+    fn on_quick_menu_command<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_quick_menu_dismissed(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_quick_menu_dismissed<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_context_menu_handler_t {
@@ -20726,12 +20826,12 @@ mod impl_cef_context_menu_handler_t {
 #[derive(Clone)]
 pub struct ContextMenuHandler(RefGuard<_cef_context_menu_handler_t>);
 impl ImplContextMenuHandler for ContextMenuHandler {
-    fn on_before_context_menu(
+    fn on_before_context_menu<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        params: &mut ContextMenuParams,
-        model: &mut MenuModel,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        params: &'a mut ContextMenuParams,
+        model: &'a mut MenuModel,
     ) {
         unsafe {
             self.0
@@ -20750,13 +20850,13 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn run_context_menu(
+    fn run_context_menu<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        params: &mut ContextMenuParams,
-        model: &mut MenuModel,
-        callback: &mut RunContextMenuCallback,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        params: &'a mut ContextMenuParams,
+        model: &'a mut MenuModel,
+        callback: &'a mut RunContextMenuCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -20783,11 +20883,11 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_context_menu_command(
+    fn on_context_menu_command<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        params: &mut ContextMenuParams,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        params: &'a mut ContextMenuParams,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int {
@@ -20816,7 +20916,7 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_context_menu_dismissed(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_context_menu_dismissed<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe {
             self.0
                 .on_context_menu_dismissed
@@ -20831,14 +20931,14 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn run_quick_menu(
+    fn run_quick_menu<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        location: &Point,
-        size: &Size,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        location: &'a Point,
+        size: &'a Size,
         edit_state_flags: QuickMenuEditStateFlags,
-        callback: &mut RunQuickMenuCallback,
+        callback: &'a mut RunQuickMenuCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -20873,10 +20973,10 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_quick_menu_command(
+    fn on_quick_menu_command<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int {
@@ -20903,7 +21003,7 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_quick_menu_dismissed(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_quick_menu_dismissed<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe {
             self.0
                 .on_quick_menu_dismissed
@@ -20955,64 +21055,67 @@ impl Default for ContextMenuHandler {
     }
 }
 pub trait ImplContextMenuParams: Sized {
-    fn get_xcoord(&self) -> ::std::os::raw::c_int {
+    fn get_xcoord<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_ycoord(&self) -> ::std::os::raw::c_int {
+    fn get_ycoord<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_type_flags(&self) -> ContextMenuTypeFlags {
+    fn get_type_flags<'a>(&self) -> ContextMenuTypeFlags {
         unsafe { std::mem::zeroed() }
     }
-    fn get_link_url(&self) -> CefStringUtf16 {
+    fn get_link_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_unfiltered_link_url(&self) -> CefStringUtf16 {
+    fn get_unfiltered_link_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_source_url(&self) -> CefStringUtf16 {
+    fn get_source_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn has_image_contents(&self) -> ::std::os::raw::c_int {
+    fn has_image_contents<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_title_text(&self) -> CefStringUtf16 {
+    fn get_title_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_page_url(&self) -> CefStringUtf16 {
+    fn get_page_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame_url(&self) -> CefStringUtf16 {
+    fn get_frame_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame_charset(&self) -> CefStringUtf16 {
+    fn get_frame_charset<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_media_type(&self) -> ContextMenuMediaType {
+    fn get_media_type<'a>(&self) -> ContextMenuMediaType {
         unsafe { std::mem::zeroed() }
     }
-    fn get_media_state_flags(&self) -> ContextMenuMediaStateFlags {
+    fn get_media_state_flags<'a>(&self) -> ContextMenuMediaStateFlags {
         unsafe { std::mem::zeroed() }
     }
-    fn get_selection_text(&self) -> CefStringUtf16 {
+    fn get_selection_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_misspelled_word(&self) -> CefStringUtf16 {
+    fn get_misspelled_word<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_dictionary_suggestions(&self, suggestions: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_dictionary_suggestions<'a>(
+        &self,
+        suggestions: &'a mut CefStringList,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_editable(&self) -> ::std::os::raw::c_int {
+    fn is_editable<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_spell_check_enabled(&self) -> ::std::os::raw::c_int {
+    fn is_spell_check_enabled<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_edit_state_flags(&self) -> ContextMenuEditStateFlags {
+    fn get_edit_state_flags<'a>(&self) -> ContextMenuEditStateFlags {
         unsafe { std::mem::zeroed() }
     }
-    fn is_custom_menu(&self) -> ::std::os::raw::c_int {
+    fn is_custom_menu<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_context_menu_params_t {
@@ -21196,7 +21299,7 @@ mod impl_cef_context_menu_params_t {
 #[derive(Clone)]
 pub struct ContextMenuParams(RefGuard<_cef_context_menu_params_t>);
 impl ImplContextMenuParams for ContextMenuParams {
-    fn get_xcoord(&self) -> ::std::os::raw::c_int {
+    fn get_xcoord<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_xcoord
@@ -21208,7 +21311,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_ycoord(&self) -> ::std::os::raw::c_int {
+    fn get_ycoord<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_ycoord
@@ -21220,7 +21323,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_type_flags(&self) -> ContextMenuTypeFlags {
+    fn get_type_flags<'a>(&self) -> ContextMenuTypeFlags {
         unsafe {
             self.0
                 .get_type_flags
@@ -21232,7 +21335,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_link_url(&self) -> CefStringUtf16 {
+    fn get_link_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_link_url
@@ -21244,7 +21347,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_unfiltered_link_url(&self) -> CefStringUtf16 {
+    fn get_unfiltered_link_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_unfiltered_link_url
@@ -21256,7 +21359,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_source_url(&self) -> CefStringUtf16 {
+    fn get_source_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_source_url
@@ -21268,7 +21371,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_image_contents(&self) -> ::std::os::raw::c_int {
+    fn has_image_contents<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_image_contents
@@ -21280,7 +21383,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_title_text(&self) -> CefStringUtf16 {
+    fn get_title_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_title_text
@@ -21292,7 +21395,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_page_url(&self) -> CefStringUtf16 {
+    fn get_page_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_page_url
@@ -21304,7 +21407,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame_url(&self) -> CefStringUtf16 {
+    fn get_frame_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_frame_url
@@ -21316,7 +21419,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame_charset(&self) -> CefStringUtf16 {
+    fn get_frame_charset<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_frame_charset
@@ -21328,7 +21431,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_media_type(&self) -> ContextMenuMediaType {
+    fn get_media_type<'a>(&self) -> ContextMenuMediaType {
         unsafe {
             self.0
                 .get_media_type
@@ -21340,7 +21443,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_media_state_flags(&self) -> ContextMenuMediaStateFlags {
+    fn get_media_state_flags<'a>(&self) -> ContextMenuMediaStateFlags {
         unsafe {
             self.0
                 .get_media_state_flags
@@ -21352,7 +21455,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_selection_text(&self) -> CefStringUtf16 {
+    fn get_selection_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_selection_text
@@ -21364,7 +21467,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_misspelled_word(&self) -> CefStringUtf16 {
+    fn get_misspelled_word<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_misspelled_word
@@ -21376,7 +21479,10 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_dictionary_suggestions(&self, suggestions: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_dictionary_suggestions<'a>(
+        &self,
+        suggestions: &'a mut CefStringList,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_dictionary_suggestions
@@ -21390,7 +21496,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_editable(&self) -> ::std::os::raw::c_int {
+    fn is_editable<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_editable
@@ -21402,7 +21508,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_spell_check_enabled(&self) -> ::std::os::raw::c_int {
+    fn is_spell_check_enabled<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_spell_check_enabled
@@ -21414,7 +21520,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_edit_state_flags(&self) -> ContextMenuEditStateFlags {
+    fn get_edit_state_flags<'a>(&self) -> ContextMenuEditStateFlags {
         unsafe {
             self.0
                 .get_edit_state_flags
@@ -21426,7 +21532,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_custom_menu(&self) -> ::std::os::raw::c_int {
+    fn is_custom_menu<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_custom_menu
@@ -21475,10 +21581,10 @@ impl Default for ContextMenuParams {
     }
 }
 pub trait ImplFileDialogCallback: Sized {
-    fn cont(&self, file_paths: &mut CefStringList) {
+    fn cont<'a>(&self, file_paths: &'a mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_file_dialog_callback_t {
@@ -21513,7 +21619,7 @@ mod impl_cef_file_dialog_callback_t {
 #[derive(Clone)]
 pub struct FileDialogCallback(RefGuard<_cef_file_dialog_callback_t>);
 impl ImplFileDialogCallback for FileDialogCallback {
-    fn cont(&self, file_paths: &mut CefStringList) {
+    fn cont<'a>(&self, file_paths: &'a mut CefStringList) {
         unsafe {
             self.0
                 .cont
@@ -21527,7 +21633,7 @@ impl ImplFileDialogCallback for FileDialogCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -21576,16 +21682,16 @@ impl Default for FileDialogCallback {
     }
 }
 pub trait ImplDialogHandler: Sized {
-    fn on_file_dialog(
+    fn on_file_dialog<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         mode: FileDialogMode,
-        title: &CefStringUtf16,
-        default_file_path: &CefStringUtf16,
-        accept_filters: &mut CefStringList,
-        accept_extensions: &mut CefStringList,
-        accept_descriptions: &mut CefStringList,
-        callback: &mut FileDialogCallback,
+        title: &'a CefStringUtf16,
+        default_file_path: &'a CefStringUtf16,
+        accept_filters: &'a mut CefStringList,
+        accept_extensions: &'a mut CefStringList,
+        accept_descriptions: &'a mut CefStringList,
+        callback: &'a mut FileDialogCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -21667,16 +21773,16 @@ mod impl_cef_dialog_handler_t {
 #[derive(Clone)]
 pub struct DialogHandler(RefGuard<_cef_dialog_handler_t>);
 impl ImplDialogHandler for DialogHandler {
-    fn on_file_dialog(
+    fn on_file_dialog<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         mode: FileDialogMode,
-        title: &CefStringUtf16,
-        default_file_path: &CefStringUtf16,
-        accept_filters: &mut CefStringList,
-        accept_extensions: &mut CefStringList,
-        accept_descriptions: &mut CefStringList,
-        callback: &mut FileDialogCallback,
+        title: &'a CefStringUtf16,
+        default_file_path: &'a CefStringUtf16,
+        accept_filters: &'a mut CefStringList,
+        accept_extensions: &'a mut CefStringList,
+        accept_descriptions: &'a mut CefStringList,
+        callback: &'a mut FileDialogCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -21763,56 +21869,69 @@ impl Default for DialogHandler {
     }
 }
 pub trait ImplDisplayHandler: Sized {
-    fn on_address_change(&self, browser: &mut Browser, frame: &mut Frame, url: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_title_change(&self, browser: &mut Browser, title: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_favicon_urlchange(&self, browser: &mut Browser, icon_urls: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_fullscreen_mode_change(&self, browser: &mut Browser, fullscreen: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_tooltip(
+    fn on_address_change<'a>(
         &self,
-        browser: &mut Browser,
-        text: &mut CefStringUtf16,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        url: &'a CefStringUtf16,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_title_change<'a>(&self, browser: &'a mut Browser, title: &'a CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_favicon_urlchange<'a>(&self, browser: &'a mut Browser, icon_urls: &'a mut CefStringList) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_fullscreen_mode_change<'a>(
+        &self,
+        browser: &'a mut Browser,
+        fullscreen: ::std::os::raw::c_int,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_tooltip<'a>(
+        &self,
+        browser: &'a mut Browser,
+        text: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_status_message(&self, browser: &mut Browser, value: &CefStringUtf16) {
+    fn on_status_message<'a>(&self, browser: &'a mut Browser, value: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_console_message(
+    fn on_console_message<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         level: LogSeverity,
-        message: &CefStringUtf16,
-        source: &CefStringUtf16,
+        message: &'a CefStringUtf16,
+        source: &'a CefStringUtf16,
         line: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_auto_resize(&self, browser: &mut Browser, new_size: &Size) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_loading_progress_change(&self, browser: &mut Browser, progress: f64) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_cursor_change(
+    fn on_auto_resize<'a>(
         &self,
-        browser: &mut Browser,
-        cursor: ::std::os::raw::c_ulong,
-        type_: CursorType,
-        custom_cursor_info: &CursorInfo,
+        browser: &'a mut Browser,
+        new_size: &'a Size,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_media_access_change(
+    fn on_loading_progress_change<'a>(&self, browser: &'a mut Browser, progress: f64) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_cursor_change<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
+        cursor: ::std::os::raw::c_ulong,
+        type_: CursorType,
+        custom_cursor_info: &'a CursorInfo,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_media_access_change<'a>(
+        &self,
+        browser: &'a mut Browser,
         has_video_access: ::std::os::raw::c_int,
         has_audio_access: ::std::os::raw::c_int,
     ) {
@@ -22014,7 +22133,12 @@ mod impl_cef_display_handler_t {
 #[derive(Clone)]
 pub struct DisplayHandler(RefGuard<_cef_display_handler_t>);
 impl ImplDisplayHandler for DisplayHandler {
-    fn on_address_change(&self, browser: &mut Browser, frame: &mut Frame, url: &CefStringUtf16) {
+    fn on_address_change<'a>(
+        &self,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        url: &'a CefStringUtf16,
+    ) {
         unsafe {
             self.0
                 .on_address_change
@@ -22030,7 +22154,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_title_change(&self, browser: &mut Browser, title: &CefStringUtf16) {
+    fn on_title_change<'a>(&self, browser: &'a mut Browser, title: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .on_title_change
@@ -22045,7 +22169,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_favicon_urlchange(&self, browser: &mut Browser, icon_urls: &mut CefStringList) {
+    fn on_favicon_urlchange<'a>(&self, browser: &'a mut Browser, icon_urls: &'a mut CefStringList) {
         unsafe {
             self.0
                 .on_favicon_urlchange
@@ -22060,7 +22184,11 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_fullscreen_mode_change(&self, browser: &mut Browser, fullscreen: ::std::os::raw::c_int) {
+    fn on_fullscreen_mode_change<'a>(
+        &self,
+        browser: &'a mut Browser,
+        fullscreen: ::std::os::raw::c_int,
+    ) {
         unsafe {
             self.0
                 .on_fullscreen_mode_change
@@ -22075,10 +22203,10 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_tooltip(
+    fn on_tooltip<'a>(
         &self,
-        browser: &mut Browser,
-        text: &mut CefStringUtf16,
+        browser: &'a mut Browser,
+        text: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -22094,7 +22222,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_status_message(&self, browser: &mut Browser, value: &CefStringUtf16) {
+    fn on_status_message<'a>(&self, browser: &'a mut Browser, value: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .on_status_message
@@ -22109,12 +22237,12 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_console_message(
+    fn on_console_message<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         level: LogSeverity,
-        message: &CefStringUtf16,
-        source: &CefStringUtf16,
+        message: &'a CefStringUtf16,
+        source: &'a CefStringUtf16,
         line: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -22142,7 +22270,11 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_auto_resize(&self, browser: &mut Browser, new_size: &Size) -> ::std::os::raw::c_int {
+    fn on_auto_resize<'a>(
+        &self,
+        browser: &'a mut Browser,
+        new_size: &'a Size,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .on_auto_resize
@@ -22157,7 +22289,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_loading_progress_change(&self, browser: &mut Browser, progress: f64) {
+    fn on_loading_progress_change<'a>(&self, browser: &'a mut Browser, progress: f64) {
         unsafe {
             self.0
                 .on_loading_progress_change
@@ -22172,12 +22304,12 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_cursor_change(
+    fn on_cursor_change<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         cursor: ::std::os::raw::c_ulong,
         type_: CursorType,
-        custom_cursor_info: &CursorInfo,
+        custom_cursor_info: &'a CursorInfo,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -22202,9 +22334,9 @@ impl ImplDisplayHandler for DisplayHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_media_access_change(
+    fn on_media_access_change<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         has_video_access: ::std::os::raw::c_int,
         has_audio_access: ::std::os::raw::c_int,
     ) {
@@ -22266,61 +22398,61 @@ impl Default for DisplayHandler {
     }
 }
 pub trait ImplDownloadItem: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_in_progress(&self) -> ::std::os::raw::c_int {
+    fn is_in_progress<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_complete(&self) -> ::std::os::raw::c_int {
+    fn is_complete<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_canceled(&self) -> ::std::os::raw::c_int {
+    fn is_canceled<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_interrupted(&self) -> ::std::os::raw::c_int {
+    fn is_interrupted<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_interrupt_reason(&self) -> DownloadInterruptReason {
+    fn get_interrupt_reason<'a>(&self) -> DownloadInterruptReason {
         unsafe { std::mem::zeroed() }
     }
-    fn get_current_speed(&self) -> i64 {
+    fn get_current_speed<'a>(&self) -> i64 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_percent_complete(&self) -> ::std::os::raw::c_int {
+    fn get_percent_complete<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_total_bytes(&self) -> i64 {
+    fn get_total_bytes<'a>(&self) -> i64 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_received_bytes(&self) -> i64 {
+    fn get_received_bytes<'a>(&self) -> i64 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_start_time(&self) -> Basetime {
+    fn get_start_time<'a>(&self) -> Basetime {
         unsafe { std::mem::zeroed() }
     }
-    fn get_end_time(&self) -> Basetime {
+    fn get_end_time<'a>(&self) -> Basetime {
         unsafe { std::mem::zeroed() }
     }
-    fn get_full_path(&self) -> CefStringUtf16 {
+    fn get_full_path<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_id(&self) -> u32 {
+    fn get_id<'a>(&self) -> u32 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_original_url(&self) -> CefStringUtf16 {
+    fn get_original_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_suggested_file_name(&self) -> CefStringUtf16 {
+    fn get_suggested_file_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_content_disposition(&self) -> CefStringUtf16 {
+    fn get_content_disposition<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_mime_type(&self) -> CefStringUtf16 {
+    fn get_mime_type<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_download_item_t {
@@ -22482,7 +22614,7 @@ mod impl_cef_download_item_t {
 #[derive(Clone)]
 pub struct DownloadItem(RefGuard<_cef_download_item_t>);
 impl ImplDownloadItem for DownloadItem {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -22494,7 +22626,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_in_progress(&self) -> ::std::os::raw::c_int {
+    fn is_in_progress<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_in_progress
@@ -22506,7 +22638,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_complete(&self) -> ::std::os::raw::c_int {
+    fn is_complete<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_complete
@@ -22518,7 +22650,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_canceled(&self) -> ::std::os::raw::c_int {
+    fn is_canceled<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_canceled
@@ -22530,7 +22662,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_interrupted(&self) -> ::std::os::raw::c_int {
+    fn is_interrupted<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_interrupted
@@ -22542,7 +22674,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_interrupt_reason(&self) -> DownloadInterruptReason {
+    fn get_interrupt_reason<'a>(&self) -> DownloadInterruptReason {
         unsafe {
             self.0
                 .get_interrupt_reason
@@ -22554,7 +22686,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_current_speed(&self) -> i64 {
+    fn get_current_speed<'a>(&self) -> i64 {
         unsafe {
             self.0
                 .get_current_speed
@@ -22566,7 +22698,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_percent_complete(&self) -> ::std::os::raw::c_int {
+    fn get_percent_complete<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_percent_complete
@@ -22578,7 +22710,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_total_bytes(&self) -> i64 {
+    fn get_total_bytes<'a>(&self) -> i64 {
         unsafe {
             self.0
                 .get_total_bytes
@@ -22590,7 +22722,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_received_bytes(&self) -> i64 {
+    fn get_received_bytes<'a>(&self) -> i64 {
         unsafe {
             self.0
                 .get_received_bytes
@@ -22602,7 +22734,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_start_time(&self) -> Basetime {
+    fn get_start_time<'a>(&self) -> Basetime {
         unsafe {
             self.0
                 .get_start_time
@@ -22614,7 +22746,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_end_time(&self) -> Basetime {
+    fn get_end_time<'a>(&self) -> Basetime {
         unsafe {
             self.0
                 .get_end_time
@@ -22626,7 +22758,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_full_path(&self) -> CefStringUtf16 {
+    fn get_full_path<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_full_path
@@ -22638,7 +22770,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_id(&self) -> u32 {
+    fn get_id<'a>(&self) -> u32 {
         unsafe {
             self.0
                 .get_id
@@ -22650,7 +22782,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_url
@@ -22662,7 +22794,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_original_url(&self) -> CefStringUtf16 {
+    fn get_original_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_original_url
@@ -22674,7 +22806,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_suggested_file_name(&self) -> CefStringUtf16 {
+    fn get_suggested_file_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_suggested_file_name
@@ -22686,7 +22818,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_content_disposition(&self) -> CefStringUtf16 {
+    fn get_content_disposition<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_content_disposition
@@ -22698,7 +22830,7 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_mime_type(&self) -> CefStringUtf16 {
+    fn get_mime_type<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_mime_type
@@ -22747,7 +22879,7 @@ impl Default for DownloadItem {
     }
 }
 pub trait ImplBeforeDownloadCallback: Sized {
-    fn cont(&self, download_path: &CefStringUtf16, show_dialog: ::std::os::raw::c_int) {
+    fn cont<'a>(&self, download_path: &'a CefStringUtf16, show_dialog: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_before_download_callback_t {
@@ -22780,7 +22912,7 @@ mod impl_cef_before_download_callback_t {
 #[derive(Clone)]
 pub struct BeforeDownloadCallback(RefGuard<_cef_before_download_callback_t>);
 impl ImplBeforeDownloadCallback for BeforeDownloadCallback {
-    fn cont(&self, download_path: &CefStringUtf16, show_dialog: ::std::os::raw::c_int) {
+    fn cont<'a>(&self, download_path: &'a CefStringUtf16, show_dialog: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .cont
@@ -22832,13 +22964,13 @@ impl Default for BeforeDownloadCallback {
     }
 }
 pub trait ImplDownloadItemCallback: Sized {
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn pause(&self) {
+    fn pause<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn resume(&self) {
+    fn resume<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_download_item_callback_t {
@@ -22874,7 +23006,7 @@ mod impl_cef_download_item_callback_t {
 #[derive(Clone)]
 pub struct DownloadItemCallback(RefGuard<_cef_download_item_callback_t>);
 impl ImplDownloadItemCallback for DownloadItemCallback {
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -22886,7 +23018,7 @@ impl ImplDownloadItemCallback for DownloadItemCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn pause(&self) {
+    fn pause<'a>(&self) {
         unsafe {
             self.0
                 .pause
@@ -22898,7 +23030,7 @@ impl ImplDownloadItemCallback for DownloadItemCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn resume(&self) {
+    fn resume<'a>(&self) {
         unsafe {
             self.0
                 .resume
@@ -22947,28 +23079,28 @@ impl Default for DownloadItemCallback {
     }
 }
 pub trait ImplDownloadHandler: Sized {
-    fn can_download(
+    fn can_download<'a>(
         &self,
-        browser: &mut Browser,
-        url: &CefStringUtf16,
-        request_method: &CefStringUtf16,
+        browser: &'a mut Browser,
+        url: &'a CefStringUtf16,
+        request_method: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_before_download(
+    fn on_before_download<'a>(
         &self,
-        browser: &mut Browser,
-        download_item: &mut DownloadItem,
-        suggested_name: &CefStringUtf16,
-        callback: &mut BeforeDownloadCallback,
+        browser: &'a mut Browser,
+        download_item: &'a mut DownloadItem,
+        suggested_name: &'a CefStringUtf16,
+        callback: &'a mut BeforeDownloadCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_download_updated(
+    fn on_download_updated<'a>(
         &self,
-        browser: &mut Browser,
-        download_item: &mut DownloadItem,
-        callback: &mut DownloadItemCallback,
+        browser: &'a mut Browser,
+        download_item: &'a mut DownloadItem,
+        callback: &'a mut DownloadItemCallback,
     ) {
         unsafe { std::mem::zeroed() }
     }
@@ -23054,11 +23186,11 @@ mod impl_cef_download_handler_t {
 #[derive(Clone)]
 pub struct DownloadHandler(RefGuard<_cef_download_handler_t>);
 impl ImplDownloadHandler for DownloadHandler {
-    fn can_download(
+    fn can_download<'a>(
         &self,
-        browser: &mut Browser,
-        url: &CefStringUtf16,
-        request_method: &CefStringUtf16,
+        browser: &'a mut Browser,
+        url: &'a CefStringUtf16,
+        request_method: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -23075,12 +23207,12 @@ impl ImplDownloadHandler for DownloadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_before_download(
+    fn on_before_download<'a>(
         &self,
-        browser: &mut Browser,
-        download_item: &mut DownloadItem,
-        suggested_name: &CefStringUtf16,
-        callback: &mut BeforeDownloadCallback,
+        browser: &'a mut Browser,
+        download_item: &'a mut DownloadItem,
+        suggested_name: &'a CefStringUtf16,
+        callback: &'a mut BeforeDownloadCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -23105,11 +23237,11 @@ impl ImplDownloadHandler for DownloadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_download_updated(
+    fn on_download_updated<'a>(
         &self,
-        browser: &mut Browser,
-        download_item: &mut DownloadItem,
-        callback: &mut DownloadItemCallback,
+        browser: &'a mut Browser,
+        download_item: &'a mut DownloadItem,
+        callback: &'a mut DownloadItemCallback,
     ) {
         unsafe {
             self.0
@@ -23164,20 +23296,20 @@ impl Default for DownloadHandler {
     }
 }
 pub trait ImplDragHandler: Sized {
-    fn on_drag_enter(
+    fn on_drag_enter<'a>(
         &self,
-        browser: &mut Browser,
-        drag_data: &mut DragData,
+        browser: &'a mut Browser,
+        drag_data: &'a mut DragData,
         mask: DragOperationsMask,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_draggable_regions_changed(
+    fn on_draggable_regions_changed<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         regions_count: usize,
-        regions: &DraggableRegion,
+        regions: &'a DraggableRegion,
     ) {
         unsafe { std::mem::zeroed() }
     }
@@ -23236,10 +23368,10 @@ mod impl_cef_drag_handler_t {
 #[derive(Clone)]
 pub struct DragHandler(RefGuard<_cef_drag_handler_t>);
 impl ImplDragHandler for DragHandler {
-    fn on_drag_enter(
+    fn on_drag_enter<'a>(
         &self,
-        browser: &mut Browser,
-        drag_data: &mut DragData,
+        browser: &'a mut Browser,
+        drag_data: &'a mut DragData,
         mask: DragOperationsMask,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -23257,12 +23389,12 @@ impl ImplDragHandler for DragHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_draggable_regions_changed(
+    fn on_draggable_regions_changed<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         regions_count: usize,
-        regions: &DraggableRegion,
+        regions: &'a DraggableRegion,
     ) {
         unsafe {
             self.0
@@ -23324,12 +23456,12 @@ impl Default for DragHandler {
     }
 }
 pub trait ImplFindHandler: Sized {
-    fn on_find_result(
+    fn on_find_result<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         identifier: ::std::os::raw::c_int,
         count: ::std::os::raw::c_int,
-        selection_rect: &Rect,
+        selection_rect: &'a Rect,
         active_match_ordinal: ::std::os::raw::c_int,
         final_update: ::std::os::raw::c_int,
     ) {
@@ -23394,12 +23526,12 @@ mod impl_cef_find_handler_t {
 #[derive(Clone)]
 pub struct FindHandler(RefGuard<_cef_find_handler_t>);
 impl ImplFindHandler for FindHandler {
-    fn on_find_result(
+    fn on_find_result<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         identifier: ::std::os::raw::c_int,
         count: ::std::os::raw::c_int,
-        selection_rect: &Rect,
+        selection_rect: &'a Rect,
         active_match_ordinal: ::std::os::raw::c_int,
         final_update: ::std::os::raw::c_int,
     ) {
@@ -23480,13 +23612,17 @@ impl Default for FindHandler {
     }
 }
 pub trait ImplFocusHandler: Sized {
-    fn on_take_focus(&self, browser: &mut Browser, next: ::std::os::raw::c_int) {
+    fn on_take_focus<'a>(&self, browser: &'a mut Browser, next: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_set_focus(&self, browser: &mut Browser, source: FocusSource) -> ::std::os::raw::c_int {
+    fn on_set_focus<'a>(
+        &self,
+        browser: &'a mut Browser,
+        source: FocusSource,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_got_focus(&self, browser: &mut Browser) {
+    fn on_got_focus<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_focus_handler_t {
@@ -23541,7 +23677,7 @@ mod impl_cef_focus_handler_t {
 #[derive(Clone)]
 pub struct FocusHandler(RefGuard<_cef_focus_handler_t>);
 impl ImplFocusHandler for FocusHandler {
-    fn on_take_focus(&self, browser: &mut Browser, next: ::std::os::raw::c_int) {
+    fn on_take_focus<'a>(&self, browser: &'a mut Browser, next: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .on_take_focus
@@ -23556,7 +23692,11 @@ impl ImplFocusHandler for FocusHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_set_focus(&self, browser: &mut Browser, source: FocusSource) -> ::std::os::raw::c_int {
+    fn on_set_focus<'a>(
+        &self,
+        browser: &'a mut Browser,
+        source: FocusSource,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .on_set_focus
@@ -23571,7 +23711,7 @@ impl ImplFocusHandler for FocusHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_got_focus(&self, browser: &mut Browser) {
+    fn on_got_focus<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_got_focus
@@ -23622,28 +23762,28 @@ impl Default for FocusHandler {
     }
 }
 pub trait ImplFrameHandler: Sized {
-    fn on_frame_created(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_frame_created<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_frame_destroyed(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_frame_destroyed<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_frame_attached(
+    fn on_frame_attached<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         reattached: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_frame_detached(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_frame_detached<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_main_frame_changed(
+    fn on_main_frame_changed<'a>(
         &self,
-        browser: &mut Browser,
-        old_frame: &mut Frame,
-        new_frame: &mut Frame,
+        browser: &'a mut Browser,
+        old_frame: &'a mut Frame,
+        new_frame: &'a mut Frame,
     ) {
         unsafe { std::mem::zeroed() }
     }
@@ -23736,7 +23876,7 @@ mod impl_cef_frame_handler_t {
 #[derive(Clone)]
 pub struct FrameHandler(RefGuard<_cef_frame_handler_t>);
 impl ImplFrameHandler for FrameHandler {
-    fn on_frame_created(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_frame_created<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe {
             self.0
                 .on_frame_created
@@ -23751,7 +23891,7 @@ impl ImplFrameHandler for FrameHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_frame_destroyed(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_frame_destroyed<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe {
             self.0
                 .on_frame_destroyed
@@ -23766,10 +23906,10 @@ impl ImplFrameHandler for FrameHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_frame_attached(
+    fn on_frame_attached<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         reattached: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -23787,7 +23927,7 @@ impl ImplFrameHandler for FrameHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_frame_detached(&self, browser: &mut Browser, frame: &mut Frame) {
+    fn on_frame_detached<'a>(&self, browser: &'a mut Browser, frame: &'a mut Frame) {
         unsafe {
             self.0
                 .on_frame_detached
@@ -23802,11 +23942,11 @@ impl ImplFrameHandler for FrameHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_main_frame_changed(
+    fn on_main_frame_changed<'a>(
         &self,
-        browser: &mut Browser,
-        old_frame: &mut Frame,
-        new_frame: &mut Frame,
+        browser: &'a mut Browser,
+        old_frame: &'a mut Frame,
+        new_frame: &'a mut Frame,
     ) {
         unsafe {
             self.0
@@ -23861,7 +24001,7 @@ impl Default for FrameHandler {
     }
 }
 pub trait ImplJsdialogCallback: Sized {
-    fn cont(&self, success: ::std::os::raw::c_int, user_input: &CefStringUtf16) {
+    fn cont<'a>(&self, success: ::std::os::raw::c_int, user_input: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_jsdialog_callback_t {
@@ -23892,7 +24032,7 @@ mod impl_cef_jsdialog_callback_t {
 #[derive(Clone)]
 pub struct JsdialogCallback(RefGuard<_cef_jsdialog_callback_t>);
 impl ImplJsdialogCallback for JsdialogCallback {
-    fn cont(&self, success: ::std::os::raw::c_int, user_input: &CefStringUtf16) {
+    fn cont<'a>(&self, success: ::std::os::raw::c_int, user_input: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .cont
@@ -23944,31 +24084,31 @@ impl Default for JsdialogCallback {
     }
 }
 pub trait ImplJsdialogHandler: Sized {
-    fn on_jsdialog(
+    fn on_jsdialog<'a>(
         &self,
-        browser: &mut Browser,
-        origin_url: &CefStringUtf16,
+        browser: &'a mut Browser,
+        origin_url: &'a CefStringUtf16,
         dialog_type: JsdialogType,
-        message_text: &CefStringUtf16,
-        default_prompt_text: &CefStringUtf16,
-        callback: &mut JsdialogCallback,
-        suppress_message: &mut ::std::os::raw::c_int,
+        message_text: &'a CefStringUtf16,
+        default_prompt_text: &'a CefStringUtf16,
+        callback: &'a mut JsdialogCallback,
+        suppress_message: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_before_unload_dialog(
+    fn on_before_unload_dialog<'a>(
         &self,
-        browser: &mut Browser,
-        message_text: &CefStringUtf16,
+        browser: &'a mut Browser,
+        message_text: &'a CefStringUtf16,
         is_reload: ::std::os::raw::c_int,
-        callback: &mut JsdialogCallback,
+        callback: &'a mut JsdialogCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_reset_dialog_state(&self, browser: &mut Browser) {
+    fn on_reset_dialog_state<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_dialog_closed(&self, browser: &mut Browser) {
+    fn on_dialog_closed<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_jsdialog_handler_t {
@@ -24085,15 +24225,15 @@ mod impl_cef_jsdialog_handler_t {
 #[derive(Clone)]
 pub struct JsdialogHandler(RefGuard<_cef_jsdialog_handler_t>);
 impl ImplJsdialogHandler for JsdialogHandler {
-    fn on_jsdialog(
+    fn on_jsdialog<'a>(
         &self,
-        browser: &mut Browser,
-        origin_url: &CefStringUtf16,
+        browser: &'a mut Browser,
+        origin_url: &'a CefStringUtf16,
         dialog_type: JsdialogType,
-        message_text: &CefStringUtf16,
-        default_prompt_text: &CefStringUtf16,
-        callback: &mut JsdialogCallback,
-        suppress_message: &mut ::std::os::raw::c_int,
+        message_text: &'a CefStringUtf16,
+        default_prompt_text: &'a CefStringUtf16,
+        callback: &'a mut JsdialogCallback,
+        suppress_message: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -24139,12 +24279,12 @@ impl ImplJsdialogHandler for JsdialogHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_before_unload_dialog(
+    fn on_before_unload_dialog<'a>(
         &self,
-        browser: &mut Browser,
-        message_text: &CefStringUtf16,
+        browser: &'a mut Browser,
+        message_text: &'a CefStringUtf16,
         is_reload: ::std::os::raw::c_int,
-        callback: &mut JsdialogCallback,
+        callback: &'a mut JsdialogCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -24169,7 +24309,7 @@ impl ImplJsdialogHandler for JsdialogHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_reset_dialog_state(&self, browser: &mut Browser) {
+    fn on_reset_dialog_state<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_reset_dialog_state
@@ -24183,7 +24323,7 @@ impl ImplJsdialogHandler for JsdialogHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_dialog_closed(&self, browser: &mut Browser) {
+    fn on_dialog_closed<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_dialog_closed
@@ -24234,20 +24374,20 @@ impl Default for JsdialogHandler {
     }
 }
 pub trait ImplKeyboardHandler: Sized {
-    fn on_pre_key_event(
+    fn on_pre_key_event<'a>(
         &self,
-        browser: &mut Browser,
-        event: &KeyEvent,
-        os_event: &mut XEvent,
-        is_keyboard_shortcut: &mut ::std::os::raw::c_int,
+        browser: &'a mut Browser,
+        event: &'a KeyEvent,
+        os_event: &'a mut XEvent,
+        is_keyboard_shortcut: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_key_event(
+    fn on_key_event<'a>(
         &self,
-        browser: &mut Browser,
-        event: &KeyEvent,
-        os_event: &mut XEvent,
+        browser: &'a mut Browser,
+        event: &'a KeyEvent,
+        os_event: &'a mut XEvent,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -24314,12 +24454,12 @@ mod impl_cef_keyboard_handler_t {
 #[derive(Clone)]
 pub struct KeyboardHandler(RefGuard<_cef_keyboard_handler_t>);
 impl ImplKeyboardHandler for KeyboardHandler {
-    fn on_pre_key_event(
+    fn on_pre_key_event<'a>(
         &self,
-        browser: &mut Browser,
-        event: &KeyEvent,
-        os_event: &mut XEvent,
-        is_keyboard_shortcut: &mut ::std::os::raw::c_int,
+        browser: &'a mut Browser,
+        event: &'a KeyEvent,
+        os_event: &'a mut XEvent,
+        is_keyboard_shortcut: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -24344,11 +24484,11 @@ impl ImplKeyboardHandler for KeyboardHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_key_event(
+    fn on_key_event<'a>(
         &self,
-        browser: &mut Browser,
-        event: &KeyEvent,
-        os_event: &mut XEvent,
+        browser: &'a mut Browser,
+        event: &'a KeyEvent,
+        os_event: &'a mut XEvent,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -24402,45 +24542,49 @@ impl Default for KeyboardHandler {
     }
 }
 pub trait ImplLifeSpanHandler: Sized {
-    fn on_before_popup(
+    fn on_before_popup<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         popup_id: ::std::os::raw::c_int,
-        target_url: &CefStringUtf16,
-        target_frame_name: &CefStringUtf16,
+        target_url: &'a CefStringUtf16,
+        target_frame_name: &'a CefStringUtf16,
         target_disposition: WindowOpenDisposition,
         user_gesture: ::std::os::raw::c_int,
-        popup_features: &PopupFeatures,
-        window_info: &mut WindowInfo,
-        client: &mut Option<Client>,
-        settings: &mut BrowserSettings,
-        extra_info: &mut Option<DictionaryValue>,
-        no_javascript_access: &mut ::std::os::raw::c_int,
+        popup_features: &'a PopupFeatures,
+        window_info: &'a mut WindowInfo,
+        client: &'a mut Option<Client>,
+        settings: &'a mut BrowserSettings,
+        extra_info: &'a mut Option<DictionaryValue>,
+        no_javascript_access: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_before_popup_aborted(&self, browser: &mut Browser, popup_id: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_before_dev_tools_popup(
+    fn on_before_popup_aborted<'a>(
         &self,
-        browser: &mut Browser,
-        window_info: &mut WindowInfo,
-        client: &mut Option<Client>,
-        settings: &mut BrowserSettings,
-        extra_info: &mut Option<DictionaryValue>,
-        use_default_window: &mut ::std::os::raw::c_int,
+        browser: &'a mut Browser,
+        popup_id: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_after_created(&self, browser: &mut Browser) {
+    fn on_before_dev_tools_popup<'a>(
+        &self,
+        browser: &'a mut Browser,
+        window_info: &'a mut WindowInfo,
+        client: &'a mut Option<Client>,
+        settings: &'a mut BrowserSettings,
+        extra_info: &'a mut Option<DictionaryValue>,
+        use_default_window: &'a mut ::std::os::raw::c_int,
+    ) {
         unsafe { std::mem::zeroed() }
     }
-    fn do_close(&self, browser: &mut Browser) -> ::std::os::raw::c_int {
+    fn on_after_created<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_before_close(&self, browser: &mut Browser) {
+    fn do_close<'a>(&self, browser: &'a mut Browser) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_before_close<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_life_span_handler_t {
@@ -24641,21 +24785,21 @@ mod impl_cef_life_span_handler_t {
 #[derive(Clone)]
 pub struct LifeSpanHandler(RefGuard<_cef_life_span_handler_t>);
 impl ImplLifeSpanHandler for LifeSpanHandler {
-    fn on_before_popup(
+    fn on_before_popup<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         popup_id: ::std::os::raw::c_int,
-        target_url: &CefStringUtf16,
-        target_frame_name: &CefStringUtf16,
+        target_url: &'a CefStringUtf16,
+        target_frame_name: &'a CefStringUtf16,
         target_disposition: WindowOpenDisposition,
         user_gesture: ::std::os::raw::c_int,
-        popup_features: &PopupFeatures,
-        window_info: &mut WindowInfo,
-        client: &mut Option<Client>,
-        settings: &mut BrowserSettings,
-        extra_info: &mut Option<DictionaryValue>,
-        no_javascript_access: &mut ::std::os::raw::c_int,
+        popup_features: &'a PopupFeatures,
+        window_info: &'a mut WindowInfo,
+        client: &'a mut Option<Client>,
+        settings: &'a mut BrowserSettings,
+        extra_info: &'a mut Option<DictionaryValue>,
+        no_javascript_access: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -24725,7 +24869,11 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_before_popup_aborted(&self, browser: &mut Browser, popup_id: ::std::os::raw::c_int) {
+    fn on_before_popup_aborted<'a>(
+        &self,
+        browser: &'a mut Browser,
+        popup_id: ::std::os::raw::c_int,
+    ) {
         unsafe {
             self.0
                 .on_before_popup_aborted
@@ -24740,14 +24888,14 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_before_dev_tools_popup(
+    fn on_before_dev_tools_popup<'a>(
         &self,
-        browser: &mut Browser,
-        window_info: &mut WindowInfo,
-        client: &mut Option<Client>,
-        settings: &mut BrowserSettings,
-        extra_info: &mut Option<DictionaryValue>,
-        use_default_window: &mut ::std::os::raw::c_int,
+        browser: &'a mut Browser,
+        window_info: &'a mut WindowInfo,
+        client: &'a mut Option<Client>,
+        settings: &'a mut BrowserSettings,
+        extra_info: &'a mut Option<DictionaryValue>,
+        use_default_window: &'a mut ::std::os::raw::c_int,
     ) {
         unsafe {
             self.0
@@ -24789,7 +24937,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_after_created(&self, browser: &mut Browser) {
+    fn on_after_created<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_after_created
@@ -24803,7 +24951,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn do_close(&self, browser: &mut Browser) -> ::std::os::raw::c_int {
+    fn do_close<'a>(&self, browser: &'a mut Browser) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .do_close
@@ -24817,7 +24965,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_before_close(&self, browser: &mut Browser) {
+    fn on_before_close<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_before_close
@@ -24868,38 +25016,38 @@ impl Default for LifeSpanHandler {
     }
 }
 pub trait ImplLoadHandler: Sized {
-    fn on_loading_state_change(
+    fn on_loading_state_change<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         is_loading: ::std::os::raw::c_int,
         can_go_back: ::std::os::raw::c_int,
         can_go_forward: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_load_start(
+    fn on_load_start<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         transition_type: TransitionType,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_load_end(
+    fn on_load_end<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         http_status_code: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_load_error(
+    fn on_load_error<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         error_code: Errorcode,
-        error_text: &CefStringUtf16,
-        failed_url: &CefStringUtf16,
+        error_text: &'a CefStringUtf16,
+        failed_url: &'a CefStringUtf16,
     ) {
         unsafe { std::mem::zeroed() }
     }
@@ -25001,9 +25149,9 @@ mod impl_cef_load_handler_t {
 #[derive(Clone)]
 pub struct LoadHandler(RefGuard<_cef_load_handler_t>);
 impl ImplLoadHandler for LoadHandler {
-    fn on_loading_state_change(
+    fn on_loading_state_change<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         is_loading: ::std::os::raw::c_int,
         can_go_back: ::std::os::raw::c_int,
         can_go_forward: ::std::os::raw::c_int,
@@ -25031,10 +25179,10 @@ impl ImplLoadHandler for LoadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_load_start(
+    fn on_load_start<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         transition_type: TransitionType,
     ) {
         unsafe {
@@ -25053,10 +25201,10 @@ impl ImplLoadHandler for LoadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_load_end(
+    fn on_load_end<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         http_status_code: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -25075,13 +25223,13 @@ impl ImplLoadHandler for LoadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_load_error(
+    fn on_load_error<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         error_code: Errorcode,
-        error_text: &CefStringUtf16,
-        failed_url: &CefStringUtf16,
+        error_text: &'a CefStringUtf16,
+        failed_url: &'a CefStringUtf16,
     ) {
         unsafe {
             self.0
@@ -25145,10 +25293,10 @@ impl Default for LoadHandler {
     }
 }
 pub trait ImplMediaAccessCallback: Sized {
-    fn cont(&self, allowed_permissions: u32) {
+    fn cont<'a>(&self, allowed_permissions: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_media_access_callback_t {
@@ -25182,7 +25330,7 @@ mod impl_cef_media_access_callback_t {
 #[derive(Clone)]
 pub struct MediaAccessCallback(RefGuard<_cef_media_access_callback_t>);
 impl ImplMediaAccessCallback for MediaAccessCallback {
-    fn cont(&self, allowed_permissions: u32) {
+    fn cont<'a>(&self, allowed_permissions: u32) {
         unsafe {
             self.0
                 .cont
@@ -25196,7 +25344,7 @@ impl ImplMediaAccessCallback for MediaAccessCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -25245,7 +25393,7 @@ impl Default for MediaAccessCallback {
     }
 }
 pub trait ImplPermissionPromptCallback: Sized {
-    fn cont(&self, result: PermissionRequestResult) {
+    fn cont<'a>(&self, result: PermissionRequestResult) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_permission_prompt_callback_t {
@@ -25275,7 +25423,7 @@ mod impl_cef_permission_prompt_callback_t {
 #[derive(Clone)]
 pub struct PermissionPromptCallback(RefGuard<_cef_permission_prompt_callback_t>);
 impl ImplPermissionPromptCallback for PermissionPromptCallback {
-    fn cont(&self, result: PermissionRequestResult) {
+    fn cont<'a>(&self, result: PermissionRequestResult) {
         unsafe {
             self.0
                 .cont
@@ -25326,29 +25474,29 @@ impl Default for PermissionPromptCallback {
     }
 }
 pub trait ImplPermissionHandler: Sized {
-    fn on_request_media_access_permission(
+    fn on_request_media_access_permission<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        requesting_origin: &CefStringUtf16,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        requesting_origin: &'a CefStringUtf16,
         requested_permissions: u32,
-        callback: &mut MediaAccessCallback,
+        callback: &'a mut MediaAccessCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_show_permission_prompt(
+    fn on_show_permission_prompt<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         prompt_id: u64,
-        requesting_origin: &CefStringUtf16,
+        requesting_origin: &'a CefStringUtf16,
         requested_permissions: u32,
-        callback: &mut PermissionPromptCallback,
+        callback: &'a mut PermissionPromptCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_dismiss_permission_prompt(
+    fn on_dismiss_permission_prompt<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         prompt_id: u64,
         result: PermissionRequestResult,
     ) {
@@ -25472,13 +25620,13 @@ mod impl_cef_permission_handler_t {
 #[derive(Clone)]
 pub struct PermissionHandler(RefGuard<_cef_permission_handler_t>);
 impl ImplPermissionHandler for PermissionHandler {
-    fn on_request_media_access_permission(
+    fn on_request_media_access_permission<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        requesting_origin: &CefStringUtf16,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        requesting_origin: &'a CefStringUtf16,
         requested_permissions: u32,
-        callback: &mut MediaAccessCallback,
+        callback: &'a mut MediaAccessCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -25516,13 +25664,13 @@ impl ImplPermissionHandler for PermissionHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_show_permission_prompt(
+    fn on_show_permission_prompt<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         prompt_id: u64,
-        requesting_origin: &CefStringUtf16,
+        requesting_origin: &'a CefStringUtf16,
         requested_permissions: u32,
-        callback: &mut PermissionPromptCallback,
+        callback: &'a mut PermissionPromptCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -25560,9 +25708,9 @@ impl ImplPermissionHandler for PermissionHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_dismiss_permission_prompt(
+    fn on_dismiss_permission_prompt<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         prompt_id: u64,
         result: PermissionRequestResult,
     ) {
@@ -25618,75 +25766,75 @@ impl Default for PermissionHandler {
     }
 }
 pub trait ImplPrintSettings: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_orientation(&self, landscape: ::std::os::raw::c_int) {
+    fn set_orientation<'a>(&self, landscape: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_landscape(&self) -> ::std::os::raw::c_int {
+    fn is_landscape<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_printer_printable_area(
+    fn set_printer_printable_area<'a>(
         &self,
-        physical_size_device_units: &Size,
-        printable_area_device_units: &Rect,
+        physical_size_device_units: &'a Size,
+        printable_area_device_units: &'a Rect,
         landscape_needs_flip: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_device_name(&self, name: &CefStringUtf16) {
+    fn set_device_name<'a>(&self, name: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_device_name(&self) -> CefStringUtf16 {
+    fn get_device_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_dpi(&self, dpi: ::std::os::raw::c_int) {
+    fn set_dpi<'a>(&self, dpi: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_dpi(&self) -> ::std::os::raw::c_int {
+    fn get_dpi<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_page_ranges(&self, ranges_count: usize, ranges: &Range) {
+    fn set_page_ranges<'a>(&self, ranges_count: usize, ranges: &'a Range) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_page_ranges_count(&self) -> usize {
+    fn get_page_ranges_count<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_page_ranges(&self, ranges_count: &mut usize, ranges: &mut Range) {
+    fn get_page_ranges<'a>(&self, ranges_count: &'a mut usize, ranges: &'a mut Range) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_selection_only(&self, selection_only: ::std::os::raw::c_int) {
+    fn set_selection_only<'a>(&self, selection_only: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_selection_only(&self) -> ::std::os::raw::c_int {
+    fn is_selection_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_collate(&self, collate: ::std::os::raw::c_int) {
+    fn set_collate<'a>(&self, collate: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn will_collate(&self) -> ::std::os::raw::c_int {
+    fn will_collate<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_color_model(&self, model: ColorModel) {
+    fn set_color_model<'a>(&self, model: ColorModel) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_color_model(&self) -> ColorModel {
+    fn get_color_model<'a>(&self) -> ColorModel {
         unsafe { std::mem::zeroed() }
     }
-    fn set_copies(&self, copies: ::std::os::raw::c_int) {
+    fn set_copies<'a>(&self, copies: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_copies(&self) -> ::std::os::raw::c_int {
+    fn get_copies<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_duplex_mode(&self, mode: DuplexMode) {
+    fn set_duplex_mode<'a>(&self, mode: DuplexMode) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_duplex_mode(&self) -> DuplexMode {
+    fn get_duplex_mode<'a>(&self) -> DuplexMode {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_print_settings_t {
@@ -25936,7 +26084,7 @@ mod impl_cef_print_settings_t {
 #[derive(Clone)]
 pub struct PrintSettings(RefGuard<_cef_print_settings_t>);
 impl ImplPrintSettings for PrintSettings {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -25948,7 +26096,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -25960,7 +26108,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_orientation(&self, landscape: ::std::os::raw::c_int) {
+    fn set_orientation<'a>(&self, landscape: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_orientation
@@ -25974,7 +26122,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_landscape(&self) -> ::std::os::raw::c_int {
+    fn is_landscape<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_landscape
@@ -25986,10 +26134,10 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_printer_printable_area(
+    fn set_printer_printable_area<'a>(
         &self,
-        physical_size_device_units: &Size,
-        printable_area_device_units: &Rect,
+        physical_size_device_units: &'a Size,
+        printable_area_device_units: &'a Rect,
         landscape_needs_flip: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -26020,7 +26168,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_device_name(&self, name: &CefStringUtf16) {
+    fn set_device_name<'a>(&self, name: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_device_name
@@ -26034,7 +26182,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_device_name(&self) -> CefStringUtf16 {
+    fn get_device_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_device_name
@@ -26046,7 +26194,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_dpi(&self, dpi: ::std::os::raw::c_int) {
+    fn set_dpi<'a>(&self, dpi: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_dpi
@@ -26060,7 +26208,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_dpi(&self) -> ::std::os::raw::c_int {
+    fn get_dpi<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_dpi
@@ -26072,7 +26220,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_page_ranges(&self, ranges_count: usize, ranges: &Range) {
+    fn set_page_ranges<'a>(&self, ranges_count: usize, ranges: &'a Range) {
         unsafe {
             self.0
                 .set_page_ranges
@@ -26087,7 +26235,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_page_ranges_count(&self) -> usize {
+    fn get_page_ranges_count<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_page_ranges_count
@@ -26099,7 +26247,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_page_ranges(&self, ranges_count: &mut usize, ranges: &mut Range) {
+    fn get_page_ranges<'a>(&self, ranges_count: &'a mut usize, ranges: &'a mut Range) {
         unsafe {
             self.0
                 .get_page_ranges
@@ -26114,7 +26262,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_selection_only(&self, selection_only: ::std::os::raw::c_int) {
+    fn set_selection_only<'a>(&self, selection_only: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_selection_only
@@ -26128,7 +26276,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_selection_only(&self) -> ::std::os::raw::c_int {
+    fn is_selection_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_selection_only
@@ -26140,7 +26288,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_collate(&self, collate: ::std::os::raw::c_int) {
+    fn set_collate<'a>(&self, collate: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_collate
@@ -26154,7 +26302,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn will_collate(&self) -> ::std::os::raw::c_int {
+    fn will_collate<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .will_collate
@@ -26166,7 +26314,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_color_model(&self, model: ColorModel) {
+    fn set_color_model<'a>(&self, model: ColorModel) {
         unsafe {
             self.0
                 .set_color_model
@@ -26180,7 +26328,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_color_model(&self) -> ColorModel {
+    fn get_color_model<'a>(&self) -> ColorModel {
         unsafe {
             self.0
                 .get_color_model
@@ -26192,7 +26340,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_copies(&self, copies: ::std::os::raw::c_int) {
+    fn set_copies<'a>(&self, copies: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_copies
@@ -26206,7 +26354,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_copies(&self) -> ::std::os::raw::c_int {
+    fn get_copies<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_copies
@@ -26218,7 +26366,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_duplex_mode(&self, mode: DuplexMode) {
+    fn set_duplex_mode<'a>(&self, mode: DuplexMode) {
         unsafe {
             self.0
                 .set_duplex_mode
@@ -26232,7 +26380,7 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_duplex_mode(&self) -> DuplexMode {
+    fn get_duplex_mode<'a>(&self) -> DuplexMode {
         unsafe {
             self.0
                 .get_duplex_mode
@@ -26281,10 +26429,10 @@ impl Default for PrintSettings {
     }
 }
 pub trait ImplPrintDialogCallback: Sized {
-    fn cont(&self, settings: &mut PrintSettings) {
+    fn cont<'a>(&self, settings: &'a mut PrintSettings) {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_print_dialog_callback_t {
@@ -26318,7 +26466,7 @@ mod impl_cef_print_dialog_callback_t {
 #[derive(Clone)]
 pub struct PrintDialogCallback(RefGuard<_cef_print_dialog_callback_t>);
 impl ImplPrintDialogCallback for PrintDialogCallback {
-    fn cont(&self, settings: &mut PrintSettings) {
+    fn cont<'a>(&self, settings: &'a mut PrintSettings) {
         unsafe {
             self.0
                 .cont
@@ -26332,7 +26480,7 @@ impl ImplPrintDialogCallback for PrintDialogCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -26381,7 +26529,7 @@ impl Default for PrintDialogCallback {
     }
 }
 pub trait ImplPrintJobCallback: Sized {
-    fn cont(&self) {
+    fn cont<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_print_job_callback_t {
@@ -26405,7 +26553,7 @@ mod impl_cef_print_job_callback_t {
 #[derive(Clone)]
 pub struct PrintJobCallback(RefGuard<_cef_print_job_callback_t>);
 impl ImplPrintJobCallback for PrintJobCallback {
-    fn cont(&self) {
+    fn cont<'a>(&self) {
         unsafe {
             self.0
                 .cont
@@ -26454,40 +26602,40 @@ impl Default for PrintJobCallback {
     }
 }
 pub trait ImplPrintHandler: Sized {
-    fn on_print_start(&self, browser: &mut Browser) {
+    fn on_print_start<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_print_settings(
+    fn on_print_settings<'a>(
         &self,
-        browser: &mut Browser,
-        settings: &mut PrintSettings,
+        browser: &'a mut Browser,
+        settings: &'a mut PrintSettings,
         get_defaults: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_print_dialog(
+    fn on_print_dialog<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         has_selection: ::std::os::raw::c_int,
-        callback: &mut PrintDialogCallback,
+        callback: &'a mut PrintDialogCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_print_job(
+    fn on_print_job<'a>(
         &self,
-        browser: &mut Browser,
-        document_name: &CefStringUtf16,
-        pdf_file_path: &CefStringUtf16,
-        callback: &mut PrintJobCallback,
+        browser: &'a mut Browser,
+        document_name: &'a CefStringUtf16,
+        pdf_file_path: &'a CefStringUtf16,
+        callback: &'a mut PrintJobCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_print_reset(&self, browser: &mut Browser) {
+    fn on_print_reset<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_pdf_paper_size(
+    fn get_pdf_paper_size<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         device_units_per_inch: ::std::os::raw::c_int,
     ) -> Size {
         unsafe { std::mem::zeroed() }
@@ -26607,7 +26755,7 @@ mod impl_cef_print_handler_t {
 #[derive(Clone)]
 pub struct PrintHandler(RefGuard<_cef_print_handler_t>);
 impl ImplPrintHandler for PrintHandler {
-    fn on_print_start(&self, browser: &mut Browser) {
+    fn on_print_start<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_print_start
@@ -26621,10 +26769,10 @@ impl ImplPrintHandler for PrintHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_print_settings(
+    fn on_print_settings<'a>(
         &self,
-        browser: &mut Browser,
-        settings: &mut PrintSettings,
+        browser: &'a mut Browser,
+        settings: &'a mut PrintSettings,
         get_defaults: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -26643,11 +26791,11 @@ impl ImplPrintHandler for PrintHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_print_dialog(
+    fn on_print_dialog<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         has_selection: ::std::os::raw::c_int,
-        callback: &mut PrintDialogCallback,
+        callback: &'a mut PrintDialogCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -26665,12 +26813,12 @@ impl ImplPrintHandler for PrintHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_print_job(
+    fn on_print_job<'a>(
         &self,
-        browser: &mut Browser,
-        document_name: &CefStringUtf16,
-        pdf_file_path: &CefStringUtf16,
-        callback: &mut PrintJobCallback,
+        browser: &'a mut Browser,
+        document_name: &'a CefStringUtf16,
+        pdf_file_path: &'a CefStringUtf16,
+        callback: &'a mut PrintJobCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -26695,7 +26843,7 @@ impl ImplPrintHandler for PrintHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_print_reset(&self, browser: &mut Browser) {
+    fn on_print_reset<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_print_reset
@@ -26709,9 +26857,9 @@ impl ImplPrintHandler for PrintHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_pdf_paper_size(
+    fn get_pdf_paper_size<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         device_units_per_inch: ::std::os::raw::c_int,
     ) -> Size {
         unsafe {
@@ -26765,10 +26913,10 @@ impl Default for PrintHandler {
     }
 }
 pub trait ImplAccessibilityHandler: Sized {
-    fn on_accessibility_tree_change(&self, value: &mut Value) {
+    fn on_accessibility_tree_change<'a>(&self, value: &'a mut Value) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_accessibility_location_change(&self, value: &mut Value) {
+    fn on_accessibility_location_change<'a>(&self, value: &'a mut Value) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_accessibility_handler_t {
@@ -26808,7 +26956,7 @@ mod impl_cef_accessibility_handler_t {
 #[derive(Clone)]
 pub struct AccessibilityHandler(RefGuard<_cef_accessibility_handler_t>);
 impl ImplAccessibilityHandler for AccessibilityHandler {
-    fn on_accessibility_tree_change(&self, value: &mut Value) {
+    fn on_accessibility_tree_change<'a>(&self, value: &'a mut Value) {
         unsafe {
             self.0
                 .on_accessibility_tree_change
@@ -26822,7 +26970,7 @@ impl ImplAccessibilityHandler for AccessibilityHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_accessibility_location_change(&self, value: &mut Value) {
+    fn on_accessibility_location_change<'a>(&self, value: &'a mut Value) {
         unsafe {
             self.0
                 .on_accessibility_location_change
@@ -26873,109 +27021,117 @@ impl Default for AccessibilityHandler {
     }
 }
 pub trait ImplRenderHandler: Sized {
-    fn get_accessibility_handler(&self) -> AccessibilityHandler {
+    fn get_accessibility_handler<'a>(&self) -> AccessibilityHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_root_screen_rect(
+    fn get_root_screen_rect<'a>(
         &self,
-        browser: &mut Browser,
-        rect: &mut Rect,
+        browser: &'a mut Browser,
+        rect: &'a mut Rect,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_view_rect(&self, browser: &mut Browser, rect: &mut Rect) {
+    fn get_view_rect<'a>(&self, browser: &'a mut Browser, rect: &'a mut Rect) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_screen_point(
+    fn get_screen_point<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         view_x: ::std::os::raw::c_int,
         view_y: ::std::os::raw::c_int,
-        screen_x: &mut ::std::os::raw::c_int,
-        screen_y: &mut ::std::os::raw::c_int,
+        screen_x: &'a mut ::std::os::raw::c_int,
+        screen_y: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_screen_info(
+    fn get_screen_info<'a>(
         &self,
-        browser: &mut Browser,
-        screen_info: &mut ScreenInfo,
+        browser: &'a mut Browser,
+        screen_info: &'a mut ScreenInfo,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_popup_show(&self, browser: &mut Browser, show: ::std::os::raw::c_int) {
+    fn on_popup_show<'a>(&self, browser: &'a mut Browser, show: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_popup_size(&self, browser: &mut Browser, rect: &Rect) {
+    fn on_popup_size<'a>(&self, browser: &'a mut Browser, rect: &'a Rect) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_paint(
+    fn on_paint<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         type_: PaintElementType,
         dirty_rects_count: usize,
-        dirty_rects: &Rect,
+        dirty_rects: &'a Rect,
         buffer: *const ::std::os::raw::c_void,
         width: ::std::os::raw::c_int,
         height: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_accelerated_paint(
+    fn on_accelerated_paint<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         type_: PaintElementType,
         dirty_rects_count: usize,
-        dirty_rects: &Rect,
-        info: &AcceleratedPaintInfo,
+        dirty_rects: &'a Rect,
+        info: &'a AcceleratedPaintInfo,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_touch_handle_size(
+    fn get_touch_handle_size<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         orientation: HorizontalAlignment,
-        size: &mut Size,
+        size: &'a mut Size,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_touch_handle_state_changed(&self, browser: &mut Browser, state: &TouchHandleState) {
+    fn on_touch_handle_state_changed<'a>(
+        &self,
+        browser: &'a mut Browser,
+        state: &'a TouchHandleState,
+    ) {
         unsafe { std::mem::zeroed() }
     }
-    fn start_dragging(
+    fn start_dragging<'a>(
         &self,
-        browser: &mut Browser,
-        drag_data: &mut DragData,
+        browser: &'a mut Browser,
+        drag_data: &'a mut DragData,
         allowed_ops: DragOperationsMask,
         x: ::std::os::raw::c_int,
         y: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn update_drag_cursor(&self, browser: &mut Browser, operation: DragOperationsMask) {
+    fn update_drag_cursor<'a>(&self, browser: &'a mut Browser, operation: DragOperationsMask) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_scroll_offset_changed(&self, browser: &mut Browser, x: f64, y: f64) {
+    fn on_scroll_offset_changed<'a>(&self, browser: &'a mut Browser, x: f64, y: f64) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_ime_composition_range_changed(
+    fn on_ime_composition_range_changed<'a>(
         &self,
-        browser: &mut Browser,
-        selected_range: &Range,
+        browser: &'a mut Browser,
+        selected_range: &'a Range,
         character_bounds_count: usize,
-        character_bounds: &Rect,
+        character_bounds: &'a Rect,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_text_selection_changed(
+    fn on_text_selection_changed<'a>(
         &self,
-        browser: &mut Browser,
-        selected_text: &CefStringUtf16,
-        selected_range: &Range,
+        browser: &'a mut Browser,
+        selected_text: &'a CefStringUtf16,
+        selected_range: &'a Range,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_virtual_keyboard_requested(&self, browser: &mut Browser, input_mode: TextInputMode) {
+    fn on_virtual_keyboard_requested<'a>(
+        &self,
+        browser: &'a mut Browser,
+        input_mode: TextInputMode,
+    ) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_render_handler_t {
@@ -27331,7 +27487,7 @@ mod impl_cef_render_handler_t {
 #[derive(Clone)]
 pub struct RenderHandler(RefGuard<_cef_render_handler_t>);
 impl ImplRenderHandler for RenderHandler {
-    fn get_accessibility_handler(&self) -> AccessibilityHandler {
+    fn get_accessibility_handler<'a>(&self) -> AccessibilityHandler {
         unsafe {
             self.0
                 .get_accessibility_handler
@@ -27343,10 +27499,10 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_root_screen_rect(
+    fn get_root_screen_rect<'a>(
         &self,
-        browser: &mut Browser,
-        rect: &mut Rect,
+        browser: &'a mut Browser,
+        rect: &'a mut Rect,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -27362,7 +27518,7 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_view_rect(&self, browser: &mut Browser, rect: &mut Rect) {
+    fn get_view_rect<'a>(&self, browser: &'a mut Browser, rect: &'a mut Rect) {
         unsafe {
             self.0
                 .get_view_rect
@@ -27377,13 +27533,13 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_screen_point(
+    fn get_screen_point<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         view_x: ::std::os::raw::c_int,
         view_y: ::std::os::raw::c_int,
-        screen_x: &mut ::std::os::raw::c_int,
-        screen_y: &mut ::std::os::raw::c_int,
+        screen_x: &'a mut ::std::os::raw::c_int,
+        screen_y: &'a mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -27410,10 +27566,10 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_screen_info(
+    fn get_screen_info<'a>(
         &self,
-        browser: &mut Browser,
-        screen_info: &mut ScreenInfo,
+        browser: &'a mut Browser,
+        screen_info: &'a mut ScreenInfo,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -27429,7 +27585,7 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_popup_show(&self, browser: &mut Browser, show: ::std::os::raw::c_int) {
+    fn on_popup_show<'a>(&self, browser: &'a mut Browser, show: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .on_popup_show
@@ -27444,7 +27600,7 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_popup_size(&self, browser: &mut Browser, rect: &Rect) {
+    fn on_popup_size<'a>(&self, browser: &'a mut Browser, rect: &'a Rect) {
         unsafe {
             self.0
                 .on_popup_size
@@ -27459,12 +27615,12 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_paint(
+    fn on_paint<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         type_: PaintElementType,
         dirty_rects_count: usize,
-        dirty_rects: &Rect,
+        dirty_rects: &'a Rect,
         buffer: *const ::std::os::raw::c_void,
         width: ::std::os::raw::c_int,
         height: ::std::os::raw::c_int,
@@ -27513,13 +27669,13 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_accelerated_paint(
+    fn on_accelerated_paint<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         type_: PaintElementType,
         dirty_rects_count: usize,
-        dirty_rects: &Rect,
-        info: &AcceleratedPaintInfo,
+        dirty_rects: &'a Rect,
+        info: &'a AcceleratedPaintInfo,
     ) {
         unsafe {
             self.0
@@ -27546,11 +27702,11 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_touch_handle_size(
+    fn get_touch_handle_size<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         orientation: HorizontalAlignment,
-        size: &mut Size,
+        size: &'a mut Size,
     ) {
         unsafe {
             self.0
@@ -27567,7 +27723,11 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_touch_handle_state_changed(&self, browser: &mut Browser, state: &TouchHandleState) {
+    fn on_touch_handle_state_changed<'a>(
+        &self,
+        browser: &'a mut Browser,
+        state: &'a TouchHandleState,
+    ) {
         unsafe {
             self.0
                 .on_touch_handle_state_changed
@@ -27582,10 +27742,10 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn start_dragging(
+    fn start_dragging<'a>(
         &self,
-        browser: &mut Browser,
-        drag_data: &mut DragData,
+        browser: &'a mut Browser,
+        drag_data: &'a mut DragData,
         allowed_ops: DragOperationsMask,
         x: ::std::os::raw::c_int,
         y: ::std::os::raw::c_int,
@@ -27615,7 +27775,7 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn update_drag_cursor(&self, browser: &mut Browser, operation: DragOperationsMask) {
+    fn update_drag_cursor<'a>(&self, browser: &'a mut Browser, operation: DragOperationsMask) {
         unsafe {
             self.0
                 .update_drag_cursor
@@ -27630,7 +27790,7 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_scroll_offset_changed(&self, browser: &mut Browser, x: f64, y: f64) {
+    fn on_scroll_offset_changed<'a>(&self, browser: &'a mut Browser, x: f64, y: f64) {
         unsafe {
             self.0
                 .on_scroll_offset_changed
@@ -27646,12 +27806,12 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_ime_composition_range_changed(
+    fn on_ime_composition_range_changed<'a>(
         &self,
-        browser: &mut Browser,
-        selected_range: &Range,
+        browser: &'a mut Browser,
+        selected_range: &'a Range,
         character_bounds_count: usize,
-        character_bounds: &Rect,
+        character_bounds: &'a Rect,
     ) {
         unsafe {
             self.0
@@ -27685,11 +27845,11 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_text_selection_changed(
+    fn on_text_selection_changed<'a>(
         &self,
-        browser: &mut Browser,
-        selected_text: &CefStringUtf16,
-        selected_range: &Range,
+        browser: &'a mut Browser,
+        selected_text: &'a CefStringUtf16,
+        selected_range: &'a Range,
     ) {
         unsafe {
             self.0
@@ -27712,7 +27872,11 @@ impl ImplRenderHandler for RenderHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_virtual_keyboard_requested(&self, browser: &mut Browser, input_mode: TextInputMode) {
+    fn on_virtual_keyboard_requested<'a>(
+        &self,
+        browser: &'a mut Browser,
+        input_mode: TextInputMode,
+    ) {
         unsafe {
             self.0
                 .on_virtual_keyboard_requested
@@ -27764,10 +27928,10 @@ impl Default for RenderHandler {
     }
 }
 pub trait ImplAuthCallback: Sized {
-    fn cont(&self, username: &CefStringUtf16, password: &CefStringUtf16) {
+    fn cont<'a>(&self, username: &'a CefStringUtf16, password: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_auth_callback_t {
@@ -27805,7 +27969,7 @@ mod impl_cef_auth_callback_t {
 #[derive(Clone)]
 pub struct AuthCallback(RefGuard<_cef_auth_callback_t>);
 impl ImplAuthCallback for AuthCallback {
-    fn cont(&self, username: &CefStringUtf16, password: &CefStringUtf16) {
+    fn cont<'a>(&self, username: &'a CefStringUtf16, password: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .cont
@@ -27820,7 +27984,7 @@ impl ImplAuthCallback for AuthCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -27869,60 +28033,60 @@ impl Default for AuthCallback {
     }
 }
 pub trait ImplResponse: Sized {
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_error(&self) -> Errorcode {
+    fn get_error<'a>(&self) -> Errorcode {
         unsafe { std::mem::zeroed() }
     }
-    fn set_error(&self, error: Errorcode) {
+    fn set_error<'a>(&self, error: Errorcode) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_status(&self) -> ::std::os::raw::c_int {
+    fn get_status<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_status(&self, status: ::std::os::raw::c_int) {
+    fn set_status<'a>(&self, status: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_status_text(&self) -> CefStringUtf16 {
+    fn get_status_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_status_text(&self, status_text: &CefStringUtf16) {
+    fn set_status_text<'a>(&self, status_text: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_mime_type(&self) -> CefStringUtf16 {
+    fn get_mime_type<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_mime_type(&self, mime_type: &CefStringUtf16) {
+    fn set_mime_type<'a>(&self, mime_type: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_charset(&self) -> CefStringUtf16 {
+    fn get_charset<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_charset(&self, charset: &CefStringUtf16) {
+    fn set_charset<'a>(&self, charset: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_header_by_name(&self, name: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_header_by_name<'a>(&self, name: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_header_by_name(
+    fn set_header_by_name<'a>(
         &self,
-        name: &CefStringUtf16,
-        value: &CefStringUtf16,
+        name: &'a CefStringUtf16,
+        value: &'a CefStringUtf16,
         overwrite: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_header_map(&self, header_map: &mut CefStringMultimap) {
+    fn get_header_map<'a>(&self, header_map: &'a mut CefStringMultimap) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_header_map(&self, header_map: &mut CefStringMultimap) {
+    fn set_header_map<'a>(&self, header_map: &'a mut CefStringMultimap) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_url(&self, url: &CefStringUtf16) {
+    fn set_url<'a>(&self, url: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_response_t {
@@ -28106,7 +28270,7 @@ mod impl_cef_response_t {
 #[derive(Clone)]
 pub struct Response(RefGuard<_cef_response_t>);
 impl ImplResponse for Response {
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -28118,7 +28282,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_error(&self) -> Errorcode {
+    fn get_error<'a>(&self) -> Errorcode {
         unsafe {
             self.0
                 .get_error
@@ -28130,7 +28294,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_error(&self, error: Errorcode) {
+    fn set_error<'a>(&self, error: Errorcode) {
         unsafe {
             self.0
                 .set_error
@@ -28144,7 +28308,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_status(&self) -> ::std::os::raw::c_int {
+    fn get_status<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_status
@@ -28156,7 +28320,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_status(&self, status: ::std::os::raw::c_int) {
+    fn set_status<'a>(&self, status: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_status
@@ -28170,7 +28334,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_status_text(&self) -> CefStringUtf16 {
+    fn get_status_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_status_text
@@ -28182,7 +28346,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_status_text(&self, status_text: &CefStringUtf16) {
+    fn set_status_text<'a>(&self, status_text: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_status_text
@@ -28196,7 +28360,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_mime_type(&self) -> CefStringUtf16 {
+    fn get_mime_type<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_mime_type
@@ -28208,7 +28372,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_mime_type(&self, mime_type: &CefStringUtf16) {
+    fn set_mime_type<'a>(&self, mime_type: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_mime_type
@@ -28222,7 +28386,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_charset(&self) -> CefStringUtf16 {
+    fn get_charset<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_charset
@@ -28234,7 +28398,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_charset(&self, charset: &CefStringUtf16) {
+    fn set_charset<'a>(&self, charset: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_charset
@@ -28248,7 +28412,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_header_by_name(&self, name: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_header_by_name<'a>(&self, name: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_header_by_name
@@ -28262,10 +28426,10 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_header_by_name(
+    fn set_header_by_name<'a>(
         &self,
-        name: &CefStringUtf16,
-        value: &CefStringUtf16,
+        name: &'a CefStringUtf16,
+        value: &'a CefStringUtf16,
         overwrite: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -28283,7 +28447,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_header_map(&self, header_map: &mut CefStringMultimap) {
+    fn get_header_map<'a>(&self, header_map: &'a mut CefStringMultimap) {
         unsafe {
             self.0
                 .get_header_map
@@ -28297,7 +28461,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_header_map(&self, header_map: &mut CefStringMultimap) {
+    fn set_header_map<'a>(&self, header_map: &'a mut CefStringMultimap) {
         unsafe {
             self.0
                 .set_header_map
@@ -28311,7 +28475,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_url
@@ -28323,7 +28487,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_url(&self, url: &CefStringUtf16) {
+    fn set_url<'a>(&self, url: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_url
@@ -28374,7 +28538,7 @@ impl Default for Response {
     }
 }
 pub trait ImplResourceSkipCallback: Sized {
-    fn cont(&self, bytes_skipped: i64) {
+    fn cont<'a>(&self, bytes_skipped: i64) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_resource_skip_callback_t {
@@ -28402,7 +28566,7 @@ mod impl_cef_resource_skip_callback_t {
 #[derive(Clone)]
 pub struct ResourceSkipCallback(RefGuard<_cef_resource_skip_callback_t>);
 impl ImplResourceSkipCallback for ResourceSkipCallback {
-    fn cont(&self, bytes_skipped: i64) {
+    fn cont<'a>(&self, bytes_skipped: i64) {
         unsafe {
             self.0
                 .cont
@@ -28453,7 +28617,7 @@ impl Default for ResourceSkipCallback {
     }
 }
 pub trait ImplResourceReadCallback: Sized {
-    fn cont(&self, bytes_read: ::std::os::raw::c_int) {
+    fn cont<'a>(&self, bytes_read: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_resource_read_callback_t {
@@ -28481,7 +28645,7 @@ mod impl_cef_resource_read_callback_t {
 #[derive(Clone)]
 pub struct ResourceReadCallback(RefGuard<_cef_resource_read_callback_t>);
 impl ImplResourceReadCallback for ResourceReadCallback {
-    fn cont(&self, bytes_read: ::std::os::raw::c_int) {
+    fn cont<'a>(&self, bytes_read: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .cont
@@ -28532,56 +28696,56 @@ impl Default for ResourceReadCallback {
     }
 }
 pub trait ImplResourceHandler: Sized {
-    fn open(
+    fn open<'a>(
         &self,
-        request: &mut Request,
-        handle_request: &mut ::std::os::raw::c_int,
-        callback: &mut Callback,
+        request: &'a mut Request,
+        handle_request: &'a mut ::std::os::raw::c_int,
+        callback: &'a mut Callback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn process_request(
+    fn process_request<'a>(
         &self,
-        request: &mut Request,
-        callback: &mut Callback,
+        request: &'a mut Request,
+        callback: &'a mut Callback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_response_headers(
+    fn get_response_headers<'a>(
         &self,
-        response: &mut Response,
-        response_length: &mut i64,
-        redirect_url: &mut CefStringUtf16,
+        response: &'a mut Response,
+        response_length: &'a mut i64,
+        redirect_url: &'a mut CefStringUtf16,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn skip(
+    fn skip<'a>(
         &self,
         bytes_to_skip: i64,
-        bytes_skipped: &mut i64,
-        callback: &mut ResourceSkipCallback,
+        bytes_skipped: &'a mut i64,
+        callback: &'a mut ResourceSkipCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn read(
+    fn read<'a>(
         &self,
         data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
-        bytes_read: &mut ::std::os::raw::c_int,
-        callback: &mut ResourceReadCallback,
+        bytes_read: &'a mut ::std::os::raw::c_int,
+        callback: &'a mut ResourceReadCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn read_response(
+    fn read_response<'a>(
         &self,
         data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
-        bytes_read: &mut ::std::os::raw::c_int,
-        callback: &mut Callback,
+        bytes_read: &'a mut ::std::os::raw::c_int,
+        callback: &'a mut Callback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_resource_handler_t {
@@ -28732,11 +28896,11 @@ mod impl_cef_resource_handler_t {
 #[derive(Clone)]
 pub struct ResourceHandler(RefGuard<_cef_resource_handler_t>);
 impl ImplResourceHandler for ResourceHandler {
-    fn open(
+    fn open<'a>(
         &self,
-        request: &mut Request,
-        handle_request: &mut ::std::os::raw::c_int,
-        callback: &mut Callback,
+        request: &'a mut Request,
+        handle_request: &'a mut ::std::os::raw::c_int,
+        callback: &'a mut Callback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -28754,10 +28918,10 @@ impl ImplResourceHandler for ResourceHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn process_request(
+    fn process_request<'a>(
         &self,
-        request: &mut Request,
-        callback: &mut Callback,
+        request: &'a mut Request,
+        callback: &'a mut Callback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -28773,11 +28937,11 @@ impl ImplResourceHandler for ResourceHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_response_headers(
+    fn get_response_headers<'a>(
         &self,
-        response: &mut Response,
-        response_length: &mut i64,
-        redirect_url: &mut CefStringUtf16,
+        response: &'a mut Response,
+        response_length: &'a mut i64,
+        redirect_url: &'a mut CefStringUtf16,
     ) {
         unsafe {
             self.0
@@ -28800,11 +28964,11 @@ impl ImplResourceHandler for ResourceHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn skip(
+    fn skip<'a>(
         &self,
         bytes_to_skip: i64,
-        bytes_skipped: &mut i64,
-        callback: &mut ResourceSkipCallback,
+        bytes_skipped: &'a mut i64,
+        callback: &'a mut ResourceSkipCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -28827,12 +28991,12 @@ impl ImplResourceHandler for ResourceHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn read(
+    fn read<'a>(
         &self,
         data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
-        bytes_read: &mut ::std::os::raw::c_int,
-        callback: &mut ResourceReadCallback,
+        bytes_read: &'a mut ::std::os::raw::c_int,
+        callback: &'a mut ResourceReadCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -28857,12 +29021,12 @@ impl ImplResourceHandler for ResourceHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn read_response(
+    fn read_response<'a>(
         &self,
         data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
-        bytes_read: &mut ::std::os::raw::c_int,
-        callback: &mut Callback,
+        bytes_read: &'a mut ::std::os::raw::c_int,
+        callback: &'a mut Callback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -28887,7 +29051,7 @@ impl ImplResourceHandler for ResourceHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -28936,15 +29100,15 @@ impl Default for ResourceHandler {
     }
 }
 pub trait ImplResponseFilter: Sized {
-    fn init_filter(&self) -> ::std::os::raw::c_int {
+    fn init_filter<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn filter(
+    fn filter<'a>(
         &self,
-        data_in: Option<&mut &mut [u8]>,
-        data_in_read: &mut usize,
-        data_out: Option<&mut &mut [u8]>,
-        data_out_written: &mut usize,
+        data_in: Option<&'a mut &'a mut [u8]>,
+        data_in_read: &'a mut usize,
+        data_out: Option<&'a mut &'a mut [u8]>,
+        data_out_written: &'a mut usize,
     ) -> ResponseFilterStatus {
         unsafe { std::mem::zeroed() }
     }
@@ -29021,7 +29185,7 @@ mod impl_cef_response_filter_t {
 #[derive(Clone)]
 pub struct ResponseFilter(RefGuard<_cef_response_filter_t>);
 impl ImplResponseFilter for ResponseFilter {
-    fn init_filter(&self) -> ::std::os::raw::c_int {
+    fn init_filter<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .init_filter
@@ -29033,12 +29197,12 @@ impl ImplResponseFilter for ResponseFilter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn filter(
+    fn filter<'a>(
         &self,
-        data_in: Option<&mut &mut [u8]>,
-        data_in_read: &mut usize,
-        data_out: Option<&mut &mut [u8]>,
-        data_out_written: &mut usize,
+        data_in: Option<&'a mut &'a mut [u8]>,
+        data_in_read: &'a mut usize,
+        data_out: Option<&'a mut &'a mut [u8]>,
+        data_out_written: &'a mut usize,
     ) -> ResponseFilterStatus {
         unsafe {
             self.0
@@ -29130,76 +29294,76 @@ impl Default for ResponseFilter {
     }
 }
 pub trait ImplResourceRequestHandler: Sized {
-    fn get_cookie_access_filter(
+    fn get_cookie_access_filter<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
     ) -> CookieAccessFilter {
         unsafe { std::mem::zeroed() }
     }
-    fn on_before_resource_load(
+    fn on_before_resource_load<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        callback: &mut Callback,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        callback: &'a mut Callback,
     ) -> ReturnValue {
         unsafe { std::mem::zeroed() }
     }
-    fn get_resource_handler(
+    fn get_resource_handler<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
     ) -> ResourceHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn on_resource_redirect(
+    fn on_resource_redirect<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
-        new_url: &mut CefStringUtf16,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
+        new_url: &'a mut CefStringUtf16,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_resource_response(
+    fn on_resource_response<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_resource_response_filter(
+    fn get_resource_response_filter<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
     ) -> ResponseFilter {
         unsafe { std::mem::zeroed() }
     }
-    fn on_resource_load_complete(
+    fn on_resource_load_complete<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
         status: UrlrequestStatus,
         received_content_length: i64,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_protocol_execution(
+    fn on_protocol_execution<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        allow_os_execution: &mut ::std::os::raw::c_int,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        allow_os_execution: &'a mut ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
@@ -29407,11 +29571,11 @@ mod impl_cef_resource_request_handler_t {
 #[derive(Clone)]
 pub struct ResourceRequestHandler(RefGuard<_cef_resource_request_handler_t>);
 impl ImplResourceRequestHandler for ResourceRequestHandler {
-    fn get_cookie_access_filter(
+    fn get_cookie_access_filter<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
     ) -> CookieAccessFilter {
         unsafe {
             self.0
@@ -29428,12 +29592,12 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_before_resource_load(
+    fn on_before_resource_load<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        callback: &mut Callback,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        callback: &'a mut Callback,
     ) -> ReturnValue {
         unsafe {
             self.0
@@ -29452,11 +29616,11 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_resource_handler(
+    fn get_resource_handler<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
     ) -> ResourceHandler {
         unsafe {
             self.0
@@ -29473,13 +29637,13 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_resource_redirect(
+    fn on_resource_redirect<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
-        new_url: &mut CefStringUtf16,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
+        new_url: &'a mut CefStringUtf16,
     ) {
         unsafe {
             self.0
@@ -29506,12 +29670,12 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_resource_response(
+    fn on_resource_response<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -29530,12 +29694,12 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_resource_response_filter(
+    fn get_resource_response_filter<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
     ) -> ResponseFilter {
         unsafe {
             self.0
@@ -29554,12 +29718,12 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_resource_load_complete(
+    fn on_resource_load_complete<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
         status: UrlrequestStatus,
         received_content_length: i64,
     ) {
@@ -29603,12 +29767,12 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_protocol_execution(
+    fn on_protocol_execution<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        allow_os_execution: &mut ::std::os::raw::c_int,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        allow_os_execution: &'a mut ::std::os::raw::c_int,
     ) {
         unsafe {
             self.0
@@ -29670,22 +29834,22 @@ impl Default for ResourceRequestHandler {
     }
 }
 pub trait ImplCookieAccessFilter: Sized {
-    fn can_send_cookie(
+    fn can_send_cookie<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        cookie: &Cookie,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        cookie: &'a Cookie,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn can_save_cookie(
+    fn can_save_cookie<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
-        cookie: &Cookie,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
+        cookie: &'a Cookie,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -29754,12 +29918,12 @@ mod impl_cef_cookie_access_filter_t {
 #[derive(Clone)]
 pub struct CookieAccessFilter(RefGuard<_cef_cookie_access_filter_t>);
 impl ImplCookieAccessFilter for CookieAccessFilter {
-    fn can_send_cookie(
+    fn can_send_cookie<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        cookie: &Cookie,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        cookie: &'a Cookie,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -29778,13 +29942,13 @@ impl ImplCookieAccessFilter for CookieAccessFilter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_save_cookie(
+    fn can_save_cookie<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
-        response: &mut Response,
-        cookie: &Cookie,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
+        response: &'a mut Response,
+        cookie: &'a Cookie,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -29848,10 +30012,10 @@ impl Default for CookieAccessFilter {
     }
 }
 pub trait ImplSslinfo: Sized {
-    fn get_cert_status(&self) -> CertStatus {
+    fn get_cert_status<'a>(&self) -> CertStatus {
         unsafe { std::mem::zeroed() }
     }
-    fn get_x509certificate(&self) -> X509certificate {
+    fn get_x509certificate<'a>(&self) -> X509certificate {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_sslinfo_t {
@@ -29883,7 +30047,7 @@ mod impl_cef_sslinfo_t {
 #[derive(Clone)]
 pub struct Sslinfo(RefGuard<_cef_sslinfo_t>);
 impl ImplSslinfo for Sslinfo {
-    fn get_cert_status(&self) -> CertStatus {
+    fn get_cert_status<'a>(&self) -> CertStatus {
         unsafe {
             self.0
                 .get_cert_status
@@ -29895,7 +30059,7 @@ impl ImplSslinfo for Sslinfo {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_x509certificate(&self) -> X509certificate {
+    fn get_x509certificate<'a>(&self) -> X509certificate {
         unsafe {
             self.0
                 .get_x509certificate
@@ -29944,10 +30108,10 @@ impl Default for Sslinfo {
     }
 }
 pub trait ImplUnresponsiveProcessCallback: Sized {
-    fn wait(&self) {
+    fn wait<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn terminate(&self) {
+    fn terminate<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_unresponsive_process_callback_t {
@@ -29983,7 +30147,7 @@ mod impl_cef_unresponsive_process_callback_t {
 #[derive(Clone)]
 pub struct UnresponsiveProcessCallback(RefGuard<_cef_unresponsive_process_callback_t>);
 impl ImplUnresponsiveProcessCallback for UnresponsiveProcessCallback {
-    fn wait(&self) {
+    fn wait<'a>(&self) {
         unsafe {
             self.0
                 .wait
@@ -29995,7 +30159,7 @@ impl ImplUnresponsiveProcessCallback for UnresponsiveProcessCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn terminate(&self) {
+    fn terminate<'a>(&self) {
         unsafe {
             self.0
                 .terminate
@@ -30044,7 +30208,7 @@ impl Default for UnresponsiveProcessCallback {
     }
 }
 pub trait ImplSelectClientCertificateCallback: Sized {
-    fn select(&self, cert: &mut X509certificate) {
+    fn select<'a>(&self, cert: &'a mut X509certificate) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_select_client_certificate_callback_t {
@@ -30074,7 +30238,7 @@ mod impl_cef_select_client_certificate_callback_t {
 #[derive(Clone)]
 pub struct SelectClientCertificateCallback(RefGuard<_cef_select_client_certificate_callback_t>);
 impl ImplSelectClientCertificateCallback for SelectClientCertificateCallback {
-    fn select(&self, cert: &mut X509certificate) {
+    fn select<'a>(&self, cert: &'a mut X509certificate) {
         unsafe {
             self.0
                 .select
@@ -30131,95 +30295,95 @@ impl Default for SelectClientCertificateCallback {
     }
 }
 pub trait ImplRequestHandler: Sized {
-    fn on_before_browse(
+    fn on_before_browse<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
         user_gesture: ::std::os::raw::c_int,
         is_redirect: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_open_urlfrom_tab(
+    fn on_open_urlfrom_tab<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        target_url: &CefStringUtf16,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        target_url: &'a CefStringUtf16,
         target_disposition: WindowOpenDisposition,
         user_gesture: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_resource_request_handler(
+    fn get_resource_request_handler<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
         is_navigation: ::std::os::raw::c_int,
         is_download: ::std::os::raw::c_int,
-        request_initiator: &CefStringUtf16,
-        disable_default_handling: &mut ::std::os::raw::c_int,
+        request_initiator: &'a CefStringUtf16,
+        disable_default_handling: &'a mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_auth_credentials(
+    fn get_auth_credentials<'a>(
         &self,
-        browser: &mut Browser,
-        origin_url: &CefStringUtf16,
+        browser: &'a mut Browser,
+        origin_url: &'a CefStringUtf16,
         is_proxy: ::std::os::raw::c_int,
-        host: &CefStringUtf16,
+        host: &'a CefStringUtf16,
         port: ::std::os::raw::c_int,
-        realm: &CefStringUtf16,
-        scheme: &CefStringUtf16,
-        callback: &mut AuthCallback,
+        realm: &'a CefStringUtf16,
+        scheme: &'a CefStringUtf16,
+        callback: &'a mut AuthCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_certificate_error(
+    fn on_certificate_error<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         cert_error: Errorcode,
-        request_url: &CefStringUtf16,
-        ssl_info: &mut Sslinfo,
-        callback: &mut Callback,
+        request_url: &'a CefStringUtf16,
+        ssl_info: &'a mut Sslinfo,
+        callback: &'a mut Callback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_select_client_certificate(
+    fn on_select_client_certificate<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         is_proxy: ::std::os::raw::c_int,
-        host: &CefStringUtf16,
+        host: &'a CefStringUtf16,
         port: ::std::os::raw::c_int,
-        certificates: Option<&[Option<X509certificate>]>,
-        callback: &mut SelectClientCertificateCallback,
+        certificates: Option<&'a [Option<X509certificate>]>,
+        callback: &'a mut SelectClientCertificateCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_render_view_ready(&self, browser: &mut Browser) {
+    fn on_render_view_ready<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_render_process_unresponsive(
+    fn on_render_process_unresponsive<'a>(
         &self,
-        browser: &mut Browser,
-        callback: &mut UnresponsiveProcessCallback,
+        browser: &'a mut Browser,
+        callback: &'a mut UnresponsiveProcessCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_render_process_responsive(&self, browser: &mut Browser) {
+    fn on_render_process_responsive<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_render_process_terminated(
+    fn on_render_process_terminated<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         status: TerminationStatus,
         error_code: ::std::os::raw::c_int,
-        error_string: &CefStringUtf16,
+        error_string: &'a CefStringUtf16,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_document_available_in_main_frame(&self, browser: &mut Browser) {
+    fn on_document_available_in_main_frame<'a>(&self, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_request_handler_t {
@@ -30567,11 +30731,11 @@ mod impl_cef_request_handler_t {
 #[derive(Clone)]
 pub struct RequestHandler(RefGuard<_cef_request_handler_t>);
 impl ImplRequestHandler for RequestHandler {
-    fn on_before_browse(
+    fn on_before_browse<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
         user_gesture: ::std::os::raw::c_int,
         is_redirect: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -30600,11 +30764,11 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_open_urlfrom_tab(
+    fn on_open_urlfrom_tab<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        target_url: &CefStringUtf16,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        target_url: &'a CefStringUtf16,
         target_disposition: WindowOpenDisposition,
         user_gesture: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -30638,15 +30802,15 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_resource_request_handler(
+    fn get_resource_request_handler<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
         is_navigation: ::std::os::raw::c_int,
         is_download: ::std::os::raw::c_int,
-        request_initiator: &CefStringUtf16,
-        disable_default_handling: &mut ::std::os::raw::c_int,
+        request_initiator: &'a CefStringUtf16,
+        disable_default_handling: &'a mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler {
         unsafe {
             self.0
@@ -30692,16 +30856,16 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_auth_credentials(
+    fn get_auth_credentials<'a>(
         &self,
-        browser: &mut Browser,
-        origin_url: &CefStringUtf16,
+        browser: &'a mut Browser,
+        origin_url: &'a CefStringUtf16,
         is_proxy: ::std::os::raw::c_int,
-        host: &CefStringUtf16,
+        host: &'a CefStringUtf16,
         port: ::std::os::raw::c_int,
-        realm: &CefStringUtf16,
-        scheme: &CefStringUtf16,
-        callback: &mut AuthCallback,
+        realm: &'a CefStringUtf16,
+        scheme: &'a CefStringUtf16,
+        callback: &'a mut AuthCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -30744,13 +30908,13 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_certificate_error(
+    fn on_certificate_error<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         cert_error: Errorcode,
-        request_url: &CefStringUtf16,
-        ssl_info: &mut Sslinfo,
-        callback: &mut Callback,
+        request_url: &'a CefStringUtf16,
+        ssl_info: &'a mut Sslinfo,
+        callback: &'a mut Callback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -30777,14 +30941,14 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_select_client_certificate(
+    fn on_select_client_certificate<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         is_proxy: ::std::os::raw::c_int,
-        host: &CefStringUtf16,
+        host: &'a CefStringUtf16,
         port: ::std::os::raw::c_int,
-        certificates: Option<&[Option<X509certificate>]>,
-        callback: &mut SelectClientCertificateCallback,
+        certificates: Option<&'a [Option<X509certificate>]>,
+        callback: &'a mut SelectClientCertificateCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -30814,7 +30978,7 @@ impl ImplRequestHandler for RequestHandler {
                                 .map(|elem| {
                                     elem.as_ref()
                                         .map(|elem| elem.as_raw())
-                                        .unwrap_or(std::ptr::null())
+                                        .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
                         })
@@ -30840,7 +31004,7 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_render_view_ready(&self, browser: &mut Browser) {
+    fn on_render_view_ready<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_render_view_ready
@@ -30854,10 +31018,10 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_render_process_unresponsive(
+    fn on_render_process_unresponsive<'a>(
         &self,
-        browser: &mut Browser,
-        callback: &mut UnresponsiveProcessCallback,
+        browser: &'a mut Browser,
+        callback: &'a mut UnresponsiveProcessCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -30873,7 +31037,7 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_render_process_responsive(&self, browser: &mut Browser) {
+    fn on_render_process_responsive<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_render_process_responsive
@@ -30887,12 +31051,12 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_render_process_terminated(
+    fn on_render_process_terminated<'a>(
         &self,
-        browser: &mut Browser,
+        browser: &'a mut Browser,
         status: TerminationStatus,
         error_code: ::std::os::raw::c_int,
-        error_string: &CefStringUtf16,
+        error_string: &'a CefStringUtf16,
     ) {
         unsafe {
             self.0
@@ -30917,7 +31081,7 @@ impl ImplRequestHandler for RequestHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_document_available_in_main_frame(&self, browser: &mut Browser) {
+    fn on_document_available_in_main_frame<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_document_available_in_main_frame
@@ -30968,66 +31132,66 @@ impl Default for RequestHandler {
     }
 }
 pub trait ImplClient: Sized {
-    fn get_audio_handler(&self) -> AudioHandler {
+    fn get_audio_handler<'a>(&self) -> AudioHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_command_handler(&self) -> CommandHandler {
+    fn get_command_handler<'a>(&self) -> CommandHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_context_menu_handler(&self) -> ContextMenuHandler {
+    fn get_context_menu_handler<'a>(&self) -> ContextMenuHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_dialog_handler(&self) -> DialogHandler {
+    fn get_dialog_handler<'a>(&self) -> DialogHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_display_handler(&self) -> DisplayHandler {
+    fn get_display_handler<'a>(&self) -> DisplayHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_download_handler(&self) -> DownloadHandler {
+    fn get_download_handler<'a>(&self) -> DownloadHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_drag_handler(&self) -> DragHandler {
+    fn get_drag_handler<'a>(&self) -> DragHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_find_handler(&self) -> FindHandler {
+    fn get_find_handler<'a>(&self) -> FindHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_focus_handler(&self) -> FocusHandler {
+    fn get_focus_handler<'a>(&self) -> FocusHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame_handler(&self) -> FrameHandler {
+    fn get_frame_handler<'a>(&self) -> FrameHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_permission_handler(&self) -> PermissionHandler {
+    fn get_permission_handler<'a>(&self) -> PermissionHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_jsdialog_handler(&self) -> JsdialogHandler {
+    fn get_jsdialog_handler<'a>(&self) -> JsdialogHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_keyboard_handler(&self) -> KeyboardHandler {
+    fn get_keyboard_handler<'a>(&self) -> KeyboardHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_life_span_handler(&self) -> LifeSpanHandler {
+    fn get_life_span_handler<'a>(&self) -> LifeSpanHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_load_handler(&self) -> LoadHandler {
+    fn get_load_handler<'a>(&self) -> LoadHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_print_handler(&self) -> PrintHandler {
+    fn get_print_handler<'a>(&self) -> PrintHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_render_handler(&self) -> RenderHandler {
+    fn get_render_handler<'a>(&self) -> RenderHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_request_handler(&self) -> RequestHandler {
+    fn get_request_handler<'a>(&self) -> RequestHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn on_process_message_received(
+    fn on_process_message_received<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         source_process: ProcessId,
-        message: &mut ProcessMessage,
+        message: &'a mut ProcessMessage,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -31210,7 +31374,7 @@ mod impl_cef_client_t {
 #[derive(Clone)]
 pub struct Client(RefGuard<_cef_client_t>);
 impl ImplClient for Client {
-    fn get_audio_handler(&self) -> AudioHandler {
+    fn get_audio_handler<'a>(&self) -> AudioHandler {
         unsafe {
             self.0
                 .get_audio_handler
@@ -31222,7 +31386,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_command_handler(&self) -> CommandHandler {
+    fn get_command_handler<'a>(&self) -> CommandHandler {
         unsafe {
             self.0
                 .get_command_handler
@@ -31234,7 +31398,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_context_menu_handler(&self) -> ContextMenuHandler {
+    fn get_context_menu_handler<'a>(&self) -> ContextMenuHandler {
         unsafe {
             self.0
                 .get_context_menu_handler
@@ -31246,7 +31410,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_dialog_handler(&self) -> DialogHandler {
+    fn get_dialog_handler<'a>(&self) -> DialogHandler {
         unsafe {
             self.0
                 .get_dialog_handler
@@ -31258,7 +31422,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_display_handler(&self) -> DisplayHandler {
+    fn get_display_handler<'a>(&self) -> DisplayHandler {
         unsafe {
             self.0
                 .get_display_handler
@@ -31270,7 +31434,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_download_handler(&self) -> DownloadHandler {
+    fn get_download_handler<'a>(&self) -> DownloadHandler {
         unsafe {
             self.0
                 .get_download_handler
@@ -31282,7 +31446,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_drag_handler(&self) -> DragHandler {
+    fn get_drag_handler<'a>(&self) -> DragHandler {
         unsafe {
             self.0
                 .get_drag_handler
@@ -31294,7 +31458,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_find_handler(&self) -> FindHandler {
+    fn get_find_handler<'a>(&self) -> FindHandler {
         unsafe {
             self.0
                 .get_find_handler
@@ -31306,7 +31470,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_focus_handler(&self) -> FocusHandler {
+    fn get_focus_handler<'a>(&self) -> FocusHandler {
         unsafe {
             self.0
                 .get_focus_handler
@@ -31318,7 +31482,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame_handler(&self) -> FrameHandler {
+    fn get_frame_handler<'a>(&self) -> FrameHandler {
         unsafe {
             self.0
                 .get_frame_handler
@@ -31330,7 +31494,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_permission_handler(&self) -> PermissionHandler {
+    fn get_permission_handler<'a>(&self) -> PermissionHandler {
         unsafe {
             self.0
                 .get_permission_handler
@@ -31342,7 +31506,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_jsdialog_handler(&self) -> JsdialogHandler {
+    fn get_jsdialog_handler<'a>(&self) -> JsdialogHandler {
         unsafe {
             self.0
                 .get_jsdialog_handler
@@ -31354,7 +31518,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_keyboard_handler(&self) -> KeyboardHandler {
+    fn get_keyboard_handler<'a>(&self) -> KeyboardHandler {
         unsafe {
             self.0
                 .get_keyboard_handler
@@ -31366,7 +31530,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_life_span_handler(&self) -> LifeSpanHandler {
+    fn get_life_span_handler<'a>(&self) -> LifeSpanHandler {
         unsafe {
             self.0
                 .get_life_span_handler
@@ -31378,7 +31542,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_load_handler(&self) -> LoadHandler {
+    fn get_load_handler<'a>(&self) -> LoadHandler {
         unsafe {
             self.0
                 .get_load_handler
@@ -31390,7 +31554,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_print_handler(&self) -> PrintHandler {
+    fn get_print_handler<'a>(&self) -> PrintHandler {
         unsafe {
             self.0
                 .get_print_handler
@@ -31402,7 +31566,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_render_handler(&self) -> RenderHandler {
+    fn get_render_handler<'a>(&self) -> RenderHandler {
         unsafe {
             self.0
                 .get_render_handler
@@ -31414,7 +31578,7 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_request_handler(&self) -> RequestHandler {
+    fn get_request_handler<'a>(&self) -> RequestHandler {
         unsafe {
             self.0
                 .get_request_handler
@@ -31426,12 +31590,12 @@ impl ImplClient for Client {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_process_message_received(
+    fn on_process_message_received<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         source_process: ProcessId,
-        message: &mut ProcessMessage,
+        message: &'a mut ProcessMessage,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -31493,64 +31657,64 @@ impl Default for Client {
     }
 }
 pub trait ImplCommandLine: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn copy(&self) -> CommandLine {
+    fn copy<'a>(&self) -> CommandLine {
         unsafe { std::mem::zeroed() }
     }
-    fn init_from_argv(&self, argc: ::std::os::raw::c_int, argv: ::std::os::raw::c_char) {
+    fn init_from_argv<'a>(&self, argc: ::std::os::raw::c_int, argv: ::std::os::raw::c_char) {
         unsafe { std::mem::zeroed() }
     }
-    fn init_from_string(&self, command_line: &CefStringUtf16) {
+    fn init_from_string<'a>(&self, command_line: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn reset(&self) {
+    fn reset<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_argv(&self, argv: &mut CefStringList) {
+    fn get_argv<'a>(&self, argv: &'a mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_command_line_string(&self) -> CefStringUtf16 {
+    fn get_command_line_string<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_program(&self) -> CefStringUtf16 {
+    fn get_program<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_program(&self, program: &CefStringUtf16) {
+    fn set_program<'a>(&self, program: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn has_switches(&self) -> ::std::os::raw::c_int {
+    fn has_switches<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_switch(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_switch<'a>(&self, name: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_switch_value(&self, name: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_switch_value<'a>(&self, name: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_switches(&self, switches: &mut CefStringMap) {
+    fn get_switches<'a>(&self, switches: &'a mut CefStringMap) {
         unsafe { std::mem::zeroed() }
     }
-    fn append_switch(&self, name: &CefStringUtf16) {
+    fn append_switch<'a>(&self, name: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn append_switch_with_value(&self, name: &CefStringUtf16, value: &CefStringUtf16) {
+    fn append_switch_with_value<'a>(&self, name: &'a CefStringUtf16, value: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn has_arguments(&self) -> ::std::os::raw::c_int {
+    fn has_arguments<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_arguments(&self, arguments: &mut CefStringList) {
+    fn get_arguments<'a>(&self, arguments: &'a mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
-    fn append_argument(&self, argument: &CefStringUtf16) {
+    fn append_argument<'a>(&self, argument: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn prepend_wrapper(&self, wrapper: &CefStringUtf16) {
+    fn prepend_wrapper<'a>(&self, wrapper: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_command_line_t {
@@ -31769,7 +31933,7 @@ mod impl_cef_command_line_t {
 #[derive(Clone)]
 pub struct CommandLine(RefGuard<_cef_command_line_t>);
 impl ImplCommandLine for CommandLine {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -31781,7 +31945,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -31793,7 +31957,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn copy(&self) -> CommandLine {
+    fn copy<'a>(&self) -> CommandLine {
         unsafe {
             self.0
                 .copy
@@ -31805,7 +31969,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn init_from_argv(&self, argc: ::std::os::raw::c_int, argv: ::std::os::raw::c_char) {
+    fn init_from_argv<'a>(&self, argc: ::std::os::raw::c_int, argv: ::std::os::raw::c_char) {
         unsafe {
             self.0
                 .init_from_argv
@@ -31820,7 +31984,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn init_from_string(&self, command_line: &CefStringUtf16) {
+    fn init_from_string<'a>(&self, command_line: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .init_from_string
@@ -31834,7 +31998,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn reset(&self) {
+    fn reset<'a>(&self) {
         unsafe {
             self.0
                 .reset
@@ -31846,7 +32010,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_argv(&self, argv: &mut CefStringList) {
+    fn get_argv<'a>(&self, argv: &'a mut CefStringList) {
         unsafe {
             self.0
                 .get_argv
@@ -31860,7 +32024,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_command_line_string(&self) -> CefStringUtf16 {
+    fn get_command_line_string<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_command_line_string
@@ -31872,7 +32036,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_program(&self) -> CefStringUtf16 {
+    fn get_program<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_program
@@ -31884,7 +32048,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_program(&self, program: &CefStringUtf16) {
+    fn set_program<'a>(&self, program: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_program
@@ -31898,7 +32062,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_switches(&self) -> ::std::os::raw::c_int {
+    fn has_switches<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_switches
@@ -31910,7 +32074,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_switch(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_switch<'a>(&self, name: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_switch
@@ -31924,7 +32088,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_switch_value(&self, name: &CefStringUtf16) -> CefStringUtf16 {
+    fn get_switch_value<'a>(&self, name: &'a CefStringUtf16) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_switch_value
@@ -31938,7 +32102,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_switches(&self, switches: &mut CefStringMap) {
+    fn get_switches<'a>(&self, switches: &'a mut CefStringMap) {
         unsafe {
             self.0
                 .get_switches
@@ -31952,7 +32116,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn append_switch(&self, name: &CefStringUtf16) {
+    fn append_switch<'a>(&self, name: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .append_switch
@@ -31966,7 +32130,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn append_switch_with_value(&self, name: &CefStringUtf16, value: &CefStringUtf16) {
+    fn append_switch_with_value<'a>(&self, name: &'a CefStringUtf16, value: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .append_switch_with_value
@@ -31981,7 +32145,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_arguments(&self) -> ::std::os::raw::c_int {
+    fn has_arguments<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_arguments
@@ -31993,7 +32157,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_arguments(&self, arguments: &mut CefStringList) {
+    fn get_arguments<'a>(&self, arguments: &'a mut CefStringList) {
         unsafe {
             self.0
                 .get_arguments
@@ -32007,7 +32171,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn append_argument(&self, argument: &CefStringUtf16) {
+    fn append_argument<'a>(&self, argument: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .append_argument
@@ -32021,7 +32185,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn prepend_wrapper(&self, wrapper: &CefStringUtf16) {
+    fn prepend_wrapper<'a>(&self, wrapper: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .prepend_wrapper
@@ -32072,18 +32236,18 @@ impl Default for CommandLine {
     }
 }
 pub trait ImplRequestContextHandler: Sized {
-    fn on_request_context_initialized(&self, request_context: &mut RequestContext) {
+    fn on_request_context_initialized<'a>(&self, request_context: &'a mut RequestContext) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_resource_request_handler(
+    fn get_resource_request_handler<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
         is_navigation: ::std::os::raw::c_int,
         is_download: ::std::os::raw::c_int,
-        request_initiator: &CefStringUtf16,
-        disable_default_handling: &mut ::std::os::raw::c_int,
+        request_initiator: &'a CefStringUtf16,
+        disable_default_handling: &'a mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler {
         unsafe { std::mem::zeroed() }
     }
@@ -32169,7 +32333,7 @@ mod impl_cef_request_context_handler_t {
 #[derive(Clone)]
 pub struct RequestContextHandler(RefGuard<_cef_request_context_handler_t>);
 impl ImplRequestContextHandler for RequestContextHandler {
-    fn on_request_context_initialized(&self, request_context: &mut RequestContext) {
+    fn on_request_context_initialized<'a>(&self, request_context: &'a mut RequestContext) {
         unsafe {
             self.0
                 .on_request_context_initialized
@@ -32183,15 +32347,15 @@ impl ImplRequestContextHandler for RequestContextHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_resource_request_handler(
+    fn get_resource_request_handler<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        request: &'a mut Request,
         is_navigation: ::std::os::raw::c_int,
         is_download: ::std::os::raw::c_int,
-        request_initiator: &CefStringUtf16,
-        disable_default_handling: &mut ::std::os::raw::c_int,
+        request_initiator: &'a CefStringUtf16,
+        disable_default_handling: &'a mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler {
         unsafe {
             self.0
@@ -32274,33 +32438,33 @@ impl Default for RequestContextHandler {
     }
 }
 pub trait ImplBrowserProcessHandler: Sized {
-    fn on_register_custom_preferences(
+    fn on_register_custom_preferences<'a>(
         &self,
         type_: PreferencesType,
-        registrar: &mut PreferenceRegistrar,
+        registrar: &'a mut PreferenceRegistrar,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_context_initialized(&self) {
+    fn on_context_initialized<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_before_child_process_launch(&self, command_line: &mut CommandLine) {
+    fn on_before_child_process_launch<'a>(&self, command_line: &'a mut CommandLine) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_already_running_app_relaunch(
+    fn on_already_running_app_relaunch<'a>(
         &self,
-        command_line: &mut CommandLine,
-        current_directory: &CefStringUtf16,
+        command_line: &'a mut CommandLine,
+        current_directory: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_schedule_message_pump_work(&self, delay_ms: i64) {
+    fn on_schedule_message_pump_work<'a>(&self, delay_ms: i64) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_default_client(&self) -> Client {
+    fn get_default_client<'a>(&self) -> Client {
         unsafe { std::mem::zeroed() }
     }
-    fn get_default_request_context_handler(&self) -> RequestContextHandler {
+    fn get_default_request_context_handler<'a>(&self) -> RequestContextHandler {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_browser_process_handler_t {
@@ -32403,10 +32567,10 @@ mod impl_cef_browser_process_handler_t {
 #[derive(Clone)]
 pub struct BrowserProcessHandler(RefGuard<_cef_browser_process_handler_t>);
 impl ImplBrowserProcessHandler for BrowserProcessHandler {
-    fn on_register_custom_preferences(
+    fn on_register_custom_preferences<'a>(
         &self,
         type_: PreferencesType,
-        registrar: &mut PreferenceRegistrar,
+        registrar: &'a mut PreferenceRegistrar,
     ) {
         unsafe {
             self.0
@@ -32422,7 +32586,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_context_initialized(&self) {
+    fn on_context_initialized<'a>(&self) {
         unsafe {
             self.0
                 .on_context_initialized
@@ -32434,7 +32598,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_before_child_process_launch(&self, command_line: &mut CommandLine) {
+    fn on_before_child_process_launch<'a>(&self, command_line: &'a mut CommandLine) {
         unsafe {
             self.0
                 .on_before_child_process_launch
@@ -32448,10 +32612,10 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_already_running_app_relaunch(
+    fn on_already_running_app_relaunch<'a>(
         &self,
-        command_line: &mut CommandLine,
-        current_directory: &CefStringUtf16,
+        command_line: &'a mut CommandLine,
+        current_directory: &'a CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -32468,7 +32632,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_schedule_message_pump_work(&self, delay_ms: i64) {
+    fn on_schedule_message_pump_work<'a>(&self, delay_ms: i64) {
         unsafe {
             self.0
                 .on_schedule_message_pump_work
@@ -32482,7 +32646,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_default_client(&self) -> Client {
+    fn get_default_client<'a>(&self) -> Client {
         unsafe {
             self.0
                 .get_default_client
@@ -32494,7 +32658,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_default_request_context_handler(&self) -> RequestContextHandler {
+    fn get_default_request_context_handler<'a>(&self) -> RequestContextHandler {
         unsafe {
             self.0
                 .get_default_request_context_handler
@@ -32543,7 +32707,7 @@ impl Default for BrowserProcessHandler {
     }
 }
 pub trait ImplTask: Sized {
-    fn execute(&self) {
+    fn execute<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_task_t {
@@ -32567,7 +32731,7 @@ mod impl_cef_task_t {
 #[derive(Clone)]
 pub struct Task(RefGuard<_cef_task_t>);
 impl ImplTask for Task {
-    fn execute(&self) {
+    fn execute<'a>(&self) {
         unsafe {
             self.0
                 .execute
@@ -32616,19 +32780,19 @@ impl Default for Task {
     }
 }
 pub trait ImplTaskRunner: Sized {
-    fn is_same(&self, that: &mut TaskRunner) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut TaskRunner) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn belongs_to_current_thread(&self) -> ::std::os::raw::c_int {
+    fn belongs_to_current_thread<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn belongs_to_thread(&self, thread_id: ThreadId) -> ::std::os::raw::c_int {
+    fn belongs_to_thread<'a>(&self, thread_id: ThreadId) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn post_task(&self, task: &mut Task) -> ::std::os::raw::c_int {
+    fn post_task<'a>(&self, task: &'a mut Task) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn post_delayed_task(&self, task: &mut Task, delay_ms: i64) -> ::std::os::raw::c_int {
+    fn post_delayed_task<'a>(&self, task: &'a mut Task, delay_ms: i64) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_task_runner_t {
@@ -32699,7 +32863,7 @@ mod impl_cef_task_runner_t {
 #[derive(Clone)]
 pub struct TaskRunner(RefGuard<_cef_task_runner_t>);
 impl ImplTaskRunner for TaskRunner {
-    fn is_same(&self, that: &mut TaskRunner) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut TaskRunner) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -32713,7 +32877,7 @@ impl ImplTaskRunner for TaskRunner {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn belongs_to_current_thread(&self) -> ::std::os::raw::c_int {
+    fn belongs_to_current_thread<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .belongs_to_current_thread
@@ -32725,7 +32889,7 @@ impl ImplTaskRunner for TaskRunner {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn belongs_to_thread(&self, thread_id: ThreadId) -> ::std::os::raw::c_int {
+    fn belongs_to_thread<'a>(&self, thread_id: ThreadId) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .belongs_to_thread
@@ -32739,7 +32903,7 @@ impl ImplTaskRunner for TaskRunner {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn post_task(&self, task: &mut Task) -> ::std::os::raw::c_int {
+    fn post_task<'a>(&self, task: &'a mut Task) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .post_task
@@ -32753,7 +32917,7 @@ impl ImplTaskRunner for TaskRunner {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn post_delayed_task(&self, task: &mut Task, delay_ms: i64) -> ::std::os::raw::c_int {
+    fn post_delayed_task<'a>(&self, task: &'a mut Task, delay_ms: i64) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .post_delayed_task
@@ -32805,37 +32969,37 @@ impl Default for TaskRunner {
     }
 }
 pub trait ImplV8context: Sized {
-    fn get_task_runner(&self) -> TaskRunner {
+    fn get_task_runner<'a>(&self) -> TaskRunner {
         unsafe { std::mem::zeroed() }
     }
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_browser(&self) -> Browser {
+    fn get_browser<'a>(&self) -> Browser {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame(&self) -> Frame {
+    fn get_frame<'a>(&self) -> Frame {
         unsafe { std::mem::zeroed() }
     }
-    fn get_global(&self) -> V8value {
+    fn get_global<'a>(&self) -> V8value {
         unsafe { std::mem::zeroed() }
     }
-    fn enter(&self) -> ::std::os::raw::c_int {
+    fn enter<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn exit(&self) -> ::std::os::raw::c_int {
+    fn exit<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut V8context) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut V8context) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn eval(
+    fn eval<'a>(
         &self,
-        code: &CefStringUtf16,
-        script_url: &CefStringUtf16,
+        code: &'a CefStringUtf16,
+        script_url: &'a CefStringUtf16,
         start_line: ::std::os::raw::c_int,
-        retval: &mut Option<V8value>,
-        exception: &mut Option<V8exception>,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut Option<V8exception>,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -32946,7 +33110,7 @@ mod impl_cef_v8context_t {
 #[derive(Clone)]
 pub struct V8context(RefGuard<_cef_v8context_t>);
 impl ImplV8context for V8context {
-    fn get_task_runner(&self) -> TaskRunner {
+    fn get_task_runner<'a>(&self) -> TaskRunner {
         unsafe {
             self.0
                 .get_task_runner
@@ -32958,7 +33122,7 @@ impl ImplV8context for V8context {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -32970,7 +33134,7 @@ impl ImplV8context for V8context {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_browser(&self) -> Browser {
+    fn get_browser<'a>(&self) -> Browser {
         unsafe {
             self.0
                 .get_browser
@@ -32982,7 +33146,7 @@ impl ImplV8context for V8context {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame(&self) -> Frame {
+    fn get_frame<'a>(&self) -> Frame {
         unsafe {
             self.0
                 .get_frame
@@ -32994,7 +33158,7 @@ impl ImplV8context for V8context {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_global(&self) -> V8value {
+    fn get_global<'a>(&self) -> V8value {
         unsafe {
             self.0
                 .get_global
@@ -33006,7 +33170,7 @@ impl ImplV8context for V8context {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn enter(&self) -> ::std::os::raw::c_int {
+    fn enter<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .enter
@@ -33018,7 +33182,7 @@ impl ImplV8context for V8context {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn exit(&self) -> ::std::os::raw::c_int {
+    fn exit<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .exit
@@ -33030,7 +33194,7 @@ impl ImplV8context for V8context {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut V8context) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut V8context) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -33044,13 +33208,13 @@ impl ImplV8context for V8context {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn eval(
+    fn eval<'a>(
         &self,
-        code: &CefStringUtf16,
-        script_url: &CefStringUtf16,
+        code: &'a CefStringUtf16,
+        script_url: &'a CefStringUtf16,
         start_line: ::std::os::raw::c_int,
-        retval: &mut Option<V8value>,
-        exception: &mut Option<V8exception>,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut Option<V8exception>,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -33114,13 +33278,13 @@ impl Default for V8context {
     }
 }
 pub trait ImplV8handler: Sized {
-    fn execute(
+    fn execute<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        arguments: Option<&[Option<V8value>]>,
-        retval: &mut Option<V8value>,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        arguments: Option<&'a [Option<V8value>]>,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -33186,13 +33350,13 @@ mod impl_cef_v8handler_t {
 #[derive(Clone)]
 pub struct V8handler(RefGuard<_cef_v8handler_t>);
 impl ImplV8handler for V8handler {
-    fn execute(
+    fn execute<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        arguments: Option<&[Option<V8value>]>,
-        retval: &mut Option<V8value>,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        arguments: Option<&'a [Option<V8value>]>,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -33213,7 +33377,7 @@ impl ImplV8handler for V8handler {
                                 .map(|elem| {
                                     elem.as_ref()
                                         .map(|elem| elem.as_raw())
-                                        .unwrap_or(std::ptr::null())
+                                        .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
                         })
@@ -33276,21 +33440,21 @@ impl Default for V8handler {
     }
 }
 pub trait ImplV8accessor: Sized {
-    fn get(
+    fn get<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        retval: &mut Option<V8value>,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set(
+    fn set<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        value: &mut V8value,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        value: &'a mut V8value,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -33354,12 +33518,12 @@ mod impl_cef_v8accessor_t {
 #[derive(Clone)]
 pub struct V8accessor(RefGuard<_cef_v8accessor_t>);
 impl ImplV8accessor for V8accessor {
-    fn get(
+    fn get<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        retval: &mut Option<V8value>,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -33378,12 +33542,12 @@ impl ImplV8accessor for V8accessor {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set(
+    fn set<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        value: &mut V8value,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        value: &'a mut V8value,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -33439,39 +33603,39 @@ impl Default for V8accessor {
     }
 }
 pub trait ImplV8interceptor: Sized {
-    fn get_byname(
+    fn get_byname<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        retval: &mut Option<V8value>,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_byindex(
+    fn get_byindex<'a>(
         &self,
         index: ::std::os::raw::c_int,
-        object: &mut V8value,
-        retval: &mut Option<V8value>,
-        exception: &mut CefStringUtf16,
+        object: &'a mut V8value,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_byname(
+    fn set_byname<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        value: &mut V8value,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        value: &'a mut V8value,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_byindex(
+    fn set_byindex<'a>(
         &self,
         index: ::std::os::raw::c_int,
-        object: &mut V8value,
-        value: &mut V8value,
-        exception: &mut CefStringUtf16,
+        object: &'a mut V8value,
+        value: &'a mut V8value,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -33578,12 +33742,12 @@ mod impl_cef_v8interceptor_t {
 #[derive(Clone)]
 pub struct V8interceptor(RefGuard<_cef_v8interceptor_t>);
 impl ImplV8interceptor for V8interceptor {
-    fn get_byname(
+    fn get_byname<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        retval: &mut Option<V8value>,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -33602,12 +33766,12 @@ impl ImplV8interceptor for V8interceptor {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_byindex(
+    fn get_byindex<'a>(
         &self,
         index: ::std::os::raw::c_int,
-        object: &mut V8value,
-        retval: &mut Option<V8value>,
-        exception: &mut CefStringUtf16,
+        object: &'a mut V8value,
+        retval: &'a mut Option<V8value>,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -33626,12 +33790,12 @@ impl ImplV8interceptor for V8interceptor {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_byname(
+    fn set_byname<'a>(
         &self,
-        name: &CefStringUtf16,
-        object: &mut V8value,
-        value: &mut V8value,
-        exception: &mut CefStringUtf16,
+        name: &'a CefStringUtf16,
+        object: &'a mut V8value,
+        value: &'a mut V8value,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -33650,12 +33814,12 @@ impl ImplV8interceptor for V8interceptor {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_byindex(
+    fn set_byindex<'a>(
         &self,
         index: ::std::os::raw::c_int,
-        object: &mut V8value,
-        value: &mut V8value,
-        exception: &mut CefStringUtf16,
+        object: &'a mut V8value,
+        value: &'a mut V8value,
+        exception: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -33711,28 +33875,28 @@ impl Default for V8interceptor {
     }
 }
 pub trait ImplV8exception: Sized {
-    fn get_message(&self) -> CefStringUtf16 {
+    fn get_message<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_source_line(&self) -> CefStringUtf16 {
+    fn get_source_line<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_script_resource_name(&self) -> CefStringUtf16 {
+    fn get_script_resource_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_line_number(&self) -> ::std::os::raw::c_int {
+    fn get_line_number<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_start_position(&self) -> ::std::os::raw::c_int {
+    fn get_start_position<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_end_position(&self) -> ::std::os::raw::c_int {
+    fn get_end_position<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_start_column(&self) -> ::std::os::raw::c_int {
+    fn get_start_column<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_end_column(&self) -> ::std::os::raw::c_int {
+    fn get_end_column<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_v8exception_t {
@@ -33814,7 +33978,7 @@ mod impl_cef_v8exception_t {
 #[derive(Clone)]
 pub struct V8exception(RefGuard<_cef_v8exception_t>);
 impl ImplV8exception for V8exception {
-    fn get_message(&self) -> CefStringUtf16 {
+    fn get_message<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_message
@@ -33826,7 +33990,7 @@ impl ImplV8exception for V8exception {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_source_line(&self) -> CefStringUtf16 {
+    fn get_source_line<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_source_line
@@ -33838,7 +34002,7 @@ impl ImplV8exception for V8exception {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_script_resource_name(&self) -> CefStringUtf16 {
+    fn get_script_resource_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_script_resource_name
@@ -33850,7 +34014,7 @@ impl ImplV8exception for V8exception {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_line_number(&self) -> ::std::os::raw::c_int {
+    fn get_line_number<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_line_number
@@ -33862,7 +34026,7 @@ impl ImplV8exception for V8exception {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_start_position(&self) -> ::std::os::raw::c_int {
+    fn get_start_position<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_start_position
@@ -33874,7 +34038,7 @@ impl ImplV8exception for V8exception {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_end_position(&self) -> ::std::os::raw::c_int {
+    fn get_end_position<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_end_position
@@ -33886,7 +34050,7 @@ impl ImplV8exception for V8exception {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_start_column(&self) -> ::std::os::raw::c_int {
+    fn get_start_column<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_start_column
@@ -33898,7 +34062,7 @@ impl ImplV8exception for V8exception {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_end_column(&self) -> ::std::os::raw::c_int {
+    fn get_end_column<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_end_column
@@ -33947,7 +34111,7 @@ impl Default for V8exception {
     }
 }
 pub trait ImplV8arrayBufferReleaseCallback: Sized {
-    fn release_buffer(&self, buffer: *mut ::std::os::raw::c_void) {
+    fn release_buffer<'a>(&self, buffer: *mut ::std::os::raw::c_void) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_v8array_buffer_release_callback_t {
@@ -33976,7 +34140,7 @@ mod impl_cef_v8array_buffer_release_callback_t {
 #[derive(Clone)]
 pub struct V8arrayBufferReleaseCallback(RefGuard<_cef_v8array_buffer_release_callback_t>);
 impl ImplV8arrayBufferReleaseCallback for V8arrayBufferReleaseCallback {
-    fn release_buffer(&self, buffer: *mut ::std::os::raw::c_void) {
+    fn release_buffer<'a>(&self, buffer: *mut ::std::os::raw::c_void) {
         unsafe {
             self.0
                 .release_buffer
@@ -34031,185 +34195,185 @@ impl Default for V8arrayBufferReleaseCallback {
     }
 }
 pub trait ImplV8value: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_undefined(&self) -> ::std::os::raw::c_int {
+    fn is_undefined<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_null(&self) -> ::std::os::raw::c_int {
+    fn is_null<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_bool(&self) -> ::std::os::raw::c_int {
+    fn is_bool<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_int(&self) -> ::std::os::raw::c_int {
+    fn is_int<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_uint(&self) -> ::std::os::raw::c_int {
+    fn is_uint<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_double(&self) -> ::std::os::raw::c_int {
+    fn is_double<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_date(&self) -> ::std::os::raw::c_int {
+    fn is_date<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_string(&self) -> ::std::os::raw::c_int {
+    fn is_string<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_object(&self) -> ::std::os::raw::c_int {
+    fn is_object<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_array(&self) -> ::std::os::raw::c_int {
+    fn is_array<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_array_buffer(&self) -> ::std::os::raw::c_int {
+    fn is_array_buffer<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_function(&self) -> ::std::os::raw::c_int {
+    fn is_function<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_promise(&self) -> ::std::os::raw::c_int {
+    fn is_promise<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut V8value) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut V8value) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bool_value(&self) -> ::std::os::raw::c_int {
+    fn get_bool_value<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_int_value(&self) -> i32 {
+    fn get_int_value<'a>(&self) -> i32 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_uint_value(&self) -> u32 {
+    fn get_uint_value<'a>(&self) -> u32 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_double_value(&self) -> f64 {
+    fn get_double_value<'a>(&self) -> f64 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_date_value(&self) -> Basetime {
+    fn get_date_value<'a>(&self) -> Basetime {
         unsafe { std::mem::zeroed() }
     }
-    fn get_string_value(&self) -> CefStringUtf16 {
+    fn get_string_value<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn is_user_created(&self) -> ::std::os::raw::c_int {
+    fn is_user_created<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_exception(&self) -> ::std::os::raw::c_int {
+    fn has_exception<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_exception(&self) -> V8exception {
+    fn get_exception<'a>(&self) -> V8exception {
         unsafe { std::mem::zeroed() }
     }
-    fn clear_exception(&self) -> ::std::os::raw::c_int {
+    fn clear_exception<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn will_rethrow_exceptions(&self) -> ::std::os::raw::c_int {
+    fn will_rethrow_exceptions<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_rethrow_exceptions(&self, rethrow: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_rethrow_exceptions<'a>(&self, rethrow: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_value_bykey(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_value_bykey<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn has_value_byindex<'a>(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn delete_value_bykey(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn delete_value_bykey<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn delete_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn delete_value_byindex<'a>(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_value_bykey(&self, key: &CefStringUtf16) -> V8value {
+    fn get_value_bykey<'a>(&self, key: &'a CefStringUtf16) -> V8value {
         unsafe { std::mem::zeroed() }
     }
-    fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> V8value {
+    fn get_value_byindex<'a>(&self, index: ::std::os::raw::c_int) -> V8value {
         unsafe { std::mem::zeroed() }
     }
-    fn set_value_bykey(
+    fn set_value_bykey<'a>(
         &self,
-        key: &CefStringUtf16,
-        value: &mut V8value,
+        key: &'a CefStringUtf16,
+        value: &'a mut V8value,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_value_byindex(
+    fn set_value_byindex<'a>(
         &self,
         index: ::std::os::raw::c_int,
-        value: &mut V8value,
+        value: &'a mut V8value,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_value_byaccessor(
+    fn set_value_byaccessor<'a>(
         &self,
-        key: &CefStringUtf16,
+        key: &'a CefStringUtf16,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_keys<'a>(&self, keys: &'a mut CefStringList) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_user_data(&self, user_data: &mut BaseRefCounted) -> ::std::os::raw::c_int {
+    fn set_user_data<'a>(&self, user_data: &'a mut BaseRefCounted) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_user_data(&self) -> BaseRefCounted {
+    fn get_user_data<'a>(&self) -> BaseRefCounted {
         unsafe { std::mem::zeroed() }
     }
-    fn get_externally_allocated_memory(&self) -> ::std::os::raw::c_int {
+    fn get_externally_allocated_memory<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn adjust_externally_allocated_memory(
+    fn adjust_externally_allocated_memory<'a>(
         &self,
         change_in_bytes: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_array_length(&self) -> ::std::os::raw::c_int {
+    fn get_array_length<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_array_buffer_release_callback(&self) -> V8arrayBufferReleaseCallback {
+    fn get_array_buffer_release_callback<'a>(&self) -> V8arrayBufferReleaseCallback {
         unsafe { std::mem::zeroed() }
     }
-    fn neuter_array_buffer(&self) -> ::std::os::raw::c_int {
+    fn neuter_array_buffer<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_array_buffer_byte_length(&self) -> usize {
+    fn get_array_buffer_byte_length<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_array_buffer_data(&self) -> *mut ::std::os::raw::c_void {
+    fn get_array_buffer_data<'a>(&self) -> *mut ::std::os::raw::c_void {
         unsafe { std::mem::zeroed() }
     }
-    fn get_function_name(&self) -> CefStringUtf16 {
+    fn get_function_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_function_handler(&self) -> V8handler {
+    fn get_function_handler<'a>(&self) -> V8handler {
         unsafe { std::mem::zeroed() }
     }
-    fn execute_function(
+    fn execute_function<'a>(
         &self,
-        object: &mut V8value,
-        arguments: Option<&[Option<V8value>]>,
+        object: &'a mut V8value,
+        arguments: Option<&'a [Option<V8value>]>,
     ) -> V8value {
         unsafe { std::mem::zeroed() }
     }
-    fn execute_function_with_context(
+    fn execute_function_with_context<'a>(
         &self,
-        context: &mut V8context,
-        object: &mut V8value,
-        arguments: Option<&[Option<V8value>]>,
+        context: &'a mut V8context,
+        object: &'a mut V8value,
+        arguments: Option<&'a [Option<V8value>]>,
     ) -> V8value {
         unsafe { std::mem::zeroed() }
     }
-    fn resolve_promise(&self, arg: &mut V8value) -> ::std::os::raw::c_int {
+    fn resolve_promise<'a>(&self, arg: &'a mut V8value) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn reject_promise(&self, error_msg: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn reject_promise<'a>(&self, error_msg: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_v8value_t {
@@ -34697,7 +34861,7 @@ mod impl_cef_v8value_t {
 #[derive(Clone)]
 pub struct V8value(RefGuard<_cef_v8value_t>);
 impl ImplV8value for V8value {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -34709,7 +34873,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_undefined(&self) -> ::std::os::raw::c_int {
+    fn is_undefined<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_undefined
@@ -34721,7 +34885,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_null(&self) -> ::std::os::raw::c_int {
+    fn is_null<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_null
@@ -34733,7 +34897,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_bool(&self) -> ::std::os::raw::c_int {
+    fn is_bool<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_bool
@@ -34745,7 +34909,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_int(&self) -> ::std::os::raw::c_int {
+    fn is_int<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_int
@@ -34757,7 +34921,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_uint(&self) -> ::std::os::raw::c_int {
+    fn is_uint<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_uint
@@ -34769,7 +34933,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_double(&self) -> ::std::os::raw::c_int {
+    fn is_double<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_double
@@ -34781,7 +34945,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_date(&self) -> ::std::os::raw::c_int {
+    fn is_date<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_date
@@ -34793,7 +34957,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_string(&self) -> ::std::os::raw::c_int {
+    fn is_string<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_string
@@ -34805,7 +34969,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_object(&self) -> ::std::os::raw::c_int {
+    fn is_object<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_object
@@ -34817,7 +34981,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_array(&self) -> ::std::os::raw::c_int {
+    fn is_array<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_array
@@ -34829,7 +34993,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_array_buffer(&self) -> ::std::os::raw::c_int {
+    fn is_array_buffer<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_array_buffer
@@ -34841,7 +35005,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_function(&self) -> ::std::os::raw::c_int {
+    fn is_function<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_function
@@ -34853,7 +35017,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_promise(&self) -> ::std::os::raw::c_int {
+    fn is_promise<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_promise
@@ -34865,7 +35029,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut V8value) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut V8value) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -34879,7 +35043,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bool_value(&self) -> ::std::os::raw::c_int {
+    fn get_bool_value<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_bool_value
@@ -34891,7 +35055,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_int_value(&self) -> i32 {
+    fn get_int_value<'a>(&self) -> i32 {
         unsafe {
             self.0
                 .get_int_value
@@ -34903,7 +35067,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_uint_value(&self) -> u32 {
+    fn get_uint_value<'a>(&self) -> u32 {
         unsafe {
             self.0
                 .get_uint_value
@@ -34915,7 +35079,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_double_value(&self) -> f64 {
+    fn get_double_value<'a>(&self) -> f64 {
         unsafe {
             self.0
                 .get_double_value
@@ -34927,7 +35091,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_date_value(&self) -> Basetime {
+    fn get_date_value<'a>(&self) -> Basetime {
         unsafe {
             self.0
                 .get_date_value
@@ -34939,7 +35103,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_string_value(&self) -> CefStringUtf16 {
+    fn get_string_value<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_string_value
@@ -34951,7 +35115,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_user_created(&self) -> ::std::os::raw::c_int {
+    fn is_user_created<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_user_created
@@ -34963,7 +35127,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_exception(&self) -> ::std::os::raw::c_int {
+    fn has_exception<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_exception
@@ -34975,7 +35139,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_exception(&self) -> V8exception {
+    fn get_exception<'a>(&self) -> V8exception {
         unsafe {
             self.0
                 .get_exception
@@ -34987,7 +35151,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear_exception(&self) -> ::std::os::raw::c_int {
+    fn clear_exception<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .clear_exception
@@ -34999,7 +35163,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn will_rethrow_exceptions(&self) -> ::std::os::raw::c_int {
+    fn will_rethrow_exceptions<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .will_rethrow_exceptions
@@ -35011,7 +35175,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_rethrow_exceptions(&self, rethrow: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn set_rethrow_exceptions<'a>(&self, rethrow: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_rethrow_exceptions
@@ -35025,7 +35189,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_value_bykey(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn has_value_bykey<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_value_bykey
@@ -35039,7 +35203,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn has_value_byindex<'a>(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_value_byindex
@@ -35053,7 +35217,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn delete_value_bykey(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn delete_value_bykey<'a>(&self, key: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .delete_value_bykey
@@ -35067,7 +35231,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn delete_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn delete_value_byindex<'a>(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .delete_value_byindex
@@ -35081,7 +35245,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_value_bykey(&self, key: &CefStringUtf16) -> V8value {
+    fn get_value_bykey<'a>(&self, key: &'a CefStringUtf16) -> V8value {
         unsafe {
             self.0
                 .get_value_bykey
@@ -35095,7 +35259,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> V8value {
+    fn get_value_byindex<'a>(&self, index: ::std::os::raw::c_int) -> V8value {
         unsafe {
             self.0
                 .get_value_byindex
@@ -35109,10 +35273,10 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_value_bykey(
+    fn set_value_bykey<'a>(
         &self,
-        key: &CefStringUtf16,
-        value: &mut V8value,
+        key: &'a CefStringUtf16,
+        value: &'a mut V8value,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -35130,10 +35294,10 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_value_byindex(
+    fn set_value_byindex<'a>(
         &self,
         index: ::std::os::raw::c_int,
-        value: &mut V8value,
+        value: &'a mut V8value,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -35149,9 +35313,9 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_value_byaccessor(
+    fn set_value_byaccessor<'a>(
         &self,
-        key: &CefStringUtf16,
+        key: &'a CefStringUtf16,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -35168,7 +35332,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
+    fn get_keys<'a>(&self, keys: &'a mut CefStringList) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_keys
@@ -35182,7 +35346,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_user_data(&self, user_data: &mut BaseRefCounted) -> ::std::os::raw::c_int {
+    fn set_user_data<'a>(&self, user_data: &'a mut BaseRefCounted) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .set_user_data
@@ -35196,7 +35360,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_user_data(&self) -> BaseRefCounted {
+    fn get_user_data<'a>(&self) -> BaseRefCounted {
         unsafe {
             self.0
                 .get_user_data
@@ -35208,7 +35372,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_externally_allocated_memory(&self) -> ::std::os::raw::c_int {
+    fn get_externally_allocated_memory<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_externally_allocated_memory
@@ -35220,7 +35384,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn adjust_externally_allocated_memory(
+    fn adjust_externally_allocated_memory<'a>(
         &self,
         change_in_bytes: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -35237,7 +35401,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_array_length(&self) -> ::std::os::raw::c_int {
+    fn get_array_length<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_array_length
@@ -35249,7 +35413,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_array_buffer_release_callback(&self) -> V8arrayBufferReleaseCallback {
+    fn get_array_buffer_release_callback<'a>(&self) -> V8arrayBufferReleaseCallback {
         unsafe {
             self.0
                 .get_array_buffer_release_callback
@@ -35261,7 +35425,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn neuter_array_buffer(&self) -> ::std::os::raw::c_int {
+    fn neuter_array_buffer<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .neuter_array_buffer
@@ -35273,7 +35437,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_array_buffer_byte_length(&self) -> usize {
+    fn get_array_buffer_byte_length<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_array_buffer_byte_length
@@ -35285,7 +35449,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_array_buffer_data(&self) -> *mut ::std::os::raw::c_void {
+    fn get_array_buffer_data<'a>(&self) -> *mut ::std::os::raw::c_void {
         unsafe {
             self.0
                 .get_array_buffer_data
@@ -35297,7 +35461,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_function_name(&self) -> CefStringUtf16 {
+    fn get_function_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_function_name
@@ -35309,7 +35473,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_function_handler(&self) -> V8handler {
+    fn get_function_handler<'a>(&self) -> V8handler {
         unsafe {
             self.0
                 .get_function_handler
@@ -35321,10 +35485,10 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn execute_function(
+    fn execute_function<'a>(
         &self,
-        object: &mut V8value,
-        arguments: Option<&[Option<V8value>]>,
+        object: &'a mut V8value,
+        arguments: Option<&'a [Option<V8value>]>,
     ) -> V8value {
         unsafe {
             self.0
@@ -35343,7 +35507,7 @@ impl ImplV8value for V8value {
                                 .map(|elem| {
                                     elem.as_ref()
                                         .map(|elem| elem.as_raw())
-                                        .unwrap_or(std::ptr::null())
+                                        .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
                         })
@@ -35359,11 +35523,11 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn execute_function_with_context(
+    fn execute_function_with_context<'a>(
         &self,
-        context: &mut V8context,
-        object: &mut V8value,
-        arguments: Option<&[Option<V8value>]>,
+        context: &'a mut V8context,
+        object: &'a mut V8value,
+        arguments: Option<&'a [Option<V8value>]>,
     ) -> V8value {
         unsafe {
             self.0
@@ -35383,7 +35547,7 @@ impl ImplV8value for V8value {
                                 .map(|elem| {
                                     elem.as_ref()
                                         .map(|elem| elem.as_raw())
-                                        .unwrap_or(std::ptr::null())
+                                        .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
                         })
@@ -35405,7 +35569,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn resolve_promise(&self, arg: &mut V8value) -> ::std::os::raw::c_int {
+    fn resolve_promise<'a>(&self, arg: &'a mut V8value) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .resolve_promise
@@ -35419,7 +35583,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn reject_promise(&self, error_msg: &CefStringUtf16) -> ::std::os::raw::c_int {
+    fn reject_promise<'a>(&self, error_msg: &'a CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .reject_promise
@@ -35470,13 +35634,13 @@ impl Default for V8value {
     }
 }
 pub trait ImplV8stackTrace: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame_count(&self) -> ::std::os::raw::c_int {
+    fn get_frame_count<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_frame(&self, index: ::std::os::raw::c_int) -> V8stackFrame {
+    fn get_frame<'a>(&self, index: ::std::os::raw::c_int) -> V8stackFrame {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_v8stack_trace_t {
@@ -35520,7 +35684,7 @@ mod impl_cef_v8stack_trace_t {
 #[derive(Clone)]
 pub struct V8stackTrace(RefGuard<_cef_v8stack_trace_t>);
 impl ImplV8stackTrace for V8stackTrace {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -35532,7 +35696,7 @@ impl ImplV8stackTrace for V8stackTrace {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame_count(&self) -> ::std::os::raw::c_int {
+    fn get_frame_count<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_frame_count
@@ -35544,7 +35708,7 @@ impl ImplV8stackTrace for V8stackTrace {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_frame(&self, index: ::std::os::raw::c_int) -> V8stackFrame {
+    fn get_frame<'a>(&self, index: ::std::os::raw::c_int) -> V8stackFrame {
         unsafe {
             self.0
                 .get_frame
@@ -35595,28 +35759,28 @@ impl Default for V8stackTrace {
     }
 }
 pub trait ImplV8stackFrame: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_script_name(&self) -> CefStringUtf16 {
+    fn get_script_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_script_name_or_source_url(&self) -> CefStringUtf16 {
+    fn get_script_name_or_source_url<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_function_name(&self) -> CefStringUtf16 {
+    fn get_function_name<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_line_number(&self) -> ::std::os::raw::c_int {
+    fn get_line_number<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_column(&self) -> ::std::os::raw::c_int {
+    fn get_column<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_eval(&self) -> ::std::os::raw::c_int {
+    fn is_eval<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_constructor(&self) -> ::std::os::raw::c_int {
+    fn is_constructor<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_v8stack_frame_t {
@@ -35698,7 +35862,7 @@ mod impl_cef_v8stack_frame_t {
 #[derive(Clone)]
 pub struct V8stackFrame(RefGuard<_cef_v8stack_frame_t>);
 impl ImplV8stackFrame for V8stackFrame {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -35710,7 +35874,7 @@ impl ImplV8stackFrame for V8stackFrame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_script_name(&self) -> CefStringUtf16 {
+    fn get_script_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_script_name
@@ -35722,7 +35886,7 @@ impl ImplV8stackFrame for V8stackFrame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_script_name_or_source_url(&self) -> CefStringUtf16 {
+    fn get_script_name_or_source_url<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_script_name_or_source_url
@@ -35734,7 +35898,7 @@ impl ImplV8stackFrame for V8stackFrame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_function_name(&self) -> CefStringUtf16 {
+    fn get_function_name<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_function_name
@@ -35746,7 +35910,7 @@ impl ImplV8stackFrame for V8stackFrame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_line_number(&self) -> ::std::os::raw::c_int {
+    fn get_line_number<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_line_number
@@ -35758,7 +35922,7 @@ impl ImplV8stackFrame for V8stackFrame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_column(&self) -> ::std::os::raw::c_int {
+    fn get_column<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_column
@@ -35770,7 +35934,7 @@ impl ImplV8stackFrame for V8stackFrame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_eval(&self) -> ::std::os::raw::c_int {
+    fn is_eval<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_eval
@@ -35782,7 +35946,7 @@ impl ImplV8stackFrame for V8stackFrame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_constructor(&self) -> ::std::os::raw::c_int {
+    fn is_constructor<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_constructor
@@ -35831,58 +35995,62 @@ impl Default for V8stackFrame {
     }
 }
 pub trait ImplRenderProcessHandler: Sized {
-    fn on_web_kit_initialized(&self) {
+    fn on_web_kit_initialized<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_browser_created(&self, browser: &mut Browser, extra_info: &mut DictionaryValue) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_browser_destroyed(&self, browser: &mut Browser) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_load_handler(&self) -> LoadHandler {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_context_created(
+    fn on_browser_created<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        context: &mut V8context,
+        browser: &'a mut Browser,
+        extra_info: &'a mut DictionaryValue,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_context_released(
+    fn on_browser_destroyed<'a>(&self, browser: &'a mut Browser) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_load_handler<'a>(&self) -> LoadHandler {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_context_created<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        context: &mut V8context,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        context: &'a mut V8context,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_uncaught_exception(
+    fn on_context_released<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        context: &mut V8context,
-        exception: &mut V8exception,
-        stack_trace: &mut V8stackTrace,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        context: &'a mut V8context,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_focused_node_changed(
+    fn on_uncaught_exception<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        node: &mut Domnode,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        context: &'a mut V8context,
+        exception: &'a mut V8exception,
+        stack_trace: &'a mut V8stackTrace,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_process_message_received(
+    fn on_focused_node_changed<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        node: &'a mut Domnode,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_process_message_received<'a>(
+        &self,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         source_process: ProcessId,
-        message: &mut ProcessMessage,
+        message: &'a mut ProcessMessage,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -36036,7 +36204,7 @@ mod impl_cef_render_process_handler_t {
 #[derive(Clone)]
 pub struct RenderProcessHandler(RefGuard<_cef_render_process_handler_t>);
 impl ImplRenderProcessHandler for RenderProcessHandler {
-    fn on_web_kit_initialized(&self) {
+    fn on_web_kit_initialized<'a>(&self) {
         unsafe {
             self.0
                 .on_web_kit_initialized
@@ -36048,7 +36216,11 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_browser_created(&self, browser: &mut Browser, extra_info: &mut DictionaryValue) {
+    fn on_browser_created<'a>(
+        &self,
+        browser: &'a mut Browser,
+        extra_info: &'a mut DictionaryValue,
+    ) {
         unsafe {
             self.0
                 .on_browser_created
@@ -36063,7 +36235,7 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_browser_destroyed(&self, browser: &mut Browser) {
+    fn on_browser_destroyed<'a>(&self, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_browser_destroyed
@@ -36077,7 +36249,7 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_load_handler(&self) -> LoadHandler {
+    fn get_load_handler<'a>(&self) -> LoadHandler {
         unsafe {
             self.0
                 .get_load_handler
@@ -36089,11 +36261,11 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_context_created(
+    fn on_context_created<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        context: &mut V8context,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        context: &'a mut V8context,
     ) {
         unsafe {
             self.0
@@ -36110,11 +36282,11 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_context_released(
+    fn on_context_released<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        context: &mut V8context,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        context: &'a mut V8context,
     ) {
         unsafe {
             self.0
@@ -36131,13 +36303,13 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_uncaught_exception(
+    fn on_uncaught_exception<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        context: &mut V8context,
-        exception: &mut V8exception,
-        stack_trace: &mut V8stackTrace,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        context: &'a mut V8context,
+        exception: &'a mut V8exception,
+        stack_trace: &'a mut V8stackTrace,
     ) {
         unsafe {
             self.0
@@ -36164,11 +36336,11 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_focused_node_changed(
+    fn on_focused_node_changed<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        node: &mut Domnode,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        node: &'a mut Domnode,
     ) {
         unsafe {
             self.0
@@ -36185,12 +36357,12 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_process_message_received(
+    fn on_process_message_received<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
         source_process: ProcessId,
-        message: &mut ProcessMessage,
+        message: &'a mut ProcessMessage,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -36252,25 +36424,25 @@ impl Default for RenderProcessHandler {
     }
 }
 pub trait ImplResourceBundleHandler: Sized {
-    fn get_localized_string(
+    fn get_localized_string<'a>(
         &self,
         string_id: ::std::os::raw::c_int,
-        string: &mut CefStringUtf16,
+        string: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_data_resource(
+    fn get_data_resource<'a>(
         &self,
         resource_id: ::std::os::raw::c_int,
-        data: Option<&mut &mut [u8]>,
+        data: Option<&'a mut &'a mut [u8]>,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_data_resource_for_scale(
+    fn get_data_resource_for_scale<'a>(
         &self,
         resource_id: ::std::os::raw::c_int,
         scale_factor: ScaleFactor,
-        data: Option<&mut &mut [u8]>,
+        data: Option<&'a mut &'a mut [u8]>,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -36349,10 +36521,10 @@ mod impl_cef_resource_bundle_handler_t {
 #[derive(Clone)]
 pub struct ResourceBundleHandler(RefGuard<_cef_resource_bundle_handler_t>);
 impl ImplResourceBundleHandler for ResourceBundleHandler {
-    fn get_localized_string(
+    fn get_localized_string<'a>(
         &self,
         string_id: ::std::os::raw::c_int,
-        string: &mut CefStringUtf16,
+        string: &'a mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -36368,10 +36540,10 @@ impl ImplResourceBundleHandler for ResourceBundleHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_data_resource(
+    fn get_data_resource<'a>(
         &self,
         resource_id: ::std::os::raw::c_int,
-        data: Option<&mut &mut [u8]>,
+        data: Option<&'a mut &'a mut [u8]>,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -36397,16 +36569,19 @@ impl ImplResourceBundleHandler for ResourceBundleHandler {
                         })
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_resource_id, arg_data, arg_data_size);
+                    if let Some(out_data) = out_data {
+                        *out_data = &mut (*out_data)[..out_data_size];
+                    }
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_data_resource_for_scale(
+    fn get_data_resource_for_scale<'a>(
         &self,
         resource_id: ::std::os::raw::c_int,
         scale_factor: ScaleFactor,
-        data: Option<&mut &mut [u8]>,
+        data: Option<&'a mut &'a mut [u8]>,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -36440,6 +36615,9 @@ impl ImplResourceBundleHandler for ResourceBundleHandler {
                         arg_data,
                         arg_data_size,
                     );
+                    if let Some(out_data) = out_data {
+                        *out_data = &mut (*out_data)[..out_data_size];
+                    }
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
@@ -36520,12 +36698,12 @@ impl Default for SchemeRegistrar {
     }
 }
 pub trait ImplSchemeHandlerFactory: Sized {
-    fn create(
+    fn create<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        scheme_name: &CefStringUtf16,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        scheme_name: &'a CefStringUtf16,
+        request: &'a mut Request,
     ) -> ResourceHandler {
         unsafe { std::mem::zeroed() }
     }
@@ -36565,12 +36743,12 @@ mod impl_cef_scheme_handler_factory_t {
 #[derive(Clone)]
 pub struct SchemeHandlerFactory(RefGuard<_cef_scheme_handler_factory_t>);
 impl ImplSchemeHandlerFactory for SchemeHandlerFactory {
-    fn create(
+    fn create<'a>(
         &self,
-        browser: &mut Browser,
-        frame: &mut Frame,
-        scheme_name: &CefStringUtf16,
-        request: &mut Request,
+        browser: &'a mut Browser,
+        frame: &'a mut Frame,
+        scheme_name: &'a CefStringUtf16,
+        request: &'a mut Request,
     ) -> ResourceHandler {
         unsafe {
             self.0
@@ -36632,23 +36810,23 @@ impl Default for SchemeHandlerFactory {
     }
 }
 pub trait ImplApp: Sized {
-    fn on_before_command_line_processing(
+    fn on_before_command_line_processing<'a>(
         &self,
-        process_type: &CefStringUtf16,
-        command_line: &mut CommandLine,
+        process_type: &'a CefStringUtf16,
+        command_line: &'a mut CommandLine,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_register_custom_schemes(&self, registrar: &mut SchemeRegistrar) {
+    fn on_register_custom_schemes<'a>(&self, registrar: &'a mut SchemeRegistrar) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_resource_bundle_handler(&self) -> ResourceBundleHandler {
+    fn get_resource_bundle_handler<'a>(&self) -> ResourceBundleHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_browser_process_handler(&self) -> BrowserProcessHandler {
+    fn get_browser_process_handler<'a>(&self) -> BrowserProcessHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn get_render_process_handler(&self) -> RenderProcessHandler {
+    fn get_render_process_handler<'a>(&self) -> RenderProcessHandler {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_app_t {
@@ -36719,10 +36897,10 @@ mod impl_cef_app_t {
 #[derive(Clone)]
 pub struct App(RefGuard<_cef_app_t>);
 impl ImplApp for App {
-    fn on_before_command_line_processing(
+    fn on_before_command_line_processing<'a>(
         &self,
-        process_type: &CefStringUtf16,
-        command_line: &mut CommandLine,
+        process_type: &'a CefStringUtf16,
+        command_line: &'a mut CommandLine,
     ) {
         unsafe {
             self.0
@@ -36738,7 +36916,7 @@ impl ImplApp for App {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_register_custom_schemes(&self, registrar: &mut SchemeRegistrar) {
+    fn on_register_custom_schemes<'a>(&self, registrar: &'a mut SchemeRegistrar) {
         unsafe {
             self.0
                 .on_register_custom_schemes
@@ -36752,7 +36930,7 @@ impl ImplApp for App {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_resource_bundle_handler(&self) -> ResourceBundleHandler {
+    fn get_resource_bundle_handler<'a>(&self) -> ResourceBundleHandler {
         unsafe {
             self.0
                 .get_resource_bundle_handler
@@ -36764,7 +36942,7 @@ impl ImplApp for App {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_browser_process_handler(&self) -> BrowserProcessHandler {
+    fn get_browser_process_handler<'a>(&self) -> BrowserProcessHandler {
         unsafe {
             self.0
                 .get_browser_process_handler
@@ -36776,7 +36954,7 @@ impl ImplApp for App {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_render_process_handler(&self) -> RenderProcessHandler {
+    fn get_render_process_handler<'a>(&self) -> RenderProcessHandler {
         unsafe {
             self.0
                 .get_render_process_handler
@@ -36825,25 +37003,25 @@ impl Default for App {
     }
 }
 pub trait ImplUrlrequest: Sized {
-    fn get_request(&self) -> Request {
+    fn get_request<'a>(&self) -> Request {
         unsafe { std::mem::zeroed() }
     }
-    fn get_client(&self) -> UrlrequestClient {
+    fn get_client<'a>(&self) -> UrlrequestClient {
         unsafe { std::mem::zeroed() }
     }
-    fn get_request_status(&self) -> UrlrequestStatus {
+    fn get_request_status<'a>(&self) -> UrlrequestStatus {
         unsafe { std::mem::zeroed() }
     }
-    fn get_request_error(&self) -> Errorcode {
+    fn get_request_error<'a>(&self) -> Errorcode {
         unsafe { std::mem::zeroed() }
     }
-    fn get_response(&self) -> Response {
+    fn get_response<'a>(&self) -> Response {
         unsafe { std::mem::zeroed() }
     }
-    fn response_was_cached(&self) -> ::std::os::raw::c_int {
+    fn response_was_cached<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_urlrequest_t {
@@ -36915,7 +37093,7 @@ mod impl_cef_urlrequest_t {
 #[derive(Clone)]
 pub struct Urlrequest(RefGuard<_cef_urlrequest_t>);
 impl ImplUrlrequest for Urlrequest {
-    fn get_request(&self) -> Request {
+    fn get_request<'a>(&self) -> Request {
         unsafe {
             self.0
                 .get_request
@@ -36927,7 +37105,7 @@ impl ImplUrlrequest for Urlrequest {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_client(&self) -> UrlrequestClient {
+    fn get_client<'a>(&self) -> UrlrequestClient {
         unsafe {
             self.0
                 .get_client
@@ -36939,7 +37117,7 @@ impl ImplUrlrequest for Urlrequest {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_request_status(&self) -> UrlrequestStatus {
+    fn get_request_status<'a>(&self) -> UrlrequestStatus {
         unsafe {
             self.0
                 .get_request_status
@@ -36951,7 +37129,7 @@ impl ImplUrlrequest for Urlrequest {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_request_error(&self) -> Errorcode {
+    fn get_request_error<'a>(&self) -> Errorcode {
         unsafe {
             self.0
                 .get_request_error
@@ -36963,7 +37141,7 @@ impl ImplUrlrequest for Urlrequest {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_response(&self) -> Response {
+    fn get_response<'a>(&self) -> Response {
         unsafe {
             self.0
                 .get_response
@@ -36975,7 +37153,7 @@ impl ImplUrlrequest for Urlrequest {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn response_was_cached(&self) -> ::std::os::raw::c_int {
+    fn response_was_cached<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .response_was_cached
@@ -36987,7 +37165,7 @@ impl ImplUrlrequest for Urlrequest {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel(&self) {
+    fn cancel<'a>(&self) {
         unsafe {
             self.0
                 .cancel
@@ -37036,31 +37214,31 @@ impl Default for Urlrequest {
     }
 }
 pub trait ImplUrlrequestClient: Sized {
-    fn on_request_complete(&self, request: &mut Urlrequest) {
+    fn on_request_complete<'a>(&self, request: &'a mut Urlrequest) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_upload_progress(&self, request: &mut Urlrequest, current: i64, total: i64) {
+    fn on_upload_progress<'a>(&self, request: &'a mut Urlrequest, current: i64, total: i64) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_download_progress(&self, request: &mut Urlrequest, current: i64, total: i64) {
+    fn on_download_progress<'a>(&self, request: &'a mut Urlrequest, current: i64, total: i64) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_download_data(
+    fn on_download_data<'a>(
         &self,
-        request: &mut Urlrequest,
+        request: &'a mut Urlrequest,
         data: *const ::std::os::raw::c_void,
         data_length: usize,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_auth_credentials(
+    fn get_auth_credentials<'a>(
         &self,
         is_proxy: ::std::os::raw::c_int,
-        host: &CefStringUtf16,
+        host: &'a CefStringUtf16,
         port: ::std::os::raw::c_int,
-        realm: &CefStringUtf16,
-        scheme: &CefStringUtf16,
-        callback: &mut AuthCallback,
+        realm: &'a CefStringUtf16,
+        scheme: &'a CefStringUtf16,
+        callback: &'a mut AuthCallback,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -37171,7 +37349,7 @@ mod impl_cef_urlrequest_client_t {
 #[derive(Clone)]
 pub struct UrlrequestClient(RefGuard<_cef_urlrequest_client_t>);
 impl ImplUrlrequestClient for UrlrequestClient {
-    fn on_request_complete(&self, request: &mut Urlrequest) {
+    fn on_request_complete<'a>(&self, request: &'a mut Urlrequest) {
         unsafe {
             self.0
                 .on_request_complete
@@ -37185,7 +37363,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_upload_progress(&self, request: &mut Urlrequest, current: i64, total: i64) {
+    fn on_upload_progress<'a>(&self, request: &'a mut Urlrequest, current: i64, total: i64) {
         unsafe {
             self.0
                 .on_upload_progress
@@ -37201,7 +37379,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_download_progress(&self, request: &mut Urlrequest, current: i64, total: i64) {
+    fn on_download_progress<'a>(&self, request: &'a mut Urlrequest, current: i64, total: i64) {
         unsafe {
             self.0
                 .on_download_progress
@@ -37217,9 +37395,9 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_download_data(
+    fn on_download_data<'a>(
         &self,
-        request: &mut Urlrequest,
+        request: &'a mut Urlrequest,
         data: *const ::std::os::raw::c_void,
         data_length: usize,
     ) {
@@ -37238,14 +37416,14 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_auth_credentials(
+    fn get_auth_credentials<'a>(
         &self,
         is_proxy: ::std::os::raw::c_int,
-        host: &CefStringUtf16,
+        host: &'a CefStringUtf16,
         port: ::std::os::raw::c_int,
-        realm: &CefStringUtf16,
-        scheme: &CefStringUtf16,
-        callback: &mut AuthCallback,
+        realm: &'a CefStringUtf16,
+        scheme: &'a CefStringUtf16,
+        callback: &'a mut AuthCallback,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -37311,13 +37489,13 @@ impl Default for UrlrequestClient {
     }
 }
 pub trait ImplLayout: Sized {
-    fn as_box_layout(&self) -> BoxLayout {
+    fn as_box_layout<'a>(&self) -> BoxLayout {
         unsafe { std::mem::zeroed() }
     }
-    fn as_fill_layout(&self) -> FillLayout {
+    fn as_fill_layout<'a>(&self) -> FillLayout {
         unsafe { std::mem::zeroed() }
     }
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_layout_t {
@@ -37357,7 +37535,7 @@ mod impl_cef_layout_t {
 #[derive(Clone)]
 pub struct Layout(RefGuard<_cef_layout_t>);
 impl ImplLayout for Layout {
-    fn as_box_layout(&self) -> BoxLayout {
+    fn as_box_layout<'a>(&self) -> BoxLayout {
         unsafe {
             self.0
                 .as_box_layout
@@ -37369,7 +37547,7 @@ impl ImplLayout for Layout {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn as_fill_layout(&self) -> FillLayout {
+    fn as_fill_layout<'a>(&self) -> FillLayout {
         unsafe {
             self.0
                 .as_fill_layout
@@ -37381,7 +37559,7 @@ impl ImplLayout for Layout {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -37430,10 +37608,10 @@ impl Default for Layout {
     }
 }
 pub trait ImplBoxLayout: ImplLayout {
-    fn set_flex_for_view(&self, view: &mut View, flex: ::std::os::raw::c_int) {
+    fn set_flex_for_view<'a>(&self, view: &'a mut View, flex: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn clear_flex_for_view(&self, view: &mut View) {
+    fn clear_flex_for_view<'a>(&self, view: &'a mut View) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_box_layout_t {
@@ -37474,7 +37652,7 @@ mod impl_cef_box_layout_t {
 #[derive(Clone)]
 pub struct BoxLayout(RefGuard<_cef_box_layout_t>);
 impl ImplBoxLayout for BoxLayout {
-    fn set_flex_for_view(&self, view: &mut View, flex: ::std::os::raw::c_int) {
+    fn set_flex_for_view<'a>(&self, view: &'a mut View, flex: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_flex_for_view
@@ -37489,7 +37667,7 @@ impl ImplBoxLayout for BoxLayout {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear_flex_for_view(&self, view: &mut View) {
+    fn clear_flex_for_view<'a>(&self, view: &'a mut View) {
         unsafe {
             self.0
                 .clear_flex_for_view
@@ -37591,51 +37769,51 @@ impl Default for FillLayout {
     }
 }
 pub trait ImplViewDelegate: Sized {
-    fn get_preferred_size(&self, view: &mut View) -> Size {
+    fn get_preferred_size<'a>(&self, view: &'a mut View) -> Size {
         unsafe { std::mem::zeroed() }
     }
-    fn get_minimum_size(&self, view: &mut View) -> Size {
+    fn get_minimum_size<'a>(&self, view: &'a mut View) -> Size {
         unsafe { std::mem::zeroed() }
     }
-    fn get_maximum_size(&self, view: &mut View) -> Size {
+    fn get_maximum_size<'a>(&self, view: &'a mut View) -> Size {
         unsafe { std::mem::zeroed() }
     }
-    fn get_height_for_width(
+    fn get_height_for_width<'a>(
         &self,
-        view: &mut View,
+        view: &'a mut View,
         width: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_parent_view_changed(
+    fn on_parent_view_changed<'a>(
         &self,
-        view: &mut View,
+        view: &'a mut View,
         added: ::std::os::raw::c_int,
-        parent: &mut View,
+        parent: &'a mut View,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_child_view_changed(
+    fn on_child_view_changed<'a>(
         &self,
-        view: &mut View,
+        view: &'a mut View,
         added: ::std::os::raw::c_int,
-        child: &mut View,
+        child: &'a mut View,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_window_changed(&self, view: &mut View, added: ::std::os::raw::c_int) {
+    fn on_window_changed<'a>(&self, view: &'a mut View, added: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_layout_changed(&self, view: &mut View, new_bounds: &Rect) {
+    fn on_layout_changed<'a>(&self, view: &'a mut View, new_bounds: &'a Rect) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_focus(&self, view: &mut View) {
+    fn on_focus<'a>(&self, view: &'a mut View) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_blur(&self, view: &mut View) {
+    fn on_blur<'a>(&self, view: &'a mut View) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_theme_changed(&self, view: &mut View) {
+    fn on_theme_changed<'a>(&self, view: &'a mut View) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_view_delegate_t {
@@ -37787,7 +37965,7 @@ mod impl_cef_view_delegate_t {
 #[derive(Clone)]
 pub struct ViewDelegate(RefGuard<_cef_view_delegate_t>);
 impl ImplViewDelegate for ViewDelegate {
-    fn get_preferred_size(&self, view: &mut View) -> Size {
+    fn get_preferred_size<'a>(&self, view: &'a mut View) -> Size {
         unsafe {
             self.0
                 .get_preferred_size
@@ -37801,7 +37979,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_minimum_size(&self, view: &mut View) -> Size {
+    fn get_minimum_size<'a>(&self, view: &'a mut View) -> Size {
         unsafe {
             self.0
                 .get_minimum_size
@@ -37815,7 +37993,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_maximum_size(&self, view: &mut View) -> Size {
+    fn get_maximum_size<'a>(&self, view: &'a mut View) -> Size {
         unsafe {
             self.0
                 .get_maximum_size
@@ -37829,9 +38007,9 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_height_for_width(
+    fn get_height_for_width<'a>(
         &self,
-        view: &mut View,
+        view: &'a mut View,
         width: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -37848,11 +38026,11 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_parent_view_changed(
+    fn on_parent_view_changed<'a>(
         &self,
-        view: &mut View,
+        view: &'a mut View,
         added: ::std::os::raw::c_int,
-        parent: &mut View,
+        parent: &'a mut View,
     ) {
         unsafe {
             self.0
@@ -37869,11 +38047,11 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_child_view_changed(
+    fn on_child_view_changed<'a>(
         &self,
-        view: &mut View,
+        view: &'a mut View,
         added: ::std::os::raw::c_int,
-        child: &mut View,
+        child: &'a mut View,
     ) {
         unsafe {
             self.0
@@ -37890,7 +38068,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_window_changed(&self, view: &mut View, added: ::std::os::raw::c_int) {
+    fn on_window_changed<'a>(&self, view: &'a mut View, added: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .on_window_changed
@@ -37905,7 +38083,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_layout_changed(&self, view: &mut View, new_bounds: &Rect) {
+    fn on_layout_changed<'a>(&self, view: &'a mut View, new_bounds: &'a Rect) {
         unsafe {
             self.0
                 .on_layout_changed
@@ -37920,7 +38098,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_focus(&self, view: &mut View) {
+    fn on_focus<'a>(&self, view: &'a mut View) {
         unsafe {
             self.0
                 .on_focus
@@ -37934,7 +38112,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_blur(&self, view: &mut View) {
+    fn on_blur<'a>(&self, view: &'a mut View) {
         unsafe {
             self.0
                 .on_blur
@@ -37948,7 +38126,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_theme_changed(&self, view: &mut View) {
+    fn on_theme_changed<'a>(&self, view: &'a mut View) {
         unsafe {
             self.0
                 .on_theme_changed
@@ -37999,160 +38177,168 @@ impl Default for ViewDelegate {
     }
 }
 pub trait ImplView: Sized {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view<'a>(&self) -> BrowserView {
         unsafe { std::mem::zeroed() }
     }
-    fn as_button(&self) -> Button {
+    fn as_button<'a>(&self) -> Button {
         unsafe { std::mem::zeroed() }
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel<'a>(&self) -> Panel {
         unsafe { std::mem::zeroed() }
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view<'a>(&self) -> ScrollView {
         unsafe { std::mem::zeroed() }
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield<'a>(&self) -> Textfield {
         unsafe { std::mem::zeroed() }
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string<'a>(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_attached(&self) -> ::std::os::raw::c_int {
+    fn is_attached<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut View) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut View) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate<'a>(&self) -> ViewDelegate {
         unsafe { std::mem::zeroed() }
     }
-    fn get_window(&self) -> Window {
+    fn get_window<'a>(&self) -> Window {
         unsafe { std::mem::zeroed() }
     }
-    fn get_id(&self) -> ::std::os::raw::c_int {
+    fn get_id<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_id(&self, id: ::std::os::raw::c_int) {
+    fn set_id<'a>(&self, id: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_group_id(&self) -> ::std::os::raw::c_int {
+    fn get_group_id<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_group_id(&self, group_id: ::std::os::raw::c_int) {
+    fn set_group_id<'a>(&self, group_id: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view<'a>(&self) -> View {
         unsafe { std::mem::zeroed() }
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id<'a>(&self, id: ::std::os::raw::c_int) -> View {
         unsafe { std::mem::zeroed() }
     }
-    fn set_bounds(&self, bounds: &Rect) {
+    fn set_bounds<'a>(&self, bounds: &'a Rect) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bounds(&self) -> Rect {
+    fn get_bounds<'a>(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bounds_in_screen(&self) -> Rect {
+    fn get_bounds_in_screen<'a>(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn set_size(&self, size: &Size) {
+    fn set_size<'a>(&self, size: &'a Size) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_size(&self) -> Size {
+    fn get_size<'a>(&self) -> Size {
         unsafe { std::mem::zeroed() }
     }
-    fn set_position(&self, position: &Point) {
+    fn set_position<'a>(&self, position: &'a Point) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_position(&self) -> Point {
+    fn get_position<'a>(&self) -> Point {
         unsafe { std::mem::zeroed() }
     }
-    fn set_insets(&self, insets: &Insets) {
+    fn set_insets<'a>(&self, insets: &'a Insets) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_insets(&self) -> Insets {
+    fn get_insets<'a>(&self) -> Insets {
         unsafe { std::mem::zeroed() }
     }
-    fn get_preferred_size(&self) -> Size {
+    fn get_preferred_size<'a>(&self) -> Size {
         unsafe { std::mem::zeroed() }
     }
-    fn size_to_preferred_size(&self) {
+    fn size_to_preferred_size<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_minimum_size(&self) -> Size {
+    fn get_minimum_size<'a>(&self) -> Size {
         unsafe { std::mem::zeroed() }
     }
-    fn get_maximum_size(&self) -> Size {
+    fn get_maximum_size<'a>(&self) -> Size {
         unsafe { std::mem::zeroed() }
     }
-    fn get_height_for_width(&self, width: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn get_height_for_width<'a>(&self, width: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn invalidate_layout(&self) {
+    fn invalidate_layout<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_visible(&self, visible: ::std::os::raw::c_int) {
+    fn set_visible<'a>(&self, visible: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_visible(&self) -> ::std::os::raw::c_int {
+    fn is_visible<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_drawn(&self) -> ::std::os::raw::c_int {
+    fn is_drawn<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_enabled(&self, enabled: ::std::os::raw::c_int) {
+    fn set_enabled<'a>(&self, enabled: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_enabled(&self) -> ::std::os::raw::c_int {
+    fn is_enabled<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_focusable(&self, focusable: ::std::os::raw::c_int) {
+    fn set_focusable<'a>(&self, focusable: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_focusable(&self) -> ::std::os::raw::c_int {
+    fn is_focusable<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_accessibility_focusable(&self) -> ::std::os::raw::c_int {
+    fn is_accessibility_focusable<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_focus(&self) -> ::std::os::raw::c_int {
+    fn has_focus<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn request_focus(&self) {
+    fn request_focus<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_background_color(&self, color: u32) {
+    fn set_background_color<'a>(&self, color: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_background_color(&self) -> cef_color_t {
+    fn get_background_color<'a>(&self) -> cef_color_t {
         unsafe { std::mem::zeroed() }
     }
-    fn get_theme_color(&self, color_id: ::std::os::raw::c_int) -> cef_color_t {
+    fn get_theme_color<'a>(&self, color_id: ::std::os::raw::c_int) -> cef_color_t {
         unsafe { std::mem::zeroed() }
     }
-    fn convert_point_to_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_to_screen<'a>(&self, point: &'a mut Point) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn convert_point_from_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_from_screen<'a>(&self, point: &'a mut Point) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn convert_point_to_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_to_window<'a>(&self, point: &'a mut Point) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn convert_point_from_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_from_window<'a>(&self, point: &'a mut Point) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn convert_point_to_view(&self, view: &mut View, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_to_view<'a>(
+        &self,
+        view: &'a mut View,
+        point: &'a mut Point,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn convert_point_from_view(&self, view: &mut View, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_from_view<'a>(
+        &self,
+        view: &'a mut View,
+        point: &'a mut Point,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_view_t {
@@ -38589,7 +38775,7 @@ mod impl_cef_view_t {
 #[derive(Clone)]
 pub struct View(RefGuard<_cef_view_t>);
 impl ImplView for View {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view<'a>(&self) -> BrowserView {
         unsafe {
             self.0
                 .as_browser_view
@@ -38601,7 +38787,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn as_button(&self) -> Button {
+    fn as_button<'a>(&self) -> Button {
         unsafe {
             self.0
                 .as_button
@@ -38613,7 +38799,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel<'a>(&self) -> Panel {
         unsafe {
             self.0
                 .as_panel
@@ -38625,7 +38811,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view<'a>(&self) -> ScrollView {
         unsafe {
             self.0
                 .as_scroll_view
@@ -38637,7 +38823,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield<'a>(&self) -> Textfield {
         unsafe {
             self.0
                 .as_textfield
@@ -38649,7 +38835,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_type_string
@@ -38661,7 +38847,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string<'a>(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
         unsafe {
             self.0
                 .to_string
@@ -38675,7 +38861,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -38687,7 +38873,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_attached(&self) -> ::std::os::raw::c_int {
+    fn is_attached<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_attached
@@ -38699,7 +38885,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut View) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut View) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -38713,7 +38899,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate<'a>(&self) -> ViewDelegate {
         unsafe {
             self.0
                 .get_delegate
@@ -38725,7 +38911,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_window(&self) -> Window {
+    fn get_window<'a>(&self) -> Window {
         unsafe {
             self.0
                 .get_window
@@ -38737,7 +38923,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_id(&self) -> ::std::os::raw::c_int {
+    fn get_id<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_id
@@ -38749,7 +38935,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_id(&self, id: ::std::os::raw::c_int) {
+    fn set_id<'a>(&self, id: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_id
@@ -38763,7 +38949,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_group_id(&self) -> ::std::os::raw::c_int {
+    fn get_group_id<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_group_id
@@ -38775,7 +38961,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_group_id(&self, group_id: ::std::os::raw::c_int) {
+    fn set_group_id<'a>(&self, group_id: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_group_id
@@ -38789,7 +38975,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view<'a>(&self) -> View {
         unsafe {
             self.0
                 .get_parent_view
@@ -38801,7 +38987,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id<'a>(&self, id: ::std::os::raw::c_int) -> View {
         unsafe {
             self.0
                 .get_view_for_id
@@ -38815,7 +39001,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_bounds(&self, bounds: &Rect) {
+    fn set_bounds<'a>(&self, bounds: &'a Rect) {
         unsafe {
             self.0
                 .set_bounds
@@ -38829,7 +39015,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bounds(&self) -> Rect {
+    fn get_bounds<'a>(&self) -> Rect {
         unsafe {
             self.0
                 .get_bounds
@@ -38841,7 +39027,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bounds_in_screen(&self) -> Rect {
+    fn get_bounds_in_screen<'a>(&self) -> Rect {
         unsafe {
             self.0
                 .get_bounds_in_screen
@@ -38853,7 +39039,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_size(&self, size: &Size) {
+    fn set_size<'a>(&self, size: &'a Size) {
         unsafe {
             self.0
                 .set_size
@@ -38867,7 +39053,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_size(&self) -> Size {
+    fn get_size<'a>(&self) -> Size {
         unsafe {
             self.0
                 .get_size
@@ -38879,7 +39065,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_position(&self, position: &Point) {
+    fn set_position<'a>(&self, position: &'a Point) {
         unsafe {
             self.0
                 .set_position
@@ -38893,7 +39079,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_position(&self) -> Point {
+    fn get_position<'a>(&self) -> Point {
         unsafe {
             self.0
                 .get_position
@@ -38905,7 +39091,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_insets(&self, insets: &Insets) {
+    fn set_insets<'a>(&self, insets: &'a Insets) {
         unsafe {
             self.0
                 .set_insets
@@ -38919,7 +39105,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_insets(&self) -> Insets {
+    fn get_insets<'a>(&self) -> Insets {
         unsafe {
             self.0
                 .get_insets
@@ -38931,7 +39117,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_preferred_size(&self) -> Size {
+    fn get_preferred_size<'a>(&self) -> Size {
         unsafe {
             self.0
                 .get_preferred_size
@@ -38943,7 +39129,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn size_to_preferred_size(&self) {
+    fn size_to_preferred_size<'a>(&self) {
         unsafe {
             self.0
                 .size_to_preferred_size
@@ -38955,7 +39141,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_minimum_size(&self) -> Size {
+    fn get_minimum_size<'a>(&self) -> Size {
         unsafe {
             self.0
                 .get_minimum_size
@@ -38967,7 +39153,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_maximum_size(&self) -> Size {
+    fn get_maximum_size<'a>(&self) -> Size {
         unsafe {
             self.0
                 .get_maximum_size
@@ -38979,7 +39165,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_height_for_width(&self, width: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
+    fn get_height_for_width<'a>(&self, width: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_height_for_width
@@ -38993,7 +39179,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn invalidate_layout(&self) {
+    fn invalidate_layout<'a>(&self) {
         unsafe {
             self.0
                 .invalidate_layout
@@ -39005,7 +39191,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_visible(&self, visible: ::std::os::raw::c_int) {
+    fn set_visible<'a>(&self, visible: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_visible
@@ -39019,7 +39205,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_visible(&self) -> ::std::os::raw::c_int {
+    fn is_visible<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_visible
@@ -39031,7 +39217,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_drawn(&self) -> ::std::os::raw::c_int {
+    fn is_drawn<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_drawn
@@ -39043,7 +39229,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_enabled(&self, enabled: ::std::os::raw::c_int) {
+    fn set_enabled<'a>(&self, enabled: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_enabled
@@ -39057,7 +39243,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_enabled(&self) -> ::std::os::raw::c_int {
+    fn is_enabled<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_enabled
@@ -39069,7 +39255,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_focusable(&self, focusable: ::std::os::raw::c_int) {
+    fn set_focusable<'a>(&self, focusable: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_focusable
@@ -39083,7 +39269,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_focusable(&self) -> ::std::os::raw::c_int {
+    fn is_focusable<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_focusable
@@ -39095,7 +39281,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_accessibility_focusable(&self) -> ::std::os::raw::c_int {
+    fn is_accessibility_focusable<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_accessibility_focusable
@@ -39107,7 +39293,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_focus(&self) -> ::std::os::raw::c_int {
+    fn has_focus<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_focus
@@ -39119,7 +39305,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn request_focus(&self) {
+    fn request_focus<'a>(&self) {
         unsafe {
             self.0
                 .request_focus
@@ -39131,7 +39317,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_background_color(&self, color: u32) {
+    fn set_background_color<'a>(&self, color: u32) {
         unsafe {
             self.0
                 .set_background_color
@@ -39145,7 +39331,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_background_color(&self) -> cef_color_t {
+    fn get_background_color<'a>(&self) -> cef_color_t {
         unsafe {
             self.0
                 .get_background_color
@@ -39157,7 +39343,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_theme_color(&self, color_id: ::std::os::raw::c_int) -> cef_color_t {
+    fn get_theme_color<'a>(&self, color_id: ::std::os::raw::c_int) -> cef_color_t {
         unsafe {
             self.0
                 .get_theme_color
@@ -39171,7 +39357,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn convert_point_to_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_to_screen<'a>(&self, point: &'a mut Point) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .convert_point_to_screen
@@ -39185,7 +39371,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn convert_point_from_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_from_screen<'a>(&self, point: &'a mut Point) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .convert_point_from_screen
@@ -39199,7 +39385,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn convert_point_to_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_to_window<'a>(&self, point: &'a mut Point) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .convert_point_to_window
@@ -39213,7 +39399,7 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn convert_point_from_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_from_window<'a>(&self, point: &'a mut Point) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .convert_point_from_window
@@ -39227,7 +39413,11 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn convert_point_to_view(&self, view: &mut View, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_to_view<'a>(
+        &self,
+        view: &'a mut View,
+        point: &'a mut Point,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .convert_point_to_view
@@ -39242,7 +39432,11 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn convert_point_from_view(&self, view: &mut View, point: &mut Point) -> ::std::os::raw::c_int {
+    fn convert_point_from_view<'a>(
+        &self,
+        view: &'a mut View,
+        point: &'a mut Point,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .convert_point_from_view
@@ -39294,22 +39488,22 @@ impl Default for View {
     }
 }
 pub trait ImplButton: ImplView {
-    fn as_label_button(&self) -> LabelButton {
+    fn as_label_button<'a>(&self) -> LabelButton {
         unsafe { std::mem::zeroed() }
     }
-    fn set_state(&self, state: ButtonState) {
+    fn set_state<'a>(&self, state: ButtonState) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_state(&self) -> ButtonState {
+    fn get_state<'a>(&self) -> ButtonState {
         unsafe { std::mem::zeroed() }
     }
-    fn set_ink_drop_enabled(&self, enabled: ::std::os::raw::c_int) {
+    fn set_ink_drop_enabled<'a>(&self, enabled: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_tooltip_text(&self, tooltip_text: &CefStringUtf16) {
+    fn set_tooltip_text<'a>(&self, tooltip_text: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_accessible_name(&self, name: &CefStringUtf16) {
+    fn set_accessible_name<'a>(&self, name: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_button_t {
@@ -39381,7 +39575,7 @@ mod impl_cef_button_t {
 #[derive(Clone)]
 pub struct Button(RefGuard<_cef_button_t>);
 impl ImplButton for Button {
-    fn as_label_button(&self) -> LabelButton {
+    fn as_label_button<'a>(&self) -> LabelButton {
         unsafe {
             self.0
                 .as_label_button
@@ -39393,7 +39587,7 @@ impl ImplButton for Button {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_state(&self, state: ButtonState) {
+    fn set_state<'a>(&self, state: ButtonState) {
         unsafe {
             self.0
                 .set_state
@@ -39407,7 +39601,7 @@ impl ImplButton for Button {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_state(&self) -> ButtonState {
+    fn get_state<'a>(&self) -> ButtonState {
         unsafe {
             self.0
                 .get_state
@@ -39419,7 +39613,7 @@ impl ImplButton for Button {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_ink_drop_enabled(&self, enabled: ::std::os::raw::c_int) {
+    fn set_ink_drop_enabled<'a>(&self, enabled: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_ink_drop_enabled
@@ -39433,7 +39627,7 @@ impl ImplButton for Button {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_tooltip_text(&self, tooltip_text: &CefStringUtf16) {
+    fn set_tooltip_text<'a>(&self, tooltip_text: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_tooltip_text
@@ -39447,7 +39641,7 @@ impl ImplButton for Button {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_accessible_name(&self, name: &CefStringUtf16) {
+    fn set_accessible_name<'a>(&self, name: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_accessible_name
@@ -39498,10 +39692,10 @@ impl Default for Button {
     }
 }
 pub trait ImplButtonDelegate: ImplViewDelegate {
-    fn on_button_pressed(&self, button: &mut Button) {
+    fn on_button_pressed<'a>(&self, button: &'a mut Button) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_button_state_changed(&self, button: &mut Button) {
+    fn on_button_state_changed<'a>(&self, button: &'a mut Button) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_button_delegate_t {
@@ -39540,7 +39734,7 @@ mod impl_cef_button_delegate_t {
 #[derive(Clone)]
 pub struct ButtonDelegate(RefGuard<_cef_button_delegate_t>);
 impl ImplButtonDelegate for ButtonDelegate {
-    fn on_button_pressed(&self, button: &mut Button) {
+    fn on_button_pressed<'a>(&self, button: &'a mut Button) {
         unsafe {
             self.0
                 .on_button_pressed
@@ -39554,7 +39748,7 @@ impl ImplButtonDelegate for ButtonDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_button_state_changed(&self, button: &mut Button) {
+    fn on_button_state_changed<'a>(&self, button: &'a mut Button) {
         unsafe {
             self.0
                 .on_button_state_changed
@@ -39605,37 +39799,37 @@ impl Default for ButtonDelegate {
     }
 }
 pub trait ImplLabelButton: ImplButton {
-    fn as_menu_button(&self) -> MenuButton {
+    fn as_menu_button<'a>(&self) -> MenuButton {
         unsafe { std::mem::zeroed() }
     }
-    fn set_text(&self, text: &CefStringUtf16) {
+    fn set_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_text(&self) -> CefStringUtf16 {
+    fn get_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_image(&self, button_state: ButtonState, image: &mut Image) {
+    fn set_image<'a>(&self, button_state: ButtonState, image: &'a mut Image) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_image(&self, button_state: ButtonState) -> Image {
+    fn get_image<'a>(&self, button_state: ButtonState) -> Image {
         unsafe { std::mem::zeroed() }
     }
-    fn set_text_color(&self, for_state: ButtonState, color: u32) {
+    fn set_text_color<'a>(&self, for_state: ButtonState, color: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_enabled_text_colors(&self, color: u32) {
+    fn set_enabled_text_colors<'a>(&self, color: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_font_list(&self, font_list: &CefStringUtf16) {
+    fn set_font_list<'a>(&self, font_list: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_horizontal_alignment(&self, alignment: HorizontalAlignment) {
+    fn set_horizontal_alignment<'a>(&self, alignment: HorizontalAlignment) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_minimum_size(&self, size: &Size) {
+    fn set_minimum_size<'a>(&self, size: &'a Size) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_maximum_size(&self, size: &Size) {
+    fn set_maximum_size<'a>(&self, size: &'a Size) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_label_button_t {
@@ -39769,7 +39963,7 @@ mod impl_cef_label_button_t {
 #[derive(Clone)]
 pub struct LabelButton(RefGuard<_cef_label_button_t>);
 impl ImplLabelButton for LabelButton {
-    fn as_menu_button(&self) -> MenuButton {
+    fn as_menu_button<'a>(&self) -> MenuButton {
         unsafe {
             self.0
                 .as_menu_button
@@ -39781,7 +39975,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_text(&self, text: &CefStringUtf16) {
+    fn set_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_text
@@ -39795,7 +39989,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_text(&self) -> CefStringUtf16 {
+    fn get_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_text
@@ -39807,7 +40001,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_image(&self, button_state: ButtonState, image: &mut Image) {
+    fn set_image<'a>(&self, button_state: ButtonState, image: &'a mut Image) {
         unsafe {
             self.0
                 .set_image
@@ -39822,7 +40016,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_image(&self, button_state: ButtonState) -> Image {
+    fn get_image<'a>(&self, button_state: ButtonState) -> Image {
         unsafe {
             self.0
                 .get_image
@@ -39836,7 +40030,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_text_color(&self, for_state: ButtonState, color: u32) {
+    fn set_text_color<'a>(&self, for_state: ButtonState, color: u32) {
         unsafe {
             self.0
                 .set_text_color
@@ -39851,7 +40045,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_enabled_text_colors(&self, color: u32) {
+    fn set_enabled_text_colors<'a>(&self, color: u32) {
         unsafe {
             self.0
                 .set_enabled_text_colors
@@ -39865,7 +40059,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_font_list(&self, font_list: &CefStringUtf16) {
+    fn set_font_list<'a>(&self, font_list: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_font_list
@@ -39879,7 +40073,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_horizontal_alignment(&self, alignment: HorizontalAlignment) {
+    fn set_horizontal_alignment<'a>(&self, alignment: HorizontalAlignment) {
         unsafe {
             self.0
                 .set_horizontal_alignment
@@ -39893,7 +40087,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_minimum_size(&self, size: &Size) {
+    fn set_minimum_size<'a>(&self, size: &'a Size) {
         unsafe {
             self.0
                 .set_minimum_size
@@ -39907,7 +40101,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_maximum_size(&self, size: &Size) {
+    fn set_maximum_size<'a>(&self, size: &'a Size) {
         unsafe {
             self.0
                 .set_maximum_size
@@ -40011,11 +40205,11 @@ impl Default for MenuButtonPressedLock {
     }
 }
 pub trait ImplMenuButtonDelegate: ImplButtonDelegate {
-    fn on_menu_button_pressed(
+    fn on_menu_button_pressed<'a>(
         &self,
-        menu_button: &mut MenuButton,
-        screen_point: &Point,
-        button_pressed_lock: &mut MenuButtonPressedLock,
+        menu_button: &'a mut MenuButton,
+        screen_point: &'a Point,
+        button_pressed_lock: &'a mut MenuButtonPressedLock,
     ) {
         unsafe { std::mem::zeroed() }
     }
@@ -40059,11 +40253,11 @@ mod impl_cef_menu_button_delegate_t {
 #[derive(Clone)]
 pub struct MenuButtonDelegate(RefGuard<_cef_menu_button_delegate_t>);
 impl ImplMenuButtonDelegate for MenuButtonDelegate {
-    fn on_menu_button_pressed(
+    fn on_menu_button_pressed<'a>(
         &self,
-        menu_button: &mut MenuButton,
-        screen_point: &Point,
-        button_pressed_lock: &mut MenuButtonPressedLock,
+        menu_button: &'a mut MenuButton,
+        screen_point: &'a Point,
+        button_pressed_lock: &'a mut MenuButtonPressedLock,
     ) {
         unsafe {
             self.0
@@ -40123,15 +40317,15 @@ impl Default for MenuButtonDelegate {
     }
 }
 pub trait ImplMenuButton: ImplLabelButton {
-    fn show_menu(
+    fn show_menu<'a>(
         &self,
-        menu_model: &mut MenuModel,
-        screen_point: &Point,
+        menu_model: &'a mut MenuModel,
+        screen_point: &'a Point,
         anchor_position: MenuAnchorPosition,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn trigger_menu(&self) {
+    fn trigger_menu<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_menu_button_t {
@@ -40176,10 +40370,10 @@ mod impl_cef_menu_button_t {
 #[derive(Clone)]
 pub struct MenuButton(RefGuard<_cef_menu_button_t>);
 impl ImplMenuButton for MenuButton {
-    fn show_menu(
+    fn show_menu<'a>(
         &self,
-        menu_model: &mut MenuModel,
-        screen_point: &Point,
+        menu_model: &'a mut MenuModel,
+        screen_point: &'a Point,
         anchor_position: MenuAnchorPosition,
     ) {
         unsafe {
@@ -40203,7 +40397,7 @@ impl ImplMenuButton for MenuButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn trigger_menu(&self) {
+    fn trigger_menu<'a>(&self) {
         unsafe {
             self.0
                 .trigger_menu
@@ -40252,10 +40446,14 @@ impl Default for MenuButton {
     }
 }
 pub trait ImplTextfieldDelegate: ImplViewDelegate {
-    fn on_key_event(&self, textfield: &mut Textfield, event: &KeyEvent) -> ::std::os::raw::c_int {
+    fn on_key_event<'a>(
+        &self,
+        textfield: &'a mut Textfield,
+        event: &'a KeyEvent,
+    ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_after_user_action(&self, textfield: &mut Textfield) {
+    fn on_after_user_action<'a>(&self, textfield: &'a mut Textfield) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_textfield_delegate_t {
@@ -40300,7 +40498,11 @@ mod impl_cef_textfield_delegate_t {
 #[derive(Clone)]
 pub struct TextfieldDelegate(RefGuard<_cef_textfield_delegate_t>);
 impl ImplTextfieldDelegate for TextfieldDelegate {
-    fn on_key_event(&self, textfield: &mut Textfield, event: &KeyEvent) -> ::std::os::raw::c_int {
+    fn on_key_event<'a>(
+        &self,
+        textfield: &'a mut Textfield,
+        event: &'a KeyEvent,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .on_key_event
@@ -40315,7 +40517,7 @@ impl ImplTextfieldDelegate for TextfieldDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_after_user_action(&self, textfield: &mut Textfield) {
+    fn on_after_user_action<'a>(&self, textfield: &'a mut Textfield) {
         unsafe {
             self.0
                 .on_after_user_action
@@ -40366,97 +40568,97 @@ impl Default for TextfieldDelegate {
     }
 }
 pub trait ImplTextfield: ImplView {
-    fn set_password_input(&self, password_input: ::std::os::raw::c_int) {
+    fn set_password_input<'a>(&self, password_input: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_password_input(&self) -> ::std::os::raw::c_int {
+    fn is_password_input<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn set_read_only(&self, read_only: ::std::os::raw::c_int) {
+    fn set_read_only<'a>(&self, read_only: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_text(&self) -> CefStringUtf16 {
+    fn get_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_text(&self, text: &CefStringUtf16) {
+    fn set_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn append_text(&self, text: &CefStringUtf16) {
+    fn append_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn insert_or_replace_text(&self, text: &CefStringUtf16) {
+    fn insert_or_replace_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn has_selection(&self) -> ::std::os::raw::c_int {
+    fn has_selection<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_selected_text(&self) -> CefStringUtf16 {
+    fn get_selected_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn select_all(&self, reversed: ::std::os::raw::c_int) {
+    fn select_all<'a>(&self, reversed: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn clear_selection(&self) {
+    fn clear_selection<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_selected_range(&self) -> Range {
+    fn get_selected_range<'a>(&self) -> Range {
         unsafe { std::mem::zeroed() }
     }
-    fn select_range(&self, range: &Range) {
+    fn select_range<'a>(&self, range: &'a Range) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_cursor_position(&self) -> usize {
+    fn get_cursor_position<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn set_text_color(&self, color: u32) {
+    fn set_text_color<'a>(&self, color: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_text_color(&self) -> cef_color_t {
+    fn get_text_color<'a>(&self) -> cef_color_t {
         unsafe { std::mem::zeroed() }
     }
-    fn set_selection_text_color(&self, color: u32) {
+    fn set_selection_text_color<'a>(&self, color: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_selection_text_color(&self) -> cef_color_t {
+    fn get_selection_text_color<'a>(&self) -> cef_color_t {
         unsafe { std::mem::zeroed() }
     }
-    fn set_selection_background_color(&self, color: u32) {
+    fn set_selection_background_color<'a>(&self, color: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_selection_background_color(&self) -> cef_color_t {
+    fn get_selection_background_color<'a>(&self) -> cef_color_t {
         unsafe { std::mem::zeroed() }
     }
-    fn set_font_list(&self, font_list: &CefStringUtf16) {
+    fn set_font_list<'a>(&self, font_list: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn apply_text_color(&self, color: u32, range: &Range) {
+    fn apply_text_color<'a>(&self, color: u32, range: &'a Range) {
         unsafe { std::mem::zeroed() }
     }
-    fn apply_text_style(&self, style: TextStyle, add: ::std::os::raw::c_int, range: &Range) {
+    fn apply_text_style<'a>(&self, style: TextStyle, add: ::std::os::raw::c_int, range: &'a Range) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_command_enabled(&self, command_id: TextFieldCommands) -> ::std::os::raw::c_int {
+    fn is_command_enabled<'a>(&self, command_id: TextFieldCommands) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn execute_command(&self, command_id: TextFieldCommands) {
+    fn execute_command<'a>(&self, command_id: TextFieldCommands) {
         unsafe { std::mem::zeroed() }
     }
-    fn clear_edit_history(&self) {
+    fn clear_edit_history<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_placeholder_text(&self, text: &CefStringUtf16) {
+    fn set_placeholder_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_placeholder_text(&self) -> CefStringUtf16 {
+    fn get_placeholder_text<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_placeholder_text_color(&self, color: u32) {
+    fn set_placeholder_text_color<'a>(&self, color: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_accessible_name(&self, name: &CefStringUtf16) {
+    fn set_accessible_name<'a>(&self, name: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_textfield_t {
@@ -40768,7 +40970,7 @@ mod impl_cef_textfield_t {
 #[derive(Clone)]
 pub struct Textfield(RefGuard<_cef_textfield_t>);
 impl ImplTextfield for Textfield {
-    fn set_password_input(&self, password_input: ::std::os::raw::c_int) {
+    fn set_password_input<'a>(&self, password_input: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_password_input
@@ -40782,7 +40984,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_password_input(&self) -> ::std::os::raw::c_int {
+    fn is_password_input<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_password_input
@@ -40794,7 +40996,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_read_only(&self, read_only: ::std::os::raw::c_int) {
+    fn set_read_only<'a>(&self, read_only: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_read_only
@@ -40808,7 +41010,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_read_only(&self) -> ::std::os::raw::c_int {
+    fn is_read_only<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_read_only
@@ -40820,7 +41022,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_text(&self) -> CefStringUtf16 {
+    fn get_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_text
@@ -40832,7 +41034,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_text(&self, text: &CefStringUtf16) {
+    fn set_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_text
@@ -40846,7 +41048,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn append_text(&self, text: &CefStringUtf16) {
+    fn append_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .append_text
@@ -40860,7 +41062,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn insert_or_replace_text(&self, text: &CefStringUtf16) {
+    fn insert_or_replace_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .insert_or_replace_text
@@ -40874,7 +41076,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_selection(&self) -> ::std::os::raw::c_int {
+    fn has_selection<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_selection
@@ -40886,7 +41088,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_selected_text(&self) -> CefStringUtf16 {
+    fn get_selected_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_selected_text
@@ -40898,7 +41100,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn select_all(&self, reversed: ::std::os::raw::c_int) {
+    fn select_all<'a>(&self, reversed: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .select_all
@@ -40912,7 +41114,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear_selection(&self) {
+    fn clear_selection<'a>(&self) {
         unsafe {
             self.0
                 .clear_selection
@@ -40924,7 +41126,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_selected_range(&self) -> Range {
+    fn get_selected_range<'a>(&self) -> Range {
         unsafe {
             self.0
                 .get_selected_range
@@ -40936,7 +41138,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn select_range(&self, range: &Range) {
+    fn select_range<'a>(&self, range: &'a Range) {
         unsafe {
             self.0
                 .select_range
@@ -40950,7 +41152,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_cursor_position(&self) -> usize {
+    fn get_cursor_position<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_cursor_position
@@ -40962,7 +41164,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_text_color(&self, color: u32) {
+    fn set_text_color<'a>(&self, color: u32) {
         unsafe {
             self.0
                 .set_text_color
@@ -40976,7 +41178,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_text_color(&self) -> cef_color_t {
+    fn get_text_color<'a>(&self) -> cef_color_t {
         unsafe {
             self.0
                 .get_text_color
@@ -40988,7 +41190,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_selection_text_color(&self, color: u32) {
+    fn set_selection_text_color<'a>(&self, color: u32) {
         unsafe {
             self.0
                 .set_selection_text_color
@@ -41002,7 +41204,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_selection_text_color(&self) -> cef_color_t {
+    fn get_selection_text_color<'a>(&self) -> cef_color_t {
         unsafe {
             self.0
                 .get_selection_text_color
@@ -41014,7 +41216,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_selection_background_color(&self, color: u32) {
+    fn set_selection_background_color<'a>(&self, color: u32) {
         unsafe {
             self.0
                 .set_selection_background_color
@@ -41028,7 +41230,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_selection_background_color(&self) -> cef_color_t {
+    fn get_selection_background_color<'a>(&self) -> cef_color_t {
         unsafe {
             self.0
                 .get_selection_background_color
@@ -41040,7 +41242,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_font_list(&self, font_list: &CefStringUtf16) {
+    fn set_font_list<'a>(&self, font_list: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_font_list
@@ -41054,7 +41256,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn apply_text_color(&self, color: u32, range: &Range) {
+    fn apply_text_color<'a>(&self, color: u32, range: &'a Range) {
         unsafe {
             self.0
                 .apply_text_color
@@ -41069,7 +41271,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn apply_text_style(&self, style: TextStyle, add: ::std::os::raw::c_int, range: &Range) {
+    fn apply_text_style<'a>(&self, style: TextStyle, add: ::std::os::raw::c_int, range: &'a Range) {
         unsafe {
             self.0
                 .apply_text_style
@@ -41085,7 +41287,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_command_enabled(&self, command_id: TextFieldCommands) -> ::std::os::raw::c_int {
+    fn is_command_enabled<'a>(&self, command_id: TextFieldCommands) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_command_enabled
@@ -41099,7 +41301,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn execute_command(&self, command_id: TextFieldCommands) {
+    fn execute_command<'a>(&self, command_id: TextFieldCommands) {
         unsafe {
             self.0
                 .execute_command
@@ -41113,7 +41315,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn clear_edit_history(&self) {
+    fn clear_edit_history<'a>(&self) {
         unsafe {
             self.0
                 .clear_edit_history
@@ -41125,7 +41327,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_placeholder_text(&self, text: &CefStringUtf16) {
+    fn set_placeholder_text<'a>(&self, text: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_placeholder_text
@@ -41139,7 +41341,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_placeholder_text(&self) -> CefStringUtf16 {
+    fn get_placeholder_text<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_placeholder_text
@@ -41151,7 +41353,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_placeholder_text_color(&self, color: u32) {
+    fn set_placeholder_text_color<'a>(&self, color: u32) {
         unsafe {
             self.0
                 .set_placeholder_text_color
@@ -41165,7 +41367,7 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_accessible_name(&self, name: &CefStringUtf16) {
+    fn set_accessible_name<'a>(&self, name: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_accessible_name
@@ -41216,46 +41418,50 @@ impl Default for Textfield {
     }
 }
 pub trait ImplBrowserViewDelegate: ImplViewDelegate {
-    fn on_browser_created(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
+    fn on_browser_created<'a>(&self, browser_view: &'a mut BrowserView, browser: &'a mut Browser) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_browser_destroyed(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_delegate_for_popup_browser_view(
+    fn on_browser_destroyed<'a>(
         &self,
-        browser_view: &mut BrowserView,
-        settings: &BrowserSettings,
-        client: &mut Client,
+        browser_view: &'a mut BrowserView,
+        browser: &'a mut Browser,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_delegate_for_popup_browser_view<'a>(
+        &self,
+        browser_view: &'a mut BrowserView,
+        settings: &'a BrowserSettings,
+        client: &'a mut Client,
         is_devtools: ::std::os::raw::c_int,
     ) -> BrowserViewDelegate {
         unsafe { std::mem::zeroed() }
     }
-    fn on_popup_browser_view_created(
+    fn on_popup_browser_view_created<'a>(
         &self,
-        browser_view: &mut BrowserView,
-        popup_browser_view: &mut BrowserView,
+        browser_view: &'a mut BrowserView,
+        popup_browser_view: &'a mut BrowserView,
         is_devtools: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_chrome_toolbar_type(&self, browser_view: &mut BrowserView) -> ChromeToolbarType {
+    fn get_chrome_toolbar_type<'a>(&self, browser_view: &'a mut BrowserView) -> ChromeToolbarType {
         unsafe { std::mem::zeroed() }
     }
-    fn use_frameless_window_for_picture_in_picture(
+    fn use_frameless_window_for_picture_in_picture<'a>(
         &self,
-        browser_view: &mut BrowserView,
+        browser_view: &'a mut BrowserView,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_gesture_command(
+    fn on_gesture_command<'a>(
         &self,
-        browser_view: &mut BrowserView,
+        browser_view: &'a mut BrowserView,
         gesture_command: GestureCommand,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_browser_runtime_style(&self) -> RuntimeStyle {
+    fn get_browser_runtime_style<'a>(&self) -> RuntimeStyle {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_browser_view_delegate_t {
@@ -41409,7 +41615,7 @@ mod impl_cef_browser_view_delegate_t {
 #[derive(Clone)]
 pub struct BrowserViewDelegate(RefGuard<_cef_browser_view_delegate_t>);
 impl ImplBrowserViewDelegate for BrowserViewDelegate {
-    fn on_browser_created(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
+    fn on_browser_created<'a>(&self, browser_view: &'a mut BrowserView, browser: &'a mut Browser) {
         unsafe {
             self.0
                 .on_browser_created
@@ -41424,7 +41630,11 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_browser_destroyed(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
+    fn on_browser_destroyed<'a>(
+        &self,
+        browser_view: &'a mut BrowserView,
+        browser: &'a mut Browser,
+    ) {
         unsafe {
             self.0
                 .on_browser_destroyed
@@ -41439,11 +41649,11 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_delegate_for_popup_browser_view(
+    fn get_delegate_for_popup_browser_view<'a>(
         &self,
-        browser_view: &mut BrowserView,
-        settings: &BrowserSettings,
-        client: &mut Client,
+        browser_view: &'a mut BrowserView,
+        settings: &'a BrowserSettings,
+        client: &'a mut Client,
         is_devtools: ::std::os::raw::c_int,
     ) -> BrowserViewDelegate {
         unsafe {
@@ -41469,10 +41679,10 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_popup_browser_view_created(
+    fn on_popup_browser_view_created<'a>(
         &self,
-        browser_view: &mut BrowserView,
-        popup_browser_view: &mut BrowserView,
+        browser_view: &'a mut BrowserView,
+        popup_browser_view: &'a mut BrowserView,
         is_devtools: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -41496,7 +41706,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_chrome_toolbar_type(&self, browser_view: &mut BrowserView) -> ChromeToolbarType {
+    fn get_chrome_toolbar_type<'a>(&self, browser_view: &'a mut BrowserView) -> ChromeToolbarType {
         unsafe {
             self.0
                 .get_chrome_toolbar_type
@@ -41510,9 +41720,9 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn use_frameless_window_for_picture_in_picture(
+    fn use_frameless_window_for_picture_in_picture<'a>(
         &self,
-        browser_view: &mut BrowserView,
+        browser_view: &'a mut BrowserView,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -41527,9 +41737,9 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_gesture_command(
+    fn on_gesture_command<'a>(
         &self,
-        browser_view: &mut BrowserView,
+        browser_view: &'a mut BrowserView,
         gesture_command: GestureCommand,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -41546,7 +41756,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_browser_runtime_style(&self) -> RuntimeStyle {
+    fn get_browser_runtime_style<'a>(&self) -> RuntimeStyle {
         unsafe {
             self.0
                 .get_browser_runtime_style
@@ -41595,16 +41805,16 @@ impl Default for BrowserViewDelegate {
     }
 }
 pub trait ImplBrowserView: ImplView {
-    fn get_browser(&self) -> Browser {
+    fn get_browser<'a>(&self) -> Browser {
         unsafe { std::mem::zeroed() }
     }
-    fn get_chrome_toolbar(&self) -> View {
+    fn get_chrome_toolbar<'a>(&self) -> View {
         unsafe { std::mem::zeroed() }
     }
-    fn set_prefer_accelerators(&self, prefer_accelerators: ::std::os::raw::c_int) {
+    fn set_prefer_accelerators<'a>(&self, prefer_accelerators: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_runtime_style(&self) -> RuntimeStyle {
+    fn get_runtime_style<'a>(&self) -> RuntimeStyle {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_browser_view_t {
@@ -41659,7 +41869,7 @@ mod impl_cef_browser_view_t {
 #[derive(Clone)]
 pub struct BrowserView(RefGuard<_cef_browser_view_t>);
 impl ImplBrowserView for BrowserView {
-    fn get_browser(&self) -> Browser {
+    fn get_browser<'a>(&self) -> Browser {
         unsafe {
             self.0
                 .get_browser
@@ -41671,7 +41881,7 @@ impl ImplBrowserView for BrowserView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_chrome_toolbar(&self) -> View {
+    fn get_chrome_toolbar<'a>(&self) -> View {
         unsafe {
             self.0
                 .get_chrome_toolbar
@@ -41683,7 +41893,7 @@ impl ImplBrowserView for BrowserView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_prefer_accelerators(&self, prefer_accelerators: ::std::os::raw::c_int) {
+    fn set_prefer_accelerators<'a>(&self, prefer_accelerators: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_prefer_accelerators
@@ -41697,7 +41907,7 @@ impl ImplBrowserView for BrowserView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_runtime_style(&self) -> RuntimeStyle {
+    fn get_runtime_style<'a>(&self) -> RuntimeStyle {
         unsafe {
             self.0
                 .get_runtime_style
@@ -41746,25 +41956,25 @@ impl Default for BrowserView {
     }
 }
 pub trait ImplScrollView: ImplView {
-    fn set_content_view(&self, view: &mut View) {
+    fn set_content_view<'a>(&self, view: &'a mut View) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_content_view(&self) -> View {
+    fn get_content_view<'a>(&self) -> View {
         unsafe { std::mem::zeroed() }
     }
-    fn get_visible_content_rect(&self) -> Rect {
+    fn get_visible_content_rect<'a>(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn has_horizontal_scrollbar(&self) -> ::std::os::raw::c_int {
+    fn has_horizontal_scrollbar<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_horizontal_scrollbar_height(&self) -> ::std::os::raw::c_int {
+    fn get_horizontal_scrollbar_height<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn has_vertical_scrollbar(&self) -> ::std::os::raw::c_int {
+    fn has_vertical_scrollbar<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_vertical_scrollbar_width(&self) -> ::std::os::raw::c_int {
+    fn get_vertical_scrollbar_width<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_scroll_view_t {
@@ -41841,7 +42051,7 @@ mod impl_cef_scroll_view_t {
 #[derive(Clone)]
 pub struct ScrollView(RefGuard<_cef_scroll_view_t>);
 impl ImplScrollView for ScrollView {
-    fn set_content_view(&self, view: &mut View) {
+    fn set_content_view<'a>(&self, view: &'a mut View) {
         unsafe {
             self.0
                 .set_content_view
@@ -41855,7 +42065,7 @@ impl ImplScrollView for ScrollView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_content_view(&self) -> View {
+    fn get_content_view<'a>(&self) -> View {
         unsafe {
             self.0
                 .get_content_view
@@ -41867,7 +42077,7 @@ impl ImplScrollView for ScrollView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_visible_content_rect(&self) -> Rect {
+    fn get_visible_content_rect<'a>(&self) -> Rect {
         unsafe {
             self.0
                 .get_visible_content_rect
@@ -41879,7 +42089,7 @@ impl ImplScrollView for ScrollView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_horizontal_scrollbar(&self) -> ::std::os::raw::c_int {
+    fn has_horizontal_scrollbar<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_horizontal_scrollbar
@@ -41891,7 +42101,7 @@ impl ImplScrollView for ScrollView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_horizontal_scrollbar_height(&self) -> ::std::os::raw::c_int {
+    fn get_horizontal_scrollbar_height<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_horizontal_scrollbar_height
@@ -41903,7 +42113,7 @@ impl ImplScrollView for ScrollView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn has_vertical_scrollbar(&self) -> ::std::os::raw::c_int {
+    fn has_vertical_scrollbar<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .has_vertical_scrollbar
@@ -41915,7 +42125,7 @@ impl ImplScrollView for ScrollView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_vertical_scrollbar_width(&self) -> ::std::os::raw::c_int {
+    fn get_vertical_scrollbar_width<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_vertical_scrollbar_width
@@ -41964,25 +42174,25 @@ impl Default for ScrollView {
     }
 }
 pub trait ImplDisplay: Sized {
-    fn get_id(&self) -> i64 {
+    fn get_id<'a>(&self) -> i64 {
         unsafe { std::mem::zeroed() }
     }
-    fn get_device_scale_factor(&self) -> f32 {
+    fn get_device_scale_factor<'a>(&self) -> f32 {
         unsafe { std::mem::zeroed() }
     }
-    fn convert_point_to_pixels(&self, point: &mut Point) {
+    fn convert_point_to_pixels<'a>(&self, point: &'a mut Point) {
         unsafe { std::mem::zeroed() }
     }
-    fn convert_point_from_pixels(&self, point: &mut Point) {
+    fn convert_point_from_pixels<'a>(&self, point: &'a mut Point) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bounds(&self) -> Rect {
+    fn get_bounds<'a>(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn get_work_area(&self) -> Rect {
+    fn get_work_area<'a>(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn get_rotation(&self) -> ::std::os::raw::c_int {
+    fn get_rotation<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_display_t {
@@ -42054,7 +42264,7 @@ mod impl_cef_display_t {
 #[derive(Clone)]
 pub struct Display(RefGuard<_cef_display_t>);
 impl ImplDisplay for Display {
-    fn get_id(&self) -> i64 {
+    fn get_id<'a>(&self) -> i64 {
         unsafe {
             self.0
                 .get_id
@@ -42066,7 +42276,7 @@ impl ImplDisplay for Display {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_device_scale_factor(&self) -> f32 {
+    fn get_device_scale_factor<'a>(&self) -> f32 {
         unsafe {
             self.0
                 .get_device_scale_factor
@@ -42078,7 +42288,7 @@ impl ImplDisplay for Display {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn convert_point_to_pixels(&self, point: &mut Point) {
+    fn convert_point_to_pixels<'a>(&self, point: &'a mut Point) {
         unsafe {
             self.0
                 .convert_point_to_pixels
@@ -42092,7 +42302,7 @@ impl ImplDisplay for Display {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn convert_point_from_pixels(&self, point: &mut Point) {
+    fn convert_point_from_pixels<'a>(&self, point: &'a mut Point) {
         unsafe {
             self.0
                 .convert_point_from_pixels
@@ -42106,7 +42316,7 @@ impl ImplDisplay for Display {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bounds(&self) -> Rect {
+    fn get_bounds<'a>(&self) -> Rect {
         unsafe {
             self.0
                 .get_bounds
@@ -42118,7 +42328,7 @@ impl ImplDisplay for Display {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_work_area(&self) -> Rect {
+    fn get_work_area<'a>(&self) -> Rect {
         unsafe {
             self.0
                 .get_work_area
@@ -42130,7 +42340,7 @@ impl ImplDisplay for Display {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_rotation(&self) -> ::std::os::raw::c_int {
+    fn get_rotation<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .get_rotation
@@ -42179,61 +42389,61 @@ impl Default for Display {
     }
 }
 pub trait ImplOverlayController: Sized {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_same(&self, that: &mut OverlayController) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut OverlayController) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_contents_view(&self) -> View {
+    fn get_contents_view<'a>(&self) -> View {
         unsafe { std::mem::zeroed() }
     }
-    fn get_window(&self) -> Window {
+    fn get_window<'a>(&self) -> Window {
         unsafe { std::mem::zeroed() }
     }
-    fn get_docking_mode(&self) -> DockingMode {
+    fn get_docking_mode<'a>(&self) -> DockingMode {
         unsafe { std::mem::zeroed() }
     }
-    fn destroy(&self) {
+    fn destroy<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_bounds(&self, bounds: &Rect) {
+    fn set_bounds<'a>(&self, bounds: &'a Rect) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bounds(&self) -> Rect {
+    fn get_bounds<'a>(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bounds_in_screen(&self) -> Rect {
+    fn get_bounds_in_screen<'a>(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn set_size(&self, size: &Size) {
+    fn set_size<'a>(&self, size: &'a Size) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_size(&self) -> Size {
+    fn get_size<'a>(&self) -> Size {
         unsafe { std::mem::zeroed() }
     }
-    fn set_position(&self, position: &Point) {
+    fn set_position<'a>(&self, position: &'a Point) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_position(&self) -> Point {
+    fn get_position<'a>(&self) -> Point {
         unsafe { std::mem::zeroed() }
     }
-    fn set_insets(&self, insets: &Insets) {
+    fn set_insets<'a>(&self, insets: &'a Insets) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_insets(&self) -> Insets {
+    fn get_insets<'a>(&self) -> Insets {
         unsafe { std::mem::zeroed() }
     }
-    fn size_to_preferred_size(&self) {
+    fn size_to_preferred_size<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_visible(&self, visible: ::std::os::raw::c_int) {
+    fn set_visible<'a>(&self, visible: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_visible(&self) -> ::std::os::raw::c_int {
+    fn is_visible<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_drawn(&self) -> ::std::os::raw::c_int {
+    fn is_drawn<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_overlay_controller_t {
@@ -42417,7 +42627,7 @@ mod impl_cef_overlay_controller_t {
 #[derive(Clone)]
 pub struct OverlayController(RefGuard<_cef_overlay_controller_t>);
 impl ImplOverlayController for OverlayController {
-    fn is_valid(&self) -> ::std::os::raw::c_int {
+    fn is_valid<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_valid
@@ -42429,7 +42639,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_same(&self, that: &mut OverlayController) -> ::std::os::raw::c_int {
+    fn is_same<'a>(&self, that: &'a mut OverlayController) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_same
@@ -42443,7 +42653,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_contents_view(&self) -> View {
+    fn get_contents_view<'a>(&self) -> View {
         unsafe {
             self.0
                 .get_contents_view
@@ -42455,7 +42665,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_window(&self) -> Window {
+    fn get_window<'a>(&self) -> Window {
         unsafe {
             self.0
                 .get_window
@@ -42467,7 +42677,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_docking_mode(&self) -> DockingMode {
+    fn get_docking_mode<'a>(&self) -> DockingMode {
         unsafe {
             self.0
                 .get_docking_mode
@@ -42479,7 +42689,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn destroy(&self) {
+    fn destroy<'a>(&self) {
         unsafe {
             self.0
                 .destroy
@@ -42491,7 +42701,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_bounds(&self, bounds: &Rect) {
+    fn set_bounds<'a>(&self, bounds: &'a Rect) {
         unsafe {
             self.0
                 .set_bounds
@@ -42505,7 +42715,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bounds(&self) -> Rect {
+    fn get_bounds<'a>(&self) -> Rect {
         unsafe {
             self.0
                 .get_bounds
@@ -42517,7 +42727,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bounds_in_screen(&self) -> Rect {
+    fn get_bounds_in_screen<'a>(&self) -> Rect {
         unsafe {
             self.0
                 .get_bounds_in_screen
@@ -42529,7 +42739,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_size(&self, size: &Size) {
+    fn set_size<'a>(&self, size: &'a Size) {
         unsafe {
             self.0
                 .set_size
@@ -42543,7 +42753,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_size(&self) -> Size {
+    fn get_size<'a>(&self) -> Size {
         unsafe {
             self.0
                 .get_size
@@ -42555,7 +42765,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_position(&self, position: &Point) {
+    fn set_position<'a>(&self, position: &'a Point) {
         unsafe {
             self.0
                 .set_position
@@ -42569,7 +42779,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_position(&self) -> Point {
+    fn get_position<'a>(&self) -> Point {
         unsafe {
             self.0
                 .get_position
@@ -42581,7 +42791,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_insets(&self, insets: &Insets) {
+    fn set_insets<'a>(&self, insets: &'a Insets) {
         unsafe {
             self.0
                 .set_insets
@@ -42595,7 +42805,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_insets(&self) -> Insets {
+    fn get_insets<'a>(&self) -> Insets {
         unsafe {
             self.0
                 .get_insets
@@ -42607,7 +42817,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn size_to_preferred_size(&self) {
+    fn size_to_preferred_size<'a>(&self) {
         unsafe {
             self.0
                 .size_to_preferred_size
@@ -42619,7 +42829,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_visible(&self, visible: ::std::os::raw::c_int) {
+    fn set_visible<'a>(&self, visible: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_visible
@@ -42633,7 +42843,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_visible(&self) -> ::std::os::raw::c_int {
+    fn is_visible<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_visible
@@ -42645,7 +42855,7 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_drawn(&self) -> ::std::os::raw::c_int {
+    fn is_drawn<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_drawn
@@ -42745,40 +42955,40 @@ impl Default for PanelDelegate {
     }
 }
 pub trait ImplPanel: ImplView {
-    fn as_window(&self) -> Window {
+    fn as_window<'a>(&self) -> Window {
         unsafe { std::mem::zeroed() }
     }
-    fn set_to_fill_layout(&self) -> FillLayout {
+    fn set_to_fill_layout<'a>(&self) -> FillLayout {
         unsafe { std::mem::zeroed() }
     }
-    fn set_to_box_layout(&self, settings: &BoxLayoutSettings) -> BoxLayout {
+    fn set_to_box_layout<'a>(&self, settings: &'a BoxLayoutSettings) -> BoxLayout {
         unsafe { std::mem::zeroed() }
     }
-    fn get_layout(&self) -> Layout {
+    fn get_layout<'a>(&self) -> Layout {
         unsafe { std::mem::zeroed() }
     }
-    fn layout(&self) {
+    fn layout<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn add_child_view(&self, view: &mut View) {
+    fn add_child_view<'a>(&self, view: &'a mut View) {
         unsafe { std::mem::zeroed() }
     }
-    fn add_child_view_at(&self, view: &mut View, index: ::std::os::raw::c_int) {
+    fn add_child_view_at<'a>(&self, view: &'a mut View, index: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn reorder_child_view(&self, view: &mut View, index: ::std::os::raw::c_int) {
+    fn reorder_child_view<'a>(&self, view: &'a mut View, index: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn remove_child_view(&self, view: &mut View) {
+    fn remove_child_view<'a>(&self, view: &'a mut View) {
         unsafe { std::mem::zeroed() }
     }
-    fn remove_all_child_views(&self) {
+    fn remove_all_child_views<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_child_view_count(&self) -> usize {
+    fn get_child_view_count<'a>(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> View {
+    fn get_child_view_at<'a>(&self, index: ::std::os::raw::c_int) -> View {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_panel_t {
@@ -42897,7 +43107,7 @@ mod impl_cef_panel_t {
 #[derive(Clone)]
 pub struct Panel(RefGuard<_cef_panel_t>);
 impl ImplPanel for Panel {
-    fn as_window(&self) -> Window {
+    fn as_window<'a>(&self) -> Window {
         unsafe {
             self.0
                 .as_window
@@ -42909,7 +43119,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_to_fill_layout(&self) -> FillLayout {
+    fn set_to_fill_layout<'a>(&self) -> FillLayout {
         unsafe {
             self.0
                 .set_to_fill_layout
@@ -42921,7 +43131,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_to_box_layout(&self, settings: &BoxLayoutSettings) -> BoxLayout {
+    fn set_to_box_layout<'a>(&self, settings: &'a BoxLayoutSettings) -> BoxLayout {
         unsafe {
             self.0
                 .set_to_box_layout
@@ -42935,7 +43145,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_layout(&self) -> Layout {
+    fn get_layout<'a>(&self) -> Layout {
         unsafe {
             self.0
                 .get_layout
@@ -42947,7 +43157,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn layout(&self) {
+    fn layout<'a>(&self) {
         unsafe {
             self.0
                 .layout
@@ -42959,7 +43169,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_child_view(&self, view: &mut View) {
+    fn add_child_view<'a>(&self, view: &'a mut View) {
         unsafe {
             self.0
                 .add_child_view
@@ -42973,7 +43183,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_child_view_at(&self, view: &mut View, index: ::std::os::raw::c_int) {
+    fn add_child_view_at<'a>(&self, view: &'a mut View, index: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .add_child_view_at
@@ -42988,7 +43198,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn reorder_child_view(&self, view: &mut View, index: ::std::os::raw::c_int) {
+    fn reorder_child_view<'a>(&self, view: &'a mut View, index: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .reorder_child_view
@@ -43003,7 +43213,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_child_view(&self, view: &mut View) {
+    fn remove_child_view<'a>(&self, view: &'a mut View) {
         unsafe {
             self.0
                 .remove_child_view
@@ -43017,7 +43227,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_all_child_views(&self) {
+    fn remove_all_child_views<'a>(&self) {
         unsafe {
             self.0
                 .remove_all_child_views
@@ -43029,7 +43239,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_child_view_count(&self) -> usize {
+    fn get_child_view_count<'a>(&self) -> usize {
         unsafe {
             self.0
                 .get_child_view_count
@@ -43041,7 +43251,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> View {
+    fn get_child_view_at<'a>(&self, index: ::std::os::raw::c_int) -> View {
         unsafe {
             self.0
                 .get_child_view_at
@@ -43092,93 +43302,105 @@ impl Default for Panel {
     }
 }
 pub trait ImplWindowDelegate: ImplPanelDelegate {
-    fn on_window_created(&self, window: &mut Window) {
+    fn on_window_created<'a>(&self, window: &'a mut Window) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_window_closing(&self, window: &mut Window) {
+    fn on_window_closing<'a>(&self, window: &'a mut Window) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_window_destroyed(&self, window: &mut Window) {
+    fn on_window_destroyed<'a>(&self, window: &'a mut Window) {
         unsafe { std::mem::zeroed() }
     }
-    fn on_window_activation_changed(&self, window: &mut Window, active: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_window_bounds_changed(&self, window: &mut Window, new_bounds: &Rect) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_window_fullscreen_transition(
+    fn on_window_activation_changed<'a>(
         &self,
-        window: &mut Window,
+        window: &'a mut Window,
+        active: ::std::os::raw::c_int,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_window_bounds_changed<'a>(&self, window: &'a mut Window, new_bounds: &'a Rect) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_window_fullscreen_transition<'a>(
+        &self,
+        window: &'a mut Window,
         is_completed: ::std::os::raw::c_int,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_parent_window(
+    fn get_parent_window<'a>(
         &self,
-        window: &mut Window,
-        is_menu: &mut ::std::os::raw::c_int,
-        can_activate_menu: &mut ::std::os::raw::c_int,
+        window: &'a mut Window,
+        is_menu: &'a mut ::std::os::raw::c_int,
+        can_activate_menu: &'a mut ::std::os::raw::c_int,
     ) -> Window {
         unsafe { std::mem::zeroed() }
     }
-    fn is_window_modal_dialog(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn is_window_modal_dialog<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_initial_bounds(&self, window: &mut Window) -> Rect {
+    fn get_initial_bounds<'a>(&self, window: &'a mut Window) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn get_initial_show_state(&self, window: &mut Window) -> ShowState {
+    fn get_initial_show_state<'a>(&self, window: &'a mut Window) -> ShowState {
         unsafe { std::mem::zeroed() }
     }
-    fn is_frameless(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn is_frameless<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn with_standard_window_buttons(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn with_standard_window_buttons<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_titlebar_height(
+    fn get_titlebar_height<'a>(
         &self,
-        window: &mut Window,
-        titlebar_height: &mut f32,
+        window: &'a mut Window,
+        titlebar_height: &'a mut f32,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn accepts_first_mouse(&self, window: &mut Window) -> State {
+    fn accepts_first_mouse<'a>(&self, window: &'a mut Window) -> State {
         unsafe { std::mem::zeroed() }
     }
-    fn can_resize(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn can_resize<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn can_maximize(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn can_maximize<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn can_minimize(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn can_minimize<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn can_close(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn can_close<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_accelerator(
+    fn on_accelerator<'a>(
         &self,
-        window: &mut Window,
+        window: &'a mut Window,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn on_key_event(&self, window: &mut Window, event: &KeyEvent) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_theme_colors_changed(&self, window: &mut Window, chrome_theme: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_window_runtime_style(&self) -> RuntimeStyle {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_linux_window_properties(
+    fn on_key_event<'a>(
         &self,
-        window: &mut Window,
-        properties: &mut LinuxWindowProperties,
+        window: &'a mut Window,
+        event: &'a KeyEvent,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_theme_colors_changed<'a>(
+        &self,
+        window: &'a mut Window,
+        chrome_theme: ::std::os::raw::c_int,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_window_runtime_style<'a>(&self) -> RuntimeStyle {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_linux_window_properties<'a>(
+        &self,
+        window: &'a mut Window,
+        properties: &'a mut LinuxWindowProperties,
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -43487,7 +43709,7 @@ mod impl_cef_window_delegate_t {
 #[derive(Clone)]
 pub struct WindowDelegate(RefGuard<_cef_window_delegate_t>);
 impl ImplWindowDelegate for WindowDelegate {
-    fn on_window_created(&self, window: &mut Window) {
+    fn on_window_created<'a>(&self, window: &'a mut Window) {
         unsafe {
             self.0
                 .on_window_created
@@ -43501,7 +43723,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_window_closing(&self, window: &mut Window) {
+    fn on_window_closing<'a>(&self, window: &'a mut Window) {
         unsafe {
             self.0
                 .on_window_closing
@@ -43515,7 +43737,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_window_destroyed(&self, window: &mut Window) {
+    fn on_window_destroyed<'a>(&self, window: &'a mut Window) {
         unsafe {
             self.0
                 .on_window_destroyed
@@ -43529,7 +43751,11 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_window_activation_changed(&self, window: &mut Window, active: ::std::os::raw::c_int) {
+    fn on_window_activation_changed<'a>(
+        &self,
+        window: &'a mut Window,
+        active: ::std::os::raw::c_int,
+    ) {
         unsafe {
             self.0
                 .on_window_activation_changed
@@ -43544,7 +43770,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_window_bounds_changed(&self, window: &mut Window, new_bounds: &Rect) {
+    fn on_window_bounds_changed<'a>(&self, window: &'a mut Window, new_bounds: &'a Rect) {
         unsafe {
             self.0
                 .on_window_bounds_changed
@@ -43559,9 +43785,9 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_window_fullscreen_transition(
+    fn on_window_fullscreen_transition<'a>(
         &self,
-        window: &mut Window,
+        window: &'a mut Window,
         is_completed: ::std::os::raw::c_int,
     ) {
         unsafe {
@@ -43578,11 +43804,11 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_parent_window(
+    fn get_parent_window<'a>(
         &self,
-        window: &mut Window,
-        is_menu: &mut ::std::os::raw::c_int,
-        can_activate_menu: &mut ::std::os::raw::c_int,
+        window: &'a mut Window,
+        is_menu: &'a mut ::std::os::raw::c_int,
+        can_activate_menu: &'a mut ::std::os::raw::c_int,
     ) -> Window {
         unsafe {
             self.0
@@ -43600,7 +43826,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_window_modal_dialog(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn is_window_modal_dialog<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_window_modal_dialog
@@ -43614,7 +43840,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_initial_bounds(&self, window: &mut Window) -> Rect {
+    fn get_initial_bounds<'a>(&self, window: &'a mut Window) -> Rect {
         unsafe {
             self.0
                 .get_initial_bounds
@@ -43628,7 +43854,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_initial_show_state(&self, window: &mut Window) -> ShowState {
+    fn get_initial_show_state<'a>(&self, window: &'a mut Window) -> ShowState {
         unsafe {
             self.0
                 .get_initial_show_state
@@ -43642,7 +43868,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_frameless(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn is_frameless<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_frameless
@@ -43656,7 +43882,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn with_standard_window_buttons(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn with_standard_window_buttons<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .with_standard_window_buttons
@@ -43670,10 +43896,10 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_titlebar_height(
+    fn get_titlebar_height<'a>(
         &self,
-        window: &mut Window,
-        titlebar_height: &mut f32,
+        window: &'a mut Window,
+        titlebar_height: &'a mut f32,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -43689,7 +43915,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn accepts_first_mouse(&self, window: &mut Window) -> State {
+    fn accepts_first_mouse<'a>(&self, window: &'a mut Window) -> State {
         unsafe {
             self.0
                 .accepts_first_mouse
@@ -43703,7 +43929,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_resize(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn can_resize<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .can_resize
@@ -43717,7 +43943,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_maximize(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn can_maximize<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .can_maximize
@@ -43731,7 +43957,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_minimize(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn can_minimize<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .can_minimize
@@ -43745,7 +43971,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn can_close(&self, window: &mut Window) -> ::std::os::raw::c_int {
+    fn can_close<'a>(&self, window: &'a mut Window) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .can_close
@@ -43759,9 +43985,9 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_accelerator(
+    fn on_accelerator<'a>(
         &self,
-        window: &mut Window,
+        window: &'a mut Window,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
         unsafe {
@@ -43778,7 +44004,11 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_key_event(&self, window: &mut Window, event: &KeyEvent) -> ::std::os::raw::c_int {
+    fn on_key_event<'a>(
+        &self,
+        window: &'a mut Window,
+        event: &'a KeyEvent,
+    ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .on_key_event
@@ -43793,7 +44023,11 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn on_theme_colors_changed(&self, window: &mut Window, chrome_theme: ::std::os::raw::c_int) {
+    fn on_theme_colors_changed<'a>(
+        &self,
+        window: &'a mut Window,
+        chrome_theme: ::std::os::raw::c_int,
+    ) {
         unsafe {
             self.0
                 .on_theme_colors_changed
@@ -43808,7 +44042,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_window_runtime_style(&self) -> RuntimeStyle {
+    fn get_window_runtime_style<'a>(&self) -> RuntimeStyle {
         unsafe {
             self.0
                 .get_window_runtime_style
@@ -43820,10 +44054,10 @@ impl ImplWindowDelegate for WindowDelegate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_linux_window_properties(
+    fn get_linux_window_properties<'a>(
         &self,
-        window: &mut Window,
-        properties: &mut LinuxWindowProperties,
+        window: &'a mut Window,
+        properties: &'a mut LinuxWindowProperties,
     ) -> ::std::os::raw::c_int {
         unsafe {
             self.0
@@ -43876,122 +44110,126 @@ impl Default for WindowDelegate {
     }
 }
 pub trait ImplWindow: ImplPanel {
-    fn show(&self) {
+    fn show<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn show_as_browser_modal_dialog(&self, browser_view: &mut BrowserView) {
+    fn show_as_browser_modal_dialog<'a>(&self, browser_view: &'a mut BrowserView) {
         unsafe { std::mem::zeroed() }
     }
-    fn hide(&self) {
+    fn hide<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn center_window(&self, size: &Size) {
+    fn center_window<'a>(&self, size: &'a Size) {
         unsafe { std::mem::zeroed() }
     }
-    fn close(&self) {
+    fn close<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_closed(&self) -> ::std::os::raw::c_int {
+    fn is_closed<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn activate(&self) {
+    fn activate<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn deactivate(&self) {
+    fn deactivate<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_active(&self) -> ::std::os::raw::c_int {
+    fn is_active<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn bring_to_top(&self) {
+    fn bring_to_top<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_always_on_top(&self, on_top: ::std::os::raw::c_int) {
+    fn set_always_on_top<'a>(&self, on_top: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_always_on_top(&self) -> ::std::os::raw::c_int {
+    fn is_always_on_top<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn maximize(&self) {
+    fn maximize<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn minimize(&self) {
+    fn minimize<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn restore(&self) {
+    fn restore<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_fullscreen(&self, fullscreen: ::std::os::raw::c_int) {
+    fn set_fullscreen<'a>(&self, fullscreen: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn is_maximized(&self) -> ::std::os::raw::c_int {
+    fn is_maximized<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_minimized(&self) -> ::std::os::raw::c_int {
+    fn is_minimized<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn is_fullscreen(&self) -> ::std::os::raw::c_int {
+    fn is_fullscreen<'a>(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn get_focused_view(&self) -> View {
+    fn get_focused_view<'a>(&self) -> View {
         unsafe { std::mem::zeroed() }
     }
-    fn set_title(&self, title: &CefStringUtf16) {
+    fn set_title<'a>(&self, title: &'a CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title<'a>(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn set_window_icon(&self, image: &mut Image) {
+    fn set_window_icon<'a>(&self, image: &'a mut Image) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_window_icon(&self) -> Image {
+    fn get_window_icon<'a>(&self) -> Image {
         unsafe { std::mem::zeroed() }
     }
-    fn set_window_app_icon(&self, image: &mut Image) {
+    fn set_window_app_icon<'a>(&self, image: &'a mut Image) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_window_app_icon(&self) -> Image {
+    fn get_window_app_icon<'a>(&self) -> Image {
         unsafe { std::mem::zeroed() }
     }
-    fn add_overlay_view(
+    fn add_overlay_view<'a>(
         &self,
-        view: &mut View,
+        view: &'a mut View,
         docking_mode: DockingMode,
         can_activate: ::std::os::raw::c_int,
     ) -> OverlayController {
         unsafe { std::mem::zeroed() }
     }
-    fn show_menu(
+    fn show_menu<'a>(
         &self,
-        menu_model: &mut MenuModel,
-        screen_point: &Point,
+        menu_model: &'a mut MenuModel,
+        screen_point: &'a Point,
         anchor_position: MenuAnchorPosition,
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn cancel_menu(&self) {
+    fn cancel_menu<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_display(&self) -> Display {
+    fn get_display<'a>(&self) -> Display {
         unsafe { std::mem::zeroed() }
     }
-    fn get_client_area_bounds_in_screen(&self) -> Rect {
+    fn get_client_area_bounds_in_screen<'a>(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn set_draggable_regions(&self, regions_count: usize, regions: &DraggableRegion) {
+    fn set_draggable_regions<'a>(&self, regions_count: usize, regions: &'a DraggableRegion) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_window_handle(&self) -> ::std::os::raw::c_ulong {
+    fn get_window_handle<'a>(&self) -> ::std::os::raw::c_ulong {
         unsafe { std::mem::zeroed() }
     }
-    fn send_key_press(&self, key_code: ::std::os::raw::c_int, event_flags: u32) {
+    fn send_key_press<'a>(&self, key_code: ::std::os::raw::c_int, event_flags: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn send_mouse_move(&self, screen_x: ::std::os::raw::c_int, screen_y: ::std::os::raw::c_int) {
+    fn send_mouse_move<'a>(
+        &self,
+        screen_x: ::std::os::raw::c_int,
+        screen_y: ::std::os::raw::c_int,
+    ) {
         unsafe { std::mem::zeroed() }
     }
-    fn send_mouse_events(
+    fn send_mouse_events<'a>(
         &self,
         button: MouseButtonType,
         mouse_down: ::std::os::raw::c_int,
@@ -43999,7 +44237,7 @@ pub trait ImplWindow: ImplPanel {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_accelerator(
+    fn set_accelerator<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         key_code: ::std::os::raw::c_int,
@@ -44010,19 +44248,19 @@ pub trait ImplWindow: ImplPanel {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn remove_accelerator(&self, command_id: ::std::os::raw::c_int) {
+    fn remove_accelerator<'a>(&self, command_id: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn remove_all_accelerators(&self) {
+    fn remove_all_accelerators<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_theme_color(&self, color_id: ::std::os::raw::c_int, color: u32) {
+    fn set_theme_color<'a>(&self, color_id: ::std::os::raw::c_int, color: u32) {
         unsafe { std::mem::zeroed() }
     }
-    fn theme_changed(&self) {
+    fn theme_changed<'a>(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn get_runtime_style(&self) -> RuntimeStyle {
+    fn get_runtime_style<'a>(&self) -> RuntimeStyle {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_window_t {
@@ -44447,7 +44685,7 @@ mod impl_cef_window_t {
 #[derive(Clone)]
 pub struct Window(RefGuard<_cef_window_t>);
 impl ImplWindow for Window {
-    fn show(&self) {
+    fn show<'a>(&self) {
         unsafe {
             self.0
                 .show
@@ -44459,7 +44697,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn show_as_browser_modal_dialog(&self, browser_view: &mut BrowserView) {
+    fn show_as_browser_modal_dialog<'a>(&self, browser_view: &'a mut BrowserView) {
         unsafe {
             self.0
                 .show_as_browser_modal_dialog
@@ -44473,7 +44711,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn hide(&self) {
+    fn hide<'a>(&self) {
         unsafe {
             self.0
                 .hide
@@ -44485,7 +44723,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn center_window(&self, size: &Size) {
+    fn center_window<'a>(&self, size: &'a Size) {
         unsafe {
             self.0
                 .center_window
@@ -44499,7 +44737,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn close(&self) {
+    fn close<'a>(&self) {
         unsafe {
             self.0
                 .close
@@ -44511,7 +44749,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_closed(&self) -> ::std::os::raw::c_int {
+    fn is_closed<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_closed
@@ -44523,7 +44761,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn activate(&self) {
+    fn activate<'a>(&self) {
         unsafe {
             self.0
                 .activate
@@ -44535,7 +44773,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn deactivate(&self) {
+    fn deactivate<'a>(&self) {
         unsafe {
             self.0
                 .deactivate
@@ -44547,7 +44785,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_active(&self) -> ::std::os::raw::c_int {
+    fn is_active<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_active
@@ -44559,7 +44797,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn bring_to_top(&self) {
+    fn bring_to_top<'a>(&self) {
         unsafe {
             self.0
                 .bring_to_top
@@ -44571,7 +44809,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_always_on_top(&self, on_top: ::std::os::raw::c_int) {
+    fn set_always_on_top<'a>(&self, on_top: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_always_on_top
@@ -44585,7 +44823,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_always_on_top(&self) -> ::std::os::raw::c_int {
+    fn is_always_on_top<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_always_on_top
@@ -44597,7 +44835,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn maximize(&self) {
+    fn maximize<'a>(&self) {
         unsafe {
             self.0
                 .maximize
@@ -44609,7 +44847,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn minimize(&self) {
+    fn minimize<'a>(&self) {
         unsafe {
             self.0
                 .minimize
@@ -44621,7 +44859,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn restore(&self) {
+    fn restore<'a>(&self) {
         unsafe {
             self.0
                 .restore
@@ -44633,7 +44871,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_fullscreen(&self, fullscreen: ::std::os::raw::c_int) {
+    fn set_fullscreen<'a>(&self, fullscreen: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .set_fullscreen
@@ -44647,7 +44885,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_maximized(&self) -> ::std::os::raw::c_int {
+    fn is_maximized<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_maximized
@@ -44659,7 +44897,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_minimized(&self) -> ::std::os::raw::c_int {
+    fn is_minimized<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_minimized
@@ -44671,7 +44909,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn is_fullscreen(&self) -> ::std::os::raw::c_int {
+    fn is_fullscreen<'a>(&self) -> ::std::os::raw::c_int {
         unsafe {
             self.0
                 .is_fullscreen
@@ -44683,7 +44921,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_focused_view(&self) -> View {
+    fn get_focused_view<'a>(&self) -> View {
         unsafe {
             self.0
                 .get_focused_view
@@ -44695,7 +44933,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_title(&self, title: &CefStringUtf16) {
+    fn set_title<'a>(&self, title: &'a CefStringUtf16) {
         unsafe {
             self.0
                 .set_title
@@ -44709,7 +44947,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title<'a>(&self) -> CefStringUtf16 {
         unsafe {
             self.0
                 .get_title
@@ -44721,7 +44959,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_window_icon(&self, image: &mut Image) {
+    fn set_window_icon<'a>(&self, image: &'a mut Image) {
         unsafe {
             self.0
                 .set_window_icon
@@ -44735,7 +44973,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_window_icon(&self) -> Image {
+    fn get_window_icon<'a>(&self) -> Image {
         unsafe {
             self.0
                 .get_window_icon
@@ -44747,7 +44985,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_window_app_icon(&self, image: &mut Image) {
+    fn set_window_app_icon<'a>(&self, image: &'a mut Image) {
         unsafe {
             self.0
                 .set_window_app_icon
@@ -44761,7 +44999,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_window_app_icon(&self) -> Image {
+    fn get_window_app_icon<'a>(&self) -> Image {
         unsafe {
             self.0
                 .get_window_app_icon
@@ -44773,9 +45011,9 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn add_overlay_view(
+    fn add_overlay_view<'a>(
         &self,
-        view: &mut View,
+        view: &'a mut View,
         docking_mode: DockingMode,
         can_activate: ::std::os::raw::c_int,
     ) -> OverlayController {
@@ -44795,10 +45033,10 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn show_menu(
+    fn show_menu<'a>(
         &self,
-        menu_model: &mut MenuModel,
-        screen_point: &Point,
+        menu_model: &'a mut MenuModel,
+        screen_point: &'a Point,
         anchor_position: MenuAnchorPosition,
     ) {
         unsafe {
@@ -44822,7 +45060,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn cancel_menu(&self) {
+    fn cancel_menu<'a>(&self) {
         unsafe {
             self.0
                 .cancel_menu
@@ -44834,7 +45072,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_display(&self) -> Display {
+    fn get_display<'a>(&self) -> Display {
         unsafe {
             self.0
                 .get_display
@@ -44846,7 +45084,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_client_area_bounds_in_screen(&self) -> Rect {
+    fn get_client_area_bounds_in_screen<'a>(&self) -> Rect {
         unsafe {
             self.0
                 .get_client_area_bounds_in_screen
@@ -44858,7 +45096,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_draggable_regions(&self, regions_count: usize, regions: &DraggableRegion) {
+    fn set_draggable_regions<'a>(&self, regions_count: usize, regions: &'a DraggableRegion) {
         unsafe {
             self.0
                 .set_draggable_regions
@@ -44873,7 +45111,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_window_handle(&self) -> ::std::os::raw::c_ulong {
+    fn get_window_handle<'a>(&self) -> ::std::os::raw::c_ulong {
         unsafe {
             self.0
                 .get_window_handle
@@ -44885,7 +45123,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_key_press(&self, key_code: ::std::os::raw::c_int, event_flags: u32) {
+    fn send_key_press<'a>(&self, key_code: ::std::os::raw::c_int, event_flags: u32) {
         unsafe {
             self.0
                 .send_key_press
@@ -44900,7 +45138,11 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_mouse_move(&self, screen_x: ::std::os::raw::c_int, screen_y: ::std::os::raw::c_int) {
+    fn send_mouse_move<'a>(
+        &self,
+        screen_x: ::std::os::raw::c_int,
+        screen_y: ::std::os::raw::c_int,
+    ) {
         unsafe {
             self.0
                 .send_mouse_move
@@ -44915,7 +45157,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn send_mouse_events(
+    fn send_mouse_events<'a>(
         &self,
         button: MouseButtonType,
         mouse_down: ::std::os::raw::c_int,
@@ -44936,7 +45178,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_accelerator(
+    fn set_accelerator<'a>(
         &self,
         command_id: ::std::os::raw::c_int,
         key_code: ::std::os::raw::c_int,
@@ -44985,7 +45227,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_accelerator(&self, command_id: ::std::os::raw::c_int) {
+    fn remove_accelerator<'a>(&self, command_id: ::std::os::raw::c_int) {
         unsafe {
             self.0
                 .remove_accelerator
@@ -44999,7 +45241,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn remove_all_accelerators(&self) {
+    fn remove_all_accelerators<'a>(&self) {
         unsafe {
             self.0
                 .remove_all_accelerators
@@ -45011,7 +45253,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_theme_color(&self, color_id: ::std::os::raw::c_int, color: u32) {
+    fn set_theme_color<'a>(&self, color_id: ::std::os::raw::c_int, color: u32) {
         unsafe {
             self.0
                 .set_theme_color
@@ -45026,7 +45268,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn theme_changed(&self) {
+    fn theme_changed<'a>(&self) {
         unsafe {
             self.0
                 .theme_changed
@@ -45038,7 +45280,7 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_runtime_style(&self) -> RuntimeStyle {
+    fn get_runtime_style<'a>(&self) -> RuntimeStyle {
         unsafe {
             self.0
                 .get_runtime_style
@@ -47806,10 +48048,10 @@ impl Default for TaskType {
 }
 
 // Global function wrappers
-pub fn string_wide_set(
-    src: &[wchar_t],
+pub fn string_wide_set<'a>(
+    src: &'a [wchar_t],
     src_len: usize,
-    output: &mut CefStringWide,
+    output: &'a mut CefStringWide,
     copy: ::std::os::raw::c_int,
 ) -> ::std::os::raw::c_int {
     unsafe {
@@ -47822,10 +48064,10 @@ pub fn string_wide_set(
         .as_wrapper()
     }
 }
-pub fn string_utf8_set(
-    src: &[::std::os::raw::c_char],
+pub fn string_utf8_set<'a>(
+    src: &'a [::std::os::raw::c_char],
     src_len: usize,
-    output: &mut CefStringUtf8,
+    output: &'a mut CefStringUtf8,
     copy: ::std::os::raw::c_int,
 ) -> ::std::os::raw::c_int {
     unsafe {
@@ -47838,10 +48080,10 @@ pub fn string_utf8_set(
         .as_wrapper()
     }
 }
-pub fn string_utf16_set(
-    src: &[char16_t],
+pub fn string_utf16_set<'a>(
+    src: &'a [char16_t],
     src_len: usize,
-    output: &mut CefStringUtf16,
+    output: &'a mut CefStringUtf16,
     copy: ::std::os::raw::c_int,
 ) -> ::std::os::raw::c_int {
     unsafe {
@@ -47854,207 +48096,219 @@ pub fn string_utf16_set(
         .as_wrapper()
     }
 }
-pub fn string_wide_clear(str_: &mut CefStringWide) {
+pub fn string_wide_clear<'a>(str_: &'a mut CefStringWide) {
     unsafe { cef_string_wide_clear(str_.as_raw()) }
 }
-pub fn string_utf8_clear(str_: &mut CefStringUtf8) {
+pub fn string_utf8_clear<'a>(str_: &'a mut CefStringUtf8) {
     unsafe { cef_string_utf8_clear(str_.as_raw()) }
 }
-pub fn string_utf16_clear(str_: &mut CefStringUtf16) {
+pub fn string_utf16_clear<'a>(str_: &'a mut CefStringUtf16) {
     unsafe { cef_string_utf16_clear(str_.as_raw()) }
 }
-pub fn string_wide_cmp(str_1: &CefStringWide, str_2: &CefStringWide) -> ::std::os::raw::c_int {
+pub fn string_wide_cmp<'a>(
+    str_1: &'a CefStringWide,
+    str_2: &'a CefStringWide,
+) -> ::std::os::raw::c_int {
     unsafe { cef_string_wide_cmp(str_1.as_raw(), str_2.as_raw()).as_wrapper() }
 }
-pub fn string_utf8_cmp(str_1: &CefStringUtf8, str_2: &CefStringUtf8) -> ::std::os::raw::c_int {
+pub fn string_utf8_cmp<'a>(
+    str_1: &'a CefStringUtf8,
+    str_2: &'a CefStringUtf8,
+) -> ::std::os::raw::c_int {
     unsafe { cef_string_utf8_cmp(str_1.as_raw(), str_2.as_raw()).as_wrapper() }
 }
-pub fn string_utf16_cmp(str_1: &CefStringUtf16, str_2: &CefStringUtf16) -> ::std::os::raw::c_int {
+pub fn string_utf16_cmp<'a>(
+    str_1: &'a CefStringUtf16,
+    str_2: &'a CefStringUtf16,
+) -> ::std::os::raw::c_int {
     unsafe { cef_string_utf16_cmp(str_1.as_raw(), str_2.as_raw()).as_wrapper() }
 }
-pub fn string_wide_to_utf8(
-    src: &[wchar_t],
+pub fn string_wide_to_utf8<'a>(
+    src: &'a [wchar_t],
     src_len: usize,
-    output: &mut CefStringUtf8,
+    output: &'a mut CefStringUtf8,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_wide_to_utf8(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper() }
 }
-pub fn string_utf8_to_wide(
-    src: &[::std::os::raw::c_char],
+pub fn string_utf8_to_wide<'a>(
+    src: &'a [::std::os::raw::c_char],
     src_len: usize,
-    output: &mut CefStringWide,
+    output: &'a mut CefStringWide,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_utf8_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper() }
 }
-pub fn string_wide_to_utf16(
-    src: &[wchar_t],
+pub fn string_wide_to_utf16<'a>(
+    src: &'a [wchar_t],
     src_len: usize,
-    output: &mut CefStringUtf16,
+    output: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_string_wide_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
     }
 }
-pub fn string_utf16_to_wide(
-    src: &[char16_t],
+pub fn string_utf16_to_wide<'a>(
+    src: &'a [char16_t],
     src_len: usize,
-    output: &mut CefStringWide,
+    output: &'a mut CefStringWide,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_string_utf16_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
     }
 }
-pub fn string_utf8_to_utf16(
-    src: &[::std::os::raw::c_char],
+pub fn string_utf8_to_utf16<'a>(
+    src: &'a [::std::os::raw::c_char],
     src_len: usize,
-    output: &mut CefStringUtf16,
+    output: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_string_utf8_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
     }
 }
-pub fn string_utf16_to_utf8(
-    src: &[char16_t],
+pub fn string_utf16_to_utf8<'a>(
+    src: &'a [char16_t],
     src_len: usize,
-    output: &mut CefStringUtf8,
+    output: &'a mut CefStringUtf8,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_string_utf16_to_utf8(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
     }
 }
-pub fn string_ascii_to_wide(
-    src: &[::std::os::raw::c_char],
+pub fn string_ascii_to_wide<'a>(
+    src: &'a [::std::os::raw::c_char],
     src_len: usize,
-    output: &mut CefStringWide,
+    output: &'a mut CefStringWide,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_string_ascii_to_wide(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
     }
 }
-pub fn string_ascii_to_utf16(
-    src: &[::std::os::raw::c_char],
+pub fn string_ascii_to_utf16<'a>(
+    src: &'a [::std::os::raw::c_char],
     src_len: usize,
-    output: &mut CefStringUtf16,
+    output: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_string_ascii_to_utf16(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
     }
 }
-pub fn string_userfree_wide_alloc() -> CefStringWide {
+pub fn string_userfree_wide_alloc<'a>() -> CefStringWide {
     unsafe { cef_string_userfree_wide_alloc().as_wrapper() }
 }
-pub fn string_userfree_utf8_alloc() -> CefStringUtf8 {
+pub fn string_userfree_utf8_alloc<'a>() -> CefStringUtf8 {
     unsafe { cef_string_userfree_utf8_alloc().as_wrapper() }
 }
-pub fn string_userfree_utf16_alloc() -> CefStringUtf16 {
+pub fn string_userfree_utf16_alloc<'a>() -> CefStringUtf16 {
     unsafe { cef_string_userfree_utf16_alloc().as_wrapper() }
 }
-pub fn string_userfree_wide_free(str_: &mut CefStringWide) {
+pub fn string_userfree_wide_free<'a>(str_: &'a mut CefStringWide) {
     unsafe { cef_string_userfree_wide_free(str_.as_raw()) }
 }
-pub fn string_userfree_utf8_free(str_: &mut CefStringUtf8) {
+pub fn string_userfree_utf8_free<'a>(str_: &'a mut CefStringUtf8) {
     unsafe { cef_string_userfree_utf8_free(str_.as_raw()) }
 }
-pub fn string_userfree_utf16_free(str_: &mut CefStringUtf16) {
+pub fn string_userfree_utf16_free<'a>(str_: &'a mut CefStringUtf16) {
     unsafe { cef_string_userfree_utf16_free(str_.as_raw()) }
 }
-pub fn string_utf16_to_lower(
-    src: &[char16_t],
+pub fn string_utf16_to_lower<'a>(
+    src: &'a [char16_t],
     src_len: usize,
-    output: &mut CefStringUtf16,
+    output: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_string_utf16_to_lower(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
     }
 }
-pub fn string_utf16_to_upper(
-    src: &[char16_t],
+pub fn string_utf16_to_upper<'a>(
+    src: &'a [char16_t],
     src_len: usize,
-    output: &mut CefStringUtf16,
+    output: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_string_utf16_to_upper(src.as_raw(), src_len.as_raw(), output.as_raw()).as_wrapper()
     }
 }
-pub fn string_list_alloc() -> CefStringList {
+pub fn string_list_alloc<'a>() -> CefStringList {
     unsafe { cef_string_list_alloc().as_wrapper() }
 }
-pub fn string_list_size(list: &mut CefStringList) -> usize {
+pub fn string_list_size<'a>(list: &'a mut CefStringList) -> usize {
     unsafe { cef_string_list_size(list.as_raw()).as_wrapper() }
 }
-pub fn string_list_value(
-    list: &mut CefStringList,
+pub fn string_list_value<'a>(
+    list: &'a mut CefStringList,
     index: usize,
-    value: &mut CefStringUtf16,
+    value: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_list_value(list.as_raw(), index.as_raw(), value.as_raw()).as_wrapper() }
 }
-pub fn string_list_append(list: &mut CefStringList, value: &CefStringUtf16) {
+pub fn string_list_append<'a>(list: &'a mut CefStringList, value: &'a CefStringUtf16) {
     unsafe { cef_string_list_append(list.as_raw(), value.as_raw()) }
 }
-pub fn string_list_clear(list: &mut CefStringList) {
+pub fn string_list_clear<'a>(list: &'a mut CefStringList) {
     unsafe { cef_string_list_clear(list.as_raw()) }
 }
-pub fn string_list_free(list: &mut CefStringList) {
+pub fn string_list_free<'a>(list: &'a mut CefStringList) {
     unsafe { cef_string_list_free(list.as_raw()) }
 }
-pub fn string_list_copy(list: &mut CefStringList) -> CefStringList {
+pub fn string_list_copy<'a>(list: &'a mut CefStringList) -> CefStringList {
     unsafe { cef_string_list_copy(list.as_raw()).as_wrapper() }
 }
-pub fn string_map_alloc() -> CefStringMap {
+pub fn string_map_alloc<'a>() -> CefStringMap {
     unsafe { cef_string_map_alloc().as_wrapper() }
 }
-pub fn string_map_size(map: &mut CefStringMap) -> usize {
+pub fn string_map_size<'a>(map: &'a mut CefStringMap) -> usize {
     unsafe { cef_string_map_size(map.as_raw()).as_wrapper() }
 }
-pub fn string_map_find(
-    map: &mut CefStringMap,
-    key: &CefStringUtf16,
-    value: &mut CefStringUtf16,
+pub fn string_map_find<'a>(
+    map: &'a mut CefStringMap,
+    key: &'a CefStringUtf16,
+    value: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_map_find(map.as_raw(), key.as_raw(), value.as_raw()).as_wrapper() }
 }
-pub fn string_map_key(
-    map: &mut CefStringMap,
+pub fn string_map_key<'a>(
+    map: &'a mut CefStringMap,
     index: usize,
-    key: &mut CefStringUtf16,
+    key: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_map_key(map.as_raw(), index.as_raw(), key.as_raw()).as_wrapper() }
 }
-pub fn string_map_value(
-    map: &mut CefStringMap,
+pub fn string_map_value<'a>(
+    map: &'a mut CefStringMap,
     index: usize,
-    value: &mut CefStringUtf16,
+    value: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_map_value(map.as_raw(), index.as_raw(), value.as_raw()).as_wrapper() }
 }
-pub fn string_map_append(
-    map: &mut CefStringMap,
-    key: &CefStringUtf16,
-    value: &CefStringUtf16,
+pub fn string_map_append<'a>(
+    map: &'a mut CefStringMap,
+    key: &'a CefStringUtf16,
+    value: &'a CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_map_append(map.as_raw(), key.as_raw(), value.as_raw()).as_wrapper() }
 }
-pub fn string_map_clear(map: &mut CefStringMap) {
+pub fn string_map_clear<'a>(map: &'a mut CefStringMap) {
     unsafe { cef_string_map_clear(map.as_raw()) }
 }
-pub fn string_map_free(map: &mut CefStringMap) {
+pub fn string_map_free<'a>(map: &'a mut CefStringMap) {
     unsafe { cef_string_map_free(map.as_raw()) }
 }
-pub fn string_multimap_alloc() -> CefStringMultimap {
+pub fn string_multimap_alloc<'a>() -> CefStringMultimap {
     unsafe { cef_string_multimap_alloc().as_wrapper() }
 }
-pub fn string_multimap_size(map: &mut CefStringMultimap) -> usize {
+pub fn string_multimap_size<'a>(map: &'a mut CefStringMultimap) -> usize {
     unsafe { cef_string_multimap_size(map.as_raw()).as_wrapper() }
 }
-pub fn string_multimap_find_count(map: &mut CefStringMultimap, key: &CefStringUtf16) -> usize {
+pub fn string_multimap_find_count<'a>(
+    map: &'a mut CefStringMultimap,
+    key: &'a CefStringUtf16,
+) -> usize {
     unsafe { cef_string_multimap_find_count(map.as_raw(), key.as_raw()).as_wrapper() }
 }
-pub fn string_multimap_enumerate(
-    map: &mut CefStringMultimap,
-    key: &CefStringUtf16,
+pub fn string_multimap_enumerate<'a>(
+    map: &'a mut CefStringMultimap,
+    key: &'a CefStringUtf16,
     value_index: usize,
-    value: &mut CefStringUtf16,
+    value: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_string_multimap_enumerate(
@@ -48066,146 +48320,148 @@ pub fn string_multimap_enumerate(
         .as_wrapper()
     }
 }
-pub fn string_multimap_key(
-    map: &mut CefStringMultimap,
+pub fn string_multimap_key<'a>(
+    map: &'a mut CefStringMultimap,
     index: usize,
-    key: &mut CefStringUtf16,
+    key: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_multimap_key(map.as_raw(), index.as_raw(), key.as_raw()).as_wrapper() }
 }
-pub fn string_multimap_value(
-    map: &mut CefStringMultimap,
+pub fn string_multimap_value<'a>(
+    map: &'a mut CefStringMultimap,
     index: usize,
-    value: &mut CefStringUtf16,
+    value: &'a mut CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_multimap_value(map.as_raw(), index.as_raw(), value.as_raw()).as_wrapper() }
 }
-pub fn string_multimap_append(
-    map: &mut CefStringMultimap,
-    key: &CefStringUtf16,
-    value: &CefStringUtf16,
+pub fn string_multimap_append<'a>(
+    map: &'a mut CefStringMultimap,
+    key: &'a CefStringUtf16,
+    value: &'a CefStringUtf16,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_string_multimap_append(map.as_raw(), key.as_raw(), value.as_raw()).as_wrapper() }
 }
-pub fn string_multimap_clear(map: &mut CefStringMultimap) {
+pub fn string_multimap_clear<'a>(map: &'a mut CefStringMultimap) {
     unsafe { cef_string_multimap_clear(map.as_raw()) }
 }
-pub fn string_multimap_free(map: &mut CefStringMultimap) {
+pub fn string_multimap_free<'a>(map: &'a mut CefStringMultimap) {
     unsafe { cef_string_multimap_free(map.as_raw()) }
 }
-pub fn time_to_timet(cef_time: &Time, time: &mut time_t) -> ::std::os::raw::c_int {
+pub fn time_to_timet<'a>(cef_time: &'a Time, time: &'a mut time_t) -> ::std::os::raw::c_int {
     unsafe { cef_time_to_timet(cef_time.as_raw(), time.as_raw()).as_wrapper() }
 }
-pub fn time_from_timet(time: time_t, cef_time: &mut Time) -> ::std::os::raw::c_int {
+pub fn time_from_timet<'a>(time: time_t, cef_time: &'a mut Time) -> ::std::os::raw::c_int {
     unsafe { cef_time_from_timet(time.as_raw(), cef_time.as_raw()).as_wrapper() }
 }
-pub fn time_to_doublet(cef_time: &Time, time: &mut f64) -> ::std::os::raw::c_int {
+pub fn time_to_doublet<'a>(cef_time: &'a Time, time: &'a mut f64) -> ::std::os::raw::c_int {
     unsafe { cef_time_to_doublet(cef_time.as_raw(), time.as_raw()).as_wrapper() }
 }
-pub fn time_from_doublet(time: f64, cef_time: &mut Time) -> ::std::os::raw::c_int {
+pub fn time_from_doublet<'a>(time: f64, cef_time: &'a mut Time) -> ::std::os::raw::c_int {
     unsafe { cef_time_from_doublet(time.as_raw(), cef_time.as_raw()).as_wrapper() }
 }
-pub fn time_now(cef_time: &mut Time) -> ::std::os::raw::c_int {
+pub fn time_now<'a>(cef_time: &'a mut Time) -> ::std::os::raw::c_int {
     unsafe { cef_time_now(cef_time.as_raw()).as_wrapper() }
 }
-pub fn basetime_now() -> Basetime {
+pub fn basetime_now<'a>() -> Basetime {
     unsafe { cef_basetime_now().as_wrapper() }
 }
-pub fn time_delta(
-    cef_time_1: &Time,
-    cef_time_2: &Time,
-    delta: &mut ::std::os::raw::c_longlong,
+pub fn time_delta<'a>(
+    cef_time_1: &'a Time,
+    cef_time_2: &'a Time,
+    delta: &'a mut ::std::os::raw::c_longlong,
 ) -> ::std::os::raw::c_int {
     unsafe { cef_time_delta(cef_time_1.as_raw(), cef_time_2.as_raw(), delta.as_raw()).as_wrapper() }
 }
-pub fn time_to_basetime(from: &Time, to: &mut Basetime) -> ::std::os::raw::c_int {
+pub fn time_to_basetime<'a>(from: &'a Time, to: &'a mut Basetime) -> ::std::os::raw::c_int {
     unsafe { cef_time_to_basetime(from.as_raw(), to.as_raw()).as_wrapper() }
 }
-pub fn time_from_basetime(from: _cef_basetime_t, to: &mut Time) -> ::std::os::raw::c_int {
+pub fn time_from_basetime<'a>(from: _cef_basetime_t, to: &'a mut Time) -> ::std::os::raw::c_int {
     unsafe { cef_time_from_basetime(from.as_raw(), to.as_raw()).as_wrapper() }
 }
-pub fn get_xdisplay() -> *mut XDisplay {
+pub fn get_xdisplay<'a>() -> *mut XDisplay {
     unsafe { cef_get_xdisplay().as_wrapper() }
 }
-pub fn value_create() -> Value {
+pub fn value_create<'a>() -> Value {
     unsafe { cef_value_create().as_wrapper() }
 }
-pub fn binary_value_create(data: Option<&[u8]>) -> BinaryValue {
+pub fn binary_value_create<'a>(data: Option<&'a [u8]>) -> BinaryValue {
     unsafe { cef_binary_value_create(data.as_raw(), data_size.as_raw()).as_wrapper() }
 }
-pub fn dictionary_value_create() -> DictionaryValue {
+pub fn dictionary_value_create<'a>() -> DictionaryValue {
     unsafe { cef_dictionary_value_create().as_wrapper() }
 }
-pub fn list_value_create() -> ListValue {
+pub fn list_value_create<'a>() -> ListValue {
     unsafe { cef_list_value_create().as_wrapper() }
 }
-pub fn image_create() -> Image {
+pub fn image_create<'a>() -> Image {
     unsafe { cef_image_create().as_wrapper() }
 }
-pub fn stream_reader_create_for_file(file_name: &CefStringUtf16) -> StreamReader {
+pub fn stream_reader_create_for_file<'a>(file_name: &'a CefStringUtf16) -> StreamReader {
     unsafe { cef_stream_reader_create_for_file(file_name.as_raw()).as_wrapper() }
 }
-pub fn stream_reader_create_for_data(
+pub fn stream_reader_create_for_data<'a>(
     data: *mut ::std::os::raw::c_void,
     size: usize,
 ) -> StreamReader {
     unsafe { cef_stream_reader_create_for_data(data.as_raw(), size.as_raw()).as_wrapper() }
 }
-pub fn stream_reader_create_for_handler(handler: &mut ReadHandler) -> StreamReader {
+pub fn stream_reader_create_for_handler<'a>(handler: &'a mut ReadHandler) -> StreamReader {
     unsafe { cef_stream_reader_create_for_handler(handler.as_raw()).as_wrapper() }
 }
-pub fn stream_writer_create_for_file(file_name: &CefStringUtf16) -> StreamWriter {
+pub fn stream_writer_create_for_file<'a>(file_name: &'a CefStringUtf16) -> StreamWriter {
     unsafe { cef_stream_writer_create_for_file(file_name.as_raw()).as_wrapper() }
 }
-pub fn stream_writer_create_for_handler(handler: &mut WriteHandler) -> StreamWriter {
+pub fn stream_writer_create_for_handler<'a>(handler: &'a mut WriteHandler) -> StreamWriter {
     unsafe { cef_stream_writer_create_for_handler(handler.as_raw()).as_wrapper() }
 }
-pub fn drag_data_create() -> DragData {
+pub fn drag_data_create<'a>() -> DragData {
     unsafe { cef_drag_data_create().as_wrapper() }
 }
-pub fn process_message_create(name: &CefStringUtf16) -> ProcessMessage {
+pub fn process_message_create<'a>(name: &'a CefStringUtf16) -> ProcessMessage {
     unsafe { cef_process_message_create(name.as_raw()).as_wrapper() }
 }
-pub fn request_create() -> Request {
+pub fn request_create<'a>() -> Request {
     unsafe { cef_request_create().as_wrapper() }
 }
-pub fn post_data_create() -> PostData {
+pub fn post_data_create<'a>() -> PostData {
     unsafe { cef_post_data_create().as_wrapper() }
 }
-pub fn post_data_element_create() -> PostDataElement {
+pub fn post_data_element_create<'a>() -> PostDataElement {
     unsafe { cef_post_data_element_create().as_wrapper() }
 }
-pub fn cookie_manager_get_global_manager(callback: &mut CompletionCallback) -> CookieManager {
+pub fn cookie_manager_get_global_manager<'a>(
+    callback: &'a mut CompletionCallback,
+) -> CookieManager {
     unsafe { cef_cookie_manager_get_global_manager(callback.as_raw()).as_wrapper() }
 }
-pub fn media_router_get_global(callback: &mut CompletionCallback) -> MediaRouter {
+pub fn media_router_get_global<'a>(callback: &'a mut CompletionCallback) -> MediaRouter {
     unsafe { cef_media_router_get_global(callback.as_raw()).as_wrapper() }
 }
-pub fn preference_manager_get_global() -> PreferenceManager {
+pub fn preference_manager_get_global<'a>() -> PreferenceManager {
     unsafe { cef_preference_manager_get_global().as_wrapper() }
 }
-pub fn request_context_get_global_context() -> RequestContext {
+pub fn request_context_get_global_context<'a>() -> RequestContext {
     unsafe { cef_request_context_get_global_context().as_wrapper() }
 }
-pub fn request_context_create_context(
-    settings: &RequestContextSettings,
-    handler: &mut RequestContextHandler,
+pub fn request_context_create_context<'a>(
+    settings: &'a RequestContextSettings,
+    handler: &'a mut RequestContextHandler,
 ) -> RequestContext {
     unsafe { cef_request_context_create_context(settings.as_raw(), handler.as_raw()).as_wrapper() }
 }
-pub fn create_context_shared(
-    other: &mut RequestContext,
-    handler: &mut RequestContextHandler,
+pub fn create_context_shared<'a>(
+    other: &'a mut RequestContext,
+    handler: &'a mut RequestContextHandler,
 ) -> RequestContext {
     unsafe { cef_create_context_shared(other.as_raw(), handler.as_raw()).as_wrapper() }
 }
-pub fn browser_host_create_browser(
-    window_info: &WindowInfo,
-    client: &mut Client,
-    url: &CefStringUtf16,
-    settings: &BrowserSettings,
-    extra_info: &mut DictionaryValue,
-    request_context: &mut RequestContext,
+pub fn browser_host_create_browser<'a>(
+    window_info: &'a WindowInfo,
+    client: &'a mut Client,
+    url: &'a CefStringUtf16,
+    settings: &'a BrowserSettings,
+    extra_info: &'a mut DictionaryValue,
+    request_context: &'a mut RequestContext,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_browser_host_create_browser(
@@ -48219,13 +48475,13 @@ pub fn browser_host_create_browser(
         .as_wrapper()
     }
 }
-pub fn browser_host_create_browser_sync(
-    window_info: &WindowInfo,
-    client: &mut Client,
-    url: &CefStringUtf16,
-    settings: &BrowserSettings,
-    extra_info: &mut DictionaryValue,
-    request_context: &mut RequestContext,
+pub fn browser_host_create_browser_sync<'a>(
+    window_info: &'a WindowInfo,
+    client: &'a mut Client,
+    url: &'a CefStringUtf16,
+    settings: &'a BrowserSettings,
+    extra_info: &'a mut DictionaryValue,
+    request_context: &'a mut RequestContext,
 ) -> Browser {
     unsafe {
         cef_browser_host_create_browser_sync(
@@ -48239,101 +48495,101 @@ pub fn browser_host_create_browser_sync(
         .as_wrapper()
     }
 }
-pub fn browser_host_get_browser_by_identifier(browser_id: ::std::os::raw::c_int) -> Browser {
+pub fn browser_host_get_browser_by_identifier<'a>(browser_id: ::std::os::raw::c_int) -> Browser {
     unsafe { cef_browser_host_get_browser_by_identifier(browser_id.as_raw()).as_wrapper() }
 }
-pub fn menu_model_create(delegate: &mut MenuModelDelegate) -> MenuModel {
+pub fn menu_model_create<'a>(delegate: &'a mut MenuModelDelegate) -> MenuModel {
     unsafe { cef_menu_model_create(delegate.as_raw()).as_wrapper() }
 }
-pub fn print_settings_create() -> PrintSettings {
+pub fn print_settings_create<'a>() -> PrintSettings {
     unsafe { cef_print_settings_create().as_wrapper() }
 }
-pub fn response_create() -> Response {
+pub fn response_create<'a>() -> Response {
     unsafe { cef_response_create().as_wrapper() }
 }
-pub fn is_cert_status_error(status: CertStatus) -> ::std::os::raw::c_int {
+pub fn is_cert_status_error<'a>(status: CertStatus) -> ::std::os::raw::c_int {
     unsafe { cef_is_cert_status_error(status.as_raw()).as_wrapper() }
 }
-pub fn command_line_create() -> CommandLine {
+pub fn command_line_create<'a>() -> CommandLine {
     unsafe { cef_command_line_create().as_wrapper() }
 }
-pub fn command_line_get_global() -> CommandLine {
+pub fn command_line_get_global<'a>() -> CommandLine {
     unsafe { cef_command_line_get_global().as_wrapper() }
 }
-pub fn task_runner_get_for_current_thread() -> TaskRunner {
+pub fn task_runner_get_for_current_thread<'a>() -> TaskRunner {
     unsafe { cef_task_runner_get_for_current_thread().as_wrapper() }
 }
-pub fn task_runner_get_for_thread(thread_id: ThreadId) -> TaskRunner {
+pub fn task_runner_get_for_thread<'a>(thread_id: ThreadId) -> TaskRunner {
     unsafe { cef_task_runner_get_for_thread(thread_id.as_raw()).as_wrapper() }
 }
-pub fn currently_on(thread_id: ThreadId) -> ::std::os::raw::c_int {
+pub fn currently_on<'a>(thread_id: ThreadId) -> ::std::os::raw::c_int {
     unsafe { cef_currently_on(thread_id.as_raw()).as_wrapper() }
 }
-pub fn post_task(thread_id: ThreadId, task: &mut Task) -> ::std::os::raw::c_int {
+pub fn post_task<'a>(thread_id: ThreadId, task: &'a mut Task) -> ::std::os::raw::c_int {
     unsafe { cef_post_task(thread_id.as_raw(), task.as_raw()).as_wrapper() }
 }
-pub fn post_delayed_task(
+pub fn post_delayed_task<'a>(
     thread_id: ThreadId,
-    task: &mut Task,
+    task: &'a mut Task,
     delay_ms: i64,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_post_delayed_task(thread_id.as_raw(), task.as_raw(), delay_ms.as_raw()).as_wrapper()
     }
 }
-pub fn v8context_get_current_context() -> V8context {
+pub fn v8context_get_current_context<'a>() -> V8context {
     unsafe { cef_v8context_get_current_context().as_wrapper() }
 }
-pub fn v8context_get_entered_context() -> V8context {
+pub fn v8context_get_entered_context<'a>() -> V8context {
     unsafe { cef_v8context_get_entered_context().as_wrapper() }
 }
-pub fn v8context_in_context() -> ::std::os::raw::c_int {
+pub fn v8context_in_context<'a>() -> ::std::os::raw::c_int {
     unsafe { cef_v8context_in_context().as_wrapper() }
 }
-pub fn v8value_create_undefined() -> V8value {
+pub fn v8value_create_undefined<'a>() -> V8value {
     unsafe { cef_v8value_create_undefined().as_wrapper() }
 }
-pub fn v8value_create_null() -> V8value {
+pub fn v8value_create_null<'a>() -> V8value {
     unsafe { cef_v8value_create_null().as_wrapper() }
 }
-pub fn v8value_create_bool(value: ::std::os::raw::c_int) -> V8value {
+pub fn v8value_create_bool<'a>(value: ::std::os::raw::c_int) -> V8value {
     unsafe { cef_v8value_create_bool(value.as_raw()).as_wrapper() }
 }
-pub fn v8value_create_int(value: i32) -> V8value {
+pub fn v8value_create_int<'a>(value: i32) -> V8value {
     unsafe { cef_v8value_create_int(value.as_raw()).as_wrapper() }
 }
-pub fn v8value_create_uint(value: u32) -> V8value {
+pub fn v8value_create_uint<'a>(value: u32) -> V8value {
     unsafe { cef_v8value_create_uint(value.as_raw()).as_wrapper() }
 }
-pub fn v8value_create_double(value: f64) -> V8value {
+pub fn v8value_create_double<'a>(value: f64) -> V8value {
     unsafe { cef_v8value_create_double(value.as_raw()).as_wrapper() }
 }
-pub fn v8value_create_date(date: _cef_basetime_t) -> V8value {
+pub fn v8value_create_date<'a>(date: _cef_basetime_t) -> V8value {
     unsafe { cef_v8value_create_date(date.as_raw()).as_wrapper() }
 }
-pub fn v8value_create_string(value: &CefStringUtf16) -> V8value {
+pub fn v8value_create_string<'a>(value: &'a CefStringUtf16) -> V8value {
     unsafe { cef_v8value_create_string(value.as_raw()).as_wrapper() }
 }
-pub fn v8value_create_object(
-    accessor: &mut V8accessor,
-    interceptor: &mut V8interceptor,
+pub fn v8value_create_object<'a>(
+    accessor: &'a mut V8accessor,
+    interceptor: &'a mut V8interceptor,
 ) -> V8value {
     unsafe { cef_v8value_create_object(accessor.as_raw(), interceptor.as_raw()).as_wrapper() }
 }
-pub fn v8value_create_array(length: ::std::os::raw::c_int) -> V8value {
+pub fn v8value_create_array<'a>(length: ::std::os::raw::c_int) -> V8value {
     unsafe { cef_v8value_create_array(length.as_raw()).as_wrapper() }
 }
-pub fn v8value_create_array_buffer(
+pub fn v8value_create_array_buffer<'a>(
     buffer: *mut ::std::os::raw::c_void,
     length: usize,
-    release_callback: &mut V8arrayBufferReleaseCallback,
+    release_callback: &'a mut V8arrayBufferReleaseCallback,
 ) -> V8value {
     unsafe {
         cef_v8value_create_array_buffer(buffer.as_raw(), length.as_raw(), release_callback.as_raw())
             .as_wrapper()
     }
 }
-pub fn v8value_create_array_buffer_with_copy(
+pub fn v8value_create_array_buffer_with_copy<'a>(
     buffer: *mut ::std::os::raw::c_void,
     length: usize,
 ) -> V8value {
@@ -48341,19 +48597,22 @@ pub fn v8value_create_array_buffer_with_copy(
         cef_v8value_create_array_buffer_with_copy(buffer.as_raw(), length.as_raw()).as_wrapper()
     }
 }
-pub fn v8value_create_function(name: &CefStringUtf16, handler: &mut V8handler) -> V8value {
+pub fn v8value_create_function<'a>(
+    name: &'a CefStringUtf16,
+    handler: &'a mut V8handler,
+) -> V8value {
     unsafe { cef_v8value_create_function(name.as_raw(), handler.as_raw()).as_wrapper() }
 }
-pub fn v8value_create_promise() -> V8value {
+pub fn v8value_create_promise<'a>() -> V8value {
     unsafe { cef_v8value_create_promise().as_wrapper() }
 }
-pub fn v8stack_trace_get_current(frame_limit: ::std::os::raw::c_int) -> V8stackTrace {
+pub fn v8stack_trace_get_current<'a>(frame_limit: ::std::os::raw::c_int) -> V8stackTrace {
     unsafe { cef_v8stack_trace_get_current(frame_limit.as_raw()).as_wrapper() }
 }
-pub fn register_extension(
-    extension_name: &CefStringUtf16,
-    javascript_code: &CefStringUtf16,
-    handler: &mut V8handler,
+pub fn register_extension<'a>(
+    extension_name: &'a CefStringUtf16,
+    javascript_code: &'a CefStringUtf16,
+    handler: &'a mut V8handler,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_register_extension(
@@ -48364,10 +48623,10 @@ pub fn register_extension(
         .as_wrapper()
     }
 }
-pub fn register_scheme_handler_factory(
-    scheme_name: &CefStringUtf16,
-    domain_name: &CefStringUtf16,
-    factory: &mut SchemeHandlerFactory,
+pub fn register_scheme_handler_factory<'a>(
+    scheme_name: &'a CefStringUtf16,
+    domain_name: &'a CefStringUtf16,
+    factory: &'a mut SchemeHandlerFactory,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_register_scheme_handler_factory(
@@ -48378,12 +48637,12 @@ pub fn register_scheme_handler_factory(
         .as_wrapper()
     }
 }
-pub fn clear_scheme_handler_factories() -> ::std::os::raw::c_int {
+pub fn clear_scheme_handler_factories<'a>() -> ::std::os::raw::c_int {
     unsafe { cef_clear_scheme_handler_factories().as_wrapper() }
 }
-pub fn execute_process(
-    args: &MainArgs,
-    application: &mut App,
+pub fn execute_process<'a>(
+    args: &'a MainArgs,
+    application: &'a mut App,
     windows_sandbox_info: *mut ::std::os::raw::c_void,
 ) -> ::std::os::raw::c_int {
     unsafe {
@@ -48395,10 +48654,10 @@ pub fn execute_process(
         .as_wrapper()
     }
 }
-pub fn initialize(
-    args: &MainArgs,
-    settings: &Settings,
-    application: &mut App,
+pub fn initialize<'a>(
+    args: &'a MainArgs,
+    settings: &'a Settings,
+    application: &'a mut App,
     windows_sandbox_info: *mut ::std::os::raw::c_void,
 ) -> ::std::os::raw::c_int {
     unsafe {
@@ -48411,47 +48670,53 @@ pub fn initialize(
         .as_wrapper()
     }
 }
-pub fn get_exit_code() -> ::std::os::raw::c_int {
+pub fn get_exit_code<'a>() -> ::std::os::raw::c_int {
     unsafe { cef_get_exit_code().as_wrapper() }
 }
-pub fn shutdown() {
+pub fn shutdown<'a>() {
     unsafe { cef_shutdown() }
 }
-pub fn do_message_loop_work() {
+pub fn do_message_loop_work<'a>() {
     unsafe { cef_do_message_loop_work() }
 }
-pub fn run_message_loop() {
+pub fn run_message_loop<'a>() {
     unsafe { cef_run_message_loop() }
 }
-pub fn quit_message_loop() {
+pub fn quit_message_loop<'a>() {
     unsafe { cef_quit_message_loop() }
 }
-pub fn urlrequest_create(
-    request: &mut Request,
-    client: &mut UrlrequestClient,
-    request_context: &mut RequestContext,
+pub fn urlrequest_create<'a>(
+    request: &'a mut Request,
+    client: &'a mut UrlrequestClient,
+    request_context: &'a mut RequestContext,
 ) -> Urlrequest {
     unsafe {
         cef_urlrequest_create(request.as_raw(), client.as_raw(), request_context.as_raw())
             .as_wrapper()
     }
 }
-pub fn label_button_create(delegate: &mut ButtonDelegate, text: &CefStringUtf16) -> LabelButton {
+pub fn label_button_create<'a>(
+    delegate: &'a mut ButtonDelegate,
+    text: &'a CefStringUtf16,
+) -> LabelButton {
     unsafe { cef_label_button_create(delegate.as_raw(), text.as_raw()).as_wrapper() }
 }
-pub fn menu_button_create(delegate: &mut MenuButtonDelegate, text: &CefStringUtf16) -> MenuButton {
+pub fn menu_button_create<'a>(
+    delegate: &'a mut MenuButtonDelegate,
+    text: &'a CefStringUtf16,
+) -> MenuButton {
     unsafe { cef_menu_button_create(delegate.as_raw(), text.as_raw()).as_wrapper() }
 }
-pub fn textfield_create(delegate: &mut TextfieldDelegate) -> Textfield {
+pub fn textfield_create<'a>(delegate: &'a mut TextfieldDelegate) -> Textfield {
     unsafe { cef_textfield_create(delegate.as_raw()).as_wrapper() }
 }
-pub fn browser_view_create(
-    client: &mut Client,
-    url: &CefStringUtf16,
-    settings: &BrowserSettings,
-    extra_info: &mut DictionaryValue,
-    request_context: &mut RequestContext,
-    delegate: &mut BrowserViewDelegate,
+pub fn browser_view_create<'a>(
+    client: &'a mut Client,
+    url: &'a CefStringUtf16,
+    settings: &'a BrowserSettings,
+    extra_info: &'a mut DictionaryValue,
+    request_context: &'a mut RequestContext,
+    delegate: &'a mut BrowserViewDelegate,
 ) -> BrowserView {
     unsafe {
         cef_browser_view_create(
@@ -48465,52 +48730,52 @@ pub fn browser_view_create(
         .as_wrapper()
     }
 }
-pub fn browser_view_get_for_browser(browser: &mut Browser) -> BrowserView {
+pub fn browser_view_get_for_browser<'a>(browser: &'a mut Browser) -> BrowserView {
     unsafe { cef_browser_view_get_for_browser(browser.as_raw()).as_wrapper() }
 }
-pub fn scroll_view_create(delegate: &mut ViewDelegate) -> ScrollView {
+pub fn scroll_view_create<'a>(delegate: &'a mut ViewDelegate) -> ScrollView {
     unsafe { cef_scroll_view_create(delegate.as_raw()).as_wrapper() }
 }
-pub fn display_get_primary() -> Display {
+pub fn display_get_primary<'a>() -> Display {
     unsafe { cef_display_get_primary().as_wrapper() }
 }
-pub fn display_get_nearest_point(
-    point: &Point,
+pub fn display_get_nearest_point<'a>(
+    point: &'a Point,
     input_pixel_coords: ::std::os::raw::c_int,
 ) -> Display {
     unsafe {
         cef_display_get_nearest_point(point.as_raw(), input_pixel_coords.as_raw()).as_wrapper()
     }
 }
-pub fn display_get_matching_bounds(
-    bounds: &Rect,
+pub fn display_get_matching_bounds<'a>(
+    bounds: &'a Rect,
     input_pixel_coords: ::std::os::raw::c_int,
 ) -> Display {
     unsafe {
         cef_display_get_matching_bounds(bounds.as_raw(), input_pixel_coords.as_raw()).as_wrapper()
     }
 }
-pub fn display_get_count() -> usize {
+pub fn display_get_count<'a>() -> usize {
     unsafe { cef_display_get_count().as_wrapper() }
 }
-pub fn display_get_alls(displays: Option<&mut &mut [Option<Display>]>) {
+pub fn display_get_alls<'a>(displays: Option<&'a mut &'a mut [Option<Display>]>) {
     unsafe { cef_display_get_alls(displays_count.as_raw(), displays.as_raw()) }
 }
-pub fn display_convert_screen_point_to_pixels(point: &Point) -> Point {
+pub fn display_convert_screen_point_to_pixels<'a>(point: &'a Point) -> Point {
     unsafe { cef_display_convert_screen_point_to_pixels(point.as_raw()).as_wrapper() }
 }
-pub fn display_convert_screen_point_from_pixels(point: &Point) -> Point {
+pub fn display_convert_screen_point_from_pixels<'a>(point: &'a Point) -> Point {
     unsafe { cef_display_convert_screen_point_from_pixels(point.as_raw()).as_wrapper() }
 }
-pub fn display_convert_screen_rect_to_pixels(rect: &Rect) -> Rect {
+pub fn display_convert_screen_rect_to_pixels<'a>(rect: &'a Rect) -> Rect {
     unsafe { cef_display_convert_screen_rect_to_pixels(rect.as_raw()).as_wrapper() }
 }
-pub fn display_convert_screen_rect_from_pixels(rect: &Rect) -> Rect {
+pub fn display_convert_screen_rect_from_pixels<'a>(rect: &'a Rect) -> Rect {
     unsafe { cef_display_convert_screen_rect_from_pixels(rect.as_raw()).as_wrapper() }
 }
-pub fn panel_create(delegate: &mut PanelDelegate) -> Panel {
+pub fn panel_create<'a>(delegate: &'a mut PanelDelegate) -> Panel {
     unsafe { cef_panel_create(delegate.as_raw()).as_wrapper() }
 }
-pub fn window_create_top_level(delegate: &mut WindowDelegate) -> Window {
+pub fn window_create_top_level<'a>(delegate: &'a mut WindowDelegate) -> Window {
     unsafe { cef_window_create_top_level(delegate.as_raw()).as_wrapper() }
 }
