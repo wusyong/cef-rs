@@ -241,10 +241,7 @@ impl SignatureRef<'_> {
                             }),
                         ) if size_name.as_str() == format!("{elem_name}_size").as_str() => {
                             if elem_ty.ty.to_token_stream().to_string().as_str()
-                                != quote! { ::std::os::raw::c_void }
-                                    .to_token_stream()
-                                    .to_string()
-                                    .as_str()
+                                != quote! { ::std::os::raw::c_void }.to_string().as_str()
                                 || size_ty.ty.to_token_stream().to_string().as_str()
                                     != format_ident!("usize")
                                         .to_token_stream()
@@ -394,7 +391,7 @@ impl SignatureRef<'_> {
                 if tree.cef_name_map.get(ty_string.as_str()).is_some() {
                     Some(quote! {
                         let #name = #name.as_raw();
-                    })    
+                    })
                 } else {
                     let modifiers = modifiers.iter().filter_map(|modifier| match modifier {
                         TypeModifier::MutPtr => Some(quote! { as *mut _ }),
@@ -650,16 +647,20 @@ impl SignatureRef<'_> {
                         let ty =
                             entry.and_then(|entry| syn::parse_str::<syn::Type>(&entry.name).ok());
                         let ty = ty.as_ref().unwrap_or(arg_ty).to_token_stream();
-                        match modifiers {
-                            [TypeModifier::MutPtr, ..] => Some(quote! {
-                                let mut #arg_name = WrapParamRef::<#ty>::from(#arg_name);
-                                let #arg_name = #arg_name.as_mut();
-                            }),
-                            [TypeModifier::ConstPtr, ..] => Some(quote! {
-                                let #arg_name = WrapParamRef::<#ty>::from(#arg_name);
-                                let #arg_name = #arg_name.as_ref();
-                            }),
-                            _ => None,
+                        if ty.to_string() == quote!{ ::std::os::raw::c_void }.to_string() {
+                            Some(quote! {})
+                        } else {
+                            match modifiers {
+                                [TypeModifier::MutPtr, ..] => Some(quote! {
+                                    let mut #arg_name = WrapParamRef::<#ty>::from(#arg_name);
+                                    let #arg_name = #arg_name.as_mut();
+                                }),
+                                [TypeModifier::ConstPtr, ..] => Some(quote! {
+                                    let #arg_name = WrapParamRef::<#ty>::from(#arg_name);
+                                    let #arg_name = #arg_name.as_ref();
+                                }),
+                                _ => None,
+                            }
                         }
                     })
                     .or(Some(quote! { let #arg_name = #arg_name.as_raw(); }))
@@ -1080,7 +1081,8 @@ struct ModifiedType {
 impl ModifiedType {
     fn get_argument_type(&self, tree: &ParseTree) -> Option<proc_macro2::TokenStream> {
         let elem = self.ty.to_token_stream();
-        match tree.cef_name_map.get(&elem.to_string()) {
+        let elem_string = elem.to_string();
+        match tree.cef_name_map.get(&elem_string) {
             Some(NameMapEntry {
                 name,
                 ty: NameMapType::StructDeclaration,
@@ -1111,9 +1113,25 @@ impl ModifiedType {
                     _ => None,
                 }
             }
+            None if elem_string == quote! { ::std::os::raw::c_void }.to_string() => {
+                let modifiers = self
+                    .modifiers
+                    .iter()
+                    .map(|modifier| match modifier {
+                        TypeModifier::MutPtr => Some(quote! { *mut }),
+                        TypeModifier::ConstPtr => Some(quote! { *const }),
+                        _ => None,
+                    })
+                    .collect::<Vec<_>>();
+                if modifiers.iter().any(Option::is_none) {
+                    None
+                } else {
+                    Some(quote! { #(#modifiers)* #elem})
+                }
+            }
             _ => match self.modifiers.as_slice() {
-                [TypeModifier::MutPtr] => Some(quote! { &mut #elem }),
                 [TypeModifier::ConstPtr] => Some(quote! { &[#elem] }),
+                [TypeModifier::MutPtr] => Some(quote! { &mut #elem }),
                 _ => None,
             },
         }
