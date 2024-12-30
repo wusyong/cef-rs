@@ -1,63 +1,66 @@
-use cef::{
-    args::Args, client::Client, rc::Rc, string::CefString, App, BrowserSettings, BrowserView,
-    PanelDelegate, Settings, ViewDelegate, WindowDelegate,
-};
+use cef::{args::Args, bindings::*};
 
 #[derive(Debug, Clone, Copy)]
 struct Application;
 
-impl App for Application {}
+impl ImplApp for Application {}
 
 #[derive(Debug)]
 struct DemoClient;
 
-impl Client for DemoClient {}
+impl ImplClient for DemoClient {}
 
 #[derive(Debug)]
 struct DemoWindow {
     browser_view: BrowserView,
 }
 
-impl ViewDelegate for DemoWindow {
-    fn on_child_view_changed(&self, _view: cef::View, _added: bool, _child: cef::View) {
+impl ImplViewDelegate for DemoWindow {
+    fn on_child_view_changed(
+        &self,
+        _view: &mut View,
+        _added: ::std::os::raw::c_int,
+        _child: &mut View,
+    ) {
         // view.as_panel().map(|x| x.as_window().map(|w| w.close()));
     }
 }
-impl PanelDelegate for DemoWindow {}
-impl WindowDelegate for DemoWindow {
-    fn on_window_created(&self, window: cef::Window) {
-        window
-            .get_panel()
-            .add_child_view(self.browser_view.get_view());
+impl ImplPanelDelegate for DemoWindow {}
+impl ImplWindowDelegate for DemoWindow {
+    fn on_window_created(&self, window: &mut Window) {
+        window.add_child_view(self.browser_view.get_view());
         window.show();
     }
 
-    fn on_window_destroyed(&self, _window: cef::Window) {
-        cef::quit_message_loop();
+    fn on_window_destroyed(&self, _window: &mut Window) {
+        quit_message_loop();
     }
 }
 
 fn main() {
     let args = Args::new(std::env::args());
     // dbg!(&args);
-    let app = Application;
-    let settings = Settings::new();
-    dbg!(cef::initialize(&args, &settings, Some(app)));
-    dbg!(cef::execute_process(&args, Some(app)));
+    let mut app = Application;
+    let settings = Settings::default();
+    dbg!(initialize(&args, &settings, &mut app, std::ptr::null_mut()));
+    dbg!(execute_process(&args, &mut app, std::ptr::null_mut()));
 
     // let window_info = WindowInfo::new();
-    let browser_settings = BrowserSettings::new();
-    let client = DemoClient;
-    let url = CefString::new("https://www.google.com");
+    let browser_settings = BrowserSettings::default();
+    let mut client = DemoClient;
+    let url = CefString::from("https://www.google.com");
 
-    let browser_view = dbg!(cef::create_browser_view(
-        Some(client),
-        url,
-        browser_settings
+    let browser_view = dbg!(browser_view_create(
+        &mut client,
+        &url,
+        &browser_settings,
+        &mut Default::default(),
+        &mut Default::default(),
+        &mut Default::default(),
     ));
-    let delegate = DemoWindow { browser_view };
+    let mut delegate = DemoWindow { browser_view };
 
-    let x = dbg!(cef::create_top_level_window(delegate));
+    let x = dbg!(cef_window_create_top_level(&mut delegate));
     // dbg!(cef::create_browser(
     //     window_info,
     //     Some(client),
@@ -65,8 +68,8 @@ fn main() {
     //     browser_settings
     // ));
 
-    cef::run_message_loop();
+    run_message_loop();
     dbg!(x.has_one_ref());
 
-    cef::shutdown();
+    shutdown();
 }
