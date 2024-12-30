@@ -162,27 +162,27 @@ impl SignatureRef<'_> {
                                 continue;
                             }
 
-                            let elem_ty_string = elem_ty.ty.to_token_stream().to_string();
+                            let elem_tokens = elem_ty.ty.to_token_stream();
+                            let elem_ty_string = elem_tokens.to_string();
                             match tree.cef_name_map.get(&elem_ty_string) {
                                 Some(NameMapEntry {
-                                    name,
                                     ty: NameMapType::StructDeclaration,
+                                    ..
                                 }) => {
-                                    let name = format_ident!("{name}");
-                                    let slice_ty = match (
+                                    let modifiers = match (
                                         count_ty.modifiers.as_slice(),
                                         elem_ty.modifiers.as_slice(),
                                     ) {
                                         ([], [TypeModifier::ConstPtr, TypeModifier::MutPtr]) => {
-                                            quote! { Option<&'a [Option<#name>]> }
+                                            vec![TypeModifier::Slice]
                                         }
                                         (
                                             [TypeModifier::MutPtr],
                                             [TypeModifier::MutPtr, TypeModifier::MutPtr],
-                                        ) => quote! { Option<&'a mut &'a mut [Option<#name>]> },
+                                        ) => vec![TypeModifier::MutSlice],
                                         _ => continue,
                                     };
-                                    let Ok(slice_ty) = syn::parse2::<syn::Type>(slice_ty) else {
+                                    let Ok(slice_ty) = syn::parse2::<syn::Type>(elem_tokens) else {
                                         continue;
                                     };
 
@@ -191,29 +191,25 @@ impl SignatureRef<'_> {
                                         count_ty: count_ty.clone(),
                                         slice_name: elem_name.clone(),
                                         slice_ty: ModifiedType {
-                                            modifiers: Default::default(),
+                                            modifiers,
                                             ty: slice_ty,
                                         },
                                     })
                                 }
-                                entry => {
-                                    let name = entry
-                                        .map(|entry| entry.name.as_str())
-                                        .unwrap_or(elem_ty_string.as_str());
-                                    let name = format_ident!("{name}");
-                                    let slice_ty = match (
+                                _ => {
+                                    let modifiers = match (
                                         count_ty.modifiers.as_slice(),
                                         elem_ty.modifiers.as_slice(),
                                     ) {
                                         ([], [TypeModifier::ConstPtr]) => {
-                                            quote! { Option<&'a [Option<#name>]> }
+                                            vec![TypeModifier::Slice]
                                         }
                                         ([TypeModifier::MutPtr], [TypeModifier::MutPtr]) => {
-                                            quote! { Option<&'a mut &'a mut [Option<#name>]> }
+                                            vec![TypeModifier::MutSlice]
                                         }
                                         _ => continue,
                                     };
-                                    let Ok(slice_ty) = syn::parse2::<syn::Type>(slice_ty) else {
+                                    let Ok(slice_ty) = syn::parse2::<syn::Type>(elem_tokens) else {
                                         continue;
                                     };
 
@@ -222,7 +218,7 @@ impl SignatureRef<'_> {
                                         count_ty: count_ty.clone(),
                                         slice_name: elem_name.clone(),
                                         slice_ty: ModifiedType {
-                                            modifiers: Default::default(),
+                                            modifiers,
                                             ty: slice_ty,
                                         },
                                     })
@@ -238,9 +234,10 @@ impl SignatureRef<'_> {
                                 name: size_name,
                                 ty: Some(size_ty),
                             }),
-                        ) if size_name.as_str() == format!("{elem_name}_size").as_str() => {
-                            if elem_ty.ty.to_token_stream().to_string().as_str()
-                                != quote! { ::std::os::raw::c_void }.to_string().as_str()
+                        ) if elem_ty.ty.to_token_stream().to_string()
+                            == quote! { ::std::os::raw::c_void }.to_string() =>
+                        {
+                            if size_name.as_str() != format!("{elem_name}_size").as_str()
                                 || size_ty.ty.to_token_stream().to_string().as_str()
                                     != format_ident!("usize")
                                         .to_token_stream()
@@ -250,31 +247,72 @@ impl SignatureRef<'_> {
                                 continue;
                             }
 
-                            let slice_ty = match (
+                            let modifiers = match (
                                 size_ty.modifiers.as_slice(),
                                 elem_ty.modifiers.as_slice(),
                             ) {
                                 ([], [TypeModifier::ConstPtr]) => {
-                                    quote! { Option<&'a [u8]> }
+                                    vec![TypeModifier::Slice]
                                 }
                                 ([], [TypeModifier::MutPtr])
                                 | (
                                     [TypeModifier::MutPtr],
                                     [TypeModifier::MutPtr, TypeModifier::MutPtr],
-                                ) => quote! { Option<&'a mut &'a mut [u8]> },
+                                ) => vec![TypeModifier::MutSlice],
                                 _ => continue,
-                            };
-                            let Ok(slice_ty) = syn::parse2::<syn::Type>(slice_ty) else {
-                                continue;
                             };
 
                             // Remove the size argument and replace the buffer pointer argument with a
-                            // &[u8] slice or &mut Vec<u8>.
+                            // &[u8] or &mut &mut [u8] slice.
                             Some(MergedParam::Buffer {
                                 slice_name: elem_name.clone(),
                                 slice_ty: ModifiedType {
-                                    modifiers: Default::default(),
-                                    ty: slice_ty,
+                                    modifiers,
+                                    ty: elem_ty.ty.clone(),
+                                },
+                                size_name: size_name.clone(),
+                                size_ty: size_ty.clone(),
+                            })
+                        }
+                        (
+                            Some(MergedParam::Single {
+                                name: elem_name,
+                                ty: Some(elem_ty),
+                            }),
+                            Some(MergedParam::Single {
+                                name: size_name,
+                                ty: Some(size_ty),
+                            }),
+                        ) if (size_name.as_str() == format!("{elem_name}_size").as_str()
+                            || size_name.as_str() == format!("{elem_name}_len").as_str())
+                            && size_ty.ty.to_token_stream().to_string().as_str()
+                                == format_ident!("usize")
+                                    .to_token_stream()
+                                    .to_string()
+                                    .as_str() =>
+                        {
+                            let modifiers = match (
+                                size_ty.modifiers.as_slice(),
+                                elem_ty.modifiers.as_slice(),
+                            ) {
+                                ([], [TypeModifier::ConstPtr]) => {
+                                    vec![TypeModifier::Slice]
+                                }
+                                ([], [TypeModifier::MutPtr])
+                                | (
+                                    [TypeModifier::MutPtr],
+                                    [TypeModifier::MutPtr, TypeModifier::MutPtr],
+                                ) => vec![TypeModifier::MutSlice],
+                                _ => continue,
+                            };
+
+                            // Remove the size argument and replace the buffer pointer argument with a
+                            // &[elem_ty] or &mut &mut [elem_ty] slice.
+                            Some(MergedParam::Buffer {
+                                slice_name: elem_name.clone(),
+                                slice_ty: ModifiedType {
+                                    modifiers,
+                                    ty: elem_ty.ty.clone(),
                                 },
                                 size_name: size_name.clone(),
                                 size_ty: size_ty.clone(),
@@ -373,7 +411,7 @@ impl SignatureRef<'_> {
         quote! { #(#args),* }
     }
 
-    fn get_pre_forward_args(&self, tree: &ParseTree) -> proc_macro2::TokenStream {
+    fn get_unwrap_args(&self, tree: &ParseTree) -> proc_macro2::TokenStream {
         let capture = self.capture_merged_params(tree);
         let args = self.merge_params(tree).filter_map(|arg| match arg {
             MergedParam::Receiver => Some(quote! {
@@ -387,18 +425,34 @@ impl SignatureRef<'_> {
                 let (modifiers, arg_ty) = (arg_ty.modifiers.as_slice(), &arg_ty.ty);
                 let ty_tokens = arg_ty.to_token_stream();
                 let ty_string = ty_tokens.to_string();
-                if tree.cef_name_map.get(ty_string.as_str()).is_some() {
+                if let Some(i) = tree.lookup_struct_declaration.get(&ty_string) {
+                    let name = format_ident!("{name}");
+                    if tree.struct_declarations.get(*i)
+                        .map(|s| s.methods.is_empty()
+                            && !s.fields.is_empty()
+                            && !s.fields.iter().map(|f| f.name.as_str()).eq(["_unused"]))
+                        .unwrap_or_default() {
+                        Some(quote! {
+                            let mut #name: #ty_tokens = #name.clone().into();
+                            let #name = &mut #name;
+                        })
+                    } else {
+                        Some(quote! {
+                            let #name = #name.as_raw();
+                        })
+                    }
+                } else if tree.cef_name_map.get(&ty_string).is_some() {
                     Some(quote! {
                         let #name = #name.as_raw();
                     })
                 } else {
-                    let modifiers = modifiers.iter().filter_map(|modifier| match modifier {
+                    let cast = modifiers.first().and_then(|modifier| match modifier {
                         TypeModifier::MutPtr => Some(quote! { as *mut _ }),
                         TypeModifier::ConstPtr => Some(quote! { as *const _ }),
                         _ => None,
                     });
                     Some(quote! {
-                        let #name = #name #(#modifiers)*;
+                        let #name = #name #cast;
                     })
                 }
             }
@@ -452,7 +506,7 @@ impl SignatureRef<'_> {
                                 .iter_mut()
                                 .map(|elem| elem
                                     .as_mut()
-                                    .map(|elem| elem.as_raw())
+                                    .map(|elem| std::mem::take(elem).into_raw())
                                     .unwrap_or(std::ptr::null_mut()))
                                 .collect::<Vec<_>>())
                             .unwrap_or_default();
@@ -467,7 +521,7 @@ impl SignatureRef<'_> {
             }
             MergedParam::Buffer {
                 slice_name,
-                slice_ty: ModifiedType { ty: slice_ty, .. },
+                slice_ty,
                 size_name,
                 size_ty:
                     ModifiedType {
@@ -479,9 +533,8 @@ impl SignatureRef<'_> {
                 let arg_name = format_ident!("arg_{slice_name}");
                 let out_size = format_ident!("out_{size_name}");
                 let arg_size = format_ident!("arg_{size_name}");
-                if slice_ty.to_token_stream().to_string() == quote! { Option<&'a [u8]> }.to_string()
-                {
-                    Some(quote! {
+                match slice_ty.modifiers.as_slice() {
+                    [TypeModifier::Slice] => Some(quote! {
                         let #arg_size = #arg_name
                             .map(|slice| slice.len())
                             .unwrap_or_default();
@@ -494,41 +547,39 @@ impl SignatureRef<'_> {
                             }
                         })
                         .unwrap_or(std::ptr::null());
-                    })
-                } else if slice_ty.to_token_stream().to_string()
-                    == quote! { Option<&'a mut &'a mut [u8]> }.to_string()
-                {
-                    let arg_size = match size_modifiers.as_slice() {
-                        [] => Some(quote! {
-                            let #arg_size = #arg_name
-                                .as_ref()
-                                .map(|slice| slice.len())
-                                .unwrap_or_default();
-                        }),
-                        [TypeModifier::MutPtr] => Some(quote! {
-                            let mut #out_size = #arg_name
-                                .as_ref()
-                                .map(|slice| slice.len())
-                                .unwrap_or_default();
-                            let #arg_size = &mut #out_size;
-                        }),
-                        _ => None,
-                    };
+                    }),
+                    [TypeModifier::MutSlice] => {
+                        let arg_size = match size_modifiers.as_slice() {
+                            [] => Some(quote! {
+                                let #arg_size = #arg_name
+                                    .as_ref()
+                                    .map(|slice| slice.len())
+                                    .unwrap_or_default();
+                            }),
+                            [TypeModifier::MutPtr] => Some(quote! {
+                                let mut #out_size = #arg_name
+                                    .as_ref()
+                                    .map(|slice| slice.len())
+                                    .unwrap_or_default();
+                                let #arg_size = &mut #out_size;
+                            }),
+                            _ => None,
+                        };
 
-                    Some(quote! {
-                        #arg_size
-                        let mut #out_name = #arg_name;
-                        let #arg_name = #out_name.as_mut().and_then(|slice| {
-                            if slice.is_empty() {
-                                None
-                            } else {
-                                Some(slice.as_mut_ptr() as *mut _)
-                            }
+                        Some(quote! {
+                            #arg_size
+                            let mut #out_name = #arg_name;
+                            let #arg_name = #out_name.as_mut().and_then(|slice| {
+                                if slice.is_empty() {
+                                    None
+                                } else {
+                                    Some(slice.as_mut_ptr() as *mut _)
+                                }
+                            })
+                            .unwrap_or(std::ptr::null_mut());
                         })
-                        .unwrap_or(std::ptr::null_mut());
-                    })
-                } else {
-                    None
+                    }
+                    _ => None,
                 }
             }
             _ => None,
@@ -540,7 +591,7 @@ impl SignatureRef<'_> {
         }
     }
 
-    fn get_post_forward_args(&self, tree: &ParseTree) -> proc_macro2::TokenStream {
+    fn get_rewrap_args(&self, tree: &ParseTree) -> proc_macro2::TokenStream {
         let args = self.merge_params(tree).filter_map(|arg| match arg {
             MergedParam::Bounded {
                 count_name,
@@ -550,7 +601,7 @@ impl SignatureRef<'_> {
                         ..
                     },
                 slice_name,
-                ..
+                slice_ty: ModifiedType { ty: slice_ty, .. },
             } if matches!(count_modifiers.as_slice(), [TypeModifier::MutPtr]) => {
                 let out_count = format_ident!("out_{count_name}");
                 let out_name = format_ident!("out_{slice_name}");
@@ -570,16 +621,17 @@ impl SignatureRef<'_> {
             }
             MergedParam::Buffer {
                 slice_name,
-                slice_ty: ModifiedType { ty: slice_ty, .. },
+                slice_ty,
                 size_name,
                 size_ty:
                     ModifiedType {
                         modifiers: size_modifiers,
                         ..
                     },
-            } if matches!(size_modifiers.as_slice(), [TypeModifier::MutPtr])
-                && slice_ty.to_token_stream().to_string()
-                    == quote! { Option<&'a mut &'a mut [u8]> }.to_string() =>
+            } if matches!(
+                (slice_ty.modifiers.as_slice(), size_modifiers.as_slice()),
+                ([TypeModifier::MutSlice], [TypeModifier::MutPtr])
+            ) && slice_ty.ty.to_token_stream().to_string() == quote! { u8 }.to_string() =>
             {
                 let out_name = format_ident!("out_{slice_name}");
                 let out_size = format_ident!("out_{size_name}");
@@ -608,7 +660,7 @@ impl SignatureRef<'_> {
         })
     }
 
-    fn get_impl_wrapped_args(&self, tree: &ParseTree) -> proc_macro2::TokenStream {
+    fn get_wrap_args(&self, tree: &ParseTree) -> proc_macro2::TokenStream {
         let capture = self.capture_params();
         let args = self.merge_params(tree).filter_map(|arg| match arg {
             MergedParam::Receiver => Some(quote! {
@@ -699,14 +751,10 @@ impl SignatureRef<'_> {
                                 let name = format_ident!("{name}");
 
                                 match modifiers {
-                                    [TypeModifier::ConstPtr] => {
+                                    [TypeModifier::Slice] => {
                                         Some(quote! {
-                                            let #out_count = unsafe { #arg_count.as_ref() };
-                                            let #arg_count = #out_count
-                                                .map(|count| *count)
-                                                .unwrap_or_default();
                                             let #vec_name = unsafe { #arg_name.as_ref() }.map(|arg| {
-                                                let arg = unsafe { std::slice::from_raw_parts_mut(arg, #arg_count) };
+                                                let arg = unsafe { std::slice::from_raw_parts(std::ptr::from_ref(arg), #arg_count) };
                                                 arg.iter()
                                                     .map(|arg| {
                                                         if arg.is_null() {
@@ -722,14 +770,14 @@ impl SignatureRef<'_> {
                                             });
                                         })
                                     },
-                                    [TypeModifier::MutPtr] => {
+                                    [TypeModifier::MutSlice] => {
                                         Some(quote! {
                                             let mut #out_count = unsafe { #arg_count.as_mut() };
                                             let #arg_count = #out_count
                                                 .map(|count| *count)
                                                 .unwrap_or_default();
                                             let mut #vec_name = unsafe { #arg_name.as_mut() }.map(|arg| {
-                                                let arg = unsafe { std::slice::from_raw_parts_mut(arg, #arg_count) };
+                                                let arg = unsafe { std::slice::from_raw_parts_mut(std::ptr::from_mut(arg), #arg_count) };
                                                 arg.iter_mut()
                                                     .map(|arg| {
                                                         if arg.is_null() {
@@ -770,57 +818,10 @@ impl SignatureRef<'_> {
                         }
                     })
                     .or(Some(quote! { let #arg_name = #arg_name.as_raw(); }))
-
-                // match count_modifiers.as_slice() {
-                //     [] => Some(quote! {
-                //         let mut #arg_count = #arg_name
-                //             .map(|slice| slice.len())
-                //             .unwrap_or_default();
-                //         let #vec_name = #arg_name
-                //             .as_ref()
-                //             .map(|slice| slice
-                //                 .iter()
-                //                 .map(|elem| elem
-                //                     .as_ref()
-                //                     .map(|elem| elem.as_raw())
-                //                     .unwrap_or(std::ptr::null()))
-                //                 .collect::<Vec<_>>())
-                //             .unwrap_or_default();
-                //         let #arg_name = if #vec_name.is_empty() {
-                //             std::ptr::null()
-                //         } else {
-                //             #vec_name.as_ptr()
-                //         };
-                //     }),
-                //     [TypeModifier::MutPtr] => Some(quote! {
-                //         let mut #out_count = #arg_name
-                //             .map(|slice| slice.len())
-                //             .unwrap_or_default();
-                //         let #arg_count = &mut #out_count;
-                //         let #out_name = #arg_name;
-                //         let mut #vec_name = #arg_name
-                //             .as_ref()
-                //             .map(|slice| slice
-                //                 .iter_mut()
-                //                 .map(|elem| elem
-                //                     .as_mut()
-                //                     .map(|elem| elem.as_raw())
-                //                     .unwrap_or(std::ptr::null_mut()))
-                //                 .collect::<Vec<_>>())
-                //             .unwrap_or_default();
-                //         let #arg_name = if #vec_name.is_empty() {
-                //             std::ptr::null_mut()
-                //         } else {
-                //             #vec_name.as_mut_ptr()
-                //         };
-                //     }),
-                //     _ => None,
-                // }
-                // .or(Some(quote! { let #arg_name = #arg_name.as_raw(); }))
             }
             MergedParam::Buffer {
                 slice_name,
-                slice_ty: ModifiedType { ty: slice_ty, .. },
+                slice_ty: ModifiedType { modifiers: slice_modifiers, ty: slice_ty },
                 size_name,
                 size_ty:
                     ModifiedType {
@@ -832,104 +833,35 @@ impl SignatureRef<'_> {
                 let arg_name = format_ident!("arg_{slice_name}");
                 let out_size = format_ident!("out_{size_name}");
                 let arg_size = format_ident!("arg_{size_name}");
-                if slice_ty.to_token_stream().to_string() == quote! { Option<&'a [u8]> }.to_string() {
-                    Some(quote! {
+                match slice_modifiers.as_slice() {
+                    [TypeModifier::Slice] => Some(quote! {
                         let #arg_name = (!#arg_name.is_null() && #arg_size > 0).then(|| unsafe {
-                            std::slice::from_raw_parts(#arg_name as *const u8, #arg_size)
+                            std::slice::from_raw_parts(#arg_name as *const _, #arg_size)
                         });
-                    })
-                } else if slice_ty.to_token_stream().to_string()
-                    == quote! { Option<&'a mut &'a mut [u8]> }.to_string()
-                {
-                    let out_size = match size_modifiers.as_slice() {
-                        [TypeModifier::MutPtr] => Some(quote! {
-                            let mut #out_size = unsafe { #arg_size.as_mut() };
-                            let #arg_size = #out_size.unwrap_or_default();
-                        }),
-                        _ => None,
-                    };
-
-                    Some(quote! {
-                        #out_size
-                        let mut #out_name = (!#arg_name.is_null() && #arg_size > 0).then(|| unsafe {
-                            std::slice::from_raw_parts_mut(#arg_name as *mut u8, #arg_size)
-                        });
-                        let arg_buffer = out_buffer.as_mut();
-                    })
-                } else {
-                    None
+                    }),
+                    [TypeModifier::MutSlice] => {
+                        let out_size = match size_modifiers.as_slice() {
+                            [TypeModifier::MutPtr] => Some(quote! {
+                                let mut #out_size = unsafe { #arg_size.as_mut() };
+                                let #arg_size = #out_size.unwrap_or_default();
+                            }),
+                            _ => None,
+                        };
+    
+                        Some(quote! {
+                            #out_size
+                            let mut #out_name = (!#arg_name.is_null() && #arg_size > 0).then(|| unsafe {
+                                std::slice::from_raw_parts_mut(#arg_name as *mut _, #arg_size)
+                            });
+                            let arg_buffer = out_buffer.as_mut();
+                        })
+                    }
+                    _ => None,
                 }
                 .or(Some(quote! { let #arg_name = #arg_name.as_raw(); }))
             }
             _ => None,
         });
-
-        // let args = self.inputs.iter().skip(1).map(|arg| {
-        //     let name = make_snake_case_value_name(&arg.name);
-        //     let name = format_ident!("{name}");
-        //     let ty = tree.resolve_type_aliases(arg.ty);
-        //     let ty_string = ty.to_string();
-        //     let ty_string = ty_string.trim();
-        //     let normalized_ty = normalize_cef_type(ty_string);
-
-        //     (tree.root(&normalized_ty) == BASE_REF_COUNTED)
-        //         .then(|| {
-        //             let arg_ty = tree.resolve_modified_type(arg.ty)?;
-        //             let entry = tree.cef_name_map.get(normalized_ty.as_ref())?;
-        //             let ty = match entry {
-        //                 NameMapEntry {
-        //                     name,
-        //                     ty: NameMapType::StructDeclaration,
-        //                 } => {
-        //                     let name = format_ident!("{name}");
-
-        //                     match arg_ty.modifiers.as_slice() {
-        //                         [TypeModifier::ConstPtr] => Some(quote! { &#name }),
-        //                         [TypeModifier::MutPtr] => Some(quote! { &mut #name }),
-        //                         _ => None,
-        //                     }
-        //                 }
-        //                 NameMapEntry {
-        //                     name,
-        //                     ty: NameMapType::EnumName,
-        //                 } => {
-        //                     let name = format_ident!("{name}");
-
-        //                     match arg_ty.modifiers.as_slice() {
-        //                         [] => Some(quote! { #name }),
-        //                         [TypeModifier::ConstPtr] => Some(quote! { &[#name] }),
-        //                         [TypeModifier::MutPtr] => Some(quote! { &mut [#name] }),
-        //                         _ => None,
-        //                     }
-        //                 }
-        //                 _ => None,
-        //             }?;
-        //             Some(quote! {
-        //                 let #name = #ty(unsafe { RefGuard::from_raw_add_ref(#name) });
-        //             })
-        //         })
-        //         .flatten()
-        //         .or_else(|| {
-        //             let arg_ty = tree.resolve_modified_type(arg.ty)?;
-        //             let ty = tree
-        //                 .cef_name_map
-        //                 .get(normalized_ty.as_ref())
-        //                 .and_then(|entry| syn::parse_str::<syn::Type>(&entry.name).ok());
-        //             let ty = ty.as_ref().unwrap_or(&arg_ty.ty);
-        //             match arg_ty.modifiers.as_slice() {
-        //                 [TypeModifier::MutPtr, ..] => Some(quote! {
-        //                     let mut #name = WrapParamRef::<#ty>::from(#name);
-        //                     let #name = #name.as_mut();
-        //                 }),
-        //                 [TypeModifier::ConstPtr, ..] => Some(quote! {
-        //                     let #name = WrapParamRef::<#ty>::from(#name);
-        //                     let #name = #name.as_ref();
-        //                 }),
-        //                 _ => None,
-        //             }
-        //         })
-        //         .unwrap_or(quote! { let #name = #name.as_raw(); })
-        // });
 
         quote! {
             #capture
@@ -1095,14 +1027,9 @@ impl ModifiedType {
                 match self.modifiers.as_slice() {
                     [TypeModifier::ConstPtr] => Some(quote! { &'a #name }),
                     [TypeModifier::MutPtr] => Some(quote! { &'a mut #name }),
-                    [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
-                        Some(quote! { &'a mut Option<#name> })
-                    }
-                    [TypeModifier::ConstPtr, TypeModifier::MutPtr] => {
-                        Some(quote! { &'a mut [#name] })
-                    }
-                    [TypeModifier::ConstPtr, TypeModifier::ConstPtr] => {
-                        Some(quote! { &'a [#name] })
+                    [TypeModifier::Slice] => Some(quote! { Option<&'a [Option<#name>]> }),
+                    [TypeModifier::MutSlice] => {
+                        Some(quote! { Option<&'a mut &'a mut [Option<#name>]> })
                     }
                     _ => None,
                 }
@@ -1115,15 +1042,34 @@ impl ModifiedType {
 
                 match self.modifiers.as_slice() {
                     [] => Some(quote! { #name }),
-                    [TypeModifier::ConstPtr] => Some(quote! { &'a [#name] }),
-                    [TypeModifier::MutPtr] => Some(quote! { &'a mut [#name] }),
+                    [TypeModifier::MutPtr] => Some(quote! { Option<&'a mut #name> }),
+                    [TypeModifier::Slice] => Some(quote! { Option<&'a [#name]> }),
+                    [TypeModifier::MutSlice] => Some(quote! { Option<&'a mut &'a mut [#name]> }),
                     _ => None,
                 }
             }
             None if elem_string == quote! { ::std::os::raw::c_void }.to_string() => {
-                let modifiers = self
-                    .modifiers
-                    .iter()
+                match self.modifiers.as_slice() {
+                    [TypeModifier::Slice] => Some(quote! { Option<&'a [u8]> }),
+                    [TypeModifier::MutSlice] => Some(quote! { Option<&'a mut &'a mut [u8]> }),
+                    modifiers => {
+                        let modifiers = modifiers.iter()
+                            .map(|modifier| match modifier {
+                                TypeModifier::MutPtr => Some(quote! { *mut }),
+                                TypeModifier::ConstPtr => Some(quote! { *const }),
+                                _ => None,
+                            })
+                            .collect::<Vec<_>>();
+                        if modifiers.iter().any(Option::is_none) {
+                            None
+                        } else {
+                            Some(quote! { #(#modifiers)* #elem})
+                        }
+                    }
+                }
+            }
+            _ => {
+                let modifiers = self.modifiers.iter()
                     .map(|modifier| match modifier {
                         TypeModifier::MutPtr => Some(quote! { *mut }),
                         TypeModifier::ConstPtr => Some(quote! { *const }),
@@ -1135,11 +1081,6 @@ impl ModifiedType {
                 } else {
                     Some(quote! { #(#modifiers)* #elem})
                 }
-            }
-            _ => match self.modifiers.as_slice() {
-                [TypeModifier::ConstPtr] => Some(quote! { &'a [#elem] }),
-                [TypeModifier::MutPtr] => Some(quote! { &'a mut #elem }),
-                _ => None,
             },
         }
     }
@@ -1415,13 +1356,13 @@ impl<'a> ParseTree<'a> {
                     let sig = m.get_signature(self);
                     let name = &m.name;
                     let name = format_ident!("{name}");
-                    let pre_forward_args = m.get_pre_forward_args(self);
+                    let pre_forward_args = m.get_unwrap_args(self);
                     let args = m.inputs.iter().map(|arg| {
                         let name = make_snake_case_value_name(&arg.name);
                         let name = format_ident!("arg_{name}");
                         quote! { #name }
                     });
-                    let post_forward_args = m.get_post_forward_args(self);
+                    let post_forward_args = m.get_rewrap_args(self);
                     quote! {
                         #sig {
                             unsafe {
@@ -1468,7 +1409,7 @@ impl<'a> ParseTree<'a> {
                 }
 
                 let init_bases = base_structs
-                    .into_iter()
+                    .iter()
                     .enumerate()
                     .map(|(i, base_struct)| {
                         let name = &base_struct.name;
@@ -1478,6 +1419,50 @@ impl<'a> ParseTree<'a> {
                         quote! {
                             #impl_mod::init_methods::<Self>(&mut object.#(#bases).*);
                         }
+                    })
+                    .collect::<Vec<_>>()
+                    .into_iter()
+                    .rev();
+
+                let impl_bases = base_structs
+                    .into_iter()
+                    .filter_map(|base_struct| {
+                        self.cef_name_map.get(&base_struct.name).map(|entry| {
+                            let base = &entry.name;
+                            let base_trait = format_ident!("Impl{base}");
+                            let base = format_ident!("{base}");
+                            let base_methods = base_struct.methods.iter().map(|m| {
+                                let sig = m.get_signature(self);
+                                let name = &m.name;
+                                let name = format_ident!("{name}");
+                                let args = m.merge_params(self).filter_map(|arg| match arg {
+                                    MergedParam::Single { name, .. } => {
+                                        let name = format_ident!("{name}");
+                                        Some(quote! { #name })
+                                    }
+                                    MergedParam::Bounded { slice_name, .. }
+                                    | MergedParam::Buffer { slice_name, .. } => {
+                                        let name = format_ident!("{slice_name}");
+                                        Some(quote! { #name })
+                                    }
+                                    _ => None,
+                                });
+                                quote! {
+                                    #sig {
+                                        #base(unsafe {
+                                            RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _)
+                                        })
+                                        .#name(#(#args),*)
+                                    }
+                                }
+                            });
+
+                            quote! {
+                                impl #base_trait for #rust_name {
+                                    #(#base_methods)*
+                                }
+                            }
+                        })
                     })
                     .collect::<Vec<_>>()
                     .into_iter()
@@ -1502,7 +1487,7 @@ impl<'a> ParseTree<'a> {
                         let ty = self.resolve_type_aliases(arg.ty);
                         quote! { #name: #ty }
                     });
-                    let wrapped_args = m.get_impl_wrapped_args(self);
+                    let wrapped_args = m.get_wrap_args(self);
                     let forward_args = m.merge_params(self).filter_map(|arg| match arg {
                         MergedParam::Single { name, .. } => {
                             let name = format_ident!("arg_{name}");
@@ -1556,6 +1541,8 @@ impl<'a> ParseTree<'a> {
                     #[doc = #comment]
                     #[derive(Clone)]
                     pub struct #rust_name(RefGuard<#name_ident>);
+
+                    #(#impl_bases)*
 
                     impl #impl_trait for #rust_name {
                         #(#methods)*
@@ -1718,6 +1705,7 @@ impl<'a> ParseTree<'a> {
 
                 quote! {
                     #[doc = #comment]
+                    #[derive(Clone)]
                     pub struct #rust_name {
                         #(#fields_decl)*
                     }
@@ -1831,20 +1819,27 @@ impl<'a> ParseTree<'a> {
                 .iter()
                 .map(|arg| {
                     let rust_name = make_snake_case_value_name(&arg.name);
-                    let rust_name = format_ident!("{rust_name}");
+                    let rust_name = format_ident!("arg_{rust_name}");
                     let ty = self.resolve_type_aliases(arg.ty);
                     (rust_name, ty)
                 })
                 .collect::<Vec<_>>();
+            let unwrap_args = f.get_unwrap_args(self);
             let forward_args = inputs.iter().map(|(rust_name, _)| {
-                quote! { #rust_name.as_raw() }
+                quote! { #rust_name }
             });
+            let rewrap_args = f.get_rewrap_args(self);
             let original_output = f.output.map(|ty| self.resolve_type_aliases(ty));
             let forward_output = original_output.map(|_output| quote! { .as_wrapper() });
 
             quote! {
                 pub fn #name<'a>(#args) #output {
-                    unsafe { #original_name(#(#forward_args),*)#forward_output }
+                    unsafe {
+                        #unwrap_args
+                        let result = #original_name(#(#forward_args),*);
+                        #rewrap_args
+                        result #forward_output
+                    }
                 }
             }
         });

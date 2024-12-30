@@ -18,6 +18,21 @@ impl Drop for CefStringUtf8 {
     }
 }
 
+impl Clone for CefStringUtf8 {
+    fn clone(&self) -> Self {
+        Self::from(unsafe {
+            let mut cef_string = mem::zeroed();
+            cef_sys::cef_string_utf8_set(
+                self.as_ref().str_ as *const _,
+                self.as_ref().length,
+                &mut cef_string,
+                1,
+            );
+            cef_string
+        })
+    }
+}
+
 impl From<&str> for CefStringUtf8 {
     fn from(value: &str) -> Self {
         Self::from(unsafe {
@@ -128,6 +143,21 @@ impl Display for CefStringUtf8 {
     }
 }
 
+impl Clone for CefStringUtf16 {
+    fn clone(&self) -> Self {
+        Self::from(unsafe {
+            let mut cef_string = mem::zeroed();
+            cef_sys::cef_string_utf16_set(
+                self.as_ref().str_ as *const _,
+                self.as_ref().length,
+                &mut cef_string,
+                1,
+            );
+            cef_string
+        })
+    }
+}
+
 impl Drop for CefStringUtf16 {
     fn drop(&mut self) {
         unsafe {
@@ -207,6 +237,21 @@ impl Drop for CefStringWide {
         unsafe {
             cef_sys::cef_string_wide_clear(self.as_mut());
         }
+    }
+}
+
+impl Clone for CefStringWide {
+    fn clone(&self) -> Self {
+        Self::from(unsafe {
+            let mut cef_string = mem::zeroed();
+            cef_sys::cef_string_wide_set(
+                self.as_ref().str_ as *const _,
+                self.as_ref().length,
+                &mut cef_string,
+                1,
+            );
+            cef_string
+        })
     }
 }
 
