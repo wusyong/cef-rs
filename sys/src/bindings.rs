@@ -6145,16 +6145,6 @@ const _: () = {
 };
 #[doc = "\n Implement this structure to receive string values asynchronously.\n"]
 pub type cef_string_visitor_t = _cef_string_visitor_t;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _cef_urlrequest_client_t {
-    _unused: [u8; 0],
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _cef_urlrequest_t {
-    _unused: [u8; 0],
-}
 #[doc = "\n Structure used to represent a frame in the browser window. When used in the\n browser process the functions of this structure may be called on any thread\n unless otherwise indicated in the comments. When used in the render process\n the functions of this structure may only be called on the main thread.\n"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -13354,6 +13344,222 @@ unsafe extern "C" {
     #[doc = "\n Quit the CEF message loop that was started by calling\n cef_run_message_loop(). This function should only be called on the main\n application thread and only if cef_run_message_loop() was used.\n"]
     pub fn cef_quit_message_loop();
 }
+#[doc = "\n Structure used to make a URL request. URL requests are not associated with a\n browser instance so no cef_client_t callbacks will be executed. URL requests\n can be created on any valid CEF thread in either the browser or render\n process. Once created the functions of the URL request object must be\n accessed on the same thread that created it.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_urlrequest_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_base_ref_counted_t,
+    #[doc = "\n Returns the request object used to create this URL request. The returned\n object is read-only and should not be modified.\n"]
+    pub get_request: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_urlrequest_t) -> *mut _cef_request_t,
+    >,
+    #[doc = "\n Returns the client.\n"]
+    pub get_client: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_urlrequest_t) -> *mut _cef_urlrequest_client_t,
+    >,
+    #[doc = "\n Returns the request status.\n"]
+    pub get_request_status: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_urlrequest_t) -> cef_urlrequest_status_t,
+    >,
+    #[doc = "\n Returns the request error if status is UR_CANCELED or UR_FAILED, or 0\n otherwise.\n"]
+    pub get_request_error: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_urlrequest_t) -> cef_errorcode_t,
+    >,
+    #[doc = "\n Returns the response, or NULL if no response information is available.\n Response information will only be available after the upload has\n completed. The returned object is read-only and should not be modified.\n"]
+    pub get_response: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_urlrequest_t) -> *mut _cef_response_t,
+    >,
+    #[doc = "\n Returns true (1) if the response body was served from the cache. This\n includes responses for which revalidation was required.\n"]
+    pub response_was_cached: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_urlrequest_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Cancel the request.\n"]
+    pub cancel: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_urlrequest_t)>,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_urlrequest_t"][::std::mem::size_of::<_cef_urlrequest_t>() - 96usize];
+    ["Alignment of _cef_urlrequest_t"][::std::mem::align_of::<_cef_urlrequest_t>() - 8usize];
+    ["Offset of field: _cef_urlrequest_t::base"]
+        [::std::mem::offset_of!(_cef_urlrequest_t, base) - 0usize];
+    ["Offset of field: _cef_urlrequest_t::get_request"]
+        [::std::mem::offset_of!(_cef_urlrequest_t, get_request) - 40usize];
+    ["Offset of field: _cef_urlrequest_t::get_client"]
+        [::std::mem::offset_of!(_cef_urlrequest_t, get_client) - 48usize];
+    ["Offset of field: _cef_urlrequest_t::get_request_status"]
+        [::std::mem::offset_of!(_cef_urlrequest_t, get_request_status) - 56usize];
+    ["Offset of field: _cef_urlrequest_t::get_request_error"]
+        [::std::mem::offset_of!(_cef_urlrequest_t, get_request_error) - 64usize];
+    ["Offset of field: _cef_urlrequest_t::get_response"]
+        [::std::mem::offset_of!(_cef_urlrequest_t, get_response) - 72usize];
+    ["Offset of field: _cef_urlrequest_t::response_was_cached"]
+        [::std::mem::offset_of!(_cef_urlrequest_t, response_was_cached) - 80usize];
+    ["Offset of field: _cef_urlrequest_t::cancel"]
+        [::std::mem::offset_of!(_cef_urlrequest_t, cancel) - 88usize];
+};
+#[doc = "\n Structure used to make a URL request. URL requests are not associated with a\n browser instance so no cef_client_t callbacks will be executed. URL requests\n can be created on any valid CEF thread in either the browser or render\n process. Once created the functions of the URL request object must be\n accessed on the same thread that created it.\n"]
+pub type cef_urlrequest_t = _cef_urlrequest_t;
+unsafe extern "C" {
+    #[doc = "\n Create a new URL request that is not associated with a specific browser or\n frame. Use cef_frame_t::CreateURLRequest instead if you want the request to\n have this association, in which case it may be handled differently (see\n documentation on that function). A request created with this function may\n only originate from the browser process, and will behave as follows:\n   - It may be intercepted by the client via CefResourceRequestHandler or\n     CefSchemeHandlerFactory.\n   - POST data may only contain only a single element of type PDE_TYPE_FILE\n     or PDE_TYPE_BYTES.\n   - If |request_context| is empty the global request context will be used.\n\n The |request| object will be marked as read-only after calling this\n function.\n"]
+    pub fn cef_urlrequest_create(
+        request: *mut _cef_request_t,
+        client: *mut _cef_urlrequest_client_t,
+        request_context: *mut _cef_request_context_t,
+    ) -> *mut cef_urlrequest_t;
+}
+#[doc = "\n Structure that should be implemented by the cef_urlrequest_t client. The\n functions of this structure will be called on the same thread that created\n the request unless otherwise documented.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_urlrequest_client_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_base_ref_counted_t,
+    #[doc = "\n Notifies the client that the request has completed. Use the\n cef_urlrequest_t::GetRequestStatus function to determine if the request\n was successful or not.\n"]
+    pub on_request_complete: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_urlrequest_client_t, request: *mut _cef_urlrequest_t),
+    >,
+    #[doc = "\n Notifies the client of upload progress. |current| denotes the number of\n bytes sent so far and |total| is the total size of uploading data (or -1\n if chunked upload is enabled). This function will only be called if the\n UR_FLAG_REPORT_UPLOAD_PROGRESS flag is set on the request.\n"]
+    pub on_upload_progress: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_urlrequest_client_t,
+            request: *mut _cef_urlrequest_t,
+            current: i64,
+            total: i64,
+        ),
+    >,
+    #[doc = "\n Notifies the client of download progress. |current| denotes the number of\n bytes received up to the call and |total| is the expected total size of\n the response (or -1 if not determined).\n"]
+    pub on_download_progress: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_urlrequest_client_t,
+            request: *mut _cef_urlrequest_t,
+            current: i64,
+            total: i64,
+        ),
+    >,
+    #[doc = "\n Called when some part of the response is read. |data| contains the current\n bytes received since the last call. This function will not be called if\n the UR_FLAG_NO_DOWNLOAD_DATA flag is set on the request.\n"]
+    pub on_download_data: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_urlrequest_client_t,
+            request: *mut _cef_urlrequest_t,
+            data: *const ::std::os::raw::c_void,
+            data_length: usize,
+        ),
+    >,
+    #[doc = "\n Called on the IO thread when the browser needs credentials from the user.\n |isProxy| indicates whether the host is a proxy server. |host| contains\n the hostname and |port| contains the port number. Return true (1) to\n continue the request and call cef_auth_callback_t::cont() when the\n authentication information is available. If the request has an associated\n browser/frame then returning false (0) will result in a call to\n GetAuthCredentials on the cef_request_handler_t associated with that\n browser, if any. Otherwise, returning false (0) will cancel the request\n immediately. This function will only be called for requests initiated from\n the browser process.\n"]
+    pub get_auth_credentials: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_urlrequest_client_t,
+            isProxy: ::std::os::raw::c_int,
+            host: *const cef_string_t,
+            port: ::std::os::raw::c_int,
+            realm: *const cef_string_t,
+            scheme: *const cef_string_t,
+            callback: *mut _cef_auth_callback_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_urlrequest_client_t"]
+        [::std::mem::size_of::<_cef_urlrequest_client_t>() - 80usize];
+    ["Alignment of _cef_urlrequest_client_t"]
+        [::std::mem::align_of::<_cef_urlrequest_client_t>() - 8usize];
+    ["Offset of field: _cef_urlrequest_client_t::base"]
+        [::std::mem::offset_of!(_cef_urlrequest_client_t, base) - 0usize];
+    ["Offset of field: _cef_urlrequest_client_t::on_request_complete"]
+        [::std::mem::offset_of!(_cef_urlrequest_client_t, on_request_complete) - 40usize];
+    ["Offset of field: _cef_urlrequest_client_t::on_upload_progress"]
+        [::std::mem::offset_of!(_cef_urlrequest_client_t, on_upload_progress) - 48usize];
+    ["Offset of field: _cef_urlrequest_client_t::on_download_progress"]
+        [::std::mem::offset_of!(_cef_urlrequest_client_t, on_download_progress) - 56usize];
+    ["Offset of field: _cef_urlrequest_client_t::on_download_data"]
+        [::std::mem::offset_of!(_cef_urlrequest_client_t, on_download_data) - 64usize];
+    ["Offset of field: _cef_urlrequest_client_t::get_auth_credentials"]
+        [::std::mem::offset_of!(_cef_urlrequest_client_t, get_auth_credentials) - 72usize];
+};
+#[doc = "\n Structure that should be implemented by the cef_urlrequest_t client. The\n functions of this structure will be called on the same thread that created\n the request unless otherwise documented.\n"]
+pub type cef_urlrequest_client_t = _cef_urlrequest_client_t;
+#[doc = "\n A Layout handles the sizing of the children of a Panel according to\n implementation-specific heuristics. Methods must be called on the browser\n process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_layout_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_base_ref_counted_t,
+    #[doc = "\n Returns this Layout as a BoxLayout or NULL if this is not a BoxLayout.\n"]
+    pub as_box_layout: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_layout_t) -> *mut _cef_box_layout_t,
+    >,
+    #[doc = "\n Returns this Layout as a FillLayout or NULL if this is not a FillLayout.\n"]
+    pub as_fill_layout: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_layout_t) -> *mut _cef_fill_layout_t,
+    >,
+    #[doc = "\n Returns true (1) if this Layout is valid.\n"]
+    pub is_valid: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_layout_t) -> ::std::os::raw::c_int,
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_layout_t"][::std::mem::size_of::<_cef_layout_t>() - 64usize];
+    ["Alignment of _cef_layout_t"][::std::mem::align_of::<_cef_layout_t>() - 8usize];
+    ["Offset of field: _cef_layout_t::base"][::std::mem::offset_of!(_cef_layout_t, base) - 0usize];
+    ["Offset of field: _cef_layout_t::as_box_layout"]
+        [::std::mem::offset_of!(_cef_layout_t, as_box_layout) - 40usize];
+    ["Offset of field: _cef_layout_t::as_fill_layout"]
+        [::std::mem::offset_of!(_cef_layout_t, as_fill_layout) - 48usize];
+    ["Offset of field: _cef_layout_t::is_valid"]
+        [::std::mem::offset_of!(_cef_layout_t, is_valid) - 56usize];
+};
+#[doc = "\n A Layout handles the sizing of the children of a Panel according to\n implementation-specific heuristics. Methods must be called on the browser\n process UI thread unless otherwise indicated.\n"]
+pub type cef_layout_t = _cef_layout_t;
+#[doc = "\n A Layout manager that arranges child views vertically or horizontally in a\n side-by-side fashion with spacing around and between the child views. The\n child views are always sized according to their preferred size. If the\n host's bounds provide insufficient space, child views will be clamped.\n Excess space will not be distributed. Methods must be called on the browser\n process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_box_layout_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_layout_t,
+    #[doc = "\n Set the flex weight for the given |view|. Using the preferred size as the\n basis, free space along the main axis is distributed to views in the ratio\n of their flex weights. Similarly, if the views will overflow the parent,\n space is subtracted in these ratios. A flex of 0 means this view is not\n resized. Flex values must not be negative.\n"]
+    pub set_flex_for_view: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_box_layout_t,
+            view: *mut _cef_view_t,
+            flex: ::std::os::raw::c_int,
+        ),
+    >,
+    #[doc = "\n Clears the flex for the given |view|, causing it to use the default flex\n specified via cef_box_layout_tSettings.default_flex.\n"]
+    pub clear_flex_for_view: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_box_layout_t, view: *mut _cef_view_t),
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_box_layout_t"][::std::mem::size_of::<_cef_box_layout_t>() - 80usize];
+    ["Alignment of _cef_box_layout_t"][::std::mem::align_of::<_cef_box_layout_t>() - 8usize];
+    ["Offset of field: _cef_box_layout_t::base"]
+        [::std::mem::offset_of!(_cef_box_layout_t, base) - 0usize];
+    ["Offset of field: _cef_box_layout_t::set_flex_for_view"]
+        [::std::mem::offset_of!(_cef_box_layout_t, set_flex_for_view) - 64usize];
+    ["Offset of field: _cef_box_layout_t::clear_flex_for_view"]
+        [::std::mem::offset_of!(_cef_box_layout_t, clear_flex_for_view) - 72usize];
+};
+#[doc = "\n A Layout manager that arranges child views vertically or horizontally in a\n side-by-side fashion with spacing around and between the child views. The\n child views are always sized according to their preferred size. If the\n host's bounds provide insufficient space, child views will be clamped.\n Excess space will not be distributed. Methods must be called on the browser\n process UI thread unless otherwise indicated.\n"]
+pub type cef_box_layout_t = _cef_box_layout_t;
+#[doc = "\n A simple Layout that causes the associated Panel's one child to be sized to\n match the bounds of its parent. Methods must be called on the browser\n process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_fill_layout_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_layout_t,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_fill_layout_t"][::std::mem::size_of::<_cef_fill_layout_t>() - 64usize];
+    ["Alignment of _cef_fill_layout_t"][::std::mem::align_of::<_cef_fill_layout_t>() - 8usize];
+    ["Offset of field: _cef_fill_layout_t::base"]
+        [::std::mem::offset_of!(_cef_fill_layout_t, base) - 0usize];
+};
+#[doc = "\n A simple Layout that causes the associated Panel's one child to be sized to\n match the bounds of its parent. Methods must be called on the browser\n process UI thread unless otherwise indicated.\n"]
+pub type cef_fill_layout_t = _cef_fill_layout_t;
 #[doc = "\n Implement this structure to handle view events. All size and position values\n are in density independent pixels (DIP) unless otherwise indicated. The\n functions of this structure will be called on the browser process UI thread\n unless otherwise indicated.\n"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -13467,122 +13673,6 @@ const _: () = {
 };
 #[doc = "\n Implement this structure to handle view events. All size and position values\n are in density independent pixels (DIP) unless otherwise indicated. The\n functions of this structure will be called on the browser process UI thread\n unless otherwise indicated.\n"]
 pub type cef_view_delegate_t = _cef_view_delegate_t;
-#[doc = "\n Implement this structure to handle BrowserView events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _cef_browser_view_delegate_t {
-    #[doc = "\n Base structure.\n"]
-    pub base: cef_view_delegate_t,
-    #[doc = "\n Called when |browser| associated with |browser_view| is created. This\n function will be called after cef_life_span_handler_t::on_after_created()\n is called for |browser| and before on_popup_browser_view_created() is\n called for |browser|'s parent delegate if |browser| is a popup.\n"]
-    pub on_browser_created: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_browser_view_delegate_t,
-            browser_view: *mut _cef_browser_view_t,
-            browser: *mut _cef_browser_t,
-        ),
-    >,
-    #[doc = "\n Called when |browser| associated with |browser_view| is destroyed. Release\n all references to |browser| and do not attempt to execute any functions on\n |browser| after this callback returns. This function will be called before\n cef_life_span_handler_t::on_before_close() is called for |browser|.\n"]
-    pub on_browser_destroyed: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_browser_view_delegate_t,
-            browser_view: *mut _cef_browser_view_t,
-            browser: *mut _cef_browser_t,
-        ),
-    >,
-    #[doc = "\n Called before a new popup BrowserView is created. The popup originated\n from |browser_view|. |settings| and |client| are the values returned from\n cef_life_span_handler_t::on_before_popup(). |is_devtools| will be true (1)\n if the popup will be a DevTools browser. Return the delegate that will be\n used for the new popup BrowserView.\n"]
-    pub get_delegate_for_popup_browser_view: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_browser_view_delegate_t,
-            browser_view: *mut _cef_browser_view_t,
-            settings: *const _cef_browser_settings_t,
-            client: *mut _cef_client_t,
-            is_devtools: ::std::os::raw::c_int,
-        ) -> *mut _cef_browser_view_delegate_t,
-    >,
-    #[doc = "\n Called after |popup_browser_view| is created. This function will be called\n after cef_life_span_handler_t::on_after_created() and on_browser_created()\n are called for the new popup browser. The popup originated from\n |browser_view|. |is_devtools| will be true (1) if the popup is a DevTools\n browser. Optionally add |popup_browser_view| to the views hierarchy\n yourself and return true (1). Otherwise return false (0) and a default\n cef_window_t will be created for the popup.\n"]
-    pub on_popup_browser_view_created: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_browser_view_delegate_t,
-            browser_view: *mut _cef_browser_view_t,
-            popup_browser_view: *mut _cef_browser_view_t,
-            is_devtools: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
-    >,
-    #[doc = "\n Returns the Chrome toolbar type that will be available via\n cef_browser_view_t::get_chrome_toolbar(). See that function for related\n documentation.\n"]
-    pub get_chrome_toolbar_type: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_browser_view_delegate_t,
-            browser_view: *mut _cef_browser_view_t,
-        ) -> cef_chrome_toolbar_type_t,
-    >,
-    #[doc = "\n Return true (1) to create frameless windows for Document picture-in-\n picture popups. Content in frameless windows should specify draggable\n regions using \"-webkit-app-region: drag\" CSS.\n"]
-    pub use_frameless_window_for_picture_in_picture: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_browser_view_delegate_t,
-            browser_view: *mut _cef_browser_view_t,
-        ) -> ::std::os::raw::c_int,
-    >,
-    #[doc = "\n Called when |browser_view| receives a gesture command. Return true (1) to\n handle (or disable) a |gesture_command| or false (0) to propagate the\n gesture to the browser for default handling. With Chrome style these\n commands can also be handled via cef_command_handler_t::OnChromeCommand.\n"]
-    pub on_gesture_command: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_browser_view_delegate_t,
-            browser_view: *mut _cef_browser_view_t,
-            gesture_command: cef_gesture_command_t,
-        ) -> ::std::os::raw::c_int,
-    >,
-    #[doc = "\n Optionally change the runtime style for this BrowserView. See\n cef_runtime_style_t documentation for details.\n"]
-    pub get_browser_runtime_style: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_browser_view_delegate_t) -> cef_runtime_style_t,
-    >,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of _cef_browser_view_delegate_t"]
-        [::std::mem::size_of::<_cef_browser_view_delegate_t>() - 192usize];
-    ["Alignment of _cef_browser_view_delegate_t"]
-        [::std::mem::align_of::<_cef_browser_view_delegate_t>() - 8usize];
-    ["Offset of field: _cef_browser_view_delegate_t::base"]
-        [::std::mem::offset_of!(_cef_browser_view_delegate_t, base) - 0usize];
-    ["Offset of field: _cef_browser_view_delegate_t::on_browser_created"]
-        [::std::mem::offset_of!(_cef_browser_view_delegate_t, on_browser_created) - 128usize];
-    ["Offset of field: _cef_browser_view_delegate_t::on_browser_destroyed"]
-        [::std::mem::offset_of!(_cef_browser_view_delegate_t, on_browser_destroyed) - 136usize];
-    ["Offset of field: _cef_browser_view_delegate_t::get_delegate_for_popup_browser_view"][::std::mem::offset_of!(
-        _cef_browser_view_delegate_t,
-        get_delegate_for_popup_browser_view
-    )
-        - 144usize];
-    ["Offset of field: _cef_browser_view_delegate_t::on_popup_browser_view_created"][::std::mem::offset_of!(
-        _cef_browser_view_delegate_t,
-        on_popup_browser_view_created
-    ) - 152usize];
-    ["Offset of field: _cef_browser_view_delegate_t::get_chrome_toolbar_type"]
-        [::std::mem::offset_of!(_cef_browser_view_delegate_t, get_chrome_toolbar_type) - 160usize];
-    ["Offset of field: _cef_browser_view_delegate_t::use_frameless_window_for_picture_in_picture"] [:: std :: mem :: offset_of ! (_cef_browser_view_delegate_t , use_frameless_window_for_picture_in_picture) - 168usize] ;
-    ["Offset of field: _cef_browser_view_delegate_t::on_gesture_command"]
-        [::std::mem::offset_of!(_cef_browser_view_delegate_t, on_gesture_command) - 176usize];
-    ["Offset of field: _cef_browser_view_delegate_t::get_browser_runtime_style"][::std::mem::offset_of!(
-        _cef_browser_view_delegate_t,
-        get_browser_runtime_style
-    ) - 184usize];
-};
-#[doc = "\n Implement this structure to handle BrowserView events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
-pub type cef_browser_view_delegate_t = _cef_browser_view_delegate_t;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _cef_button_t {
-    _unused: [u8; 0],
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _cef_scroll_view_t {
-    _unused: [u8; 0],
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _cef_textfield_t {
-    _unused: [u8; 0],
-}
 #[doc = "\n A View is a rectangle within the views View hierarchy. It is the base\n structure for all Views. All size and position values are in density\n independent pixels (DIP) unless otherwise indicated. Methods must be called\n on the browser process UI thread unless otherwise indicated.\n"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -13926,6 +14016,622 @@ const _: () = {
 };
 #[doc = "\n A View is a rectangle within the views View hierarchy. It is the base\n structure for all Views. All size and position values are in density\n independent pixels (DIP) unless otherwise indicated. Methods must be called\n on the browser process UI thread unless otherwise indicated.\n"]
 pub type cef_view_t = _cef_view_t;
+#[doc = "\n A View representing a button. Depending on the specific type, the button\n could be implemented by a native control or custom rendered. Methods must be\n called on the browser process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_button_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_t,
+    #[doc = "\n Returns this Button as a LabelButton or NULL if this is not a LabelButton.\n"]
+    pub as_label_button: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_button_t) -> *mut _cef_label_button_t,
+    >,
+    #[doc = "\n Sets the current display state of the Button.\n"]
+    pub set_state: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_button_t, state: cef_button_state_t),
+    >,
+    #[doc = "\n Returns the current display state of the Button.\n"]
+    pub get_state: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_button_t) -> cef_button_state_t,
+    >,
+    #[doc = "\n Sets the Button will use an ink drop effect for displaying state changes.\n"]
+    pub set_ink_drop_enabled: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_button_t, enabled: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Sets the tooltip text that will be displayed when the user hovers the\n mouse cursor over the Button.\n"]
+    pub set_tooltip_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_button_t, tooltip_text: *const cef_string_t),
+    >,
+    #[doc = "\n Sets the accessible name that will be exposed to assistive technology\n (AT).\n"]
+    pub set_accessible_name: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_button_t, name: *const cef_string_t),
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_button_t"][::std::mem::size_of::<_cef_button_t>() - 504usize];
+    ["Alignment of _cef_button_t"][::std::mem::align_of::<_cef_button_t>() - 8usize];
+    ["Offset of field: _cef_button_t::base"][::std::mem::offset_of!(_cef_button_t, base) - 0usize];
+    ["Offset of field: _cef_button_t::as_label_button"]
+        [::std::mem::offset_of!(_cef_button_t, as_label_button) - 456usize];
+    ["Offset of field: _cef_button_t::set_state"]
+        [::std::mem::offset_of!(_cef_button_t, set_state) - 464usize];
+    ["Offset of field: _cef_button_t::get_state"]
+        [::std::mem::offset_of!(_cef_button_t, get_state) - 472usize];
+    ["Offset of field: _cef_button_t::set_ink_drop_enabled"]
+        [::std::mem::offset_of!(_cef_button_t, set_ink_drop_enabled) - 480usize];
+    ["Offset of field: _cef_button_t::set_tooltip_text"]
+        [::std::mem::offset_of!(_cef_button_t, set_tooltip_text) - 488usize];
+    ["Offset of field: _cef_button_t::set_accessible_name"]
+        [::std::mem::offset_of!(_cef_button_t, set_accessible_name) - 496usize];
+};
+#[doc = "\n A View representing a button. Depending on the specific type, the button\n could be implemented by a native control or custom rendered. Methods must be\n called on the browser process UI thread unless otherwise indicated.\n"]
+pub type cef_button_t = _cef_button_t;
+#[doc = "\n Implement this structure to handle Button events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_button_delegate_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_delegate_t,
+    #[doc = "\n Called when |button| is pressed.\n"]
+    pub on_button_pressed: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_button_delegate_t, button: *mut _cef_button_t),
+    >,
+    #[doc = "\n Called when the state of |button| changes.\n"]
+    pub on_button_state_changed: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_button_delegate_t, button: *mut _cef_button_t),
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_button_delegate_t"][::std::mem::size_of::<_cef_button_delegate_t>() - 144usize];
+    ["Alignment of _cef_button_delegate_t"]
+        [::std::mem::align_of::<_cef_button_delegate_t>() - 8usize];
+    ["Offset of field: _cef_button_delegate_t::base"]
+        [::std::mem::offset_of!(_cef_button_delegate_t, base) - 0usize];
+    ["Offset of field: _cef_button_delegate_t::on_button_pressed"]
+        [::std::mem::offset_of!(_cef_button_delegate_t, on_button_pressed) - 128usize];
+    ["Offset of field: _cef_button_delegate_t::on_button_state_changed"]
+        [::std::mem::offset_of!(_cef_button_delegate_t, on_button_state_changed) - 136usize];
+};
+#[doc = "\n Implement this structure to handle Button events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+pub type cef_button_delegate_t = _cef_button_delegate_t;
+#[doc = "\n LabelButton is a button with optional text and/or icon. Methods must be\n called on the browser process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_label_button_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_button_t,
+    #[doc = "\n Returns this LabelButton as a MenuButton or NULL if this is not a\n MenuButton.\n"]
+    pub as_menu_button: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_label_button_t) -> *mut _cef_menu_button_t,
+    >,
+    #[doc = "\n Sets the text shown on the LabelButton. By default |text| will also be\n used as the accessible name.\n"]
+    pub set_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_label_button_t, text: *const cef_string_t),
+    >,
+    #[doc = "\n Returns the text shown on the LabelButton.\n"]
+    pub get_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_label_button_t) -> cef_string_userfree_t,
+    >,
+    #[doc = "\n Sets the image shown for |button_state|. When this Button is drawn if no\n image exists for the current state then the image for\n CEF_BUTTON_STATE_NORMAL, if any, will be shown.\n"]
+    pub set_image: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_label_button_t,
+            button_state: cef_button_state_t,
+            image: *mut _cef_image_t,
+        ),
+    >,
+    #[doc = "\n Returns the image shown for |button_state|. If no image exists for that\n state then the image for CEF_BUTTON_STATE_NORMAL will be returned.\n"]
+    pub get_image: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_label_button_t,
+            button_state: cef_button_state_t,
+        ) -> *mut _cef_image_t,
+    >,
+    #[doc = "\n Sets the text color shown for the specified button |for_state| to |color|.\n"]
+    pub set_text_color: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_label_button_t,
+            for_state: cef_button_state_t,
+            color: cef_color_t,
+        ),
+    >,
+    #[doc = "\n Sets the text colors shown for the non-disabled states to |color|.\n"]
+    pub set_enabled_text_colors: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_label_button_t, color: cef_color_t),
+    >,
+    #[doc = "\n Sets the font list. The format is \"<FONT_FAMILY_LIST>,[STYLES] <SIZE>\",\n where:\n - FONT_FAMILY_LIST is a comma-separated list of font family names,\n - STYLES is an optional space-separated list of style names (case-\n   sensitive \"Bold\" and \"Italic\" are supported), and\n - SIZE is an integer font size in pixels with the suffix \"px\".\n\n Here are examples of valid font description strings:\n - \"Arial, Helvetica, Bold Italic 14px\"\n - \"Arial, 14px\"\n"]
+    pub set_font_list: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_label_button_t, font_list: *const cef_string_t),
+    >,
+    #[doc = "\n Sets the horizontal alignment; reversed in RTL. Default is\n CEF_HORIZONTAL_ALIGNMENT_CENTER.\n"]
+    pub set_horizontal_alignment: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_label_button_t,
+            alignment: cef_horizontal_alignment_t,
+        ),
+    >,
+    #[doc = "\n Reset the minimum size of this LabelButton to |size|.\n"]
+    pub set_minimum_size: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_label_button_t, size: *const cef_size_t),
+    >,
+    #[doc = "\n Reset the maximum size of this LabelButton to |size|.\n"]
+    pub set_maximum_size: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_label_button_t, size: *const cef_size_t),
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_label_button_t"][::std::mem::size_of::<_cef_label_button_t>() - 592usize];
+    ["Alignment of _cef_label_button_t"][::std::mem::align_of::<_cef_label_button_t>() - 8usize];
+    ["Offset of field: _cef_label_button_t::base"]
+        [::std::mem::offset_of!(_cef_label_button_t, base) - 0usize];
+    ["Offset of field: _cef_label_button_t::as_menu_button"]
+        [::std::mem::offset_of!(_cef_label_button_t, as_menu_button) - 504usize];
+    ["Offset of field: _cef_label_button_t::set_text"]
+        [::std::mem::offset_of!(_cef_label_button_t, set_text) - 512usize];
+    ["Offset of field: _cef_label_button_t::get_text"]
+        [::std::mem::offset_of!(_cef_label_button_t, get_text) - 520usize];
+    ["Offset of field: _cef_label_button_t::set_image"]
+        [::std::mem::offset_of!(_cef_label_button_t, set_image) - 528usize];
+    ["Offset of field: _cef_label_button_t::get_image"]
+        [::std::mem::offset_of!(_cef_label_button_t, get_image) - 536usize];
+    ["Offset of field: _cef_label_button_t::set_text_color"]
+        [::std::mem::offset_of!(_cef_label_button_t, set_text_color) - 544usize];
+    ["Offset of field: _cef_label_button_t::set_enabled_text_colors"]
+        [::std::mem::offset_of!(_cef_label_button_t, set_enabled_text_colors) - 552usize];
+    ["Offset of field: _cef_label_button_t::set_font_list"]
+        [::std::mem::offset_of!(_cef_label_button_t, set_font_list) - 560usize];
+    ["Offset of field: _cef_label_button_t::set_horizontal_alignment"]
+        [::std::mem::offset_of!(_cef_label_button_t, set_horizontal_alignment) - 568usize];
+    ["Offset of field: _cef_label_button_t::set_minimum_size"]
+        [::std::mem::offset_of!(_cef_label_button_t, set_minimum_size) - 576usize];
+    ["Offset of field: _cef_label_button_t::set_maximum_size"]
+        [::std::mem::offset_of!(_cef_label_button_t, set_maximum_size) - 584usize];
+};
+#[doc = "\n LabelButton is a button with optional text and/or icon. Methods must be\n called on the browser process UI thread unless otherwise indicated.\n"]
+pub type cef_label_button_t = _cef_label_button_t;
+unsafe extern "C" {
+    #[doc = "\n Create a new LabelButton. A |delegate| must be provided to handle the button\n click. |text| will be shown on the LabelButton and used as the default\n accessible name.\n"]
+    pub fn cef_label_button_create(
+        delegate: *mut _cef_button_delegate_t,
+        text: *const cef_string_t,
+    ) -> *mut cef_label_button_t;
+}
+#[doc = "\n MenuButton pressed lock is released when this object is destroyed.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_menu_button_pressed_lock_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_base_ref_counted_t,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_menu_button_pressed_lock_t"]
+        [::std::mem::size_of::<_cef_menu_button_pressed_lock_t>() - 40usize];
+    ["Alignment of _cef_menu_button_pressed_lock_t"]
+        [::std::mem::align_of::<_cef_menu_button_pressed_lock_t>() - 8usize];
+    ["Offset of field: _cef_menu_button_pressed_lock_t::base"]
+        [::std::mem::offset_of!(_cef_menu_button_pressed_lock_t, base) - 0usize];
+};
+#[doc = "\n MenuButton pressed lock is released when this object is destroyed.\n"]
+pub type cef_menu_button_pressed_lock_t = _cef_menu_button_pressed_lock_t;
+#[doc = "\n Implement this structure to handle MenuButton events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_menu_button_delegate_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_button_delegate_t,
+    #[doc = "\n Called when |button| is pressed. Call cef_menu_button_t::show_menu() to\n show a popup menu at |screen_point|. When showing a custom popup such as a\n window keep a reference to |button_pressed_lock| until the popup is hidden\n to maintain the pressed button state.\n"]
+    pub on_menu_button_pressed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_menu_button_delegate_t,
+            menu_button: *mut _cef_menu_button_t,
+            screen_point: *const cef_point_t,
+            button_pressed_lock: *mut _cef_menu_button_pressed_lock_t,
+        ),
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_menu_button_delegate_t"]
+        [::std::mem::size_of::<_cef_menu_button_delegate_t>() - 152usize];
+    ["Alignment of _cef_menu_button_delegate_t"]
+        [::std::mem::align_of::<_cef_menu_button_delegate_t>() - 8usize];
+    ["Offset of field: _cef_menu_button_delegate_t::base"]
+        [::std::mem::offset_of!(_cef_menu_button_delegate_t, base) - 0usize];
+    ["Offset of field: _cef_menu_button_delegate_t::on_menu_button_pressed"]
+        [::std::mem::offset_of!(_cef_menu_button_delegate_t, on_menu_button_pressed) - 144usize];
+};
+#[doc = "\n Implement this structure to handle MenuButton events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+pub type cef_menu_button_delegate_t = _cef_menu_button_delegate_t;
+#[doc = "\n MenuButton is a button with optional text, icon and/or menu marker that\n shows a menu when clicked with the left mouse button. All size and position\n values are in density independent pixels (DIP) unless otherwise indicated.\n Methods must be called on the browser process UI thread unless otherwise\n indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_menu_button_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_label_button_t,
+    #[doc = "\n Show a menu with contents |menu_model|. |screen_point| specifies the menu\n position in screen coordinates. |anchor_position| specifies how the menu\n will be anchored relative to |screen_point|. This function should be\n called from cef_menu_button_delegate_t::on_menu_button_pressed().\n"]
+    pub show_menu: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_menu_button_t,
+            menu_model: *mut _cef_menu_model_t,
+            screen_point: *const cef_point_t,
+            anchor_position: cef_menu_anchor_position_t,
+        ),
+    >,
+    #[doc = "\n Show the menu for this button. Results in a call to\n cef_menu_button_delegate_t::on_menu_button_pressed().\n"]
+    pub trigger_menu: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_menu_button_t)>,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_menu_button_t"][::std::mem::size_of::<_cef_menu_button_t>() - 608usize];
+    ["Alignment of _cef_menu_button_t"][::std::mem::align_of::<_cef_menu_button_t>() - 8usize];
+    ["Offset of field: _cef_menu_button_t::base"]
+        [::std::mem::offset_of!(_cef_menu_button_t, base) - 0usize];
+    ["Offset of field: _cef_menu_button_t::show_menu"]
+        [::std::mem::offset_of!(_cef_menu_button_t, show_menu) - 592usize];
+    ["Offset of field: _cef_menu_button_t::trigger_menu"]
+        [::std::mem::offset_of!(_cef_menu_button_t, trigger_menu) - 600usize];
+};
+#[doc = "\n MenuButton is a button with optional text, icon and/or menu marker that\n shows a menu when clicked with the left mouse button. All size and position\n values are in density independent pixels (DIP) unless otherwise indicated.\n Methods must be called on the browser process UI thread unless otherwise\n indicated.\n"]
+pub type cef_menu_button_t = _cef_menu_button_t;
+unsafe extern "C" {
+    #[doc = "\n Create a new MenuButton. A |delegate| must be provided to call show_menu()\n when the button is clicked. |text| will be shown on the MenuButton and used\n as the default accessible name. If |with_frame| is true (1) the button will\n have a visible frame at all times, center alignment, additional padding and\n a default minimum size of 70x33 DIP. If |with_frame| is false (0) the button\n will only have a visible frame on hover/press, left alignment, less padding\n and no default minimum size.\n"]
+    pub fn cef_menu_button_create(
+        delegate: *mut _cef_menu_button_delegate_t,
+        text: *const cef_string_t,
+    ) -> *mut cef_menu_button_t;
+}
+#[doc = "\n Implement this structure to handle Textfield events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_textfield_delegate_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_delegate_t,
+    #[doc = "\n Called when |textfield| receives a keyboard event. |event| contains\n information about the keyboard event. Return true (1) if the keyboard\n event was handled or false (0) otherwise for default handling.\n"]
+    pub on_key_event: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_textfield_delegate_t,
+            textfield: *mut _cef_textfield_t,
+            event: *const cef_key_event_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Called after performing a user action that may change |textfield|.\n"]
+    pub on_after_user_action: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_textfield_delegate_t,
+            textfield: *mut _cef_textfield_t,
+        ),
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_textfield_delegate_t"]
+        [::std::mem::size_of::<_cef_textfield_delegate_t>() - 144usize];
+    ["Alignment of _cef_textfield_delegate_t"]
+        [::std::mem::align_of::<_cef_textfield_delegate_t>() - 8usize];
+    ["Offset of field: _cef_textfield_delegate_t::base"]
+        [::std::mem::offset_of!(_cef_textfield_delegate_t, base) - 0usize];
+    ["Offset of field: _cef_textfield_delegate_t::on_key_event"]
+        [::std::mem::offset_of!(_cef_textfield_delegate_t, on_key_event) - 128usize];
+    ["Offset of field: _cef_textfield_delegate_t::on_after_user_action"]
+        [::std::mem::offset_of!(_cef_textfield_delegate_t, on_after_user_action) - 136usize];
+};
+#[doc = "\n Implement this structure to handle Textfield events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+pub type cef_textfield_delegate_t = _cef_textfield_delegate_t;
+#[doc = "\n A Textfield supports editing of text. This control is custom rendered with\n no platform-specific code. Methods must be called on the browser process UI\n thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_textfield_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_t,
+    #[doc = "\n Sets whether the text will be displayed as asterisks.\n"]
+    pub set_password_input: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, password_input: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns true (1) if the text will be displayed as asterisks.\n"]
+    pub is_password_input: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Sets whether the text will read-only.\n"]
+    pub set_read_only: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, read_only: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Returns true (1) if the text is read-only.\n"]
+    pub is_read_only: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns the currently displayed text.\n"]
+    pub get_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> cef_string_userfree_t,
+    >,
+    #[doc = "\n Sets the contents to |text|. The cursor will be moved to end of the text\n if the current position is outside of the text range.\n"]
+    pub set_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, text: *const cef_string_t),
+    >,
+    #[doc = "\n Appends |text| to the previously-existing text.\n"]
+    pub append_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, text: *const cef_string_t),
+    >,
+    #[doc = "\n Inserts |text| at the current cursor position replacing any selected text.\n"]
+    pub insert_or_replace_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, text: *const cef_string_t),
+    >,
+    #[doc = "\n Returns true (1) if there is any selected text.\n"]
+    pub has_selection: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns the currently selected text.\n"]
+    pub get_selected_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> cef_string_userfree_t,
+    >,
+    #[doc = "\n Selects all text. If |reversed| is true (1) the range will end at the\n logical beginning of the text; this generally shows the leading portion of\n text that overflows its display area.\n"]
+    pub select_all: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, reversed: ::std::os::raw::c_int),
+    >,
+    #[doc = "\n Clears the text selection and sets the caret to the end.\n"]
+    pub clear_selection: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_textfield_t)>,
+    #[doc = "\n Returns the selected logical text range.\n"]
+    pub get_selected_range:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> cef_range_t>,
+    #[doc = "\n Selects the specified logical text range.\n"]
+    pub select_range: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, range: *const cef_range_t),
+    >,
+    #[doc = "\n Returns the current cursor position.\n"]
+    pub get_cursor_position:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> usize>,
+    #[doc = "\n Sets the text color.\n"]
+    pub set_text_color: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, color: cef_color_t),
+    >,
+    #[doc = "\n Returns the text color.\n"]
+    pub get_text_color:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> cef_color_t>,
+    #[doc = "\n Sets the selection text color.\n"]
+    pub set_selection_text_color: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, color: cef_color_t),
+    >,
+    #[doc = "\n Returns the selection text color.\n"]
+    pub get_selection_text_color:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> cef_color_t>,
+    #[doc = "\n Sets the selection background color.\n"]
+    pub set_selection_background_color: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, color: cef_color_t),
+    >,
+    #[doc = "\n Returns the selection background color.\n"]
+    pub get_selection_background_color:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> cef_color_t>,
+    #[doc = "\n Sets the font list. The format is \"<FONT_FAMILY_LIST>,[STYLES] <SIZE>\",\n where:\n - FONT_FAMILY_LIST is a comma-separated list of font family names,\n - STYLES is an optional space-separated list of style names (case-\n   sensitive \"Bold\" and \"Italic\" are supported), and\n - SIZE is an integer font size in pixels with the suffix \"px\".\n\n Here are examples of valid font description strings:\n - \"Arial, Helvetica, Bold Italic 14px\"\n - \"Arial, 14px\"\n"]
+    pub set_font_list: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, font_list: *const cef_string_t),
+    >,
+    #[doc = "\n Applies |color| to the specified |range| without changing the default\n color. If |range| is NULL the color will be set on the complete text\n contents.\n"]
+    pub apply_text_color: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_textfield_t,
+            color: cef_color_t,
+            range: *const cef_range_t,
+        ),
+    >,
+    #[doc = "\n Applies |style| to the specified |range| without changing the default\n style. If |add| is true (1) the style will be added, otherwise the style\n will be removed. If |range| is NULL the style will be set on the complete\n text contents.\n"]
+    pub apply_text_style: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_textfield_t,
+            style: cef_text_style_t,
+            add: ::std::os::raw::c_int,
+            range: *const cef_range_t,
+        ),
+    >,
+    #[doc = "\n Returns true (1) if the action associated with the specified command id is\n enabled. See additional comments on execute_command().\n"]
+    pub is_command_enabled: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_textfield_t,
+            command_id: cef_text_field_commands_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Performs the action associated with the specified command id.\n"]
+    pub execute_command: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, command_id: cef_text_field_commands_t),
+    >,
+    #[doc = "\n Clears Edit history.\n"]
+    pub clear_edit_history:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_textfield_t)>,
+    #[doc = "\n Sets the placeholder text that will be displayed when the Textfield is\n NULL.\n"]
+    pub set_placeholder_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, text: *const cef_string_t),
+    >,
+    #[doc = "\n Returns the placeholder text that will be displayed when the Textfield is\n NULL.\n"]
+    pub get_placeholder_text: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t) -> cef_string_userfree_t,
+    >,
+    #[doc = "\n Sets the placeholder text color.\n"]
+    pub set_placeholder_text_color: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, color: cef_color_t),
+    >,
+    #[doc = "\n Set the accessible name that will be exposed to assistive technology (AT).\n"]
+    pub set_accessible_name: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_textfield_t, name: *const cef_string_t),
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_textfield_t"][::std::mem::size_of::<_cef_textfield_t>() - 704usize];
+    ["Alignment of _cef_textfield_t"][::std::mem::align_of::<_cef_textfield_t>() - 8usize];
+    ["Offset of field: _cef_textfield_t::base"]
+        [::std::mem::offset_of!(_cef_textfield_t, base) - 0usize];
+    ["Offset of field: _cef_textfield_t::set_password_input"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_password_input) - 456usize];
+    ["Offset of field: _cef_textfield_t::is_password_input"]
+        [::std::mem::offset_of!(_cef_textfield_t, is_password_input) - 464usize];
+    ["Offset of field: _cef_textfield_t::set_read_only"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_read_only) - 472usize];
+    ["Offset of field: _cef_textfield_t::is_read_only"]
+        [::std::mem::offset_of!(_cef_textfield_t, is_read_only) - 480usize];
+    ["Offset of field: _cef_textfield_t::get_text"]
+        [::std::mem::offset_of!(_cef_textfield_t, get_text) - 488usize];
+    ["Offset of field: _cef_textfield_t::set_text"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_text) - 496usize];
+    ["Offset of field: _cef_textfield_t::append_text"]
+        [::std::mem::offset_of!(_cef_textfield_t, append_text) - 504usize];
+    ["Offset of field: _cef_textfield_t::insert_or_replace_text"]
+        [::std::mem::offset_of!(_cef_textfield_t, insert_or_replace_text) - 512usize];
+    ["Offset of field: _cef_textfield_t::has_selection"]
+        [::std::mem::offset_of!(_cef_textfield_t, has_selection) - 520usize];
+    ["Offset of field: _cef_textfield_t::get_selected_text"]
+        [::std::mem::offset_of!(_cef_textfield_t, get_selected_text) - 528usize];
+    ["Offset of field: _cef_textfield_t::select_all"]
+        [::std::mem::offset_of!(_cef_textfield_t, select_all) - 536usize];
+    ["Offset of field: _cef_textfield_t::clear_selection"]
+        [::std::mem::offset_of!(_cef_textfield_t, clear_selection) - 544usize];
+    ["Offset of field: _cef_textfield_t::get_selected_range"]
+        [::std::mem::offset_of!(_cef_textfield_t, get_selected_range) - 552usize];
+    ["Offset of field: _cef_textfield_t::select_range"]
+        [::std::mem::offset_of!(_cef_textfield_t, select_range) - 560usize];
+    ["Offset of field: _cef_textfield_t::get_cursor_position"]
+        [::std::mem::offset_of!(_cef_textfield_t, get_cursor_position) - 568usize];
+    ["Offset of field: _cef_textfield_t::set_text_color"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_text_color) - 576usize];
+    ["Offset of field: _cef_textfield_t::get_text_color"]
+        [::std::mem::offset_of!(_cef_textfield_t, get_text_color) - 584usize];
+    ["Offset of field: _cef_textfield_t::set_selection_text_color"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_selection_text_color) - 592usize];
+    ["Offset of field: _cef_textfield_t::get_selection_text_color"]
+        [::std::mem::offset_of!(_cef_textfield_t, get_selection_text_color) - 600usize];
+    ["Offset of field: _cef_textfield_t::set_selection_background_color"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_selection_background_color) - 608usize];
+    ["Offset of field: _cef_textfield_t::get_selection_background_color"]
+        [::std::mem::offset_of!(_cef_textfield_t, get_selection_background_color) - 616usize];
+    ["Offset of field: _cef_textfield_t::set_font_list"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_font_list) - 624usize];
+    ["Offset of field: _cef_textfield_t::apply_text_color"]
+        [::std::mem::offset_of!(_cef_textfield_t, apply_text_color) - 632usize];
+    ["Offset of field: _cef_textfield_t::apply_text_style"]
+        [::std::mem::offset_of!(_cef_textfield_t, apply_text_style) - 640usize];
+    ["Offset of field: _cef_textfield_t::is_command_enabled"]
+        [::std::mem::offset_of!(_cef_textfield_t, is_command_enabled) - 648usize];
+    ["Offset of field: _cef_textfield_t::execute_command"]
+        [::std::mem::offset_of!(_cef_textfield_t, execute_command) - 656usize];
+    ["Offset of field: _cef_textfield_t::clear_edit_history"]
+        [::std::mem::offset_of!(_cef_textfield_t, clear_edit_history) - 664usize];
+    ["Offset of field: _cef_textfield_t::set_placeholder_text"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_placeholder_text) - 672usize];
+    ["Offset of field: _cef_textfield_t::get_placeholder_text"]
+        [::std::mem::offset_of!(_cef_textfield_t, get_placeholder_text) - 680usize];
+    ["Offset of field: _cef_textfield_t::set_placeholder_text_color"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_placeholder_text_color) - 688usize];
+    ["Offset of field: _cef_textfield_t::set_accessible_name"]
+        [::std::mem::offset_of!(_cef_textfield_t, set_accessible_name) - 696usize];
+};
+#[doc = "\n A Textfield supports editing of text. This control is custom rendered with\n no platform-specific code. Methods must be called on the browser process UI\n thread unless otherwise indicated.\n"]
+pub type cef_textfield_t = _cef_textfield_t;
+unsafe extern "C" {
+    #[doc = "\n Create a new Textfield.\n"]
+    pub fn cef_textfield_create(delegate: *mut _cef_textfield_delegate_t) -> *mut cef_textfield_t;
+}
+#[doc = "\n Implement this structure to handle BrowserView events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_browser_view_delegate_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_delegate_t,
+    #[doc = "\n Called when |browser| associated with |browser_view| is created. This\n function will be called after cef_life_span_handler_t::on_after_created()\n is called for |browser| and before on_popup_browser_view_created() is\n called for |browser|'s parent delegate if |browser| is a popup.\n"]
+    pub on_browser_created: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+            browser: *mut _cef_browser_t,
+        ),
+    >,
+    #[doc = "\n Called when |browser| associated with |browser_view| is destroyed. Release\n all references to |browser| and do not attempt to execute any functions on\n |browser| after this callback returns. This function will be called before\n cef_life_span_handler_t::on_before_close() is called for |browser|.\n"]
+    pub on_browser_destroyed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+            browser: *mut _cef_browser_t,
+        ),
+    >,
+    #[doc = "\n Called before a new popup BrowserView is created. The popup originated\n from |browser_view|. |settings| and |client| are the values returned from\n cef_life_span_handler_t::on_before_popup(). |is_devtools| will be true (1)\n if the popup will be a DevTools browser. Return the delegate that will be\n used for the new popup BrowserView.\n"]
+    pub get_delegate_for_popup_browser_view: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+            settings: *const _cef_browser_settings_t,
+            client: *mut _cef_client_t,
+            is_devtools: ::std::os::raw::c_int,
+        ) -> *mut _cef_browser_view_delegate_t,
+    >,
+    #[doc = "\n Called after |popup_browser_view| is created. This function will be called\n after cef_life_span_handler_t::on_after_created() and on_browser_created()\n are called for the new popup browser. The popup originated from\n |browser_view|. |is_devtools| will be true (1) if the popup is a DevTools\n browser. Optionally add |popup_browser_view| to the views hierarchy\n yourself and return true (1). Otherwise return false (0) and a default\n cef_window_t will be created for the popup.\n"]
+    pub on_popup_browser_view_created: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+            popup_browser_view: *mut _cef_browser_view_t,
+            is_devtools: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns the Chrome toolbar type that will be available via\n cef_browser_view_t::get_chrome_toolbar(). See that function for related\n documentation.\n"]
+    pub get_chrome_toolbar_type: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+        ) -> cef_chrome_toolbar_type_t,
+    >,
+    #[doc = "\n Return true (1) to create frameless windows for Document picture-in-\n picture popups. Content in frameless windows should specify draggable\n regions using \"-webkit-app-region: drag\" CSS.\n"]
+    pub use_frameless_window_for_picture_in_picture: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Called when |browser_view| receives a gesture command. Return true (1) to\n handle (or disable) a |gesture_command| or false (0) to propagate the\n gesture to the browser for default handling. With Chrome style these\n commands can also be handled via cef_command_handler_t::OnChromeCommand.\n"]
+    pub on_gesture_command: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_view_delegate_t,
+            browser_view: *mut _cef_browser_view_t,
+            gesture_command: cef_gesture_command_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Optionally change the runtime style for this BrowserView. See\n cef_runtime_style_t documentation for details.\n"]
+    pub get_browser_runtime_style: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_browser_view_delegate_t) -> cef_runtime_style_t,
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_browser_view_delegate_t"]
+        [::std::mem::size_of::<_cef_browser_view_delegate_t>() - 192usize];
+    ["Alignment of _cef_browser_view_delegate_t"]
+        [::std::mem::align_of::<_cef_browser_view_delegate_t>() - 8usize];
+    ["Offset of field: _cef_browser_view_delegate_t::base"]
+        [::std::mem::offset_of!(_cef_browser_view_delegate_t, base) - 0usize];
+    ["Offset of field: _cef_browser_view_delegate_t::on_browser_created"]
+        [::std::mem::offset_of!(_cef_browser_view_delegate_t, on_browser_created) - 128usize];
+    ["Offset of field: _cef_browser_view_delegate_t::on_browser_destroyed"]
+        [::std::mem::offset_of!(_cef_browser_view_delegate_t, on_browser_destroyed) - 136usize];
+    ["Offset of field: _cef_browser_view_delegate_t::get_delegate_for_popup_browser_view"][::std::mem::offset_of!(
+        _cef_browser_view_delegate_t,
+        get_delegate_for_popup_browser_view
+    )
+        - 144usize];
+    ["Offset of field: _cef_browser_view_delegate_t::on_popup_browser_view_created"][::std::mem::offset_of!(
+        _cef_browser_view_delegate_t,
+        on_popup_browser_view_created
+    ) - 152usize];
+    ["Offset of field: _cef_browser_view_delegate_t::get_chrome_toolbar_type"]
+        [::std::mem::offset_of!(_cef_browser_view_delegate_t, get_chrome_toolbar_type) - 160usize];
+    ["Offset of field: _cef_browser_view_delegate_t::use_frameless_window_for_picture_in_picture"] [:: std :: mem :: offset_of ! (_cef_browser_view_delegate_t , use_frameless_window_for_picture_in_picture) - 168usize] ;
+    ["Offset of field: _cef_browser_view_delegate_t::on_gesture_command"]
+        [::std::mem::offset_of!(_cef_browser_view_delegate_t, on_gesture_command) - 176usize];
+    ["Offset of field: _cef_browser_view_delegate_t::get_browser_runtime_style"][::std::mem::offset_of!(
+        _cef_browser_view_delegate_t,
+        get_browser_runtime_style
+    ) - 184usize];
+};
+#[doc = "\n Implement this structure to handle BrowserView events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
+pub type cef_browser_view_delegate_t = _cef_browser_view_delegate_t;
 #[doc = "\n A View hosting a cef_browser_t instance. Methods must be called on the\n browser process UI thread unless otherwise indicated.\n"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -13985,6 +14691,67 @@ unsafe extern "C" {
     pub fn cef_browser_view_get_for_browser(
         browser: *mut _cef_browser_t,
     ) -> *mut cef_browser_view_t;
+}
+#[doc = "\n A ScrollView will show horizontal and/or vertical scrollbars when necessary\n based on the size of the attached content view. Methods must be called on\n the browser process UI thread unless otherwise indicated.\n"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_scroll_view_t {
+    #[doc = "\n Base structure.\n"]
+    pub base: cef_view_t,
+    #[doc = "\n Set the content View. The content View must have a specified size (e.g.\n via cef_view_t::SetBounds or cef_view_delegate_t::GetPreferredSize).\n"]
+    pub set_content_view: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_scroll_view_t, view: *mut _cef_view_t),
+    >,
+    #[doc = "\n Returns the content View.\n"]
+    pub get_content_view: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_scroll_view_t) -> *mut _cef_view_t,
+    >,
+    #[doc = "\n Returns the visible region of the content View.\n"]
+    pub get_visible_content_rect:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_scroll_view_t) -> cef_rect_t>,
+    #[doc = "\n Returns true (1) if the horizontal scrollbar is currently showing.\n"]
+    pub has_horizontal_scrollbar: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_scroll_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns the height of the horizontal scrollbar.\n"]
+    pub get_horizontal_scrollbar_height: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_scroll_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns true (1) if the vertical scrollbar is currently showing.\n"]
+    pub has_vertical_scrollbar: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_scroll_view_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Returns the width of the vertical scrollbar.\n"]
+    pub get_vertical_scrollbar_width: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_scroll_view_t) -> ::std::os::raw::c_int,
+    >,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of _cef_scroll_view_t"][::std::mem::size_of::<_cef_scroll_view_t>() - 512usize];
+    ["Alignment of _cef_scroll_view_t"][::std::mem::align_of::<_cef_scroll_view_t>() - 8usize];
+    ["Offset of field: _cef_scroll_view_t::base"]
+        [::std::mem::offset_of!(_cef_scroll_view_t, base) - 0usize];
+    ["Offset of field: _cef_scroll_view_t::set_content_view"]
+        [::std::mem::offset_of!(_cef_scroll_view_t, set_content_view) - 456usize];
+    ["Offset of field: _cef_scroll_view_t::get_content_view"]
+        [::std::mem::offset_of!(_cef_scroll_view_t, get_content_view) - 464usize];
+    ["Offset of field: _cef_scroll_view_t::get_visible_content_rect"]
+        [::std::mem::offset_of!(_cef_scroll_view_t, get_visible_content_rect) - 472usize];
+    ["Offset of field: _cef_scroll_view_t::has_horizontal_scrollbar"]
+        [::std::mem::offset_of!(_cef_scroll_view_t, has_horizontal_scrollbar) - 480usize];
+    ["Offset of field: _cef_scroll_view_t::get_horizontal_scrollbar_height"]
+        [::std::mem::offset_of!(_cef_scroll_view_t, get_horizontal_scrollbar_height) - 488usize];
+    ["Offset of field: _cef_scroll_view_t::has_vertical_scrollbar"]
+        [::std::mem::offset_of!(_cef_scroll_view_t, has_vertical_scrollbar) - 496usize];
+    ["Offset of field: _cef_scroll_view_t::get_vertical_scrollbar_width"]
+        [::std::mem::offset_of!(_cef_scroll_view_t, get_vertical_scrollbar_width) - 504usize];
+};
+#[doc = "\n A ScrollView will show horizontal and/or vertical scrollbars when necessary\n based on the size of the attached content view. Methods must be called on\n the browser process UI thread unless otherwise indicated.\n"]
+pub type cef_scroll_view_t = _cef_scroll_view_t;
+unsafe extern "C" {
+    #[doc = "\n Create a new ScrollView.\n"]
+    pub fn cef_scroll_view_create(delegate: *mut _cef_view_delegate_t) -> *mut cef_scroll_view_t;
 }
 #[doc = "\n This structure typically, but not always, corresponds to a physical display\n connected to the system. A fake Display may exist on a headless system, or a\n Display may correspond to a remote, virtual display. All size and position\n values are in density independent pixel (DIP) coordinates unless otherwise\n indicated. Methods must be called on the browser process UI thread unless\n otherwise indicated.\n"]
 #[repr(C)]
@@ -14230,21 +14997,6 @@ const _: () = {
 };
 #[doc = "\n Implement this structure to handle Panel events. The functions of this\n structure will be called on the browser process UI thread unless otherwise\n indicated.\n"]
 pub type cef_panel_delegate_t = _cef_panel_delegate_t;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _cef_box_layout_t {
-    _unused: [u8; 0],
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _cef_fill_layout_t {
-    _unused: [u8; 0],
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _cef_layout_t {
-    _unused: [u8; 0],
-}
 #[doc = "\n A Panel is a container in the views hierarchy that can contain other Views\n as children. Methods must be called on the browser process UI thread unless\n otherwise indicated.\n"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]

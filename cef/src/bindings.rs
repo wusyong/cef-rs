@@ -5209,7 +5209,7 @@ impl Default for Image {
     }
 }
 pub trait ImplReadHandler: Sized {
-    fn read(&self, ptr: &mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn read(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -5247,8 +5247,6 @@ mod impl_cef_read_handler_t {
     ) -> usize {
         let (arg_self_, arg_ptr, arg_size, arg_n) = (self_, ptr, size, n);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let mut arg_ptr = WrapParamRef::<::std::os::raw::c_void>::from(arg_ptr);
-        let arg_ptr = arg_ptr.as_mut();
         let arg_size = arg_size.as_raw();
         let arg_n = arg_n.as_raw();
         arg_self_.interface.read(arg_ptr, arg_size, arg_n).into()
@@ -5288,7 +5286,7 @@ mod impl_cef_read_handler_t {
 #[derive(Clone)]
 pub struct ReadHandler(RefGuard<_cef_read_handler_t>);
 impl ImplReadHandler for ReadHandler {
-    fn read(&self, ptr: &mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn read(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe {
             self.0
                 .read
@@ -5392,7 +5390,7 @@ impl Default for ReadHandler {
     }
 }
 pub trait ImplStreamReader: Sized {
-    fn read(&self, ptr: &mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn read(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -5430,8 +5428,6 @@ mod impl_cef_stream_reader_t {
     ) -> usize {
         let (arg_self_, arg_ptr, arg_size, arg_n) = (self_, ptr, size, n);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let mut arg_ptr = WrapParamRef::<::std::os::raw::c_void>::from(arg_ptr);
-        let arg_ptr = arg_ptr.as_mut();
         let arg_size = arg_size.as_raw();
         let arg_n = arg_n.as_raw();
         arg_self_.interface.read(arg_ptr, arg_size, arg_n).into()
@@ -5471,7 +5467,7 @@ mod impl_cef_stream_reader_t {
 #[derive(Clone)]
 pub struct StreamReader(RefGuard<_cef_stream_reader_t>);
 impl ImplStreamReader for StreamReader {
-    fn read(&self, ptr: &mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
+    fn read(&self, ptr: *mut ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe {
             self.0
                 .read
@@ -5575,7 +5571,7 @@ impl Default for StreamReader {
     }
 }
 pub trait ImplWriteHandler: Sized {
-    fn write(&self, ptr: &[::std::os::raw::c_void], size: usize, n: usize) -> usize {
+    fn write(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -5613,8 +5609,6 @@ mod impl_cef_write_handler_t {
     ) -> usize {
         let (arg_self_, arg_ptr, arg_size, arg_n) = (self_, ptr, size, n);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_ptr = WrapParamRef::<::std::os::raw::c_void>::from(arg_ptr);
-        let arg_ptr = arg_ptr.as_ref();
         let arg_size = arg_size.as_raw();
         let arg_n = arg_n.as_raw();
         arg_self_.interface.write(arg_ptr, arg_size, arg_n).into()
@@ -5654,7 +5648,7 @@ mod impl_cef_write_handler_t {
 #[derive(Clone)]
 pub struct WriteHandler(RefGuard<_cef_write_handler_t>);
 impl ImplWriteHandler for WriteHandler {
-    fn write(&self, ptr: &[::std::os::raw::c_void], size: usize, n: usize) -> usize {
+    fn write(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe {
             self.0
                 .write
@@ -5758,7 +5752,7 @@ impl Default for WriteHandler {
     }
 }
 pub trait ImplStreamWriter: Sized {
-    fn write(&self, ptr: &[::std::os::raw::c_void], size: usize, n: usize) -> usize {
+    fn write(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -5796,8 +5790,6 @@ mod impl_cef_stream_writer_t {
     ) -> usize {
         let (arg_self_, arg_ptr, arg_size, arg_n) = (self_, ptr, size, n);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_ptr = WrapParamRef::<::std::os::raw::c_void>::from(arg_ptr);
-        let arg_ptr = arg_ptr.as_ref();
         let arg_size = arg_size.as_raw();
         let arg_n = arg_n.as_raw();
         arg_self_.interface.write(arg_ptr, arg_size, arg_n).into()
@@ -5837,7 +5829,7 @@ mod impl_cef_stream_writer_t {
 #[derive(Clone)]
 pub struct StreamWriter(RefGuard<_cef_stream_writer_t>);
 impl ImplStreamWriter for StreamWriter {
-    fn write(&self, ptr: &[::std::os::raw::c_void], size: usize, n: usize) -> usize {
+    fn write(&self, ptr: *const ::std::os::raw::c_void, size: usize, n: usize) -> usize {
         unsafe {
             self.0
                 .write
@@ -9040,7 +9032,7 @@ pub trait ImplPostDataElement: Sized {
     fn set_to_file(&self, file_name: &CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn set_to_bytes(&self, size: usize, bytes: &[::std::os::raw::c_void]) {
+    fn set_to_bytes(&self, size: usize, bytes: *const ::std::os::raw::c_void) {
         unsafe { std::mem::zeroed() }
     }
     fn get_type(&self) -> PostdataelementType {
@@ -9052,7 +9044,7 @@ pub trait ImplPostDataElement: Sized {
     fn get_bytes_count(&self) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn get_bytes(&self, size: usize, bytes: &mut ::std::os::raw::c_void) -> usize {
+    fn get_bytes(&self, size: usize, bytes: *mut ::std::os::raw::c_void) -> usize {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_post_data_element_t {
@@ -9103,8 +9095,6 @@ mod impl_cef_post_data_element_t {
         let (arg_self_, arg_size, arg_bytes) = (self_, size, bytes);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_size = arg_size.as_raw();
-        let arg_bytes = WrapParamRef::<::std::os::raw::c_void>::from(arg_bytes);
-        let arg_bytes = arg_bytes.as_ref();
         arg_self_.interface.set_to_bytes(arg_size, arg_bytes)
     }
     extern "C" fn get_type<I: ImplPostDataElement>(
@@ -9136,8 +9126,6 @@ mod impl_cef_post_data_element_t {
         let (arg_self_, arg_size, arg_bytes) = (self_, size, bytes);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_size = arg_size.as_raw();
-        let mut arg_bytes = WrapParamRef::<::std::os::raw::c_void>::from(arg_bytes);
-        let arg_bytes = arg_bytes.as_mut();
         arg_self_.interface.get_bytes(arg_size, arg_bytes).into()
     }
 }
@@ -9183,7 +9171,7 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn set_to_bytes(&self, size: usize, bytes: &[::std::os::raw::c_void]) {
+    fn set_to_bytes(&self, size: usize, bytes: *const ::std::os::raw::c_void) {
         unsafe {
             self.0
                 .set_to_bytes
@@ -9234,7 +9222,7 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_bytes(&self, size: usize, bytes: &mut ::std::os::raw::c_void) -> usize {
+    fn get_bytes(&self, size: usize, bytes: *mut ::std::os::raw::c_void) -> usize {
         unsafe {
             self.0
                 .get_bytes
@@ -9361,82 +9349,6 @@ impl Into<*mut _cef_string_visitor_t> for CefStringVisitor {
     }
 }
 impl Default for CefStringVisitor {
-    fn default() -> Self {
-        unsafe { std::mem::zeroed() }
-    }
-}
-#[doc = "See [_cef_urlrequest_client_t] for more documentation."]
-#[repr(transparent)]
-pub struct UrlrequestClient(_cef_urlrequest_client_t);
-impl From<_cef_urlrequest_client_t> for UrlrequestClient {
-    fn from(value: _cef_urlrequest_client_t) -> Self {
-        Self(value)
-    }
-}
-impl Into<*const _cef_urlrequest_client_t> for &UrlrequestClient {
-    fn into(self) -> *const _cef_urlrequest_client_t {
-        self.as_ref() as *const _cef_urlrequest_client_t
-    }
-}
-impl Into<*mut _cef_urlrequest_client_t> for &mut UrlrequestClient {
-    fn into(self) -> *mut _cef_urlrequest_client_t {
-        self.as_mut() as *mut _cef_urlrequest_client_t
-    }
-}
-impl Into<_cef_urlrequest_client_t> for UrlrequestClient {
-    fn into(self) -> _cef_urlrequest_client_t {
-        self.0
-    }
-}
-impl AsRef<_cef_urlrequest_client_t> for UrlrequestClient {
-    fn as_ref(&self) -> &_cef_urlrequest_client_t {
-        &self.0
-    }
-}
-impl AsMut<_cef_urlrequest_client_t> for UrlrequestClient {
-    fn as_mut(&mut self) -> &mut _cef_urlrequest_client_t {
-        &mut self.0
-    }
-}
-impl Default for UrlrequestClient {
-    fn default() -> Self {
-        unsafe { std::mem::zeroed() }
-    }
-}
-#[doc = "See [_cef_urlrequest_t] for more documentation."]
-#[repr(transparent)]
-pub struct Urlrequest(_cef_urlrequest_t);
-impl From<_cef_urlrequest_t> for Urlrequest {
-    fn from(value: _cef_urlrequest_t) -> Self {
-        Self(value)
-    }
-}
-impl Into<*const _cef_urlrequest_t> for &Urlrequest {
-    fn into(self) -> *const _cef_urlrequest_t {
-        self.as_ref() as *const _cef_urlrequest_t
-    }
-}
-impl Into<*mut _cef_urlrequest_t> for &mut Urlrequest {
-    fn into(self) -> *mut _cef_urlrequest_t {
-        self.as_mut() as *mut _cef_urlrequest_t
-    }
-}
-impl Into<_cef_urlrequest_t> for Urlrequest {
-    fn into(self) -> _cef_urlrequest_t {
-        self.0
-    }
-}
-impl AsRef<_cef_urlrequest_t> for Urlrequest {
-    fn as_ref(&self) -> &_cef_urlrequest_t {
-        &self.0
-    }
-}
-impl AsMut<_cef_urlrequest_t> for Urlrequest {
-    fn as_mut(&mut self) -> &mut _cef_urlrequest_t {
-        &mut self.0
-    }
-}
-impl Default for Urlrequest {
     fn default() -> Self {
         unsafe { std::mem::zeroed() }
     }
@@ -9729,8 +9641,7 @@ mod impl_cef_frame_t {
         let (arg_self_, arg_request, arg_client) = (self_, request, client);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
-        let mut arg_client = WrapParamRef::<UrlrequestClient>::from(arg_client);
-        let arg_client = arg_client.as_mut();
+        let arg_client = &mut UrlrequestClient(unsafe { RefGuard::from_raw_add_ref(arg_client) });
         arg_self_
             .interface
             .create_urlrequest(arg_request, arg_client)
@@ -27004,7 +26915,7 @@ pub trait ImplRenderHandler: Sized {
         type_: PaintElementType,
         dirty_rects_count: usize,
         dirty_rects: &Rect,
-        buffer: &[::std::os::raw::c_void],
+        buffer: *const ::std::os::raw::c_void,
         width: ::std::os::raw::c_int,
         height: ::std::os::raw::c_int,
     ) {
@@ -27230,8 +27141,6 @@ mod impl_cef_render_handler_t {
         let arg_dirty_rects_count = arg_dirty_rects_count.as_raw();
         let arg_dirty_rects = WrapParamRef::<Rect>::from(arg_dirty_rects);
         let arg_dirty_rects = arg_dirty_rects.as_ref();
-        let arg_buffer = WrapParamRef::<::std::os::raw::c_void>::from(arg_buffer);
-        let arg_buffer = arg_buffer.as_ref();
         let arg_width = arg_width.as_raw();
         let arg_height = arg_height.as_raw();
         arg_self_.interface.on_paint(
@@ -27556,7 +27465,7 @@ impl ImplRenderHandler for RenderHandler {
         type_: PaintElementType,
         dirty_rects_count: usize,
         dirty_rects: &Rect,
-        buffer: &[::std::os::raw::c_void],
+        buffer: *const ::std::os::raw::c_void,
         width: ::std::os::raw::c_int,
         height: ::std::os::raw::c_int,
     ) {
@@ -28656,7 +28565,7 @@ pub trait ImplResourceHandler: Sized {
     }
     fn read(
         &self,
-        data_out: &mut ::std::os::raw::c_void,
+        data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
         bytes_read: &mut ::std::os::raw::c_int,
         callback: &mut ResourceReadCallback,
@@ -28665,7 +28574,7 @@ pub trait ImplResourceHandler: Sized {
     }
     fn read_response(
         &self,
-        data_out: &mut ::std::os::raw::c_void,
+        data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
         bytes_read: &mut ::std::os::raw::c_int,
         callback: &mut Callback,
@@ -28774,8 +28683,6 @@ mod impl_cef_resource_handler_t {
         let (arg_self_, arg_data_out, arg_bytes_to_read, arg_bytes_read, arg_callback) =
             (self_, data_out, bytes_to_read, bytes_read, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let mut arg_data_out = WrapParamRef::<::std::os::raw::c_void>::from(arg_data_out);
-        let arg_data_out = arg_data_out.as_mut();
         let arg_bytes_to_read = arg_bytes_to_read.as_raw();
         let mut arg_bytes_read = WrapParamRef::<::std::os::raw::c_int>::from(arg_bytes_read);
         let arg_bytes_read = arg_bytes_read.as_mut();
@@ -28801,8 +28708,6 @@ mod impl_cef_resource_handler_t {
         let (arg_self_, arg_data_out, arg_bytes_to_read, arg_bytes_read, arg_callback) =
             (self_, data_out, bytes_to_read, bytes_read, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let mut arg_data_out = WrapParamRef::<::std::os::raw::c_void>::from(arg_data_out);
-        let arg_data_out = arg_data_out.as_mut();
         let arg_bytes_to_read = arg_bytes_to_read.as_raw();
         let mut arg_bytes_read = WrapParamRef::<::std::os::raw::c_int>::from(arg_bytes_read);
         let arg_bytes_read = arg_bytes_read.as_mut();
@@ -28924,7 +28829,7 @@ impl ImplResourceHandler for ResourceHandler {
     }
     fn read(
         &self,
-        data_out: &mut ::std::os::raw::c_void,
+        data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
         bytes_read: &mut ::std::os::raw::c_int,
         callback: &mut ResourceReadCallback,
@@ -28954,7 +28859,7 @@ impl ImplResourceHandler for ResourceHandler {
     }
     fn read_response(
         &self,
-        data_out: &mut ::std::os::raw::c_void,
+        data_out: *mut ::std::os::raw::c_void,
         bytes_to_read: ::std::os::raw::c_int,
         bytes_read: &mut ::std::os::raw::c_int,
         callback: &mut Callback,
@@ -34042,7 +33947,7 @@ impl Default for V8exception {
     }
 }
 pub trait ImplV8arrayBufferReleaseCallback: Sized {
-    fn release_buffer(&self, buffer: &mut ::std::os::raw::c_void) {
+    fn release_buffer(&self, buffer: *mut ::std::os::raw::c_void) {
         unsafe { std::mem::zeroed() }
     }
     fn into_raw(self) -> *mut _cef_v8array_buffer_release_callback_t {
@@ -34064,8 +33969,6 @@ mod impl_cef_v8array_buffer_release_callback_t {
     ) {
         let (arg_self_, arg_buffer) = (self_, buffer);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let mut arg_buffer = WrapParamRef::<::std::os::raw::c_void>::from(arg_buffer);
-        let arg_buffer = arg_buffer.as_mut();
         arg_self_.interface.release_buffer(arg_buffer)
     }
 }
@@ -34073,7 +33976,7 @@ mod impl_cef_v8array_buffer_release_callback_t {
 #[derive(Clone)]
 pub struct V8arrayBufferReleaseCallback(RefGuard<_cef_v8array_buffer_release_callback_t>);
 impl ImplV8arrayBufferReleaseCallback for V8arrayBufferReleaseCallback {
-    fn release_buffer(&self, buffer: &mut ::std::os::raw::c_void) {
+    fn release_buffer(&self, buffer: *mut ::std::os::raw::c_void) {
         unsafe {
             self.0
                 .release_buffer
@@ -36921,6 +36824,772 @@ impl Default for App {
         unsafe { std::mem::zeroed() }
     }
 }
+pub trait ImplUrlrequest: Sized {
+    fn get_request(&self) -> Request {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_client(&self) -> UrlrequestClient {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_request_status(&self) -> UrlrequestStatus {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_request_error(&self) -> Errorcode {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_response(&self) -> Response {
+        unsafe { std::mem::zeroed() }
+    }
+    fn response_was_cached(&self) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn cancel(&self) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_urlrequest_t {
+        let mut object: _cef_urlrequest_t = unsafe { std::mem::zeroed() };
+        impl_cef_urlrequest_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_urlrequest_t {
+    use super::*;
+    pub fn init_methods<I: ImplUrlrequest>(object: &mut _cef_urlrequest_t) {
+        object.get_request = Some(get_request::<I>);
+        object.get_client = Some(get_client::<I>);
+        object.get_request_status = Some(get_request_status::<I>);
+        object.get_request_error = Some(get_request_error::<I>);
+        object.get_response = Some(get_response::<I>);
+        object.response_was_cached = Some(response_was_cached::<I>);
+        object.cancel = Some(cancel::<I>);
+    }
+    extern "C" fn get_request<I: ImplUrlrequest>(
+        self_: *mut _cef_urlrequest_t,
+    ) -> *mut _cef_request_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_request().into()
+    }
+    extern "C" fn get_client<I: ImplUrlrequest>(
+        self_: *mut _cef_urlrequest_t,
+    ) -> *mut _cef_urlrequest_client_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_client().into()
+    }
+    extern "C" fn get_request_status<I: ImplUrlrequest>(
+        self_: *mut _cef_urlrequest_t,
+    ) -> cef_urlrequest_status_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_request_status().into()
+    }
+    extern "C" fn get_request_error<I: ImplUrlrequest>(
+        self_: *mut _cef_urlrequest_t,
+    ) -> cef_errorcode_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_request_error().into()
+    }
+    extern "C" fn get_response<I: ImplUrlrequest>(
+        self_: *mut _cef_urlrequest_t,
+    ) -> *mut _cef_response_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_response().into()
+    }
+    extern "C" fn response_was_cached<I: ImplUrlrequest>(
+        self_: *mut _cef_urlrequest_t,
+    ) -> ::std::os::raw::c_int {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.response_was_cached().into()
+    }
+    extern "C" fn cancel<I: ImplUrlrequest>(self_: *mut _cef_urlrequest_t) {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.cancel()
+    }
+}
+#[doc = "See [_cef_urlrequest_t] for more documentation."]
+#[derive(Clone)]
+pub struct Urlrequest(RefGuard<_cef_urlrequest_t>);
+impl ImplUrlrequest for Urlrequest {
+    fn get_request(&self) -> Request {
+        unsafe {
+            self.0
+                .get_request
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_client(&self) -> UrlrequestClient {
+        unsafe {
+            self.0
+                .get_client
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_request_status(&self) -> UrlrequestStatus {
+        unsafe {
+            self.0
+                .get_request_status
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_request_error(&self) -> Errorcode {
+        unsafe {
+            self.0
+                .get_request_error
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_response(&self) -> Response {
+        unsafe {
+            self.0
+                .get_response
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn response_was_cached(&self) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .response_was_cached
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn cancel(&self) {
+        unsafe {
+            self.0
+                .cancel
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_urlrequest_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for Urlrequest {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_urlrequest_t> for &Urlrequest {
+    fn as_raw(self) -> *mut _cef_urlrequest_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_urlrequest_t> for &mut Urlrequest {
+    fn as_raw(self) -> *mut _cef_urlrequest_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<Urlrequest> for *mut _cef_urlrequest_t {
+    fn as_wrapper(self) -> Urlrequest {
+        Urlrequest(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_urlrequest_t> for Urlrequest {
+    fn into(self) -> *mut _cef_urlrequest_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for Urlrequest {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplUrlrequestClient: Sized {
+    fn on_request_complete(&self, request: &mut Urlrequest) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_upload_progress(&self, request: &mut Urlrequest, current: i64, total: i64) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_download_progress(&self, request: &mut Urlrequest, current: i64, total: i64) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_download_data(
+        &self,
+        request: &mut Urlrequest,
+        data: *const ::std::os::raw::c_void,
+        data_length: usize,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_auth_credentials(
+        &self,
+        is_proxy: ::std::os::raw::c_int,
+        host: &CefStringUtf16,
+        port: ::std::os::raw::c_int,
+        realm: &CefStringUtf16,
+        scheme: &CefStringUtf16,
+        callback: &mut AuthCallback,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_urlrequest_client_t {
+        let mut object: _cef_urlrequest_client_t = unsafe { std::mem::zeroed() };
+        impl_cef_urlrequest_client_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_urlrequest_client_t {
+    use super::*;
+    pub fn init_methods<I: ImplUrlrequestClient>(object: &mut _cef_urlrequest_client_t) {
+        object.on_request_complete = Some(on_request_complete::<I>);
+        object.on_upload_progress = Some(on_upload_progress::<I>);
+        object.on_download_progress = Some(on_download_progress::<I>);
+        object.on_download_data = Some(on_download_data::<I>);
+        object.get_auth_credentials = Some(get_auth_credentials::<I>);
+    }
+    extern "C" fn on_request_complete<I: ImplUrlrequestClient>(
+        self_: *mut _cef_urlrequest_client_t,
+        request: *mut _cef_urlrequest_t,
+    ) {
+        let (arg_self_, arg_request) = (self_, request);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        arg_self_.interface.on_request_complete(arg_request)
+    }
+    extern "C" fn on_upload_progress<I: ImplUrlrequestClient>(
+        self_: *mut _cef_urlrequest_client_t,
+        request: *mut _cef_urlrequest_t,
+        current: i64,
+        total: i64,
+    ) {
+        let (arg_self_, arg_request, arg_current, arg_total) = (self_, request, current, total);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_current = arg_current.as_raw();
+        let arg_total = arg_total.as_raw();
+        arg_self_
+            .interface
+            .on_upload_progress(arg_request, arg_current, arg_total)
+    }
+    extern "C" fn on_download_progress<I: ImplUrlrequestClient>(
+        self_: *mut _cef_urlrequest_client_t,
+        request: *mut _cef_urlrequest_t,
+        current: i64,
+        total: i64,
+    ) {
+        let (arg_self_, arg_request, arg_current, arg_total) = (self_, request, current, total);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_current = arg_current.as_raw();
+        let arg_total = arg_total.as_raw();
+        arg_self_
+            .interface
+            .on_download_progress(arg_request, arg_current, arg_total)
+    }
+    extern "C" fn on_download_data<I: ImplUrlrequestClient>(
+        self_: *mut _cef_urlrequest_client_t,
+        request: *mut _cef_urlrequest_t,
+        data: *const ::std::os::raw::c_void,
+        data_length: usize,
+    ) {
+        let (arg_self_, arg_request, arg_data, arg_data_length) =
+            (self_, request, data, data_length);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_data_length = arg_data_length.as_raw();
+        arg_self_
+            .interface
+            .on_download_data(arg_request, arg_data, arg_data_length)
+    }
+    extern "C" fn get_auth_credentials<I: ImplUrlrequestClient>(
+        self_: *mut _cef_urlrequest_client_t,
+        is_proxy: ::std::os::raw::c_int,
+        host: *const _cef_string_utf16_t,
+        port: ::std::os::raw::c_int,
+        realm: *const _cef_string_utf16_t,
+        scheme: *const _cef_string_utf16_t,
+        callback: *mut _cef_auth_callback_t,
+    ) -> ::std::os::raw::c_int {
+        let (arg_self_, arg_is_proxy, arg_host, arg_port, arg_realm, arg_scheme, arg_callback) =
+            (self_, is_proxy, host, port, realm, scheme, callback);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_is_proxy = arg_is_proxy.as_raw();
+        let arg_host = WrapParamRef::<CefStringUtf16>::from(arg_host);
+        let arg_host = arg_host.as_ref();
+        let arg_port = arg_port.as_raw();
+        let arg_realm = WrapParamRef::<CefStringUtf16>::from(arg_realm);
+        let arg_realm = arg_realm.as_ref();
+        let arg_scheme = WrapParamRef::<CefStringUtf16>::from(arg_scheme);
+        let arg_scheme = arg_scheme.as_ref();
+        let arg_callback = &mut AuthCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        arg_self_
+            .interface
+            .get_auth_credentials(
+                arg_is_proxy,
+                arg_host,
+                arg_port,
+                arg_realm,
+                arg_scheme,
+                arg_callback,
+            )
+            .into()
+    }
+}
+#[doc = "See [_cef_urlrequest_client_t] for more documentation."]
+#[derive(Clone)]
+pub struct UrlrequestClient(RefGuard<_cef_urlrequest_client_t>);
+impl ImplUrlrequestClient for UrlrequestClient {
+    fn on_request_complete(&self, request: &mut Urlrequest) {
+        unsafe {
+            self.0
+                .on_request_complete
+                .map(|f| {
+                    let arg_request = request;
+                    let arg_self_ = self.as_raw();
+                    let arg_request = arg_request.as_raw();
+                    let result = f(arg_self_, arg_request);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn on_upload_progress(&self, request: &mut Urlrequest, current: i64, total: i64) {
+        unsafe {
+            self.0
+                .on_upload_progress
+                .map(|f| {
+                    let (arg_request, arg_current, arg_total) = (request, current, total);
+                    let arg_self_ = self.as_raw();
+                    let arg_request = arg_request.as_raw();
+                    let arg_current = arg_current;
+                    let arg_total = arg_total;
+                    let result = f(arg_self_, arg_request, arg_current, arg_total);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn on_download_progress(&self, request: &mut Urlrequest, current: i64, total: i64) {
+        unsafe {
+            self.0
+                .on_download_progress
+                .map(|f| {
+                    let (arg_request, arg_current, arg_total) = (request, current, total);
+                    let arg_self_ = self.as_raw();
+                    let arg_request = arg_request.as_raw();
+                    let arg_current = arg_current;
+                    let arg_total = arg_total;
+                    let result = f(arg_self_, arg_request, arg_current, arg_total);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn on_download_data(
+        &self,
+        request: &mut Urlrequest,
+        data: *const ::std::os::raw::c_void,
+        data_length: usize,
+    ) {
+        unsafe {
+            self.0
+                .on_download_data
+                .map(|f| {
+                    let (arg_request, arg_data, arg_data_length) = (request, data, data_length);
+                    let arg_self_ = self.as_raw();
+                    let arg_request = arg_request.as_raw();
+                    let arg_data = arg_data as *const _;
+                    let arg_data_length = arg_data_length;
+                    let result = f(arg_self_, arg_request, arg_data, arg_data_length);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_auth_credentials(
+        &self,
+        is_proxy: ::std::os::raw::c_int,
+        host: &CefStringUtf16,
+        port: ::std::os::raw::c_int,
+        realm: &CefStringUtf16,
+        scheme: &CefStringUtf16,
+        callback: &mut AuthCallback,
+    ) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .get_auth_credentials
+                .map(|f| {
+                    let (arg_is_proxy, arg_host, arg_port, arg_realm, arg_scheme, arg_callback) =
+                        (is_proxy, host, port, realm, scheme, callback);
+                    let arg_self_ = self.as_raw();
+                    let arg_is_proxy = arg_is_proxy;
+                    let arg_host = arg_host.as_raw();
+                    let arg_port = arg_port;
+                    let arg_realm = arg_realm.as_raw();
+                    let arg_scheme = arg_scheme.as_raw();
+                    let arg_callback = arg_callback.as_raw();
+                    let result = f(
+                        arg_self_,
+                        arg_is_proxy,
+                        arg_host,
+                        arg_port,
+                        arg_realm,
+                        arg_scheme,
+                        arg_callback,
+                    );
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_urlrequest_client_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for UrlrequestClient {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_urlrequest_client_t> for &UrlrequestClient {
+    fn as_raw(self) -> *mut _cef_urlrequest_client_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_urlrequest_client_t> for &mut UrlrequestClient {
+    fn as_raw(self) -> *mut _cef_urlrequest_client_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<UrlrequestClient> for *mut _cef_urlrequest_client_t {
+    fn as_wrapper(self) -> UrlrequestClient {
+        UrlrequestClient(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_urlrequest_client_t> for UrlrequestClient {
+    fn into(self) -> *mut _cef_urlrequest_client_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for UrlrequestClient {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplLayout: Sized {
+    fn as_box_layout(&self) -> BoxLayout {
+        unsafe { std::mem::zeroed() }
+    }
+    fn as_fill_layout(&self) -> FillLayout {
+        unsafe { std::mem::zeroed() }
+    }
+    fn is_valid(&self) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_layout_t {
+        let mut object: _cef_layout_t = unsafe { std::mem::zeroed() };
+        impl_cef_layout_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_layout_t {
+    use super::*;
+    pub fn init_methods<I: ImplLayout>(object: &mut _cef_layout_t) {
+        object.as_box_layout = Some(as_box_layout::<I>);
+        object.as_fill_layout = Some(as_fill_layout::<I>);
+        object.is_valid = Some(is_valid::<I>);
+    }
+    extern "C" fn as_box_layout<I: ImplLayout>(
+        self_: *mut _cef_layout_t,
+    ) -> *mut _cef_box_layout_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.as_box_layout().into()
+    }
+    extern "C" fn as_fill_layout<I: ImplLayout>(
+        self_: *mut _cef_layout_t,
+    ) -> *mut _cef_fill_layout_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.as_fill_layout().into()
+    }
+    extern "C" fn is_valid<I: ImplLayout>(self_: *mut _cef_layout_t) -> ::std::os::raw::c_int {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.is_valid().into()
+    }
+}
+#[doc = "See [_cef_layout_t] for more documentation."]
+#[derive(Clone)]
+pub struct Layout(RefGuard<_cef_layout_t>);
+impl ImplLayout for Layout {
+    fn as_box_layout(&self) -> BoxLayout {
+        unsafe {
+            self.0
+                .as_box_layout
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn as_fill_layout(&self) -> FillLayout {
+        unsafe {
+            self.0
+                .as_fill_layout
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn is_valid(&self) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .is_valid
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_layout_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for Layout {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_layout_t> for &Layout {
+    fn as_raw(self) -> *mut _cef_layout_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_layout_t> for &mut Layout {
+    fn as_raw(self) -> *mut _cef_layout_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<Layout> for *mut _cef_layout_t {
+    fn as_wrapper(self) -> Layout {
+        Layout(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_layout_t> for Layout {
+    fn into(self) -> *mut _cef_layout_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for Layout {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplBoxLayout: ImplLayout {
+    fn set_flex_for_view(&self, view: &mut View, flex: ::std::os::raw::c_int) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn clear_flex_for_view(&self, view: &mut View) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_box_layout_t {
+        let mut object: _cef_box_layout_t = unsafe { std::mem::zeroed() };
+        impl_cef_layout_t::init_methods::<Self>(&mut object.base);
+        impl_cef_box_layout_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_box_layout_t {
+    use super::*;
+    pub fn init_methods<I: ImplBoxLayout>(object: &mut _cef_box_layout_t) {
+        object.set_flex_for_view = Some(set_flex_for_view::<I>);
+        object.clear_flex_for_view = Some(clear_flex_for_view::<I>);
+    }
+    extern "C" fn set_flex_for_view<I: ImplBoxLayout>(
+        self_: *mut _cef_box_layout_t,
+        view: *mut _cef_view_t,
+        flex: ::std::os::raw::c_int,
+    ) {
+        let (arg_self_, arg_view, arg_flex) = (self_, view, flex);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_flex = arg_flex.as_raw();
+        arg_self_.interface.set_flex_for_view(arg_view, arg_flex)
+    }
+    extern "C" fn clear_flex_for_view<I: ImplBoxLayout>(
+        self_: *mut _cef_box_layout_t,
+        view: *mut _cef_view_t,
+    ) {
+        let (arg_self_, arg_view) = (self_, view);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        arg_self_.interface.clear_flex_for_view(arg_view)
+    }
+}
+#[doc = "See [_cef_box_layout_t] for more documentation."]
+#[derive(Clone)]
+pub struct BoxLayout(RefGuard<_cef_box_layout_t>);
+impl ImplBoxLayout for BoxLayout {
+    fn set_flex_for_view(&self, view: &mut View, flex: ::std::os::raw::c_int) {
+        unsafe {
+            self.0
+                .set_flex_for_view
+                .map(|f| {
+                    let (arg_view, arg_flex) = (view, flex);
+                    let arg_self_ = self.as_raw();
+                    let arg_view = arg_view.as_raw();
+                    let arg_flex = arg_flex;
+                    let result = f(arg_self_, arg_view, arg_flex);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn clear_flex_for_view(&self, view: &mut View) {
+        unsafe {
+            self.0
+                .clear_flex_for_view
+                .map(|f| {
+                    let arg_view = view;
+                    let arg_self_ = self.as_raw();
+                    let arg_view = arg_view.as_raw();
+                    let result = f(arg_self_, arg_view);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_box_layout_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for BoxLayout {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_box_layout_t> for &BoxLayout {
+    fn as_raw(self) -> *mut _cef_box_layout_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_box_layout_t> for &mut BoxLayout {
+    fn as_raw(self) -> *mut _cef_box_layout_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<BoxLayout> for *mut _cef_box_layout_t {
+    fn as_wrapper(self) -> BoxLayout {
+        BoxLayout(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_box_layout_t> for BoxLayout {
+    fn into(self) -> *mut _cef_box_layout_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for BoxLayout {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplFillLayout: ImplLayout {
+    fn into_raw(self) -> *mut _cef_fill_layout_t {
+        let mut object: _cef_fill_layout_t = unsafe { std::mem::zeroed() };
+        impl_cef_layout_t::init_methods::<Self>(&mut object.base);
+        impl_cef_fill_layout_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_fill_layout_t {
+    use super::*;
+    pub fn init_methods<I: ImplFillLayout>(object: &mut _cef_fill_layout_t) {}
+}
+#[doc = "See [_cef_fill_layout_t] for more documentation."]
+#[derive(Clone)]
+pub struct FillLayout(RefGuard<_cef_fill_layout_t>);
+impl ImplFillLayout for FillLayout {}
+impl Rc for _cef_fill_layout_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for FillLayout {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_fill_layout_t> for &FillLayout {
+    fn as_raw(self) -> *mut _cef_fill_layout_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_fill_layout_t> for &mut FillLayout {
+    fn as_raw(self) -> *mut _cef_fill_layout_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<FillLayout> for *mut _cef_fill_layout_t {
+    fn as_wrapper(self) -> FillLayout {
+        FillLayout(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_fill_layout_t> for FillLayout {
+    fn into(self) -> *mut _cef_fill_layout_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for FillLayout {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
 pub trait ImplViewDelegate: Sized {
     fn get_preferred_size(&self, view: &mut View) -> Size {
         unsafe { std::mem::zeroed() }
@@ -37325,499 +37994,6 @@ impl Into<*mut _cef_view_delegate_t> for ViewDelegate {
     }
 }
 impl Default for ViewDelegate {
-    fn default() -> Self {
-        unsafe { std::mem::zeroed() }
-    }
-}
-pub trait ImplBrowserViewDelegate: ImplViewDelegate {
-    fn on_browser_created(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_browser_destroyed(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_delegate_for_popup_browser_view(
-        &self,
-        browser_view: &mut BrowserView,
-        settings: &BrowserSettings,
-        client: &mut Client,
-        is_devtools: ::std::os::raw::c_int,
-    ) -> BrowserViewDelegate {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_popup_browser_view_created(
-        &self,
-        browser_view: &mut BrowserView,
-        popup_browser_view: &mut BrowserView,
-        is_devtools: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_chrome_toolbar_type(&self, browser_view: &mut BrowserView) -> ChromeToolbarType {
-        unsafe { std::mem::zeroed() }
-    }
-    fn use_frameless_window_for_picture_in_picture(
-        &self,
-        browser_view: &mut BrowserView,
-    ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_gesture_command(
-        &self,
-        browser_view: &mut BrowserView,
-        gesture_command: GestureCommand,
-    ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_browser_runtime_style(&self) -> RuntimeStyle {
-        unsafe { std::mem::zeroed() }
-    }
-    fn into_raw(self) -> *mut _cef_browser_view_delegate_t {
-        let mut object: _cef_browser_view_delegate_t = unsafe { std::mem::zeroed() };
-        impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
-        impl_cef_browser_view_delegate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
-    }
-}
-mod impl_cef_browser_view_delegate_t {
-    use super::*;
-    pub fn init_methods<I: ImplBrowserViewDelegate>(object: &mut _cef_browser_view_delegate_t) {
-        object.on_browser_created = Some(on_browser_created::<I>);
-        object.on_browser_destroyed = Some(on_browser_destroyed::<I>);
-        object.get_delegate_for_popup_browser_view = Some(get_delegate_for_popup_browser_view::<I>);
-        object.on_popup_browser_view_created = Some(on_popup_browser_view_created::<I>);
-        object.get_chrome_toolbar_type = Some(get_chrome_toolbar_type::<I>);
-        object.use_frameless_window_for_picture_in_picture =
-            Some(use_frameless_window_for_picture_in_picture::<I>);
-        object.on_gesture_command = Some(on_gesture_command::<I>);
-        object.get_browser_runtime_style = Some(get_browser_runtime_style::<I>);
-    }
-    extern "C" fn on_browser_created<I: ImplBrowserViewDelegate>(
-        self_: *mut _cef_browser_view_delegate_t,
-        browser_view: *mut _cef_browser_view_t,
-        browser: *mut _cef_browser_t,
-    ) {
-        let (arg_self_, arg_browser_view, arg_browser) = (self_, browser_view, browser);
-        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        arg_self_
-            .interface
-            .on_browser_created(arg_browser_view, arg_browser)
-    }
-    extern "C" fn on_browser_destroyed<I: ImplBrowserViewDelegate>(
-        self_: *mut _cef_browser_view_delegate_t,
-        browser_view: *mut _cef_browser_view_t,
-        browser: *mut _cef_browser_t,
-    ) {
-        let (arg_self_, arg_browser_view, arg_browser) = (self_, browser_view, browser);
-        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        arg_self_
-            .interface
-            .on_browser_destroyed(arg_browser_view, arg_browser)
-    }
-    extern "C" fn get_delegate_for_popup_browser_view<I: ImplBrowserViewDelegate>(
-        self_: *mut _cef_browser_view_delegate_t,
-        browser_view: *mut _cef_browser_view_t,
-        settings: *const _cef_browser_settings_t,
-        client: *mut _cef_client_t,
-        is_devtools: ::std::os::raw::c_int,
-    ) -> *mut _cef_browser_view_delegate_t {
-        let (arg_self_, arg_browser_view, arg_settings, arg_client, arg_is_devtools) =
-            (self_, browser_view, settings, client, is_devtools);
-        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
-        let arg_settings = WrapParamRef::<BrowserSettings>::from(arg_settings);
-        let arg_settings = arg_settings.as_ref();
-        let arg_client = &mut Client(unsafe { RefGuard::from_raw_add_ref(arg_client) });
-        let arg_is_devtools = arg_is_devtools.as_raw();
-        arg_self_
-            .interface
-            .get_delegate_for_popup_browser_view(
-                arg_browser_view,
-                arg_settings,
-                arg_client,
-                arg_is_devtools,
-            )
-            .into()
-    }
-    extern "C" fn on_popup_browser_view_created<I: ImplBrowserViewDelegate>(
-        self_: *mut _cef_browser_view_delegate_t,
-        browser_view: *mut _cef_browser_view_t,
-        popup_browser_view: *mut _cef_browser_view_t,
-        is_devtools: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int {
-        let (arg_self_, arg_browser_view, arg_popup_browser_view, arg_is_devtools) =
-            (self_, browser_view, popup_browser_view, is_devtools);
-        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
-        let arg_popup_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_popup_browser_view) });
-        let arg_is_devtools = arg_is_devtools.as_raw();
-        arg_self_
-            .interface
-            .on_popup_browser_view_created(
-                arg_browser_view,
-                arg_popup_browser_view,
-                arg_is_devtools,
-            )
-            .into()
-    }
-    extern "C" fn get_chrome_toolbar_type<I: ImplBrowserViewDelegate>(
-        self_: *mut _cef_browser_view_delegate_t,
-        browser_view: *mut _cef_browser_view_t,
-    ) -> cef_chrome_toolbar_type_t {
-        let (arg_self_, arg_browser_view) = (self_, browser_view);
-        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
-        arg_self_
-            .interface
-            .get_chrome_toolbar_type(arg_browser_view)
-            .into()
-    }
-    extern "C" fn use_frameless_window_for_picture_in_picture<I: ImplBrowserViewDelegate>(
-        self_: *mut _cef_browser_view_delegate_t,
-        browser_view: *mut _cef_browser_view_t,
-    ) -> ::std::os::raw::c_int {
-        let (arg_self_, arg_browser_view) = (self_, browser_view);
-        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
-        arg_self_
-            .interface
-            .use_frameless_window_for_picture_in_picture(arg_browser_view)
-            .into()
-    }
-    extern "C" fn on_gesture_command<I: ImplBrowserViewDelegate>(
-        self_: *mut _cef_browser_view_delegate_t,
-        browser_view: *mut _cef_browser_view_t,
-        gesture_command: cef_gesture_command_t,
-    ) -> ::std::os::raw::c_int {
-        let (arg_self_, arg_browser_view, arg_gesture_command) =
-            (self_, browser_view, gesture_command);
-        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
-        let arg_gesture_command = arg_gesture_command.as_raw();
-        arg_self_
-            .interface
-            .on_gesture_command(arg_browser_view, arg_gesture_command)
-            .into()
-    }
-    extern "C" fn get_browser_runtime_style<I: ImplBrowserViewDelegate>(
-        self_: *mut _cef_browser_view_delegate_t,
-    ) -> cef_runtime_style_t {
-        let arg_self_ = self_;
-        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        arg_self_.interface.get_browser_runtime_style().into()
-    }
-}
-#[doc = "See [_cef_browser_view_delegate_t] for more documentation."]
-#[derive(Clone)]
-pub struct BrowserViewDelegate(RefGuard<_cef_browser_view_delegate_t>);
-impl ImplBrowserViewDelegate for BrowserViewDelegate {
-    fn on_browser_created(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
-        unsafe {
-            self.0
-                .on_browser_created
-                .map(|f| {
-                    let (arg_browser_view, arg_browser) = (browser_view, browser);
-                    let arg_self_ = self.as_raw();
-                    let arg_browser_view = arg_browser_view.as_raw();
-                    let arg_browser = arg_browser.as_raw();
-                    let result = f(arg_self_, arg_browser_view, arg_browser);
-                    result.as_wrapper()
-                })
-                .unwrap_or_else(|| std::mem::zeroed())
-        }
-    }
-    fn on_browser_destroyed(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
-        unsafe {
-            self.0
-                .on_browser_destroyed
-                .map(|f| {
-                    let (arg_browser_view, arg_browser) = (browser_view, browser);
-                    let arg_self_ = self.as_raw();
-                    let arg_browser_view = arg_browser_view.as_raw();
-                    let arg_browser = arg_browser.as_raw();
-                    let result = f(arg_self_, arg_browser_view, arg_browser);
-                    result.as_wrapper()
-                })
-                .unwrap_or_else(|| std::mem::zeroed())
-        }
-    }
-    fn get_delegate_for_popup_browser_view(
-        &self,
-        browser_view: &mut BrowserView,
-        settings: &BrowserSettings,
-        client: &mut Client,
-        is_devtools: ::std::os::raw::c_int,
-    ) -> BrowserViewDelegate {
-        unsafe {
-            self.0
-                .get_delegate_for_popup_browser_view
-                .map(|f| {
-                    let (arg_browser_view, arg_settings, arg_client, arg_is_devtools) =
-                        (browser_view, settings, client, is_devtools);
-                    let arg_self_ = self.as_raw();
-                    let arg_browser_view = arg_browser_view.as_raw();
-                    let arg_settings = arg_settings.as_raw();
-                    let arg_client = arg_client.as_raw();
-                    let arg_is_devtools = arg_is_devtools;
-                    let result = f(
-                        arg_self_,
-                        arg_browser_view,
-                        arg_settings,
-                        arg_client,
-                        arg_is_devtools,
-                    );
-                    result.as_wrapper()
-                })
-                .unwrap_or_else(|| std::mem::zeroed())
-        }
-    }
-    fn on_popup_browser_view_created(
-        &self,
-        browser_view: &mut BrowserView,
-        popup_browser_view: &mut BrowserView,
-        is_devtools: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int {
-        unsafe {
-            self.0
-                .on_popup_browser_view_created
-                .map(|f| {
-                    let (arg_browser_view, arg_popup_browser_view, arg_is_devtools) =
-                        (browser_view, popup_browser_view, is_devtools);
-                    let arg_self_ = self.as_raw();
-                    let arg_browser_view = arg_browser_view.as_raw();
-                    let arg_popup_browser_view = arg_popup_browser_view.as_raw();
-                    let arg_is_devtools = arg_is_devtools;
-                    let result = f(
-                        arg_self_,
-                        arg_browser_view,
-                        arg_popup_browser_view,
-                        arg_is_devtools,
-                    );
-                    result.as_wrapper()
-                })
-                .unwrap_or_else(|| std::mem::zeroed())
-        }
-    }
-    fn get_chrome_toolbar_type(&self, browser_view: &mut BrowserView) -> ChromeToolbarType {
-        unsafe {
-            self.0
-                .get_chrome_toolbar_type
-                .map(|f| {
-                    let arg_browser_view = browser_view;
-                    let arg_self_ = self.as_raw();
-                    let arg_browser_view = arg_browser_view.as_raw();
-                    let result = f(arg_self_, arg_browser_view);
-                    result.as_wrapper()
-                })
-                .unwrap_or_else(|| std::mem::zeroed())
-        }
-    }
-    fn use_frameless_window_for_picture_in_picture(
-        &self,
-        browser_view: &mut BrowserView,
-    ) -> ::std::os::raw::c_int {
-        unsafe {
-            self.0
-                .use_frameless_window_for_picture_in_picture
-                .map(|f| {
-                    let arg_browser_view = browser_view;
-                    let arg_self_ = self.as_raw();
-                    let arg_browser_view = arg_browser_view.as_raw();
-                    let result = f(arg_self_, arg_browser_view);
-                    result.as_wrapper()
-                })
-                .unwrap_or_else(|| std::mem::zeroed())
-        }
-    }
-    fn on_gesture_command(
-        &self,
-        browser_view: &mut BrowserView,
-        gesture_command: GestureCommand,
-    ) -> ::std::os::raw::c_int {
-        unsafe {
-            self.0
-                .on_gesture_command
-                .map(|f| {
-                    let (arg_browser_view, arg_gesture_command) = (browser_view, gesture_command);
-                    let arg_self_ = self.as_raw();
-                    let arg_browser_view = arg_browser_view.as_raw();
-                    let arg_gesture_command = arg_gesture_command.as_raw();
-                    let result = f(arg_self_, arg_browser_view, arg_gesture_command);
-                    result.as_wrapper()
-                })
-                .unwrap_or_else(|| std::mem::zeroed())
-        }
-    }
-    fn get_browser_runtime_style(&self) -> RuntimeStyle {
-        unsafe {
-            self.0
-                .get_browser_runtime_style
-                .map(|f| {
-                    let arg_self_ = self.as_raw();
-                    let result = f(arg_self_);
-                    result.as_wrapper()
-                })
-                .unwrap_or_else(|| std::mem::zeroed())
-        }
-    }
-}
-impl Rc for _cef_browser_view_delegate_t {
-    fn as_base(&self) -> &_cef_base_ref_counted_t {
-        self.base.as_base()
-    }
-}
-impl Rc for BrowserViewDelegate {
-    fn as_base(&self) -> &_cef_base_ref_counted_t {
-        self.0.as_base()
-    }
-}
-impl ConvertParam<*mut _cef_browser_view_delegate_t> for &BrowserViewDelegate {
-    fn as_raw(self) -> *mut _cef_browser_view_delegate_t {
-        unsafe { (&self.0).as_raw() }
-    }
-}
-impl ConvertParam<*mut _cef_browser_view_delegate_t> for &mut BrowserViewDelegate {
-    fn as_raw(self) -> *mut _cef_browser_view_delegate_t {
-        unsafe { (&self.0).as_raw() }
-    }
-}
-impl ConvertReturnValue<BrowserViewDelegate> for *mut _cef_browser_view_delegate_t {
-    fn as_wrapper(self) -> BrowserViewDelegate {
-        BrowserViewDelegate(unsafe { RefGuard::from_raw(self) })
-    }
-}
-impl Into<*mut _cef_browser_view_delegate_t> for BrowserViewDelegate {
-    fn into(self) -> *mut _cef_browser_view_delegate_t {
-        unsafe { self.0.into_raw() }
-    }
-}
-impl Default for BrowserViewDelegate {
-    fn default() -> Self {
-        unsafe { std::mem::zeroed() }
-    }
-}
-#[doc = "See [_cef_button_t] for more documentation."]
-#[repr(transparent)]
-pub struct Button(_cef_button_t);
-impl From<_cef_button_t> for Button {
-    fn from(value: _cef_button_t) -> Self {
-        Self(value)
-    }
-}
-impl Into<*const _cef_button_t> for &Button {
-    fn into(self) -> *const _cef_button_t {
-        self.as_ref() as *const _cef_button_t
-    }
-}
-impl Into<*mut _cef_button_t> for &mut Button {
-    fn into(self) -> *mut _cef_button_t {
-        self.as_mut() as *mut _cef_button_t
-    }
-}
-impl Into<_cef_button_t> for Button {
-    fn into(self) -> _cef_button_t {
-        self.0
-    }
-}
-impl AsRef<_cef_button_t> for Button {
-    fn as_ref(&self) -> &_cef_button_t {
-        &self.0
-    }
-}
-impl AsMut<_cef_button_t> for Button {
-    fn as_mut(&mut self) -> &mut _cef_button_t {
-        &mut self.0
-    }
-}
-impl Default for Button {
-    fn default() -> Self {
-        unsafe { std::mem::zeroed() }
-    }
-}
-#[doc = "See [_cef_scroll_view_t] for more documentation."]
-#[repr(transparent)]
-pub struct ScrollView(_cef_scroll_view_t);
-impl From<_cef_scroll_view_t> for ScrollView {
-    fn from(value: _cef_scroll_view_t) -> Self {
-        Self(value)
-    }
-}
-impl Into<*const _cef_scroll_view_t> for &ScrollView {
-    fn into(self) -> *const _cef_scroll_view_t {
-        self.as_ref() as *const _cef_scroll_view_t
-    }
-}
-impl Into<*mut _cef_scroll_view_t> for &mut ScrollView {
-    fn into(self) -> *mut _cef_scroll_view_t {
-        self.as_mut() as *mut _cef_scroll_view_t
-    }
-}
-impl Into<_cef_scroll_view_t> for ScrollView {
-    fn into(self) -> _cef_scroll_view_t {
-        self.0
-    }
-}
-impl AsRef<_cef_scroll_view_t> for ScrollView {
-    fn as_ref(&self) -> &_cef_scroll_view_t {
-        &self.0
-    }
-}
-impl AsMut<_cef_scroll_view_t> for ScrollView {
-    fn as_mut(&mut self) -> &mut _cef_scroll_view_t {
-        &mut self.0
-    }
-}
-impl Default for ScrollView {
-    fn default() -> Self {
-        unsafe { std::mem::zeroed() }
-    }
-}
-#[doc = "See [_cef_textfield_t] for more documentation."]
-#[repr(transparent)]
-pub struct Textfield(_cef_textfield_t);
-impl From<_cef_textfield_t> for Textfield {
-    fn from(value: _cef_textfield_t) -> Self {
-        Self(value)
-    }
-}
-impl Into<*const _cef_textfield_t> for &Textfield {
-    fn into(self) -> *const _cef_textfield_t {
-        self.as_ref() as *const _cef_textfield_t
-    }
-}
-impl Into<*mut _cef_textfield_t> for &mut Textfield {
-    fn into(self) -> *mut _cef_textfield_t {
-        self.as_mut() as *mut _cef_textfield_t
-    }
-}
-impl Into<_cef_textfield_t> for Textfield {
-    fn into(self) -> _cef_textfield_t {
-        self.0
-    }
-}
-impl AsRef<_cef_textfield_t> for Textfield {
-    fn as_ref(&self) -> &_cef_textfield_t {
-        &self.0
-    }
-}
-impl AsMut<_cef_textfield_t> for Textfield {
-    fn as_mut(&mut self) -> &mut _cef_textfield_t {
-        &mut self.0
-    }
-}
-impl Default for Textfield {
     fn default() -> Self {
         unsafe { std::mem::zeroed() }
     }
@@ -39117,6 +39293,2307 @@ impl Default for View {
         unsafe { std::mem::zeroed() }
     }
 }
+pub trait ImplButton: ImplView {
+    fn as_label_button(&self) -> LabelButton {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_state(&self, state: ButtonState) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_state(&self) -> ButtonState {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_ink_drop_enabled(&self, enabled: ::std::os::raw::c_int) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_tooltip_text(&self, tooltip_text: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_accessible_name(&self, name: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_button_t {
+        let mut object: _cef_button_t = unsafe { std::mem::zeroed() };
+        impl_cef_view_t::init_methods::<Self>(&mut object.base);
+        impl_cef_button_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_button_t {
+    use super::*;
+    pub fn init_methods<I: ImplButton>(object: &mut _cef_button_t) {
+        object.as_label_button = Some(as_label_button::<I>);
+        object.set_state = Some(set_state::<I>);
+        object.get_state = Some(get_state::<I>);
+        object.set_ink_drop_enabled = Some(set_ink_drop_enabled::<I>);
+        object.set_tooltip_text = Some(set_tooltip_text::<I>);
+        object.set_accessible_name = Some(set_accessible_name::<I>);
+    }
+    extern "C" fn as_label_button<I: ImplButton>(
+        self_: *mut _cef_button_t,
+    ) -> *mut _cef_label_button_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.as_label_button().into()
+    }
+    extern "C" fn set_state<I: ImplButton>(self_: *mut _cef_button_t, state: cef_button_state_t) {
+        let (arg_self_, arg_state) = (self_, state);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_state = arg_state.as_raw();
+        arg_self_.interface.set_state(arg_state)
+    }
+    extern "C" fn get_state<I: ImplButton>(self_: *mut _cef_button_t) -> cef_button_state_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_state().into()
+    }
+    extern "C" fn set_ink_drop_enabled<I: ImplButton>(
+        self_: *mut _cef_button_t,
+        enabled: ::std::os::raw::c_int,
+    ) {
+        let (arg_self_, arg_enabled) = (self_, enabled);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_enabled = arg_enabled.as_raw();
+        arg_self_.interface.set_ink_drop_enabled(arg_enabled)
+    }
+    extern "C" fn set_tooltip_text<I: ImplButton>(
+        self_: *mut _cef_button_t,
+        tooltip_text: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_tooltip_text) = (self_, tooltip_text);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_tooltip_text = WrapParamRef::<CefStringUtf16>::from(arg_tooltip_text);
+        let arg_tooltip_text = arg_tooltip_text.as_ref();
+        arg_self_.interface.set_tooltip_text(arg_tooltip_text)
+    }
+    extern "C" fn set_accessible_name<I: ImplButton>(
+        self_: *mut _cef_button_t,
+        name: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_name) = (self_, name);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_name = WrapParamRef::<CefStringUtf16>::from(arg_name);
+        let arg_name = arg_name.as_ref();
+        arg_self_.interface.set_accessible_name(arg_name)
+    }
+}
+#[doc = "See [_cef_button_t] for more documentation."]
+#[derive(Clone)]
+pub struct Button(RefGuard<_cef_button_t>);
+impl ImplButton for Button {
+    fn as_label_button(&self) -> LabelButton {
+        unsafe {
+            self.0
+                .as_label_button
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_state(&self, state: ButtonState) {
+        unsafe {
+            self.0
+                .set_state
+                .map(|f| {
+                    let arg_state = state;
+                    let arg_self_ = self.as_raw();
+                    let arg_state = arg_state.as_raw();
+                    let result = f(arg_self_, arg_state);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_state(&self) -> ButtonState {
+        unsafe {
+            self.0
+                .get_state
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_ink_drop_enabled(&self, enabled: ::std::os::raw::c_int) {
+        unsafe {
+            self.0
+                .set_ink_drop_enabled
+                .map(|f| {
+                    let arg_enabled = enabled;
+                    let arg_self_ = self.as_raw();
+                    let arg_enabled = arg_enabled;
+                    let result = f(arg_self_, arg_enabled);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_tooltip_text(&self, tooltip_text: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .set_tooltip_text
+                .map(|f| {
+                    let arg_tooltip_text = tooltip_text;
+                    let arg_self_ = self.as_raw();
+                    let arg_tooltip_text = arg_tooltip_text.as_raw();
+                    let result = f(arg_self_, arg_tooltip_text);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_accessible_name(&self, name: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .set_accessible_name
+                .map(|f| {
+                    let arg_name = name;
+                    let arg_self_ = self.as_raw();
+                    let arg_name = arg_name.as_raw();
+                    let result = f(arg_self_, arg_name);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_button_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for Button {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_button_t> for &Button {
+    fn as_raw(self) -> *mut _cef_button_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_button_t> for &mut Button {
+    fn as_raw(self) -> *mut _cef_button_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<Button> for *mut _cef_button_t {
+    fn as_wrapper(self) -> Button {
+        Button(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_button_t> for Button {
+    fn into(self) -> *mut _cef_button_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for Button {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplButtonDelegate: ImplViewDelegate {
+    fn on_button_pressed(&self, button: &mut Button) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_button_state_changed(&self, button: &mut Button) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_button_delegate_t {
+        let mut object: _cef_button_delegate_t = unsafe { std::mem::zeroed() };
+        impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
+        impl_cef_button_delegate_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_button_delegate_t {
+    use super::*;
+    pub fn init_methods<I: ImplButtonDelegate>(object: &mut _cef_button_delegate_t) {
+        object.on_button_pressed = Some(on_button_pressed::<I>);
+        object.on_button_state_changed = Some(on_button_state_changed::<I>);
+    }
+    extern "C" fn on_button_pressed<I: ImplButtonDelegate>(
+        self_: *mut _cef_button_delegate_t,
+        button: *mut _cef_button_t,
+    ) {
+        let (arg_self_, arg_button) = (self_, button);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_button = &mut Button(unsafe { RefGuard::from_raw_add_ref(arg_button) });
+        arg_self_.interface.on_button_pressed(arg_button)
+    }
+    extern "C" fn on_button_state_changed<I: ImplButtonDelegate>(
+        self_: *mut _cef_button_delegate_t,
+        button: *mut _cef_button_t,
+    ) {
+        let (arg_self_, arg_button) = (self_, button);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_button = &mut Button(unsafe { RefGuard::from_raw_add_ref(arg_button) });
+        arg_self_.interface.on_button_state_changed(arg_button)
+    }
+}
+#[doc = "See [_cef_button_delegate_t] for more documentation."]
+#[derive(Clone)]
+pub struct ButtonDelegate(RefGuard<_cef_button_delegate_t>);
+impl ImplButtonDelegate for ButtonDelegate {
+    fn on_button_pressed(&self, button: &mut Button) {
+        unsafe {
+            self.0
+                .on_button_pressed
+                .map(|f| {
+                    let arg_button = button;
+                    let arg_self_ = self.as_raw();
+                    let arg_button = arg_button.as_raw();
+                    let result = f(arg_self_, arg_button);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn on_button_state_changed(&self, button: &mut Button) {
+        unsafe {
+            self.0
+                .on_button_state_changed
+                .map(|f| {
+                    let arg_button = button;
+                    let arg_self_ = self.as_raw();
+                    let arg_button = arg_button.as_raw();
+                    let result = f(arg_self_, arg_button);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_button_delegate_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for ButtonDelegate {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_button_delegate_t> for &ButtonDelegate {
+    fn as_raw(self) -> *mut _cef_button_delegate_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_button_delegate_t> for &mut ButtonDelegate {
+    fn as_raw(self) -> *mut _cef_button_delegate_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<ButtonDelegate> for *mut _cef_button_delegate_t {
+    fn as_wrapper(self) -> ButtonDelegate {
+        ButtonDelegate(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_button_delegate_t> for ButtonDelegate {
+    fn into(self) -> *mut _cef_button_delegate_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for ButtonDelegate {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplLabelButton: ImplButton {
+    fn as_menu_button(&self) -> MenuButton {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_text(&self, text: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_text(&self) -> CefStringUtf16 {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_image(&self, button_state: ButtonState, image: &mut Image) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_image(&self, button_state: ButtonState) -> Image {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_text_color(&self, for_state: ButtonState, color: u32) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_enabled_text_colors(&self, color: u32) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_font_list(&self, font_list: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_horizontal_alignment(&self, alignment: HorizontalAlignment) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_minimum_size(&self, size: &Size) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_maximum_size(&self, size: &Size) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_label_button_t {
+        let mut object: _cef_label_button_t = unsafe { std::mem::zeroed() };
+        impl_cef_view_t::init_methods::<Self>(&mut object.base.base);
+        impl_cef_button_t::init_methods::<Self>(&mut object.base);
+        impl_cef_label_button_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_label_button_t {
+    use super::*;
+    pub fn init_methods<I: ImplLabelButton>(object: &mut _cef_label_button_t) {
+        object.as_menu_button = Some(as_menu_button::<I>);
+        object.set_text = Some(set_text::<I>);
+        object.get_text = Some(get_text::<I>);
+        object.set_image = Some(set_image::<I>);
+        object.get_image = Some(get_image::<I>);
+        object.set_text_color = Some(set_text_color::<I>);
+        object.set_enabled_text_colors = Some(set_enabled_text_colors::<I>);
+        object.set_font_list = Some(set_font_list::<I>);
+        object.set_horizontal_alignment = Some(set_horizontal_alignment::<I>);
+        object.set_minimum_size = Some(set_minimum_size::<I>);
+        object.set_maximum_size = Some(set_maximum_size::<I>);
+    }
+    extern "C" fn as_menu_button<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+    ) -> *mut _cef_menu_button_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.as_menu_button().into()
+    }
+    extern "C" fn set_text<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+        text: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_text) = (self_, text);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_text = WrapParamRef::<CefStringUtf16>::from(arg_text);
+        let arg_text = arg_text.as_ref();
+        arg_self_.interface.set_text(arg_text)
+    }
+    extern "C" fn get_text<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+    ) -> *mut _cef_string_utf16_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_text().into()
+    }
+    extern "C" fn set_image<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+        button_state: cef_button_state_t,
+        image: *mut _cef_image_t,
+    ) {
+        let (arg_self_, arg_button_state, arg_image) = (self_, button_state, image);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_button_state = arg_button_state.as_raw();
+        let arg_image = &mut Image(unsafe { RefGuard::from_raw_add_ref(arg_image) });
+        arg_self_.interface.set_image(arg_button_state, arg_image)
+    }
+    extern "C" fn get_image<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+        button_state: cef_button_state_t,
+    ) -> *mut _cef_image_t {
+        let (arg_self_, arg_button_state) = (self_, button_state);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_button_state = arg_button_state.as_raw();
+        arg_self_.interface.get_image(arg_button_state).into()
+    }
+    extern "C" fn set_text_color<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+        for_state: cef_button_state_t,
+        color: u32,
+    ) {
+        let (arg_self_, arg_for_state, arg_color) = (self_, for_state, color);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_for_state = arg_for_state.as_raw();
+        let arg_color = arg_color.as_raw();
+        arg_self_.interface.set_text_color(arg_for_state, arg_color)
+    }
+    extern "C" fn set_enabled_text_colors<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+        color: u32,
+    ) {
+        let (arg_self_, arg_color) = (self_, color);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_color = arg_color.as_raw();
+        arg_self_.interface.set_enabled_text_colors(arg_color)
+    }
+    extern "C" fn set_font_list<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+        font_list: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_font_list) = (self_, font_list);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_font_list = WrapParamRef::<CefStringUtf16>::from(arg_font_list);
+        let arg_font_list = arg_font_list.as_ref();
+        arg_self_.interface.set_font_list(arg_font_list)
+    }
+    extern "C" fn set_horizontal_alignment<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+        alignment: cef_horizontal_alignment_t,
+    ) {
+        let (arg_self_, arg_alignment) = (self_, alignment);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_alignment = arg_alignment.as_raw();
+        arg_self_.interface.set_horizontal_alignment(arg_alignment)
+    }
+    extern "C" fn set_minimum_size<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+        size: *const _cef_size_t,
+    ) {
+        let (arg_self_, arg_size) = (self_, size);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_size = WrapParamRef::<Size>::from(arg_size);
+        let arg_size = arg_size.as_ref();
+        arg_self_.interface.set_minimum_size(arg_size)
+    }
+    extern "C" fn set_maximum_size<I: ImplLabelButton>(
+        self_: *mut _cef_label_button_t,
+        size: *const _cef_size_t,
+    ) {
+        let (arg_self_, arg_size) = (self_, size);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_size = WrapParamRef::<Size>::from(arg_size);
+        let arg_size = arg_size.as_ref();
+        arg_self_.interface.set_maximum_size(arg_size)
+    }
+}
+#[doc = "See [_cef_label_button_t] for more documentation."]
+#[derive(Clone)]
+pub struct LabelButton(RefGuard<_cef_label_button_t>);
+impl ImplLabelButton for LabelButton {
+    fn as_menu_button(&self) -> MenuButton {
+        unsafe {
+            self.0
+                .as_menu_button
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_text(&self, text: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .set_text
+                .map(|f| {
+                    let arg_text = text;
+                    let arg_self_ = self.as_raw();
+                    let arg_text = arg_text.as_raw();
+                    let result = f(arg_self_, arg_text);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_text(&self) -> CefStringUtf16 {
+        unsafe {
+            self.0
+                .get_text
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_image(&self, button_state: ButtonState, image: &mut Image) {
+        unsafe {
+            self.0
+                .set_image
+                .map(|f| {
+                    let (arg_button_state, arg_image) = (button_state, image);
+                    let arg_self_ = self.as_raw();
+                    let arg_button_state = arg_button_state.as_raw();
+                    let arg_image = arg_image.as_raw();
+                    let result = f(arg_self_, arg_button_state, arg_image);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_image(&self, button_state: ButtonState) -> Image {
+        unsafe {
+            self.0
+                .get_image
+                .map(|f| {
+                    let arg_button_state = button_state;
+                    let arg_self_ = self.as_raw();
+                    let arg_button_state = arg_button_state.as_raw();
+                    let result = f(arg_self_, arg_button_state);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_text_color(&self, for_state: ButtonState, color: u32) {
+        unsafe {
+            self.0
+                .set_text_color
+                .map(|f| {
+                    let (arg_for_state, arg_color) = (for_state, color);
+                    let arg_self_ = self.as_raw();
+                    let arg_for_state = arg_for_state.as_raw();
+                    let arg_color = arg_color;
+                    let result = f(arg_self_, arg_for_state, arg_color);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_enabled_text_colors(&self, color: u32) {
+        unsafe {
+            self.0
+                .set_enabled_text_colors
+                .map(|f| {
+                    let arg_color = color;
+                    let arg_self_ = self.as_raw();
+                    let arg_color = arg_color;
+                    let result = f(arg_self_, arg_color);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_font_list(&self, font_list: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .set_font_list
+                .map(|f| {
+                    let arg_font_list = font_list;
+                    let arg_self_ = self.as_raw();
+                    let arg_font_list = arg_font_list.as_raw();
+                    let result = f(arg_self_, arg_font_list);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_horizontal_alignment(&self, alignment: HorizontalAlignment) {
+        unsafe {
+            self.0
+                .set_horizontal_alignment
+                .map(|f| {
+                    let arg_alignment = alignment;
+                    let arg_self_ = self.as_raw();
+                    let arg_alignment = arg_alignment.as_raw();
+                    let result = f(arg_self_, arg_alignment);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_minimum_size(&self, size: &Size) {
+        unsafe {
+            self.0
+                .set_minimum_size
+                .map(|f| {
+                    let arg_size = size;
+                    let arg_self_ = self.as_raw();
+                    let arg_size = arg_size.as_raw();
+                    let result = f(arg_self_, arg_size);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_maximum_size(&self, size: &Size) {
+        unsafe {
+            self.0
+                .set_maximum_size
+                .map(|f| {
+                    let arg_size = size;
+                    let arg_self_ = self.as_raw();
+                    let arg_size = arg_size.as_raw();
+                    let result = f(arg_self_, arg_size);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_label_button_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for LabelButton {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_label_button_t> for &LabelButton {
+    fn as_raw(self) -> *mut _cef_label_button_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_label_button_t> for &mut LabelButton {
+    fn as_raw(self) -> *mut _cef_label_button_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<LabelButton> for *mut _cef_label_button_t {
+    fn as_wrapper(self) -> LabelButton {
+        LabelButton(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_label_button_t> for LabelButton {
+    fn into(self) -> *mut _cef_label_button_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for LabelButton {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplMenuButtonPressedLock: Sized {
+    fn into_raw(self) -> *mut _cef_menu_button_pressed_lock_t {
+        let mut object: _cef_menu_button_pressed_lock_t = unsafe { std::mem::zeroed() };
+        impl_cef_menu_button_pressed_lock_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_menu_button_pressed_lock_t {
+    use super::*;
+    pub fn init_methods<I: ImplMenuButtonPressedLock>(
+        object: &mut _cef_menu_button_pressed_lock_t,
+    ) {
+    }
+}
+#[doc = "See [_cef_menu_button_pressed_lock_t] for more documentation."]
+#[derive(Clone)]
+pub struct MenuButtonPressedLock(RefGuard<_cef_menu_button_pressed_lock_t>);
+impl ImplMenuButtonPressedLock for MenuButtonPressedLock {}
+impl Rc for _cef_menu_button_pressed_lock_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for MenuButtonPressedLock {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_menu_button_pressed_lock_t> for &MenuButtonPressedLock {
+    fn as_raw(self) -> *mut _cef_menu_button_pressed_lock_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_menu_button_pressed_lock_t> for &mut MenuButtonPressedLock {
+    fn as_raw(self) -> *mut _cef_menu_button_pressed_lock_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<MenuButtonPressedLock> for *mut _cef_menu_button_pressed_lock_t {
+    fn as_wrapper(self) -> MenuButtonPressedLock {
+        MenuButtonPressedLock(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_menu_button_pressed_lock_t> for MenuButtonPressedLock {
+    fn into(self) -> *mut _cef_menu_button_pressed_lock_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for MenuButtonPressedLock {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplMenuButtonDelegate: ImplButtonDelegate {
+    fn on_menu_button_pressed(
+        &self,
+        menu_button: &mut MenuButton,
+        screen_point: &Point,
+        button_pressed_lock: &mut MenuButtonPressedLock,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_menu_button_delegate_t {
+        let mut object: _cef_menu_button_delegate_t = unsafe { std::mem::zeroed() };
+        impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base.base);
+        impl_cef_button_delegate_t::init_methods::<Self>(&mut object.base);
+        impl_cef_menu_button_delegate_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_menu_button_delegate_t {
+    use super::*;
+    pub fn init_methods<I: ImplMenuButtonDelegate>(object: &mut _cef_menu_button_delegate_t) {
+        object.on_menu_button_pressed = Some(on_menu_button_pressed::<I>);
+    }
+    extern "C" fn on_menu_button_pressed<I: ImplMenuButtonDelegate>(
+        self_: *mut _cef_menu_button_delegate_t,
+        menu_button: *mut _cef_menu_button_t,
+        screen_point: *const _cef_point_t,
+        button_pressed_lock: *mut _cef_menu_button_pressed_lock_t,
+    ) {
+        let (arg_self_, arg_menu_button, arg_screen_point, arg_button_pressed_lock) =
+            (self_, menu_button, screen_point, button_pressed_lock);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_menu_button =
+            &mut MenuButton(unsafe { RefGuard::from_raw_add_ref(arg_menu_button) });
+        let arg_screen_point = WrapParamRef::<Point>::from(arg_screen_point);
+        let arg_screen_point = arg_screen_point.as_ref();
+        let arg_button_pressed_lock = &mut MenuButtonPressedLock(unsafe {
+            RefGuard::from_raw_add_ref(arg_button_pressed_lock)
+        });
+        arg_self_.interface.on_menu_button_pressed(
+            arg_menu_button,
+            arg_screen_point,
+            arg_button_pressed_lock,
+        )
+    }
+}
+#[doc = "See [_cef_menu_button_delegate_t] for more documentation."]
+#[derive(Clone)]
+pub struct MenuButtonDelegate(RefGuard<_cef_menu_button_delegate_t>);
+impl ImplMenuButtonDelegate for MenuButtonDelegate {
+    fn on_menu_button_pressed(
+        &self,
+        menu_button: &mut MenuButton,
+        screen_point: &Point,
+        button_pressed_lock: &mut MenuButtonPressedLock,
+    ) {
+        unsafe {
+            self.0
+                .on_menu_button_pressed
+                .map(|f| {
+                    let (arg_menu_button, arg_screen_point, arg_button_pressed_lock) =
+                        (menu_button, screen_point, button_pressed_lock);
+                    let arg_self_ = self.as_raw();
+                    let arg_menu_button = arg_menu_button.as_raw();
+                    let arg_screen_point = arg_screen_point.as_raw();
+                    let arg_button_pressed_lock = arg_button_pressed_lock.as_raw();
+                    let result = f(
+                        arg_self_,
+                        arg_menu_button,
+                        arg_screen_point,
+                        arg_button_pressed_lock,
+                    );
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_menu_button_delegate_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for MenuButtonDelegate {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_menu_button_delegate_t> for &MenuButtonDelegate {
+    fn as_raw(self) -> *mut _cef_menu_button_delegate_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_menu_button_delegate_t> for &mut MenuButtonDelegate {
+    fn as_raw(self) -> *mut _cef_menu_button_delegate_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<MenuButtonDelegate> for *mut _cef_menu_button_delegate_t {
+    fn as_wrapper(self) -> MenuButtonDelegate {
+        MenuButtonDelegate(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_menu_button_delegate_t> for MenuButtonDelegate {
+    fn into(self) -> *mut _cef_menu_button_delegate_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for MenuButtonDelegate {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplMenuButton: ImplLabelButton {
+    fn show_menu(
+        &self,
+        menu_model: &mut MenuModel,
+        screen_point: &Point,
+        anchor_position: MenuAnchorPosition,
+    ) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn trigger_menu(&self) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_menu_button_t {
+        let mut object: _cef_menu_button_t = unsafe { std::mem::zeroed() };
+        impl_cef_view_t::init_methods::<Self>(&mut object.base.base.base);
+        impl_cef_button_t::init_methods::<Self>(&mut object.base.base);
+        impl_cef_label_button_t::init_methods::<Self>(&mut object.base);
+        impl_cef_menu_button_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_menu_button_t {
+    use super::*;
+    pub fn init_methods<I: ImplMenuButton>(object: &mut _cef_menu_button_t) {
+        object.show_menu = Some(show_menu::<I>);
+        object.trigger_menu = Some(trigger_menu::<I>);
+    }
+    extern "C" fn show_menu<I: ImplMenuButton>(
+        self_: *mut _cef_menu_button_t,
+        menu_model: *mut _cef_menu_model_t,
+        screen_point: *const _cef_point_t,
+        anchor_position: cef_menu_anchor_position_t,
+    ) {
+        let (arg_self_, arg_menu_model, arg_screen_point, arg_anchor_position) =
+            (self_, menu_model, screen_point, anchor_position);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_screen_point = WrapParamRef::<Point>::from(arg_screen_point);
+        let arg_screen_point = arg_screen_point.as_ref();
+        let arg_anchor_position = arg_anchor_position.as_raw();
+        arg_self_
+            .interface
+            .show_menu(arg_menu_model, arg_screen_point, arg_anchor_position)
+    }
+    extern "C" fn trigger_menu<I: ImplMenuButton>(self_: *mut _cef_menu_button_t) {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.trigger_menu()
+    }
+}
+#[doc = "See [_cef_menu_button_t] for more documentation."]
+#[derive(Clone)]
+pub struct MenuButton(RefGuard<_cef_menu_button_t>);
+impl ImplMenuButton for MenuButton {
+    fn show_menu(
+        &self,
+        menu_model: &mut MenuModel,
+        screen_point: &Point,
+        anchor_position: MenuAnchorPosition,
+    ) {
+        unsafe {
+            self.0
+                .show_menu
+                .map(|f| {
+                    let (arg_menu_model, arg_screen_point, arg_anchor_position) =
+                        (menu_model, screen_point, anchor_position);
+                    let arg_self_ = self.as_raw();
+                    let arg_menu_model = arg_menu_model.as_raw();
+                    let arg_screen_point = arg_screen_point.as_raw();
+                    let arg_anchor_position = arg_anchor_position.as_raw();
+                    let result = f(
+                        arg_self_,
+                        arg_menu_model,
+                        arg_screen_point,
+                        arg_anchor_position,
+                    );
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn trigger_menu(&self) {
+        unsafe {
+            self.0
+                .trigger_menu
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_menu_button_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for MenuButton {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_menu_button_t> for &MenuButton {
+    fn as_raw(self) -> *mut _cef_menu_button_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_menu_button_t> for &mut MenuButton {
+    fn as_raw(self) -> *mut _cef_menu_button_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<MenuButton> for *mut _cef_menu_button_t {
+    fn as_wrapper(self) -> MenuButton {
+        MenuButton(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_menu_button_t> for MenuButton {
+    fn into(self) -> *mut _cef_menu_button_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for MenuButton {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplTextfieldDelegate: ImplViewDelegate {
+    fn on_key_event(&self, textfield: &mut Textfield, event: &KeyEvent) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_after_user_action(&self, textfield: &mut Textfield) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_textfield_delegate_t {
+        let mut object: _cef_textfield_delegate_t = unsafe { std::mem::zeroed() };
+        impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
+        impl_cef_textfield_delegate_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_textfield_delegate_t {
+    use super::*;
+    pub fn init_methods<I: ImplTextfieldDelegate>(object: &mut _cef_textfield_delegate_t) {
+        object.on_key_event = Some(on_key_event::<I>);
+        object.on_after_user_action = Some(on_after_user_action::<I>);
+    }
+    extern "C" fn on_key_event<I: ImplTextfieldDelegate>(
+        self_: *mut _cef_textfield_delegate_t,
+        textfield: *mut _cef_textfield_t,
+        event: *const _cef_key_event_t,
+    ) -> ::std::os::raw::c_int {
+        let (arg_self_, arg_textfield, arg_event) = (self_, textfield, event);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_textfield = &mut Textfield(unsafe { RefGuard::from_raw_add_ref(arg_textfield) });
+        let arg_event = WrapParamRef::<KeyEvent>::from(arg_event);
+        let arg_event = arg_event.as_ref();
+        arg_self_
+            .interface
+            .on_key_event(arg_textfield, arg_event)
+            .into()
+    }
+    extern "C" fn on_after_user_action<I: ImplTextfieldDelegate>(
+        self_: *mut _cef_textfield_delegate_t,
+        textfield: *mut _cef_textfield_t,
+    ) {
+        let (arg_self_, arg_textfield) = (self_, textfield);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_textfield = &mut Textfield(unsafe { RefGuard::from_raw_add_ref(arg_textfield) });
+        arg_self_.interface.on_after_user_action(arg_textfield)
+    }
+}
+#[doc = "See [_cef_textfield_delegate_t] for more documentation."]
+#[derive(Clone)]
+pub struct TextfieldDelegate(RefGuard<_cef_textfield_delegate_t>);
+impl ImplTextfieldDelegate for TextfieldDelegate {
+    fn on_key_event(&self, textfield: &mut Textfield, event: &KeyEvent) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .on_key_event
+                .map(|f| {
+                    let (arg_textfield, arg_event) = (textfield, event);
+                    let arg_self_ = self.as_raw();
+                    let arg_textfield = arg_textfield.as_raw();
+                    let arg_event = arg_event.as_raw();
+                    let result = f(arg_self_, arg_textfield, arg_event);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn on_after_user_action(&self, textfield: &mut Textfield) {
+        unsafe {
+            self.0
+                .on_after_user_action
+                .map(|f| {
+                    let arg_textfield = textfield;
+                    let arg_self_ = self.as_raw();
+                    let arg_textfield = arg_textfield.as_raw();
+                    let result = f(arg_self_, arg_textfield);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_textfield_delegate_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for TextfieldDelegate {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_textfield_delegate_t> for &TextfieldDelegate {
+    fn as_raw(self) -> *mut _cef_textfield_delegate_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_textfield_delegate_t> for &mut TextfieldDelegate {
+    fn as_raw(self) -> *mut _cef_textfield_delegate_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<TextfieldDelegate> for *mut _cef_textfield_delegate_t {
+    fn as_wrapper(self) -> TextfieldDelegate {
+        TextfieldDelegate(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_textfield_delegate_t> for TextfieldDelegate {
+    fn into(self) -> *mut _cef_textfield_delegate_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for TextfieldDelegate {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplTextfield: ImplView {
+    fn set_password_input(&self, password_input: ::std::os::raw::c_int) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn is_password_input(&self) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_read_only(&self, read_only: ::std::os::raw::c_int) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn is_read_only(&self) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_text(&self) -> CefStringUtf16 {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_text(&self, text: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn append_text(&self, text: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn insert_or_replace_text(&self, text: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn has_selection(&self) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_selected_text(&self) -> CefStringUtf16 {
+        unsafe { std::mem::zeroed() }
+    }
+    fn select_all(&self, reversed: ::std::os::raw::c_int) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn clear_selection(&self) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_selected_range(&self) -> Range {
+        unsafe { std::mem::zeroed() }
+    }
+    fn select_range(&self, range: &Range) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_cursor_position(&self) -> usize {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_text_color(&self, color: u32) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_text_color(&self) -> cef_color_t {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_selection_text_color(&self, color: u32) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_selection_text_color(&self) -> cef_color_t {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_selection_background_color(&self, color: u32) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_selection_background_color(&self) -> cef_color_t {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_font_list(&self, font_list: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn apply_text_color(&self, color: u32, range: &Range) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn apply_text_style(&self, style: TextStyle, add: ::std::os::raw::c_int, range: &Range) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn is_command_enabled(&self, command_id: TextFieldCommands) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn execute_command(&self, command_id: TextFieldCommands) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn clear_edit_history(&self) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_placeholder_text(&self, text: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_placeholder_text(&self) -> CefStringUtf16 {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_placeholder_text_color(&self, color: u32) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn set_accessible_name(&self, name: &CefStringUtf16) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_textfield_t {
+        let mut object: _cef_textfield_t = unsafe { std::mem::zeroed() };
+        impl_cef_view_t::init_methods::<Self>(&mut object.base);
+        impl_cef_textfield_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_textfield_t {
+    use super::*;
+    pub fn init_methods<I: ImplTextfield>(object: &mut _cef_textfield_t) {
+        object.set_password_input = Some(set_password_input::<I>);
+        object.is_password_input = Some(is_password_input::<I>);
+        object.set_read_only = Some(set_read_only::<I>);
+        object.is_read_only = Some(is_read_only::<I>);
+        object.get_text = Some(get_text::<I>);
+        object.set_text = Some(set_text::<I>);
+        object.append_text = Some(append_text::<I>);
+        object.insert_or_replace_text = Some(insert_or_replace_text::<I>);
+        object.has_selection = Some(has_selection::<I>);
+        object.get_selected_text = Some(get_selected_text::<I>);
+        object.select_all = Some(select_all::<I>);
+        object.clear_selection = Some(clear_selection::<I>);
+        object.get_selected_range = Some(get_selected_range::<I>);
+        object.select_range = Some(select_range::<I>);
+        object.get_cursor_position = Some(get_cursor_position::<I>);
+        object.set_text_color = Some(set_text_color::<I>);
+        object.get_text_color = Some(get_text_color::<I>);
+        object.set_selection_text_color = Some(set_selection_text_color::<I>);
+        object.get_selection_text_color = Some(get_selection_text_color::<I>);
+        object.set_selection_background_color = Some(set_selection_background_color::<I>);
+        object.get_selection_background_color = Some(get_selection_background_color::<I>);
+        object.set_font_list = Some(set_font_list::<I>);
+        object.apply_text_color = Some(apply_text_color::<I>);
+        object.apply_text_style = Some(apply_text_style::<I>);
+        object.is_command_enabled = Some(is_command_enabled::<I>);
+        object.execute_command = Some(execute_command::<I>);
+        object.clear_edit_history = Some(clear_edit_history::<I>);
+        object.set_placeholder_text = Some(set_placeholder_text::<I>);
+        object.get_placeholder_text = Some(get_placeholder_text::<I>);
+        object.set_placeholder_text_color = Some(set_placeholder_text_color::<I>);
+        object.set_accessible_name = Some(set_accessible_name::<I>);
+    }
+    extern "C" fn set_password_input<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        password_input: ::std::os::raw::c_int,
+    ) {
+        let (arg_self_, arg_password_input) = (self_, password_input);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_password_input = arg_password_input.as_raw();
+        arg_self_.interface.set_password_input(arg_password_input)
+    }
+    extern "C" fn is_password_input<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+    ) -> ::std::os::raw::c_int {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.is_password_input().into()
+    }
+    extern "C" fn set_read_only<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        read_only: ::std::os::raw::c_int,
+    ) {
+        let (arg_self_, arg_read_only) = (self_, read_only);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_read_only = arg_read_only.as_raw();
+        arg_self_.interface.set_read_only(arg_read_only)
+    }
+    extern "C" fn is_read_only<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+    ) -> ::std::os::raw::c_int {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.is_read_only().into()
+    }
+    extern "C" fn get_text<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+    ) -> *mut _cef_string_utf16_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_text().into()
+    }
+    extern "C" fn set_text<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        text: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_text) = (self_, text);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_text = WrapParamRef::<CefStringUtf16>::from(arg_text);
+        let arg_text = arg_text.as_ref();
+        arg_self_.interface.set_text(arg_text)
+    }
+    extern "C" fn append_text<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        text: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_text) = (self_, text);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_text = WrapParamRef::<CefStringUtf16>::from(arg_text);
+        let arg_text = arg_text.as_ref();
+        arg_self_.interface.append_text(arg_text)
+    }
+    extern "C" fn insert_or_replace_text<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        text: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_text) = (self_, text);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_text = WrapParamRef::<CefStringUtf16>::from(arg_text);
+        let arg_text = arg_text.as_ref();
+        arg_self_.interface.insert_or_replace_text(arg_text)
+    }
+    extern "C" fn has_selection<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+    ) -> ::std::os::raw::c_int {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.has_selection().into()
+    }
+    extern "C" fn get_selected_text<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+    ) -> *mut _cef_string_utf16_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_selected_text().into()
+    }
+    extern "C" fn select_all<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        reversed: ::std::os::raw::c_int,
+    ) {
+        let (arg_self_, arg_reversed) = (self_, reversed);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_reversed = arg_reversed.as_raw();
+        arg_self_.interface.select_all(arg_reversed)
+    }
+    extern "C" fn clear_selection<I: ImplTextfield>(self_: *mut _cef_textfield_t) {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.clear_selection()
+    }
+    extern "C" fn get_selected_range<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+    ) -> _cef_range_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_selected_range().into()
+    }
+    extern "C" fn select_range<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        range: *const _cef_range_t,
+    ) {
+        let (arg_self_, arg_range) = (self_, range);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_range = WrapParamRef::<Range>::from(arg_range);
+        let arg_range = arg_range.as_ref();
+        arg_self_.interface.select_range(arg_range)
+    }
+    extern "C" fn get_cursor_position<I: ImplTextfield>(self_: *mut _cef_textfield_t) -> usize {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_cursor_position().into()
+    }
+    extern "C" fn set_text_color<I: ImplTextfield>(self_: *mut _cef_textfield_t, color: u32) {
+        let (arg_self_, arg_color) = (self_, color);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_color = arg_color.as_raw();
+        arg_self_.interface.set_text_color(arg_color)
+    }
+    extern "C" fn get_text_color<I: ImplTextfield>(self_: *mut _cef_textfield_t) -> u32 {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_text_color().into()
+    }
+    extern "C" fn set_selection_text_color<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        color: u32,
+    ) {
+        let (arg_self_, arg_color) = (self_, color);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_color = arg_color.as_raw();
+        arg_self_.interface.set_selection_text_color(arg_color)
+    }
+    extern "C" fn get_selection_text_color<I: ImplTextfield>(self_: *mut _cef_textfield_t) -> u32 {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_selection_text_color().into()
+    }
+    extern "C" fn set_selection_background_color<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        color: u32,
+    ) {
+        let (arg_self_, arg_color) = (self_, color);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_color = arg_color.as_raw();
+        arg_self_
+            .interface
+            .set_selection_background_color(arg_color)
+    }
+    extern "C" fn get_selection_background_color<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+    ) -> u32 {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_selection_background_color().into()
+    }
+    extern "C" fn set_font_list<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        font_list: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_font_list) = (self_, font_list);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_font_list = WrapParamRef::<CefStringUtf16>::from(arg_font_list);
+        let arg_font_list = arg_font_list.as_ref();
+        arg_self_.interface.set_font_list(arg_font_list)
+    }
+    extern "C" fn apply_text_color<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        color: u32,
+        range: *const _cef_range_t,
+    ) {
+        let (arg_self_, arg_color, arg_range) = (self_, color, range);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_color = arg_color.as_raw();
+        let arg_range = WrapParamRef::<Range>::from(arg_range);
+        let arg_range = arg_range.as_ref();
+        arg_self_.interface.apply_text_color(arg_color, arg_range)
+    }
+    extern "C" fn apply_text_style<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        style: cef_text_style_t,
+        add: ::std::os::raw::c_int,
+        range: *const _cef_range_t,
+    ) {
+        let (arg_self_, arg_style, arg_add, arg_range) = (self_, style, add, range);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_style = arg_style.as_raw();
+        let arg_add = arg_add.as_raw();
+        let arg_range = WrapParamRef::<Range>::from(arg_range);
+        let arg_range = arg_range.as_ref();
+        arg_self_
+            .interface
+            .apply_text_style(arg_style, arg_add, arg_range)
+    }
+    extern "C" fn is_command_enabled<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        command_id: cef_text_field_commands_t,
+    ) -> ::std::os::raw::c_int {
+        let (arg_self_, arg_command_id) = (self_, command_id);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_command_id = arg_command_id.as_raw();
+        arg_self_
+            .interface
+            .is_command_enabled(arg_command_id)
+            .into()
+    }
+    extern "C" fn execute_command<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        command_id: cef_text_field_commands_t,
+    ) {
+        let (arg_self_, arg_command_id) = (self_, command_id);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_command_id = arg_command_id.as_raw();
+        arg_self_.interface.execute_command(arg_command_id)
+    }
+    extern "C" fn clear_edit_history<I: ImplTextfield>(self_: *mut _cef_textfield_t) {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.clear_edit_history()
+    }
+    extern "C" fn set_placeholder_text<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        text: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_text) = (self_, text);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_text = WrapParamRef::<CefStringUtf16>::from(arg_text);
+        let arg_text = arg_text.as_ref();
+        arg_self_.interface.set_placeholder_text(arg_text)
+    }
+    extern "C" fn get_placeholder_text<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+    ) -> *mut _cef_string_utf16_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_placeholder_text().into()
+    }
+    extern "C" fn set_placeholder_text_color<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        color: u32,
+    ) {
+        let (arg_self_, arg_color) = (self_, color);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_color = arg_color.as_raw();
+        arg_self_.interface.set_placeholder_text_color(arg_color)
+    }
+    extern "C" fn set_accessible_name<I: ImplTextfield>(
+        self_: *mut _cef_textfield_t,
+        name: *const _cef_string_utf16_t,
+    ) {
+        let (arg_self_, arg_name) = (self_, name);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_name = WrapParamRef::<CefStringUtf16>::from(arg_name);
+        let arg_name = arg_name.as_ref();
+        arg_self_.interface.set_accessible_name(arg_name)
+    }
+}
+#[doc = "See [_cef_textfield_t] for more documentation."]
+#[derive(Clone)]
+pub struct Textfield(RefGuard<_cef_textfield_t>);
+impl ImplTextfield for Textfield {
+    fn set_password_input(&self, password_input: ::std::os::raw::c_int) {
+        unsafe {
+            self.0
+                .set_password_input
+                .map(|f| {
+                    let arg_password_input = password_input;
+                    let arg_self_ = self.as_raw();
+                    let arg_password_input = arg_password_input;
+                    let result = f(arg_self_, arg_password_input);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn is_password_input(&self) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .is_password_input
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_read_only(&self, read_only: ::std::os::raw::c_int) {
+        unsafe {
+            self.0
+                .set_read_only
+                .map(|f| {
+                    let arg_read_only = read_only;
+                    let arg_self_ = self.as_raw();
+                    let arg_read_only = arg_read_only;
+                    let result = f(arg_self_, arg_read_only);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn is_read_only(&self) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .is_read_only
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_text(&self) -> CefStringUtf16 {
+        unsafe {
+            self.0
+                .get_text
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_text(&self, text: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .set_text
+                .map(|f| {
+                    let arg_text = text;
+                    let arg_self_ = self.as_raw();
+                    let arg_text = arg_text.as_raw();
+                    let result = f(arg_self_, arg_text);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn append_text(&self, text: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .append_text
+                .map(|f| {
+                    let arg_text = text;
+                    let arg_self_ = self.as_raw();
+                    let arg_text = arg_text.as_raw();
+                    let result = f(arg_self_, arg_text);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn insert_or_replace_text(&self, text: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .insert_or_replace_text
+                .map(|f| {
+                    let arg_text = text;
+                    let arg_self_ = self.as_raw();
+                    let arg_text = arg_text.as_raw();
+                    let result = f(arg_self_, arg_text);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn has_selection(&self) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .has_selection
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_selected_text(&self) -> CefStringUtf16 {
+        unsafe {
+            self.0
+                .get_selected_text
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn select_all(&self, reversed: ::std::os::raw::c_int) {
+        unsafe {
+            self.0
+                .select_all
+                .map(|f| {
+                    let arg_reversed = reversed;
+                    let arg_self_ = self.as_raw();
+                    let arg_reversed = arg_reversed;
+                    let result = f(arg_self_, arg_reversed);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn clear_selection(&self) {
+        unsafe {
+            self.0
+                .clear_selection
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_selected_range(&self) -> Range {
+        unsafe {
+            self.0
+                .get_selected_range
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn select_range(&self, range: &Range) {
+        unsafe {
+            self.0
+                .select_range
+                .map(|f| {
+                    let arg_range = range;
+                    let arg_self_ = self.as_raw();
+                    let arg_range = arg_range.as_raw();
+                    let result = f(arg_self_, arg_range);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_cursor_position(&self) -> usize {
+        unsafe {
+            self.0
+                .get_cursor_position
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_text_color(&self, color: u32) {
+        unsafe {
+            self.0
+                .set_text_color
+                .map(|f| {
+                    let arg_color = color;
+                    let arg_self_ = self.as_raw();
+                    let arg_color = arg_color;
+                    let result = f(arg_self_, arg_color);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_text_color(&self) -> cef_color_t {
+        unsafe {
+            self.0
+                .get_text_color
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_selection_text_color(&self, color: u32) {
+        unsafe {
+            self.0
+                .set_selection_text_color
+                .map(|f| {
+                    let arg_color = color;
+                    let arg_self_ = self.as_raw();
+                    let arg_color = arg_color;
+                    let result = f(arg_self_, arg_color);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_selection_text_color(&self) -> cef_color_t {
+        unsafe {
+            self.0
+                .get_selection_text_color
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_selection_background_color(&self, color: u32) {
+        unsafe {
+            self.0
+                .set_selection_background_color
+                .map(|f| {
+                    let arg_color = color;
+                    let arg_self_ = self.as_raw();
+                    let arg_color = arg_color;
+                    let result = f(arg_self_, arg_color);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_selection_background_color(&self) -> cef_color_t {
+        unsafe {
+            self.0
+                .get_selection_background_color
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_font_list(&self, font_list: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .set_font_list
+                .map(|f| {
+                    let arg_font_list = font_list;
+                    let arg_self_ = self.as_raw();
+                    let arg_font_list = arg_font_list.as_raw();
+                    let result = f(arg_self_, arg_font_list);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn apply_text_color(&self, color: u32, range: &Range) {
+        unsafe {
+            self.0
+                .apply_text_color
+                .map(|f| {
+                    let (arg_color, arg_range) = (color, range);
+                    let arg_self_ = self.as_raw();
+                    let arg_color = arg_color;
+                    let arg_range = arg_range.as_raw();
+                    let result = f(arg_self_, arg_color, arg_range);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn apply_text_style(&self, style: TextStyle, add: ::std::os::raw::c_int, range: &Range) {
+        unsafe {
+            self.0
+                .apply_text_style
+                .map(|f| {
+                    let (arg_style, arg_add, arg_range) = (style, add, range);
+                    let arg_self_ = self.as_raw();
+                    let arg_style = arg_style.as_raw();
+                    let arg_add = arg_add;
+                    let arg_range = arg_range.as_raw();
+                    let result = f(arg_self_, arg_style, arg_add, arg_range);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn is_command_enabled(&self, command_id: TextFieldCommands) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .is_command_enabled
+                .map(|f| {
+                    let arg_command_id = command_id;
+                    let arg_self_ = self.as_raw();
+                    let arg_command_id = arg_command_id.as_raw();
+                    let result = f(arg_self_, arg_command_id);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn execute_command(&self, command_id: TextFieldCommands) {
+        unsafe {
+            self.0
+                .execute_command
+                .map(|f| {
+                    let arg_command_id = command_id;
+                    let arg_self_ = self.as_raw();
+                    let arg_command_id = arg_command_id.as_raw();
+                    let result = f(arg_self_, arg_command_id);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn clear_edit_history(&self) {
+        unsafe {
+            self.0
+                .clear_edit_history
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_placeholder_text(&self, text: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .set_placeholder_text
+                .map(|f| {
+                    let arg_text = text;
+                    let arg_self_ = self.as_raw();
+                    let arg_text = arg_text.as_raw();
+                    let result = f(arg_self_, arg_text);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_placeholder_text(&self) -> CefStringUtf16 {
+        unsafe {
+            self.0
+                .get_placeholder_text
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_placeholder_text_color(&self, color: u32) {
+        unsafe {
+            self.0
+                .set_placeholder_text_color
+                .map(|f| {
+                    let arg_color = color;
+                    let arg_self_ = self.as_raw();
+                    let arg_color = arg_color;
+                    let result = f(arg_self_, arg_color);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn set_accessible_name(&self, name: &CefStringUtf16) {
+        unsafe {
+            self.0
+                .set_accessible_name
+                .map(|f| {
+                    let arg_name = name;
+                    let arg_self_ = self.as_raw();
+                    let arg_name = arg_name.as_raw();
+                    let result = f(arg_self_, arg_name);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_textfield_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for Textfield {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_textfield_t> for &Textfield {
+    fn as_raw(self) -> *mut _cef_textfield_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_textfield_t> for &mut Textfield {
+    fn as_raw(self) -> *mut _cef_textfield_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<Textfield> for *mut _cef_textfield_t {
+    fn as_wrapper(self) -> Textfield {
+        Textfield(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_textfield_t> for Textfield {
+    fn into(self) -> *mut _cef_textfield_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for Textfield {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplBrowserViewDelegate: ImplViewDelegate {
+    fn on_browser_created(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_browser_destroyed(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_delegate_for_popup_browser_view(
+        &self,
+        browser_view: &mut BrowserView,
+        settings: &BrowserSettings,
+        client: &mut Client,
+        is_devtools: ::std::os::raw::c_int,
+    ) -> BrowserViewDelegate {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_popup_browser_view_created(
+        &self,
+        browser_view: &mut BrowserView,
+        popup_browser_view: &mut BrowserView,
+        is_devtools: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_chrome_toolbar_type(&self, browser_view: &mut BrowserView) -> ChromeToolbarType {
+        unsafe { std::mem::zeroed() }
+    }
+    fn use_frameless_window_for_picture_in_picture(
+        &self,
+        browser_view: &mut BrowserView,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn on_gesture_command(
+        &self,
+        browser_view: &mut BrowserView,
+        gesture_command: GestureCommand,
+    ) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_browser_runtime_style(&self) -> RuntimeStyle {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_browser_view_delegate_t {
+        let mut object: _cef_browser_view_delegate_t = unsafe { std::mem::zeroed() };
+        impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
+        impl_cef_browser_view_delegate_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_browser_view_delegate_t {
+    use super::*;
+    pub fn init_methods<I: ImplBrowserViewDelegate>(object: &mut _cef_browser_view_delegate_t) {
+        object.on_browser_created = Some(on_browser_created::<I>);
+        object.on_browser_destroyed = Some(on_browser_destroyed::<I>);
+        object.get_delegate_for_popup_browser_view = Some(get_delegate_for_popup_browser_view::<I>);
+        object.on_popup_browser_view_created = Some(on_popup_browser_view_created::<I>);
+        object.get_chrome_toolbar_type = Some(get_chrome_toolbar_type::<I>);
+        object.use_frameless_window_for_picture_in_picture =
+            Some(use_frameless_window_for_picture_in_picture::<I>);
+        object.on_gesture_command = Some(on_gesture_command::<I>);
+        object.get_browser_runtime_style = Some(get_browser_runtime_style::<I>);
+    }
+    extern "C" fn on_browser_created<I: ImplBrowserViewDelegate>(
+        self_: *mut _cef_browser_view_delegate_t,
+        browser_view: *mut _cef_browser_view_t,
+        browser: *mut _cef_browser_t,
+    ) {
+        let (arg_self_, arg_browser_view, arg_browser) = (self_, browser_view, browser);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_browser_view =
+            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        arg_self_
+            .interface
+            .on_browser_created(arg_browser_view, arg_browser)
+    }
+    extern "C" fn on_browser_destroyed<I: ImplBrowserViewDelegate>(
+        self_: *mut _cef_browser_view_delegate_t,
+        browser_view: *mut _cef_browser_view_t,
+        browser: *mut _cef_browser_t,
+    ) {
+        let (arg_self_, arg_browser_view, arg_browser) = (self_, browser_view, browser);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_browser_view =
+            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        arg_self_
+            .interface
+            .on_browser_destroyed(arg_browser_view, arg_browser)
+    }
+    extern "C" fn get_delegate_for_popup_browser_view<I: ImplBrowserViewDelegate>(
+        self_: *mut _cef_browser_view_delegate_t,
+        browser_view: *mut _cef_browser_view_t,
+        settings: *const _cef_browser_settings_t,
+        client: *mut _cef_client_t,
+        is_devtools: ::std::os::raw::c_int,
+    ) -> *mut _cef_browser_view_delegate_t {
+        let (arg_self_, arg_browser_view, arg_settings, arg_client, arg_is_devtools) =
+            (self_, browser_view, settings, client, is_devtools);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_browser_view =
+            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_settings = WrapParamRef::<BrowserSettings>::from(arg_settings);
+        let arg_settings = arg_settings.as_ref();
+        let arg_client = &mut Client(unsafe { RefGuard::from_raw_add_ref(arg_client) });
+        let arg_is_devtools = arg_is_devtools.as_raw();
+        arg_self_
+            .interface
+            .get_delegate_for_popup_browser_view(
+                arg_browser_view,
+                arg_settings,
+                arg_client,
+                arg_is_devtools,
+            )
+            .into()
+    }
+    extern "C" fn on_popup_browser_view_created<I: ImplBrowserViewDelegate>(
+        self_: *mut _cef_browser_view_delegate_t,
+        browser_view: *mut _cef_browser_view_t,
+        popup_browser_view: *mut _cef_browser_view_t,
+        is_devtools: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        let (arg_self_, arg_browser_view, arg_popup_browser_view, arg_is_devtools) =
+            (self_, browser_view, popup_browser_view, is_devtools);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_browser_view =
+            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_popup_browser_view =
+            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_popup_browser_view) });
+        let arg_is_devtools = arg_is_devtools.as_raw();
+        arg_self_
+            .interface
+            .on_popup_browser_view_created(
+                arg_browser_view,
+                arg_popup_browser_view,
+                arg_is_devtools,
+            )
+            .into()
+    }
+    extern "C" fn get_chrome_toolbar_type<I: ImplBrowserViewDelegate>(
+        self_: *mut _cef_browser_view_delegate_t,
+        browser_view: *mut _cef_browser_view_t,
+    ) -> cef_chrome_toolbar_type_t {
+        let (arg_self_, arg_browser_view) = (self_, browser_view);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_browser_view =
+            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        arg_self_
+            .interface
+            .get_chrome_toolbar_type(arg_browser_view)
+            .into()
+    }
+    extern "C" fn use_frameless_window_for_picture_in_picture<I: ImplBrowserViewDelegate>(
+        self_: *mut _cef_browser_view_delegate_t,
+        browser_view: *mut _cef_browser_view_t,
+    ) -> ::std::os::raw::c_int {
+        let (arg_self_, arg_browser_view) = (self_, browser_view);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_browser_view =
+            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        arg_self_
+            .interface
+            .use_frameless_window_for_picture_in_picture(arg_browser_view)
+            .into()
+    }
+    extern "C" fn on_gesture_command<I: ImplBrowserViewDelegate>(
+        self_: *mut _cef_browser_view_delegate_t,
+        browser_view: *mut _cef_browser_view_t,
+        gesture_command: cef_gesture_command_t,
+    ) -> ::std::os::raw::c_int {
+        let (arg_self_, arg_browser_view, arg_gesture_command) =
+            (self_, browser_view, gesture_command);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_browser_view =
+            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_gesture_command = arg_gesture_command.as_raw();
+        arg_self_
+            .interface
+            .on_gesture_command(arg_browser_view, arg_gesture_command)
+            .into()
+    }
+    extern "C" fn get_browser_runtime_style<I: ImplBrowserViewDelegate>(
+        self_: *mut _cef_browser_view_delegate_t,
+    ) -> cef_runtime_style_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_browser_runtime_style().into()
+    }
+}
+#[doc = "See [_cef_browser_view_delegate_t] for more documentation."]
+#[derive(Clone)]
+pub struct BrowserViewDelegate(RefGuard<_cef_browser_view_delegate_t>);
+impl ImplBrowserViewDelegate for BrowserViewDelegate {
+    fn on_browser_created(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
+        unsafe {
+            self.0
+                .on_browser_created
+                .map(|f| {
+                    let (arg_browser_view, arg_browser) = (browser_view, browser);
+                    let arg_self_ = self.as_raw();
+                    let arg_browser_view = arg_browser_view.as_raw();
+                    let arg_browser = arg_browser.as_raw();
+                    let result = f(arg_self_, arg_browser_view, arg_browser);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn on_browser_destroyed(&self, browser_view: &mut BrowserView, browser: &mut Browser) {
+        unsafe {
+            self.0
+                .on_browser_destroyed
+                .map(|f| {
+                    let (arg_browser_view, arg_browser) = (browser_view, browser);
+                    let arg_self_ = self.as_raw();
+                    let arg_browser_view = arg_browser_view.as_raw();
+                    let arg_browser = arg_browser.as_raw();
+                    let result = f(arg_self_, arg_browser_view, arg_browser);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_delegate_for_popup_browser_view(
+        &self,
+        browser_view: &mut BrowserView,
+        settings: &BrowserSettings,
+        client: &mut Client,
+        is_devtools: ::std::os::raw::c_int,
+    ) -> BrowserViewDelegate {
+        unsafe {
+            self.0
+                .get_delegate_for_popup_browser_view
+                .map(|f| {
+                    let (arg_browser_view, arg_settings, arg_client, arg_is_devtools) =
+                        (browser_view, settings, client, is_devtools);
+                    let arg_self_ = self.as_raw();
+                    let arg_browser_view = arg_browser_view.as_raw();
+                    let arg_settings = arg_settings.as_raw();
+                    let arg_client = arg_client.as_raw();
+                    let arg_is_devtools = arg_is_devtools;
+                    let result = f(
+                        arg_self_,
+                        arg_browser_view,
+                        arg_settings,
+                        arg_client,
+                        arg_is_devtools,
+                    );
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn on_popup_browser_view_created(
+        &self,
+        browser_view: &mut BrowserView,
+        popup_browser_view: &mut BrowserView,
+        is_devtools: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .on_popup_browser_view_created
+                .map(|f| {
+                    let (arg_browser_view, arg_popup_browser_view, arg_is_devtools) =
+                        (browser_view, popup_browser_view, is_devtools);
+                    let arg_self_ = self.as_raw();
+                    let arg_browser_view = arg_browser_view.as_raw();
+                    let arg_popup_browser_view = arg_popup_browser_view.as_raw();
+                    let arg_is_devtools = arg_is_devtools;
+                    let result = f(
+                        arg_self_,
+                        arg_browser_view,
+                        arg_popup_browser_view,
+                        arg_is_devtools,
+                    );
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_chrome_toolbar_type(&self, browser_view: &mut BrowserView) -> ChromeToolbarType {
+        unsafe {
+            self.0
+                .get_chrome_toolbar_type
+                .map(|f| {
+                    let arg_browser_view = browser_view;
+                    let arg_self_ = self.as_raw();
+                    let arg_browser_view = arg_browser_view.as_raw();
+                    let result = f(arg_self_, arg_browser_view);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn use_frameless_window_for_picture_in_picture(
+        &self,
+        browser_view: &mut BrowserView,
+    ) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .use_frameless_window_for_picture_in_picture
+                .map(|f| {
+                    let arg_browser_view = browser_view;
+                    let arg_self_ = self.as_raw();
+                    let arg_browser_view = arg_browser_view.as_raw();
+                    let result = f(arg_self_, arg_browser_view);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn on_gesture_command(
+        &self,
+        browser_view: &mut BrowserView,
+        gesture_command: GestureCommand,
+    ) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .on_gesture_command
+                .map(|f| {
+                    let (arg_browser_view, arg_gesture_command) = (browser_view, gesture_command);
+                    let arg_self_ = self.as_raw();
+                    let arg_browser_view = arg_browser_view.as_raw();
+                    let arg_gesture_command = arg_gesture_command.as_raw();
+                    let result = f(arg_self_, arg_browser_view, arg_gesture_command);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_browser_runtime_style(&self) -> RuntimeStyle {
+        unsafe {
+            self.0
+                .get_browser_runtime_style
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_browser_view_delegate_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for BrowserViewDelegate {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_browser_view_delegate_t> for &BrowserViewDelegate {
+    fn as_raw(self) -> *mut _cef_browser_view_delegate_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_browser_view_delegate_t> for &mut BrowserViewDelegate {
+    fn as_raw(self) -> *mut _cef_browser_view_delegate_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<BrowserViewDelegate> for *mut _cef_browser_view_delegate_t {
+    fn as_wrapper(self) -> BrowserViewDelegate {
+        BrowserViewDelegate(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_browser_view_delegate_t> for BrowserViewDelegate {
+    fn into(self) -> *mut _cef_browser_view_delegate_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for BrowserViewDelegate {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
 pub trait ImplBrowserView: ImplView {
     fn get_browser(&self) -> Browser {
         unsafe { std::mem::zeroed() }
@@ -39264,6 +41741,224 @@ impl Into<*mut _cef_browser_view_t> for BrowserView {
     }
 }
 impl Default for BrowserView {
+    fn default() -> Self {
+        unsafe { std::mem::zeroed() }
+    }
+}
+pub trait ImplScrollView: ImplView {
+    fn set_content_view(&self, view: &mut View) {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_content_view(&self) -> View {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_visible_content_rect(&self) -> Rect {
+        unsafe { std::mem::zeroed() }
+    }
+    fn has_horizontal_scrollbar(&self) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_horizontal_scrollbar_height(&self) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn has_vertical_scrollbar(&self) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn get_vertical_scrollbar_width(&self) -> ::std::os::raw::c_int {
+        unsafe { std::mem::zeroed() }
+    }
+    fn into_raw(self) -> *mut _cef_scroll_view_t {
+        let mut object: _cef_scroll_view_t = unsafe { std::mem::zeroed() };
+        impl_cef_view_t::init_methods::<Self>(&mut object.base);
+        impl_cef_scroll_view_t::init_methods::<Self>(&mut object);
+        RcImpl::new(object, self) as *mut _
+    }
+}
+mod impl_cef_scroll_view_t {
+    use super::*;
+    pub fn init_methods<I: ImplScrollView>(object: &mut _cef_scroll_view_t) {
+        object.set_content_view = Some(set_content_view::<I>);
+        object.get_content_view = Some(get_content_view::<I>);
+        object.get_visible_content_rect = Some(get_visible_content_rect::<I>);
+        object.has_horizontal_scrollbar = Some(has_horizontal_scrollbar::<I>);
+        object.get_horizontal_scrollbar_height = Some(get_horizontal_scrollbar_height::<I>);
+        object.has_vertical_scrollbar = Some(has_vertical_scrollbar::<I>);
+        object.get_vertical_scrollbar_width = Some(get_vertical_scrollbar_width::<I>);
+    }
+    extern "C" fn set_content_view<I: ImplScrollView>(
+        self_: *mut _cef_scroll_view_t,
+        view: *mut _cef_view_t,
+    ) {
+        let (arg_self_, arg_view) = (self_, view);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        arg_self_.interface.set_content_view(arg_view)
+    }
+    extern "C" fn get_content_view<I: ImplScrollView>(
+        self_: *mut _cef_scroll_view_t,
+    ) -> *mut _cef_view_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_content_view().into()
+    }
+    extern "C" fn get_visible_content_rect<I: ImplScrollView>(
+        self_: *mut _cef_scroll_view_t,
+    ) -> _cef_rect_t {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_visible_content_rect().into()
+    }
+    extern "C" fn has_horizontal_scrollbar<I: ImplScrollView>(
+        self_: *mut _cef_scroll_view_t,
+    ) -> ::std::os::raw::c_int {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.has_horizontal_scrollbar().into()
+    }
+    extern "C" fn get_horizontal_scrollbar_height<I: ImplScrollView>(
+        self_: *mut _cef_scroll_view_t,
+    ) -> ::std::os::raw::c_int {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_horizontal_scrollbar_height().into()
+    }
+    extern "C" fn has_vertical_scrollbar<I: ImplScrollView>(
+        self_: *mut _cef_scroll_view_t,
+    ) -> ::std::os::raw::c_int {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.has_vertical_scrollbar().into()
+    }
+    extern "C" fn get_vertical_scrollbar_width<I: ImplScrollView>(
+        self_: *mut _cef_scroll_view_t,
+    ) -> ::std::os::raw::c_int {
+        let arg_self_ = self_;
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        arg_self_.interface.get_vertical_scrollbar_width().into()
+    }
+}
+#[doc = "See [_cef_scroll_view_t] for more documentation."]
+#[derive(Clone)]
+pub struct ScrollView(RefGuard<_cef_scroll_view_t>);
+impl ImplScrollView for ScrollView {
+    fn set_content_view(&self, view: &mut View) {
+        unsafe {
+            self.0
+                .set_content_view
+                .map(|f| {
+                    let arg_view = view;
+                    let arg_self_ = self.as_raw();
+                    let arg_view = arg_view.as_raw();
+                    let result = f(arg_self_, arg_view);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_content_view(&self) -> View {
+        unsafe {
+            self.0
+                .get_content_view
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_visible_content_rect(&self) -> Rect {
+        unsafe {
+            self.0
+                .get_visible_content_rect
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn has_horizontal_scrollbar(&self) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .has_horizontal_scrollbar
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_horizontal_scrollbar_height(&self) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .get_horizontal_scrollbar_height
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn has_vertical_scrollbar(&self) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .has_vertical_scrollbar
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+    fn get_vertical_scrollbar_width(&self) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .get_vertical_scrollbar_width
+                .map(|f| {
+                    let arg_self_ = self.as_raw();
+                    let result = f(arg_self_);
+                    result.as_wrapper()
+                })
+                .unwrap_or_else(|| std::mem::zeroed())
+        }
+    }
+}
+impl Rc for _cef_scroll_view_t {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.base.as_base()
+    }
+}
+impl Rc for ScrollView {
+    fn as_base(&self) -> &_cef_base_ref_counted_t {
+        self.0.as_base()
+    }
+}
+impl ConvertParam<*mut _cef_scroll_view_t> for &ScrollView {
+    fn as_raw(self) -> *mut _cef_scroll_view_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertParam<*mut _cef_scroll_view_t> for &mut ScrollView {
+    fn as_raw(self) -> *mut _cef_scroll_view_t {
+        unsafe { (&self.0).as_raw() }
+    }
+}
+impl ConvertReturnValue<ScrollView> for *mut _cef_scroll_view_t {
+    fn as_wrapper(self) -> ScrollView {
+        ScrollView(unsafe { RefGuard::from_raw(self) })
+    }
+}
+impl Into<*mut _cef_scroll_view_t> for ScrollView {
+    fn into(self) -> *mut _cef_scroll_view_t {
+        unsafe { self.0.into_raw() }
+    }
+}
+impl Default for ScrollView {
     fn default() -> Self {
         unsafe { std::mem::zeroed() }
     }
@@ -40045,120 +42740,6 @@ impl Into<*mut _cef_panel_delegate_t> for PanelDelegate {
     }
 }
 impl Default for PanelDelegate {
-    fn default() -> Self {
-        unsafe { std::mem::zeroed() }
-    }
-}
-#[doc = "See [_cef_box_layout_t] for more documentation."]
-#[repr(transparent)]
-pub struct BoxLayout(_cef_box_layout_t);
-impl From<_cef_box_layout_t> for BoxLayout {
-    fn from(value: _cef_box_layout_t) -> Self {
-        Self(value)
-    }
-}
-impl Into<*const _cef_box_layout_t> for &BoxLayout {
-    fn into(self) -> *const _cef_box_layout_t {
-        self.as_ref() as *const _cef_box_layout_t
-    }
-}
-impl Into<*mut _cef_box_layout_t> for &mut BoxLayout {
-    fn into(self) -> *mut _cef_box_layout_t {
-        self.as_mut() as *mut _cef_box_layout_t
-    }
-}
-impl Into<_cef_box_layout_t> for BoxLayout {
-    fn into(self) -> _cef_box_layout_t {
-        self.0
-    }
-}
-impl AsRef<_cef_box_layout_t> for BoxLayout {
-    fn as_ref(&self) -> &_cef_box_layout_t {
-        &self.0
-    }
-}
-impl AsMut<_cef_box_layout_t> for BoxLayout {
-    fn as_mut(&mut self) -> &mut _cef_box_layout_t {
-        &mut self.0
-    }
-}
-impl Default for BoxLayout {
-    fn default() -> Self {
-        unsafe { std::mem::zeroed() }
-    }
-}
-#[doc = "See [_cef_fill_layout_t] for more documentation."]
-#[repr(transparent)]
-pub struct FillLayout(_cef_fill_layout_t);
-impl From<_cef_fill_layout_t> for FillLayout {
-    fn from(value: _cef_fill_layout_t) -> Self {
-        Self(value)
-    }
-}
-impl Into<*const _cef_fill_layout_t> for &FillLayout {
-    fn into(self) -> *const _cef_fill_layout_t {
-        self.as_ref() as *const _cef_fill_layout_t
-    }
-}
-impl Into<*mut _cef_fill_layout_t> for &mut FillLayout {
-    fn into(self) -> *mut _cef_fill_layout_t {
-        self.as_mut() as *mut _cef_fill_layout_t
-    }
-}
-impl Into<_cef_fill_layout_t> for FillLayout {
-    fn into(self) -> _cef_fill_layout_t {
-        self.0
-    }
-}
-impl AsRef<_cef_fill_layout_t> for FillLayout {
-    fn as_ref(&self) -> &_cef_fill_layout_t {
-        &self.0
-    }
-}
-impl AsMut<_cef_fill_layout_t> for FillLayout {
-    fn as_mut(&mut self) -> &mut _cef_fill_layout_t {
-        &mut self.0
-    }
-}
-impl Default for FillLayout {
-    fn default() -> Self {
-        unsafe { std::mem::zeroed() }
-    }
-}
-#[doc = "See [_cef_layout_t] for more documentation."]
-#[repr(transparent)]
-pub struct Layout(_cef_layout_t);
-impl From<_cef_layout_t> for Layout {
-    fn from(value: _cef_layout_t) -> Self {
-        Self(value)
-    }
-}
-impl Into<*const _cef_layout_t> for &Layout {
-    fn into(self) -> *const _cef_layout_t {
-        self.as_ref() as *const _cef_layout_t
-    }
-}
-impl Into<*mut _cef_layout_t> for &mut Layout {
-    fn into(self) -> *mut _cef_layout_t {
-        self.as_mut() as *mut _cef_layout_t
-    }
-}
-impl Into<_cef_layout_t> for Layout {
-    fn into(self) -> _cef_layout_t {
-        self.0
-    }
-}
-impl AsRef<_cef_layout_t> for Layout {
-    fn as_ref(&self) -> &_cef_layout_t {
-        &self.0
-    }
-}
-impl AsMut<_cef_layout_t> for Layout {
-    fn as_mut(&mut self) -> &mut _cef_layout_t {
-        &mut self.0
-    }
-}
-impl Default for Layout {
     fn default() -> Self {
         unsafe { std::mem::zeroed() }
     }
@@ -45565,7 +48146,7 @@ pub fn stream_reader_create_for_file(file_name: &CefStringUtf16) -> StreamReader
     unsafe { cef_stream_reader_create_for_file(file_name.as_raw()).as_wrapper() }
 }
 pub fn stream_reader_create_for_data(
-    data: &mut ::std::os::raw::c_void,
+    data: *mut ::std::os::raw::c_void,
     size: usize,
 ) -> StreamReader {
     unsafe { cef_stream_reader_create_for_data(data.as_raw(), size.as_raw()).as_wrapper() }
@@ -45743,7 +48324,7 @@ pub fn v8value_create_array(length: ::std::os::raw::c_int) -> V8value {
     unsafe { cef_v8value_create_array(length.as_raw()).as_wrapper() }
 }
 pub fn v8value_create_array_buffer(
-    buffer: &mut ::std::os::raw::c_void,
+    buffer: *mut ::std::os::raw::c_void,
     length: usize,
     release_callback: &mut V8arrayBufferReleaseCallback,
 ) -> V8value {
@@ -45753,7 +48334,7 @@ pub fn v8value_create_array_buffer(
     }
 }
 pub fn v8value_create_array_buffer_with_copy(
-    buffer: &mut ::std::os::raw::c_void,
+    buffer: *mut ::std::os::raw::c_void,
     length: usize,
 ) -> V8value {
     unsafe {
@@ -45803,7 +48384,7 @@ pub fn clear_scheme_handler_factories() -> ::std::os::raw::c_int {
 pub fn execute_process(
     args: &MainArgs,
     application: &mut App,
-    windows_sandbox_info: &mut ::std::os::raw::c_void,
+    windows_sandbox_info: *mut ::std::os::raw::c_void,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_execute_process(
@@ -45818,7 +48399,7 @@ pub fn initialize(
     args: &MainArgs,
     settings: &Settings,
     application: &mut App,
-    windows_sandbox_info: &mut ::std::os::raw::c_void,
+    windows_sandbox_info: *mut ::std::os::raw::c_void,
 ) -> ::std::os::raw::c_int {
     unsafe {
         cef_initialize(
@@ -45845,6 +48426,25 @@ pub fn run_message_loop() {
 pub fn quit_message_loop() {
     unsafe { cef_quit_message_loop() }
 }
+pub fn urlrequest_create(
+    request: &mut Request,
+    client: &mut UrlrequestClient,
+    request_context: &mut RequestContext,
+) -> Urlrequest {
+    unsafe {
+        cef_urlrequest_create(request.as_raw(), client.as_raw(), request_context.as_raw())
+            .as_wrapper()
+    }
+}
+pub fn label_button_create(delegate: &mut ButtonDelegate, text: &CefStringUtf16) -> LabelButton {
+    unsafe { cef_label_button_create(delegate.as_raw(), text.as_raw()).as_wrapper() }
+}
+pub fn menu_button_create(delegate: &mut MenuButtonDelegate, text: &CefStringUtf16) -> MenuButton {
+    unsafe { cef_menu_button_create(delegate.as_raw(), text.as_raw()).as_wrapper() }
+}
+pub fn textfield_create(delegate: &mut TextfieldDelegate) -> Textfield {
+    unsafe { cef_textfield_create(delegate.as_raw()).as_wrapper() }
+}
 pub fn browser_view_create(
     client: &mut Client,
     url: &CefStringUtf16,
@@ -45867,6 +48467,9 @@ pub fn browser_view_create(
 }
 pub fn browser_view_get_for_browser(browser: &mut Browser) -> BrowserView {
     unsafe { cef_browser_view_get_for_browser(browser.as_raw()).as_wrapper() }
+}
+pub fn scroll_view_create(delegate: &mut ViewDelegate) -> ScrollView {
+    unsafe { cef_scroll_view_create(delegate.as_raw()).as_wrapper() }
 }
 pub fn display_get_primary() -> Display {
     unsafe { cef_display_get_primary().as_wrapper() }
