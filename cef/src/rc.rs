@@ -150,7 +150,6 @@ where
     }
 }
 
-#[repr(transparent)]
 pub struct WrapParamRef<T>(mem::ManuallyDrop<T>);
 
 impl<T, U> From<*mut T> for WrapParamRef<U>

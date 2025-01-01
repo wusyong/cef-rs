@@ -1,4 +1,4 @@
-use cef::{args::Args, bindings::*};
+use cef::{args::Args, *};
 
 #[derive(Debug, Clone, Copy)]
 struct Application;
@@ -10,7 +10,6 @@ struct DemoClient;
 
 impl ImplClient for DemoClient {}
 
-#[derive(Debug)]
 struct DemoWindow {
     browser_view: BrowserView,
 }
@@ -38,7 +37,7 @@ impl ImplWindowDelegate for DemoWindow {
 }
 
 fn main() {
-    let args = Args::new(std::env::args());
+    let args = Args::new(std::env::args()).to_raw();
     // dbg!(&args);
     let mut app = Application;
     let settings = Settings::default();
@@ -48,7 +47,7 @@ fn main() {
     // let window_info = WindowInfo::new();
     let browser_settings = BrowserSettings::default();
     let mut client = DemoClient;
-    let url = CefString::from("https://www.google.com");
+    let url = CefString::from(&CefStringUtf8::from("https://www.google.com"));
 
     let browser_view = dbg!(browser_view_create(
         &mut client,
