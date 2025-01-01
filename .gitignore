@@ -4,3 +4,5 @@
 build
 .flatpak-builder
 cargo-sources.json
+
+/.vscode/
