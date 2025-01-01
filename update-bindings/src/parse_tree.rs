@@ -426,13 +426,12 @@ impl SignatureRef<'_> {
                 let ty_tokens = arg_ty.to_token_stream();
                 let ty_string = ty_tokens.to_string();
                 let entry = tree.cef_name_map.get(&ty_string);
-
                 (tree.root(&ty_string) == BASE_REF_COUNTED)
                     .then(|| {
                         match modifiers {
                             [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
                                 Some(quote! {
-                                    let mut #name = #name.map(|arg| arg.as_raw());
+                                    let mut #name = #name.map(|arg| Clone::clone(arg).into_raw());
                                     let #name = #name
                                         .as_mut()
                                         .map(|arg| arg as *mut _)
@@ -440,9 +439,25 @@ impl SignatureRef<'_> {
                                 })
                             }
                             _ => {
-                                Some(quote! {
-                                    let #name = #name.as_raw();
-                                })
+                                if ty_string.as_str() == BASE_REF_COUNTED {
+                                    Some(quote!{
+                                        let #name = #name.as_raw();
+                                    })
+                                } else {
+                                    let cast = entry.and_then(|entry| {
+                                            syn::parse_str::<syn::Type>(&entry.name).ok()
+                                        })
+                                        .map(|ty| {
+                                            let ty = ty.to_token_stream().to_string();
+                                            let ty = format_ident!("Impl{ty}");
+                                            quote!{ #ty::into_raw(Clone::clone(#name)) }
+                                        })
+                                        .unwrap_or_else(|| quote!{ Clone::clone(#name).into_raw() });
+    
+                                    Some(quote! {
+                                        let #name = #cast;
+                                    })
+                                }
                             },
                         }
                     })
@@ -521,7 +536,7 @@ impl SignatureRef<'_> {
                                 .iter()
                                 .map(|elem| elem
                                     .as_ref()
-                                    .map(|elem| elem.as_raw())
+                                    .map(|elem| Clone::clone(elem).into_raw())
                                     .unwrap_or(std::ptr::null_mut()))
                                 .collect::<Vec<_>>())
                             .unwrap_or_default();
@@ -1109,6 +1124,7 @@ impl<'a> TryFrom<&'a syn::Field> for SignatureRef<'a> {
 }
 
 const BASE_REF_COUNTED: &str = "_cef_base_ref_counted_t";
+
 const CUSTOM_STRING_TYPES: &[&str] = &[
     "_cef_string_utf8_t",
     "_cef_string_utf16_t",
@@ -1162,21 +1178,22 @@ impl ModifiedType {
                 name,
                 ty: NameMapType::StructDeclaration,
             }) => {
-                // let root = tree.root(&elem_string);
-                // if BASE_REF_COUNTED == root && root != elem_string.as_str() {
-                //     let name = format_ident!("Impl{name}");
+                let root = tree.root(&elem_string);
+                if BASE_REF_COUNTED == root && root != elem_string.as_str() {
+                    let impl_trait = format_ident!("Impl{name}");
+                    let name = format_ident!("{name}");
 
-                //     match self.modifiers.as_slice() {
-                //         [TypeModifier::ConstPtr] => Some(quote! { &dyn #name }),
-                //         [TypeModifier::MutPtr] => Some(quote! { &mut dyn #name }),
-                //         [TypeModifier::MutPtr, TypeModifier::MutPtr] => Some(quote! { Option<&mut dyn #name> }),
-                //         [TypeModifier::Slice] => Some(quote! { Option<&[Option<dyn #name>]> }),
-                //         [TypeModifier::MutSlice] => {
-                //             Some(quote! { Option<&mut Vec<Option<dyn #name>>> })
-                //         }
-                //         _ => None,
-                //     }
-                // } else {
+                    match self.modifiers.as_slice() {
+                        [TypeModifier::ConstPtr] => Some(quote! { &impl #impl_trait }),
+                        [TypeModifier::MutPtr] => Some(quote! { &mut impl #impl_trait }),
+                        [TypeModifier::MutPtr, TypeModifier::MutPtr] => Some(quote! { Option<&mut impl #impl_trait> }),
+                        [TypeModifier::Slice] => Some(quote! { Option<&[Option<impl #impl_trait>]> }),
+                        [TypeModifier::MutSlice] => {
+                            Some(quote! { Option<&mut Vec<Option<#name>>> })
+                        }
+                        _ => None,
+                    }
+                } else {
                     let name = format_ident!("{name}");
 
                     match self.modifiers.as_slice() {
@@ -1189,7 +1206,7 @@ impl ModifiedType {
                         }
                         _ => None,
                     }
-                // }
+                }
             }
             Some(NameMapEntry {
                 name,
@@ -1557,9 +1574,10 @@ impl<'a> ParseTree<'a> {
                     .and_then(|base| self.cef_name_map.get(base))
                     .map(|entry| {
                         let base = &entry.name;
-                        format_ident!("Impl{base}")
+                        let base = format_ident!("Impl{base}");
+                        quote! { #base }
                     })
-                    .unwrap_or(format_ident!("Sized"));
+                    .unwrap_or(quote! { Clone + Default + Sized + Rc });
                 let impl_methods = s.methods.iter().map(|m| {
                     let sig = m.get_signature(self);
                     quote! {
@@ -1682,7 +1700,7 @@ impl<'a> ParseTree<'a> {
                     quote! {
                         extern "C" fn #name<I: #impl_trait>(#(#args),*) #output {
                             #wrapped_args
-                            let result = arg_self_.interface.#name(#(#forward_args),*);
+                            let result = #impl_trait::#name(&arg_self_.interface, #(#forward_args),*);
                             #unwrapped_args
                             #forward_output
                         }

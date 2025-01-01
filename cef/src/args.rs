@@ -2,10 +2,11 @@ use std::ffi::{c_char, CString};
 
 use crate::MainArgs;
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Default)]
 pub struct Args {
     _source: Vec<CString>,
-    argv: Vec<*const c_char>,
+    _argv: Vec<*const c_char>,
+    main_args: MainArgs,
 }
 
 impl Args {
@@ -14,17 +15,23 @@ impl Args {
             .into_iter()
             .map(|arg| CString::new(arg).unwrap())
             .collect::<Vec<CString>>();
-        let argv = _source
+        let _argv = _source
             .iter()
             .map(|arg| arg.as_ptr())
             .collect::<Vec<*const c_char>>();
-        Self { _source, argv }
+        let main_args = MainArgs {
+            argc: _argv.len() as i32,
+            argv: _argv.as_ptr() as *mut *mut _,
+        };
+
+        Self {
+            _source,
+            _argv,
+            main_args,
+        }
     }
 
-    pub fn to_raw(&self) -> MainArgs {
-        MainArgs {
-            argc: self.argv.len() as i32,
-            argv: self.argv.as_ptr() as *mut *mut _,
-        }
+    pub fn as_raw(&self) -> &MainArgs {
+        &self.main_args
     }
 }
