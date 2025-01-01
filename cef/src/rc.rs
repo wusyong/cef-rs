@@ -226,7 +226,7 @@ impl<T: Rc> RefGuard<T> {
     /// This should be used to get the **return value** of the FFI function. This means we get the
     /// ownership of the value. The reference count of the return value is already increased when
     /// you get it. So we don't need to increase it again manually. Using this method elsewhere may
-    /// cause incorrect reference count and memory safty issues.
+    /// cause incorrect reference count and memory safety issues.
     pub unsafe fn from_raw(ptr: *mut T) -> RefGuard<T> {
         RefGuard { object: ptr }
     }
@@ -237,7 +237,7 @@ impl<T: Rc> RefGuard<T> {
     /// # Safety
     ///
     /// THis should be used when you want to manually increase the reference count upon getting the
-    /// raw pointer. Using this method elsewehre may cause incorrect reference count and memory
+    /// raw pointer. Using this method elsewhere may cause incorrect reference count and memory
     /// safety issues.
     pub unsafe fn from_raw_add_ref(ptr: *mut T) -> RefGuard<T> {
         let guard = RefGuard { object: ptr };
@@ -253,7 +253,7 @@ impl<T: Rc> RefGuard<T> {
     ///
     /// This should be used when you need to pass wrapper type to the FFI function as **parameter**, and it **is**
     /// the `self` type (usually the first parameter). This means we pass the ownership of the
-    /// value to the function call. Using this method elsewehre may cause incorrect reference count
+    /// value to the function call. Using this method elsewhere may cause incorrect reference count
     /// and memory safety issues.
     pub unsafe fn as_raw(&self) -> *mut T {
         self.object
@@ -265,7 +265,7 @@ impl<T: Rc> RefGuard<T> {
     ///
     /// This should be used when you need to pass wrapper type to the FFI function as **parameter**, and it is **not**
     /// the `self` type (usually the first parameter). This means we pass the ownership of the
-    /// value to the function call. Using this method elsewehre may cause incorrect reference count
+    /// value to the function call. Using this method elsewhere may cause incorrect reference count
     /// and memory safety issues.
     pub unsafe fn into_raw(self) -> *mut T {
         mem::ManuallyDrop::new(self).object
