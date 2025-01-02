@@ -1605,6 +1605,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .map(|f| {
                     let (arg_browser, arg_message) = (browser, message);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_message_size = arg_message
                         .as_ref()
@@ -1640,6 +1641,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                     let (arg_browser, arg_message_id, arg_success, arg_result) =
                         (browser, message_id, success, result);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_message_id = arg_message_id;
                     let arg_success = arg_success;
@@ -1680,6 +1682,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .map(|f| {
                     let (arg_browser, arg_method, arg_params) = (browser, method, params);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_method = arg_method.as_raw();
                     let arg_params_size =
@@ -1713,6 +1716,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -1727,6 +1731,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -2092,6 +2097,7 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -2106,6 +2112,7 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -2296,6 +2303,7 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplBinaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
@@ -2310,6 +2318,7 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplDictionaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
@@ -2324,6 +2333,7 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplListValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
@@ -2530,6 +2540,7 @@ impl ImplBinaryValue for BinaryValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplBinaryValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -2544,6 +2555,7 @@ impl ImplBinaryValue for BinaryValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplBinaryValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -3161,6 +3173,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplDictionaryValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -3175,6 +3188,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplDictionaryValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -3396,6 +3410,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let (arg_key, arg_value) = (key, value);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
@@ -3493,6 +3508,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let (arg_key, arg_value) = (key, value);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplBinaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
@@ -3512,6 +3528,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let (arg_key, arg_value) = (key, value);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplDictionaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
@@ -3531,6 +3548,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let (arg_key, arg_value) = (key, value);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplListValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
@@ -4029,6 +4047,7 @@ impl ImplListValue for ListValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplListValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -4043,6 +4062,7 @@ impl ImplListValue for ListValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplListValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -4248,6 +4268,7 @@ impl ImplListValue for ListValue {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
+                    arg_value.add_ref();
                     let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
@@ -4337,6 +4358,7 @@ impl ImplListValue for ListValue {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
+                    arg_value.add_ref();
                     let arg_value = ImplBinaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
@@ -4356,6 +4378,7 @@ impl ImplListValue for ListValue {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
+                    arg_value.add_ref();
                     let arg_value = ImplDictionaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
@@ -4371,6 +4394,7 @@ impl ImplListValue for ListValue {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
+                    arg_value.add_ref();
                     let arg_value = ImplListValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
@@ -4801,6 +4825,7 @@ impl ImplImage for Image {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplImage::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -6430,6 +6455,7 @@ impl ImplDragData for DragData {
                 .map(|f| {
                     let arg_writer = writer;
                     let arg_self_ = self.as_raw();
+                    arg_writer.add_ref();
                     let arg_writer = ImplStreamWriter::get_raw(arg_writer);
                     let result = f(arg_self_, arg_writer);
                     result.as_wrapper()
@@ -6700,6 +6726,7 @@ impl ImplDomvisitor for Domvisitor {
                 .map(|f| {
                     let arg_document = document;
                     let arg_self_ = self.as_raw();
+                    arg_document.add_ref();
                     let arg_document = ImplDomdocument::get_raw(arg_document);
                     let result = f(arg_self_, arg_document);
                     result.as_wrapper()
@@ -7566,6 +7593,7 @@ impl ImplDomnode for Domnode {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplDomnode::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -8639,6 +8667,7 @@ impl ImplRequest for Request {
                 .map(|f| {
                     let arg_post_data = post_data;
                     let arg_self_ = self.as_raw();
+                    arg_post_data.add_ref();
                     let arg_post_data = ImplPostData::get_raw(arg_post_data);
                     let result = f(arg_self_, arg_post_data);
                     result.as_wrapper()
@@ -8725,6 +8754,7 @@ impl ImplRequest for Request {
                     let arg_self_ = self.as_raw();
                     let arg_url = arg_url.as_raw();
                     let arg_method = arg_method.as_raw();
+                    arg_post_data.add_ref();
                     let arg_post_data = ImplPostData::get_raw(arg_post_data);
                     let arg_header_map = arg_header_map.as_raw();
                     let result = f(
@@ -9085,6 +9115,7 @@ impl ImplPostData for PostData {
                 .map(|f| {
                     let arg_element = element;
                     let arg_self_ = self.as_raw();
+                    arg_element.add_ref();
                     let arg_element = ImplPostDataElement::get_raw(arg_element);
                     let result = f(arg_self_, arg_element);
                     result.as_wrapper()
@@ -9099,6 +9130,7 @@ impl ImplPostData for PostData {
                 .map(|f| {
                     let arg_element = element;
                     let arg_self_ = self.as_raw();
+                    arg_element.add_ref();
                     let arg_element = ImplPostDataElement::get_raw(arg_element);
                     let result = f(arg_self_, arg_element);
                     result.as_wrapper()
@@ -9956,6 +9988,7 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let arg_visitor = visitor;
                     let arg_self_ = self.as_raw();
+                    arg_visitor.add_ref();
                     let arg_visitor = ImplCefStringVisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_visitor);
                     result.as_wrapper()
@@ -9970,6 +10003,7 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let arg_visitor = visitor;
                     let arg_self_ = self.as_raw();
+                    arg_visitor.add_ref();
                     let arg_visitor = ImplCefStringVisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_visitor);
                     result.as_wrapper()
@@ -9984,6 +10018,7 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let arg_request = request;
                     let arg_self_ = self.as_raw();
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let result = f(arg_self_, arg_request);
                     result.as_wrapper()
@@ -10129,6 +10164,7 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let arg_visitor = visitor;
                     let arg_self_ = self.as_raw();
+                    arg_visitor.add_ref();
                     let arg_visitor = ImplDomvisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_visitor);
                     result.as_wrapper()
@@ -10147,7 +10183,9 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let (arg_request, arg_client) = (request, client);
                     let arg_self_ = self.as_raw();
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
+                    arg_client.add_ref();
                     let arg_client = ImplUrlrequestClient::get_raw(arg_client);
                     let result = f(arg_self_, arg_request, arg_client);
                     result.as_wrapper()
@@ -10167,6 +10205,7 @@ impl ImplFrame for Frame {
                     let (arg_target_process, arg_message) = (target_process, message);
                     let arg_self_ = self.as_raw();
                     let arg_target_process = arg_target_process.as_raw();
+                    arg_message.add_ref();
                     let arg_message = ImplProcessMessage::get_raw(arg_message);
                     let result = f(arg_self_, arg_target_process, arg_message);
                     result.as_wrapper()
@@ -11703,6 +11742,7 @@ impl ImplCookieManager for CookieManager {
                 .map(|f| {
                     let arg_visitor = visitor;
                     let arg_self_ = self.as_raw();
+                    arg_visitor.add_ref();
                     let arg_visitor = ImplCookieVisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_visitor);
                     result.as_wrapper()
@@ -11725,6 +11765,7 @@ impl ImplCookieManager for CookieManager {
                     let arg_self_ = self.as_raw();
                     let arg_url = arg_url.as_raw();
                     let arg_include_http_only = arg_include_http_only;
+                    arg_visitor.add_ref();
                     let arg_visitor = ImplCookieVisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_url, arg_include_http_only, arg_visitor);
                     result.as_wrapper()
@@ -11747,6 +11788,7 @@ impl ImplCookieManager for CookieManager {
                     let arg_url = arg_url.as_raw();
                     let arg_cookie: _cef_cookie_t = arg_cookie.clone().into();
                     let arg_cookie = &arg_cookie;
+                    arg_callback.add_ref();
                     let arg_callback = ImplSetCookieCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_url, arg_cookie, arg_callback);
                     result.as_wrapper()
@@ -11768,6 +11810,7 @@ impl ImplCookieManager for CookieManager {
                     let arg_self_ = self.as_raw();
                     let arg_url = arg_url.as_raw();
                     let arg_cookie_name = arg_cookie_name.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplDeleteCookiesCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_url, arg_cookie_name, arg_callback);
                     result.as_wrapper()
@@ -11782,6 +11825,7 @@ impl ImplCookieManager for CookieManager {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
@@ -12211,6 +12255,7 @@ impl ImplMediaRouter for MediaRouter {
                 .map(|f| {
                     let arg_observer = observer;
                     let arg_self_ = self.as_raw();
+                    arg_observer.add_ref();
                     let arg_observer = ImplMediaObserver::get_raw(arg_observer);
                     let result = f(arg_self_, arg_observer);
                     result.as_wrapper()
@@ -12256,8 +12301,11 @@ impl ImplMediaRouter for MediaRouter {
                 .map(|f| {
                     let (arg_source, arg_sink, arg_callback) = (source, sink, callback);
                     let arg_self_ = self.as_raw();
+                    arg_source.add_ref();
                     let arg_source = ImplMediaSource::get_raw(arg_source);
+                    arg_sink.add_ref();
                     let arg_sink = ImplMediaSink::get_raw(arg_sink);
+                    arg_callback.add_ref();
                     let arg_callback = ImplMediaRouteCreateCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_source, arg_sink, arg_callback);
                     result.as_wrapper()
@@ -12505,6 +12553,7 @@ impl ImplMediaObserver for MediaObserver {
                 .map(|f| {
                     let (arg_route, arg_state) = (route, state);
                     let arg_self_ = self.as_raw();
+                    arg_route.add_ref();
                     let arg_route = ImplMediaRoute::get_raw(arg_route);
                     let arg_state = arg_state.as_raw();
                     let result = f(arg_self_, arg_route, arg_state);
@@ -12520,6 +12569,7 @@ impl ImplMediaObserver for MediaObserver {
                 .map(|f| {
                     let (arg_route, arg_message) = (route, message);
                     let arg_self_ = self.as_raw();
+                    arg_route.add_ref();
                     let arg_route = ImplMediaRoute::get_raw(arg_route);
                     let arg_message_size = arg_message
                         .as_ref()
@@ -12833,6 +12883,7 @@ impl ImplMediaRouteCreateCallback for MediaRouteCreateCallback {
                     let arg_self_ = self.as_raw();
                     let arg_result = arg_result.as_raw();
                     let arg_error = arg_error.as_raw();
+                    arg_route.add_ref();
                     let arg_route = ImplMediaRoute::get_raw(arg_route);
                     let result = f(arg_self_, arg_result, arg_error, arg_route);
                     result.as_wrapper()
@@ -13027,6 +13078,7 @@ impl ImplMediaSink for MediaSink {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplMediaSinkDeviceInfoCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
@@ -13065,6 +13117,7 @@ impl ImplMediaSink for MediaSink {
                 .map(|f| {
                     let arg_source = source;
                     let arg_self_ = self.as_raw();
+                    arg_source.add_ref();
                     let arg_source = ImplMediaSource::get_raw(arg_source);
                     let result = f(arg_self_, arg_source);
                     result.as_wrapper()
@@ -13547,6 +13600,7 @@ impl ImplPreferenceManager for PreferenceManager {
                     let (arg_name, arg_value, arg_error) = (name, value, error);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplValue::get_raw(arg_value);
                     let arg_error = arg_error.as_raw();
                     let result = f(arg_self_, arg_name, arg_value, arg_error);
@@ -14128,6 +14182,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_other = other;
                     let arg_self_ = self.as_raw();
+                    arg_other.add_ref();
                     let arg_other = ImplRequestContext::get_raw(arg_other);
                     let result = f(arg_self_, arg_other);
                     result.as_wrapper()
@@ -14142,6 +14197,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_other = other;
                     let arg_self_ = self.as_raw();
+                    arg_other.add_ref();
                     let arg_other = ImplRequestContext::get_raw(arg_other);
                     let result = f(arg_self_, arg_other);
                     result.as_wrapper()
@@ -14192,6 +14248,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
@@ -14214,6 +14271,7 @@ impl ImplRequestContext for RequestContext {
                     let arg_self_ = self.as_raw();
                     let arg_scheme_name = arg_scheme_name.as_raw();
                     let arg_domain_name = arg_domain_name.as_raw();
+                    arg_factory.add_ref();
                     let arg_factory = ImplSchemeHandlerFactory::get_raw(arg_factory);
                     let result = f(arg_self_, arg_scheme_name, arg_domain_name, arg_factory);
                     result.as_wrapper()
@@ -14240,6 +14298,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
@@ -14254,6 +14313,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
@@ -14268,6 +14328,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
@@ -14283,6 +14344,7 @@ impl ImplRequestContext for RequestContext {
                     let (arg_origin, arg_callback) = (origin, callback);
                     let arg_self_ = self.as_raw();
                     let arg_origin = arg_origin.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplResolveCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_origin, arg_callback);
                     result.as_wrapper()
@@ -14297,6 +14359,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
@@ -14348,6 +14411,7 @@ impl ImplRequestContext for RequestContext {
                     let arg_requesting_url = arg_requesting_url.as_raw();
                     let arg_top_level_url = arg_top_level_url.as_raw();
                     let arg_content_type = arg_content_type.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(
                         arg_self_,
@@ -14899,6 +14963,7 @@ impl ImplBrowser for Browser {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplBrowser::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -15216,6 +15281,7 @@ impl ImplNavigationEntryVisitor for NavigationEntryVisitor {
                     let (arg_entry, arg_current, arg_index, arg_total) =
                         (entry, current, index, total);
                     let arg_self_ = self.as_raw();
+                    arg_entry.add_ref();
                     let arg_entry = ImplNavigationEntry::get_raw(arg_entry);
                     let arg_current = arg_current;
                     let arg_index = arg_index;
@@ -15414,6 +15480,7 @@ impl ImplDownloadImageCallback for DownloadImageCallback {
                     let arg_self_ = self.as_raw();
                     let arg_image_url = arg_image_url.as_raw();
                     let arg_http_status_code = arg_http_status_code;
+                    arg_image.add_ref();
                     let arg_image = ImplImage::get_raw(arg_image);
                     let result = f(arg_self_, arg_image_url, arg_http_status_code, arg_image);
                     result.as_wrapper()
@@ -16875,6 +16942,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_title = arg_title.as_raw();
                     let arg_default_file_path = arg_default_file_path.as_raw();
                     let arg_accept_filters = arg_accept_filters.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplRunFileDialogCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -16933,6 +17001,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_is_favicon = arg_is_favicon;
                     let arg_max_image_size = arg_max_image_size;
                     let arg_bypass_cache = arg_bypass_cache;
+                    arg_callback.add_ref();
                     let arg_callback = ImplDownloadImageCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -16974,6 +17043,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_path = arg_path.as_raw();
                     let arg_settings: _cef_pdf_print_settings_t = arg_settings.clone().into();
                     let arg_settings = &arg_settings;
+                    arg_callback.add_ref();
                     let arg_callback = ImplPdfPrintCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_path, arg_settings, arg_callback);
                     result.as_wrapper()
@@ -17041,6 +17111,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_self_ = self.as_raw();
                     let arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
                     let arg_window_info = &arg_window_info;
+                    arg_client.add_ref();
                     let arg_client = ImplClient::get_raw(arg_client);
                     let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
                     let arg_settings = &arg_settings;
@@ -17124,6 +17195,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_self_ = self.as_raw();
                     let arg_message_id = arg_message_id;
                     let arg_method = arg_method.as_raw();
+                    arg_params.add_ref();
                     let arg_params = ImplDictionaryValue::get_raw(arg_params);
                     let result = f(arg_self_, arg_message_id, arg_method, arg_params);
                     result.as_wrapper()
@@ -17141,6 +17213,7 @@ impl ImplBrowserHost for BrowserHost {
                 .map(|f| {
                     let arg_observer = observer;
                     let arg_self_ = self.as_raw();
+                    arg_observer.add_ref();
                     let arg_observer = ImplDevToolsMessageObserver::get_raw(arg_observer);
                     let result = f(arg_self_, arg_observer);
                     result.as_wrapper()
@@ -17159,6 +17232,7 @@ impl ImplBrowserHost for BrowserHost {
                 .map(|f| {
                     let (arg_visitor, arg_current_only) = (visitor, current_only);
                     let arg_self_ = self.as_raw();
+                    arg_visitor.add_ref();
                     let arg_visitor = ImplNavigationEntryVisitor::get_raw(arg_visitor);
                     let arg_current_only = arg_current_only;
                     let result = f(arg_self_, arg_visitor, arg_current_only);
@@ -17535,6 +17609,7 @@ impl ImplBrowserHost for BrowserHost {
                     let (arg_drag_data, arg_event, arg_allowed_ops) =
                         (drag_data, event, allowed_ops);
                     let arg_self_ = self.as_raw();
+                    arg_drag_data.add_ref();
                     let arg_drag_data = ImplDragData::get_raw(arg_drag_data);
                     let arg_event: _cef_mouse_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
@@ -17961,6 +18036,7 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let (arg_browser, arg_params) = (browser, params);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_params: _cef_audio_parameters_t = arg_params.clone().into();
                     let arg_params = &mut arg_params;
@@ -17982,6 +18058,7 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let (arg_browser, arg_params, arg_channels) = (browser, params, channels);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_params: _cef_audio_parameters_t = arg_params.clone().into();
                     let arg_params = &arg_params;
@@ -18005,6 +18082,7 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let (arg_browser, arg_data, arg_frames, arg_pts) = (browser, data, frames, pts);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_data = arg_data as *mut _;
                     let arg_frames = arg_frames;
@@ -18022,6 +18100,7 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -18036,6 +18115,7 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let (arg_browser, arg_message) = (browser, message);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_message = arg_message.as_raw();
                     let result = f(arg_self_, arg_browser, arg_message);
@@ -18230,6 +18310,7 @@ impl ImplCommandHandler for CommandHandler {
                     let (arg_browser, arg_command_id, arg_disposition) =
                         (browser, command_id, disposition);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_command_id = arg_command_id;
                     let arg_disposition = arg_disposition.as_raw();
@@ -18250,6 +18331,7 @@ impl ImplCommandHandler for CommandHandler {
                 .map(|f| {
                     let (arg_browser, arg_command_id) = (browser, command_id);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_command_id = arg_command_id;
                     let result = f(arg_self_, arg_browser, arg_command_id);
@@ -18269,6 +18351,7 @@ impl ImplCommandHandler for CommandHandler {
                 .map(|f| {
                     let (arg_browser, arg_command_id) = (browser, command_id);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_command_id = arg_command_id;
                     let result = f(arg_self_, arg_browser, arg_command_id);
@@ -18522,6 +18605,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                     let (arg_menu_model, arg_command_id, arg_event_flags) =
                         (menu_model, command_id, event_flags);
                     let arg_self_ = self.as_raw();
+                    arg_menu_model.add_ref();
                     let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_command_id = arg_command_id;
                     let arg_event_flags = arg_event_flags.as_raw();
@@ -18538,6 +18622,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let (arg_menu_model, arg_screen_point) = (menu_model, screen_point);
                     let arg_self_ = self.as_raw();
+                    arg_menu_model.add_ref();
                     let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_screen_point: _cef_point_t = arg_screen_point.clone().into();
                     let arg_screen_point = &arg_screen_point;
@@ -18558,6 +18643,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let (arg_menu_model, arg_is_rtl) = (menu_model, is_rtl);
                     let arg_self_ = self.as_raw();
+                    arg_menu_model.add_ref();
                     let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_is_rtl = arg_is_rtl;
                     let result = f(arg_self_, arg_menu_model, arg_is_rtl);
@@ -18577,6 +18663,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let (arg_menu_model, arg_is_rtl) = (menu_model, is_rtl);
                     let arg_self_ = self.as_raw();
+                    arg_menu_model.add_ref();
                     let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_is_rtl = arg_is_rtl;
                     let result = f(arg_self_, arg_menu_model, arg_is_rtl);
@@ -18592,6 +18679,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let arg_menu_model = menu_model;
                     let arg_self_ = self.as_raw();
+                    arg_menu_model.add_ref();
                     let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let result = f(arg_self_, arg_menu_model);
                     result.as_wrapper()
@@ -18606,6 +18694,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let arg_menu_model = menu_model;
                     let arg_self_ = self.as_raw();
+                    arg_menu_model.add_ref();
                     let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let result = f(arg_self_, arg_menu_model);
                     result.as_wrapper()
@@ -18624,6 +18713,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let (arg_menu_model, arg_label) = (menu_model, label);
                     let arg_self_ = self.as_raw();
+                    arg_menu_model.add_ref();
                     let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_label = arg_label.as_raw();
                     let result = f(arg_self_, arg_menu_model, arg_label);
@@ -21403,9 +21493,13 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     let (arg_browser, arg_frame, arg_params, arg_model) =
                         (browser, frame, params, model);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_params.add_ref();
                     let arg_params = ImplContextMenuParams::get_raw(arg_params);
+                    arg_model.add_ref();
                     let arg_model = ImplMenuModel::get_raw(arg_model);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_params, arg_model);
                     result.as_wrapper()
@@ -21428,10 +21522,15 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     let (arg_browser, arg_frame, arg_params, arg_model, arg_callback) =
                         (browser, frame, params, model, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_params.add_ref();
                     let arg_params = ImplContextMenuParams::get_raw(arg_params);
+                    arg_model.add_ref();
                     let arg_model = ImplMenuModel::get_raw(arg_model);
+                    arg_callback.add_ref();
                     let arg_callback = ImplRunContextMenuCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -21461,8 +21560,11 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     let (arg_browser, arg_frame, arg_params, arg_command_id, arg_event_flags) =
                         (browser, frame, params, command_id, event_flags);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_params.add_ref();
                     let arg_params = ImplContextMenuParams::get_raw(arg_params);
                     let arg_command_id = arg_command_id;
                     let arg_event_flags = arg_event_flags.as_raw();
@@ -21490,7 +21592,9 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
@@ -21520,13 +21624,16 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                         arg_callback,
                     ) = (browser, frame, location, size, edit_state_flags, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_location: _cef_point_t = arg_location.clone().into();
                     let arg_location = &arg_location;
                     let arg_size: _cef_size_t = arg_size.clone().into();
                     let arg_size = &arg_size;
                     let arg_edit_state_flags = arg_edit_state_flags.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplRunQuickMenuCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -21556,7 +21663,9 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     let (arg_browser, arg_frame, arg_command_id, arg_event_flags) =
                         (browser, frame, command_id, event_flags);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_command_id = arg_command_id;
                     let arg_event_flags = arg_event_flags.as_raw();
@@ -21579,7 +21688,9 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
@@ -22400,6 +22511,7 @@ impl ImplDialogHandler for DialogHandler {
                         callback,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_mode = arg_mode.as_raw();
                     let arg_title = arg_title.as_raw();
@@ -22407,6 +22519,7 @@ impl ImplDialogHandler for DialogHandler {
                     let arg_accept_filters = arg_accept_filters.as_raw();
                     let arg_accept_extensions = arg_accept_extensions.as_raw();
                     let arg_accept_descriptions = arg_accept_descriptions.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplFileDialogCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -22760,7 +22873,9 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_url) = (browser, frame, url);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_url = arg_url.as_raw();
                     let result = f(arg_self_, arg_browser, arg_frame, arg_url);
@@ -22776,6 +22891,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_title) = (browser, title);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_title = arg_title.as_raw();
                     let result = f(arg_self_, arg_browser, arg_title);
@@ -22791,6 +22907,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_icon_urls) = (browser, icon_urls);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_icon_urls = arg_icon_urls.as_raw();
                     let result = f(arg_self_, arg_browser, arg_icon_urls);
@@ -22810,6 +22927,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_fullscreen) = (browser, fullscreen);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_fullscreen = arg_fullscreen;
                     let result = f(arg_self_, arg_browser, arg_fullscreen);
@@ -22829,6 +22947,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_text) = (browser, text);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_text = arg_text.as_raw();
                     let result = f(arg_self_, arg_browser, arg_text);
@@ -22844,6 +22963,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_value) = (browser, value);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_value = arg_value.as_raw();
                     let result = f(arg_self_, arg_browser, arg_value);
@@ -22867,6 +22987,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     let (arg_browser, arg_level, arg_message, arg_source, arg_line) =
                         (browser, level, message, source, line);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_level = arg_level.as_raw();
                     let arg_message = arg_message.as_raw();
@@ -22896,6 +23017,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_new_size) = (browser, new_size);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_new_size: _cef_size_t = arg_new_size.clone().into();
                     let arg_new_size = &arg_new_size;
@@ -22912,6 +23034,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_progress) = (browser, progress);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_progress = arg_progress;
                     let result = f(arg_self_, arg_browser, arg_progress);
@@ -22934,6 +23057,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     let (arg_browser, arg_cursor, arg_type_, arg_custom_cursor_info) =
                         (browser, cursor, type_, custom_cursor_info);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_cursor = arg_cursor;
                     let arg_type_ = arg_type_.as_raw();
@@ -22965,6 +23089,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     let (arg_browser, arg_has_video_access, arg_has_audio_access) =
                         (browser, has_video_access, has_audio_access);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_has_video_access = arg_has_video_access;
                     let arg_has_audio_access = arg_has_audio_access;
@@ -23856,6 +23981,7 @@ impl ImplDownloadHandler for DownloadHandler {
                 .map(|f| {
                     let (arg_browser, arg_url, arg_request_method) = (browser, url, request_method);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_url = arg_url.as_raw();
                     let arg_request_method = arg_request_method.as_raw();
@@ -23879,9 +24005,12 @@ impl ImplDownloadHandler for DownloadHandler {
                     let (arg_browser, arg_download_item, arg_suggested_name, arg_callback) =
                         (browser, download_item, suggested_name, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_download_item.add_ref();
                     let arg_download_item = ImplDownloadItem::get_raw(arg_download_item);
                     let arg_suggested_name = arg_suggested_name.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplBeforeDownloadCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -23908,8 +24037,11 @@ impl ImplDownloadHandler for DownloadHandler {
                     let (arg_browser, arg_download_item, arg_callback) =
                         (browser, download_item, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_download_item.add_ref();
                     let arg_download_item = ImplDownloadItem::get_raw(arg_download_item);
+                    arg_callback.add_ref();
                     let arg_callback = ImplDownloadItemCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_browser, arg_download_item, arg_callback);
                     result.as_wrapper()
@@ -24046,7 +24178,9 @@ impl ImplDragHandler for DragHandler {
                 .map(|f| {
                     let (arg_browser, arg_drag_data, arg_mask) = (browser, drag_data, mask);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_drag_data.add_ref();
                     let arg_drag_data = ImplDragData::get_raw(arg_drag_data);
                     let arg_mask = arg_mask.as_raw();
                     let result = f(arg_self_, arg_browser, arg_drag_data, arg_mask);
@@ -24069,7 +24203,9 @@ impl ImplDragHandler for DragHandler {
                     let (arg_browser, arg_frame, arg_regions_count, arg_regions) =
                         (browser, frame, regions_count, regions);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_regions_count = arg_regions_count;
                     let arg_regions: _cef_draggable_region_t = arg_regions.clone().into();
@@ -24227,6 +24363,7 @@ impl ImplFindHandler for FindHandler {
                         final_update,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_identifier = arg_identifier;
                     let arg_count = arg_count;
@@ -24359,6 +24496,7 @@ impl ImplFocusHandler for FocusHandler {
                 .map(|f| {
                     let (arg_browser, arg_next) = (browser, next);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_next = arg_next;
                     let result = f(arg_self_, arg_browser, arg_next);
@@ -24378,6 +24516,7 @@ impl ImplFocusHandler for FocusHandler {
                 .map(|f| {
                     let (arg_browser, arg_source) = (browser, source);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_source = arg_source.as_raw();
                     let result = f(arg_self_, arg_browser, arg_source);
@@ -24393,6 +24532,7 @@ impl ImplFocusHandler for FocusHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -24567,7 +24707,9 @@ impl ImplFrameHandler for FrameHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
@@ -24582,7 +24724,9 @@ impl ImplFrameHandler for FrameHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
@@ -24602,7 +24746,9 @@ impl ImplFrameHandler for FrameHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_reattached) = (browser, frame, reattached);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_reattached = arg_reattached;
                     let result = f(arg_self_, arg_browser, arg_frame, arg_reattached);
@@ -24618,7 +24764,9 @@ impl ImplFrameHandler for FrameHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
@@ -24639,8 +24787,11 @@ impl ImplFrameHandler for FrameHandler {
                     let (arg_browser, arg_old_frame, arg_new_frame) =
                         (browser, old_frame, new_frame);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_old_frame.add_ref();
                     let arg_old_frame = ImplFrame::get_raw(arg_old_frame);
+                    arg_new_frame.add_ref();
                     let arg_new_frame = ImplFrame::get_raw(arg_new_frame);
                     let result = f(arg_self_, arg_browser, arg_old_frame, arg_new_frame);
                     result.as_wrapper()
@@ -24950,11 +25101,13 @@ impl ImplJsdialogHandler for JsdialogHandler {
                         suppress_message,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_origin_url = arg_origin_url.as_raw();
                     let arg_dialog_type = arg_dialog_type.as_raw();
                     let arg_message_text = arg_message_text.as_raw();
                     let arg_default_prompt_text = arg_default_prompt_text.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplJsdialogCallback::get_raw(arg_callback);
                     let arg_suppress_message = arg_suppress_message as *mut _;
                     let result = f(
@@ -24986,9 +25139,11 @@ impl ImplJsdialogHandler for JsdialogHandler {
                     let (arg_browser, arg_message_text, arg_is_reload, arg_callback) =
                         (browser, message_text, is_reload, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_message_text = arg_message_text.as_raw();
                     let arg_is_reload = arg_is_reload;
+                    arg_callback.add_ref();
                     let arg_callback = ImplJsdialogCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -25009,6 +25164,7 @@ impl ImplJsdialogHandler for JsdialogHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -25023,6 +25179,7 @@ impl ImplJsdialogHandler for JsdialogHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -25167,6 +25324,7 @@ impl ImplKeyboardHandler for KeyboardHandler {
                     let (arg_browser, arg_event, arg_os_event, arg_is_keyboard_shortcut) =
                         (browser, event, os_event, is_keyboard_shortcut);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_event: _cef_key_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
@@ -25196,6 +25354,7 @@ impl ImplKeyboardHandler for KeyboardHandler {
                 .map(|f| {
                     let (arg_browser, arg_event, arg_os_event) = (browser, event, os_event);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_event: _cef_key_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
@@ -25567,7 +25726,9 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                         no_javascript_access,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_popup_id = arg_popup_id;
                     let arg_target_url = arg_target_url.as_raw();
@@ -25579,14 +25740,20 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                     let arg_popup_features = &arg_popup_features;
                     let mut arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
                     let arg_window_info = &mut arg_window_info;
-                    let mut arg_client = arg_client.map(|arg| arg.get_raw());
+                    let mut arg_client = arg_client.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_client = arg_client
                         .as_mut()
                         .map(|arg| arg as *mut _)
                         .unwrap_or(std::ptr::null_mut());
                     let mut arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
                     let arg_settings = &mut arg_settings;
-                    let mut arg_extra_info = arg_extra_info.map(|arg| arg.get_raw());
+                    let mut arg_extra_info = arg_extra_info.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_extra_info = arg_extra_info
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -25624,6 +25791,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .map(|f| {
                     let (arg_browser, arg_popup_id) = (browser, popup_id);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_popup_id = arg_popup_id;
                     let result = f(arg_self_, arg_browser, arg_popup_id);
@@ -25661,17 +25829,24 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                         use_default_window,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
                     let arg_window_info = &mut arg_window_info;
-                    let mut arg_client = arg_client.map(|arg| arg.get_raw());
+                    let mut arg_client = arg_client.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_client = arg_client
                         .as_mut()
                         .map(|arg| arg as *mut _)
                         .unwrap_or(std::ptr::null_mut());
                     let mut arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
                     let arg_settings = &mut arg_settings;
-                    let mut arg_extra_info = arg_extra_info.map(|arg| arg.get_raw());
+                    let mut arg_extra_info = arg_extra_info.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_extra_info = arg_extra_info
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -25698,6 +25873,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -25712,6 +25888,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -25726,6 +25903,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -25929,6 +26107,7 @@ impl ImplLoadHandler for LoadHandler {
                     let (arg_browser, arg_is_loading, arg_can_go_back, arg_can_go_forward) =
                         (browser, is_loading, can_go_back, can_go_forward);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_is_loading = arg_is_loading;
                     let arg_can_go_back = arg_can_go_back;
@@ -25958,7 +26137,9 @@ impl ImplLoadHandler for LoadHandler {
                     let (arg_browser, arg_frame, arg_transition_type) =
                         (browser, frame, transition_type);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_transition_type = arg_transition_type.as_raw();
                     let result = f(arg_self_, arg_browser, arg_frame, arg_transition_type);
@@ -25980,7 +26161,9 @@ impl ImplLoadHandler for LoadHandler {
                     let (arg_browser, arg_frame, arg_http_status_code) =
                         (browser, frame, http_status_code);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_http_status_code = arg_http_status_code;
                     let result = f(arg_self_, arg_browser, arg_frame, arg_http_status_code);
@@ -26004,7 +26187,9 @@ impl ImplLoadHandler for LoadHandler {
                     let (arg_browser, arg_frame, arg_error_code, arg_error_text, arg_failed_url) =
                         (browser, frame, error_code, error_text, failed_url);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_error_code = arg_error_code.as_raw();
                     let arg_error_text = arg_error_text.as_raw();
@@ -26424,10 +26609,13 @@ impl ImplPermissionHandler for PermissionHandler {
                         callback,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_requesting_origin = arg_requesting_origin.as_raw();
                     let arg_requested_permissions = arg_requested_permissions;
+                    arg_callback.add_ref();
                     let arg_callback = ImplMediaAccessCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -26468,10 +26656,12 @@ impl ImplPermissionHandler for PermissionHandler {
                         callback,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_prompt_id = arg_prompt_id;
                     let arg_requesting_origin = arg_requesting_origin.as_raw();
                     let arg_requested_permissions = arg_requested_permissions;
+                    arg_callback.add_ref();
                     let arg_callback = ImplPermissionPromptCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -26498,6 +26688,7 @@ impl ImplPermissionHandler for PermissionHandler {
                 .map(|f| {
                     let (arg_browser, arg_prompt_id, arg_result) = (browser, prompt_id, result);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_prompt_id = arg_prompt_id;
                     let arg_result = arg_result.as_raw();
@@ -27276,6 +27467,7 @@ impl ImplPrintDialogCallback for PrintDialogCallback {
                 .map(|f| {
                     let arg_settings = settings;
                     let arg_self_ = self.as_raw();
+                    arg_settings.add_ref();
                     let arg_settings = ImplPrintSettings::get_raw(arg_settings);
                     let result = f(arg_self_, arg_settings);
                     result.as_wrapper()
@@ -27578,6 +27770,7 @@ impl ImplPrintHandler for PrintHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -27598,7 +27791,9 @@ impl ImplPrintHandler for PrintHandler {
                     let (arg_browser, arg_settings, arg_get_defaults) =
                         (browser, settings, get_defaults);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_settings.add_ref();
                     let arg_settings = ImplPrintSettings::get_raw(arg_settings);
                     let arg_get_defaults = arg_get_defaults;
                     let result = f(arg_self_, arg_browser, arg_settings, arg_get_defaults);
@@ -27620,8 +27815,10 @@ impl ImplPrintHandler for PrintHandler {
                     let (arg_browser, arg_has_selection, arg_callback) =
                         (browser, has_selection, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_has_selection = arg_has_selection;
+                    arg_callback.add_ref();
                     let arg_callback = ImplPrintDialogCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_browser, arg_has_selection, arg_callback);
                     result.as_wrapper()
@@ -27643,9 +27840,11 @@ impl ImplPrintHandler for PrintHandler {
                     let (arg_browser, arg_document_name, arg_pdf_file_path, arg_callback) =
                         (browser, document_name, pdf_file_path, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_document_name = arg_document_name.as_raw();
                     let arg_pdf_file_path = arg_pdf_file_path.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplPrintJobCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -27666,6 +27865,7 @@ impl ImplPrintHandler for PrintHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -27684,6 +27884,7 @@ impl ImplPrintHandler for PrintHandler {
                 .map(|f| {
                     let (arg_browser, arg_device_units_per_inch) = (browser, device_units_per_inch);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_device_units_per_inch = arg_device_units_per_inch;
                     let result = f(arg_self_, arg_browser, arg_device_units_per_inch);
@@ -27785,6 +27986,7 @@ impl ImplAccessibilityHandler for AccessibilityHandler {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
@@ -27799,6 +28001,7 @@ impl ImplAccessibilityHandler for AccessibilityHandler {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
@@ -28353,6 +28556,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_rect) = (browser, rect);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_rect: _cef_rect_t = arg_rect.clone().into();
                     let arg_rect = &mut arg_rect;
@@ -28369,6 +28573,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_rect) = (browser, rect);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_rect: _cef_rect_t = arg_rect.clone().into();
                     let arg_rect = &mut arg_rect;
@@ -28393,6 +28598,7 @@ impl ImplRenderHandler for RenderHandler {
                     let (arg_browser, arg_view_x, arg_view_y, arg_screen_x, arg_screen_y) =
                         (browser, view_x, view_y, screen_x, screen_y);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_view_x = arg_view_x;
                     let arg_view_y = arg_view_y;
@@ -28422,6 +28628,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_screen_info) = (browser, screen_info);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_screen_info: _cef_screen_info_t = arg_screen_info.clone().into();
                     let arg_screen_info = &mut arg_screen_info;
@@ -28438,6 +28645,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_show) = (browser, show);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_show = arg_show;
                     let result = f(arg_self_, arg_browser, arg_show);
@@ -28453,6 +28661,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_rect) = (browser, rect);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_rect: _cef_rect_t = arg_rect.clone().into();
                     let arg_rect = &arg_rect;
@@ -28494,6 +28703,7 @@ impl ImplRenderHandler for RenderHandler {
                         height,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_type_ = arg_type_.as_raw();
                     let arg_dirty_rects_count = arg_dirty_rects_count;
@@ -28532,6 +28742,7 @@ impl ImplRenderHandler for RenderHandler {
                     let (arg_browser, arg_type_, arg_dirty_rects_count, arg_dirty_rects, arg_info) =
                         (browser, type_, dirty_rects_count, dirty_rects, info);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_type_ = arg_type_.as_raw();
                     let arg_dirty_rects_count = arg_dirty_rects_count;
@@ -28564,6 +28775,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_orientation, arg_size) = (browser, orientation, size);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_orientation = arg_orientation.as_raw();
                     let mut arg_size: _cef_size_t = arg_size.clone().into();
@@ -28585,6 +28797,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_state) = (browser, state);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_state: _cef_touch_handle_state_t = arg_state.clone().into();
                     let arg_state = &arg_state;
@@ -28609,7 +28822,9 @@ impl ImplRenderHandler for RenderHandler {
                     let (arg_browser, arg_drag_data, arg_allowed_ops, arg_x, arg_y) =
                         (browser, drag_data, allowed_ops, x, y);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_drag_data.add_ref();
                     let arg_drag_data = ImplDragData::get_raw(arg_drag_data);
                     let arg_allowed_ops = arg_allowed_ops.as_raw();
                     let arg_x = arg_x;
@@ -28634,6 +28849,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_operation) = (browser, operation);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_operation = arg_operation.as_raw();
                     let result = f(arg_self_, arg_browser, arg_operation);
@@ -28649,6 +28865,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_x, arg_y) = (browser, x, y);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_x = arg_x;
                     let arg_y = arg_y;
@@ -28681,6 +28898,7 @@ impl ImplRenderHandler for RenderHandler {
                         character_bounds,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_selected_range: _cef_range_t = arg_selected_range.clone().into();
                     let arg_selected_range = &arg_selected_range;
@@ -28712,6 +28930,7 @@ impl ImplRenderHandler for RenderHandler {
                     let (arg_browser, arg_selected_text, arg_selected_range) =
                         (browser, selected_text, selected_range);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_selected_text = arg_selected_text.as_raw();
                     let arg_selected_range: _cef_range_t = arg_selected_range.clone().into();
@@ -28738,6 +28957,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_input_mode) = (browser, input_mode);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_input_mode = arg_input_mode.as_raw();
                     let result = f(arg_self_, arg_browser, arg_input_mode);
@@ -29799,8 +30019,10 @@ impl ImplResourceHandler for ResourceHandler {
                     let (arg_request, arg_handle_request, arg_callback) =
                         (request, handle_request, callback);
                     let arg_self_ = self.as_raw();
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_handle_request = arg_handle_request as *mut _;
+                    arg_callback.add_ref();
                     let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_request, arg_handle_request, arg_callback);
                     result.as_wrapper()
@@ -29819,7 +30041,9 @@ impl ImplResourceHandler for ResourceHandler {
                 .map(|f| {
                     let (arg_request, arg_callback) = (request, callback);
                     let arg_self_ = self.as_raw();
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
+                    arg_callback.add_ref();
                     let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_request, arg_callback);
                     result.as_wrapper()
@@ -29840,6 +30064,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let (arg_response, arg_response_length, arg_redirect_url) =
                         (response, response_length, redirect_url);
                     let arg_self_ = self.as_raw();
+                    arg_response.add_ref();
                     let arg_response = ImplResponse::get_raw(arg_response);
                     let arg_response_length = arg_response_length as *mut _;
                     let arg_redirect_url = arg_redirect_url.as_raw();
@@ -29869,6 +30094,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let arg_self_ = self.as_raw();
                     let arg_bytes_to_skip = arg_bytes_to_skip;
                     let arg_bytes_skipped = arg_bytes_skipped as *mut _;
+                    arg_callback.add_ref();
                     let arg_callback = ImplResourceSkipCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -29898,6 +30124,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let arg_data_out = arg_data_out as *mut _;
                     let arg_bytes_to_read = arg_bytes_to_read;
                     let arg_bytes_read = arg_bytes_read as *mut _;
+                    arg_callback.add_ref();
                     let arg_callback = ImplResourceReadCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -29928,6 +30155,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let arg_data_out = arg_data_out as *mut _;
                     let arg_bytes_to_read = arg_bytes_to_read;
                     let arg_bytes_read = arg_bytes_read as *mut _;
+                    arg_callback.add_ref();
                     let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -30512,8 +30740,11 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_request) = (browser, frame, request);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request);
                     result.as_wrapper()
@@ -30535,9 +30766,13 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_callback) =
                         (browser, frame, request, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
+                    arg_callback.add_ref();
                     let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_callback);
                     result.as_wrapper()
@@ -30557,8 +30792,11 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_request) = (browser, frame, request);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request);
                     result.as_wrapper()
@@ -30581,9 +30819,13 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_response, arg_new_url) =
                         (browser, frame, request, response, new_url);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
+                    arg_response.add_ref();
                     let arg_response = ImplResponse::get_raw(arg_response);
                     let arg_new_url = arg_new_url.as_raw();
                     let result = f(
@@ -30613,9 +30855,13 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_response) =
                         (browser, frame, request, response);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
+                    arg_response.add_ref();
                     let arg_response = ImplResponse::get_raw(arg_response);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_response);
                     result.as_wrapper()
@@ -30637,9 +30883,13 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_response) =
                         (browser, frame, request, response);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
+                    arg_response.add_ref();
                     let arg_response = ImplResponse::get_raw(arg_response);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_response);
                     result.as_wrapper()
@@ -30676,9 +30926,13 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                         received_content_length,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
+                    arg_response.add_ref();
                     let arg_response = ImplResponse::get_raw(arg_response);
                     let arg_status = arg_status.as_raw();
                     let arg_received_content_length = arg_received_content_length;
@@ -30710,8 +30964,11 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_allow_os_execution) =
                         (browser, frame, request, allow_os_execution);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_allow_os_execution = arg_allow_os_execution as *mut _;
                     let result = f(
@@ -30868,8 +31125,11 @@ impl ImplCookieAccessFilter for CookieAccessFilter {
                     let (arg_browser, arg_frame, arg_request, arg_cookie) =
                         (browser, frame, request, cookie);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_cookie: _cef_cookie_t = arg_cookie.clone().into();
                     let arg_cookie = &arg_cookie;
@@ -30894,9 +31154,13 @@ impl ImplCookieAccessFilter for CookieAccessFilter {
                     let (arg_browser, arg_frame, arg_request, arg_response, arg_cookie) =
                         (browser, frame, request, response, cookie);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
+                    arg_response.add_ref();
                     let arg_response = ImplResponse::get_raw(arg_response);
                     let arg_cookie: _cef_cookie_t = arg_cookie.clone().into();
                     let arg_cookie = &arg_cookie;
@@ -31197,6 +31461,7 @@ impl ImplSelectClientCertificateCallback for SelectClientCertificateCallback {
                 .map(|f| {
                     let arg_cert = cert;
                     let arg_self_ = self.as_raw();
+                    arg_cert.add_ref();
                     let arg_cert = ImplX509certificate::get_raw(arg_cert);
                     let result = f(arg_self_, arg_cert);
                     result.as_wrapper()
@@ -31712,8 +31977,11 @@ impl ImplRequestHandler for RequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_user_gesture, arg_is_redirect) =
                         (browser, frame, request, user_gesture, is_redirect);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_user_gesture = arg_user_gesture;
                     let arg_is_redirect = arg_is_redirect;
@@ -31750,7 +32018,9 @@ impl ImplRequestHandler for RequestHandler {
                         arg_user_gesture,
                     ) = (browser, frame, target_url, target_disposition, user_gesture);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_target_url = arg_target_url.as_raw();
                     let arg_target_disposition = arg_target_disposition.as_raw();
@@ -31800,8 +32070,11 @@ impl ImplRequestHandler for RequestHandler {
                         disable_default_handling,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_is_navigation = arg_is_navigation;
                     let arg_is_download = arg_is_download;
@@ -31850,6 +32123,7 @@ impl ImplRequestHandler for RequestHandler {
                         browser, origin_url, is_proxy, host, port, realm, scheme, callback,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_origin_url = arg_origin_url.as_raw();
                     let arg_is_proxy = arg_is_proxy;
@@ -31857,6 +32131,7 @@ impl ImplRequestHandler for RequestHandler {
                     let arg_port = arg_port;
                     let arg_realm = arg_realm.as_raw();
                     let arg_scheme = arg_scheme.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplAuthCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -31889,10 +32164,13 @@ impl ImplRequestHandler for RequestHandler {
                     let (arg_browser, arg_cert_error, arg_request_url, arg_ssl_info, arg_callback) =
                         (browser, cert_error, request_url, ssl_info, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_cert_error = arg_cert_error.as_raw();
                     let arg_request_url = arg_request_url.as_raw();
+                    arg_ssl_info.add_ref();
                     let arg_ssl_info = ImplSslinfo::get_raw(arg_ssl_info);
+                    arg_callback.add_ref();
                     let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -31929,6 +32207,7 @@ impl ImplRequestHandler for RequestHandler {
                         arg_callback,
                     ) = (browser, is_proxy, host, port, certificates, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_is_proxy = arg_is_proxy;
                     let arg_host = arg_host.as_raw();
@@ -31954,6 +32233,7 @@ impl ImplRequestHandler for RequestHandler {
                     } else {
                         vec_certificates.as_ptr()
                     };
+                    arg_callback.add_ref();
                     let arg_callback = ImplSelectClientCertificateCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -31977,6 +32257,7 @@ impl ImplRequestHandler for RequestHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -31995,7 +32276,9 @@ impl ImplRequestHandler for RequestHandler {
                 .map(|f| {
                     let (arg_browser, arg_callback) = (browser, callback);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_callback.add_ref();
                     let arg_callback = ImplUnresponsiveProcessCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_browser, arg_callback);
                     result.as_wrapper()
@@ -32010,6 +32293,7 @@ impl ImplRequestHandler for RequestHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -32031,6 +32315,7 @@ impl ImplRequestHandler for RequestHandler {
                     let (arg_browser, arg_status, arg_error_code, arg_error_string) =
                         (browser, status, error_code, error_string);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_status = arg_status.as_raw();
                     let arg_error_code = arg_error_code;
@@ -32054,6 +32339,7 @@ impl ImplRequestHandler for RequestHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -32596,9 +32882,12 @@ impl ImplClient for Client {
                     let (arg_browser, arg_frame, arg_source_process, arg_message) =
                         (browser, frame, source_process, message);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_source_process = arg_source_process.as_raw();
+                    arg_message.add_ref();
                     let arg_message = ImplProcessMessage::get_raw(arg_message);
                     let result = f(
                         arg_self_,
@@ -33355,6 +33644,7 @@ impl ImplRequestContextHandler for RequestContextHandler {
                 .map(|f| {
                     let arg_request_context = request_context;
                     let arg_self_ = self.as_raw();
+                    arg_request_context.add_ref();
                     let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
                     let result = f(arg_self_, arg_request_context);
                     result.as_wrapper()
@@ -33394,8 +33684,11 @@ impl ImplRequestContextHandler for RequestContextHandler {
                         disable_default_handling,
                     );
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_is_navigation = arg_is_navigation;
                     let arg_is_download = arg_is_download;
@@ -33628,6 +33921,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .map(|f| {
                     let arg_command_line = command_line;
                     let arg_self_ = self.as_raw();
+                    arg_command_line.add_ref();
                     let arg_command_line = ImplCommandLine::get_raw(arg_command_line);
                     let result = f(arg_self_, arg_command_line);
                     result.as_wrapper()
@@ -33647,6 +33941,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                     let (arg_command_line, arg_current_directory) =
                         (command_line, current_directory);
                     let arg_self_ = self.as_raw();
+                    arg_command_line.add_ref();
                     let arg_command_line = ImplCommandLine::get_raw(arg_command_line);
                     let arg_current_directory = arg_current_directory.as_raw();
                     let result = f(arg_self_, arg_command_line, arg_current_directory);
@@ -33904,6 +34199,7 @@ impl ImplTaskRunner for TaskRunner {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplTaskRunner::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -33944,6 +34240,7 @@ impl ImplTaskRunner for TaskRunner {
                 .map(|f| {
                     let arg_task = task;
                     let arg_self_ = self.as_raw();
+                    arg_task.add_ref();
                     let arg_task = ImplTask::get_raw(arg_task);
                     let result = f(arg_self_, arg_task);
                     result.as_wrapper()
@@ -33958,6 +34255,7 @@ impl ImplTaskRunner for TaskRunner {
                 .map(|f| {
                     let (arg_task, arg_delay_ms) = (task, delay_ms);
                     let arg_self_ = self.as_raw();
+                    arg_task.add_ref();
                     let arg_task = ImplTask::get_raw(arg_task);
                     let arg_delay_ms = arg_delay_ms;
                     let result = f(arg_self_, arg_task, arg_delay_ms);
@@ -34258,6 +34556,7 @@ impl ImplV8context for V8context {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplV8context::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -34283,12 +34582,18 @@ impl ImplV8context for V8context {
                     let arg_code = arg_code.as_raw();
                     let arg_script_url = arg_script_url.as_raw();
                     let arg_start_line = arg_start_line;
-                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
+                    let mut arg_retval = arg_retval.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
                         .unwrap_or(std::ptr::null_mut());
-                    let mut arg_exception = arg_exception.map(|arg| arg.get_raw());
+                    let mut arg_exception = arg_exception.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_exception = arg_exception
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -34453,6 +34758,7 @@ impl ImplV8handler for V8handler {
                         (name, object, arguments, retval, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
+                    arg_object.add_ref();
                     let arg_object = ImplV8value::get_raw(arg_object);
                     let arg_arguments_count = arg_arguments
                         .as_ref()
@@ -34475,7 +34781,10 @@ impl ImplV8handler for V8handler {
                     } else {
                         vec_arguments.as_ptr()
                     };
-                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
+                    let mut arg_retval = arg_retval.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -34643,8 +34952,12 @@ impl ImplV8accessor for V8accessor {
                         (name, object, retval, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
+                    arg_object.add_ref();
                     let arg_object = ImplV8value::get_raw(arg_object);
-                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
+                    let mut arg_retval = arg_retval.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -34671,7 +34984,9 @@ impl ImplV8accessor for V8accessor {
                         (name, object, value, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
+                    arg_object.add_ref();
                     let arg_object = ImplV8value::get_raw(arg_object);
+                    arg_value.add_ref();
                     let arg_value = ImplV8value::get_raw(arg_value);
                     let arg_exception = arg_exception.as_raw();
                     let result = f(arg_self_, arg_name, arg_object, arg_value, arg_exception);
@@ -34903,8 +35218,12 @@ impl ImplV8interceptor for V8interceptor {
                         (name, object, retval, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
+                    arg_object.add_ref();
                     let arg_object = ImplV8value::get_raw(arg_object);
-                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
+                    let mut arg_retval = arg_retval.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -34931,8 +35250,12 @@ impl ImplV8interceptor for V8interceptor {
                         (index, object, retval, exception);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
+                    arg_object.add_ref();
                     let arg_object = ImplV8value::get_raw(arg_object);
-                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
+                    let mut arg_retval = arg_retval.map(|arg| {
+                        arg.add_ref();
+                        arg.get_raw()
+                    });
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -34959,7 +35282,9 @@ impl ImplV8interceptor for V8interceptor {
                         (name, object, value, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
+                    arg_object.add_ref();
                     let arg_object = ImplV8value::get_raw(arg_object);
+                    arg_value.add_ref();
                     let arg_value = ImplV8value::get_raw(arg_value);
                     let arg_exception = arg_exception.as_raw();
                     let result = f(arg_self_, arg_name, arg_object, arg_value, arg_exception);
@@ -34983,7 +35308,9 @@ impl ImplV8interceptor for V8interceptor {
                         (index, object, value, exception);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
+                    arg_object.add_ref();
                     let arg_object = ImplV8value::get_raw(arg_object);
+                    arg_value.add_ref();
                     let arg_value = ImplV8value::get_raw(arg_value);
                     let arg_exception = arg_exception.as_raw();
                     let result = f(arg_self_, arg_index, arg_object, arg_value, arg_exception);
@@ -36275,6 +36602,7 @@ impl ImplV8value for V8value {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplV8value::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -36525,6 +36853,7 @@ impl ImplV8value for V8value {
                     let (arg_key, arg_value, arg_attribute) = (key, value, attribute);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
+                    arg_value.add_ref();
                     let arg_value = ImplV8value::get_raw(arg_value);
                     let arg_attribute = arg_attribute.as_raw();
                     let result = f(arg_self_, arg_key, arg_value, arg_attribute);
@@ -36545,6 +36874,7 @@ impl ImplV8value for V8value {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
+                    arg_value.add_ref();
                     let arg_value = ImplV8value::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
@@ -36592,6 +36922,7 @@ impl ImplV8value for V8value {
                 .map(|f| {
                     let arg_user_data = user_data;
                     let arg_self_ = self.as_raw();
+                    arg_user_data.add_ref();
                     let arg_user_data = arg_user_data.as_raw();
                     let result = f(arg_self_, arg_user_data);
                     result.as_wrapper()
@@ -36735,6 +37066,7 @@ impl ImplV8value for V8value {
                 .map(|f| {
                     let (arg_object, arg_arguments) = (object, arguments);
                     let arg_self_ = self.as_raw();
+                    arg_object.add_ref();
                     let arg_object = ImplV8value::get_raw(arg_object);
                     let arg_arguments_count = arg_arguments
                         .as_ref()
@@ -36775,7 +37107,9 @@ impl ImplV8value for V8value {
                 .map(|f| {
                     let (arg_context, arg_object, arg_arguments) = (context, object, arguments);
                     let arg_self_ = self.as_raw();
+                    arg_context.add_ref();
                     let arg_context = ImplV8context::get_raw(arg_context);
+                    arg_object.add_ref();
                     let arg_object = ImplV8value::get_raw(arg_object);
                     let arg_arguments_count = arg_arguments
                         .as_ref()
@@ -36817,6 +37151,7 @@ impl ImplV8value for V8value {
                 .map(|f| {
                     let arg_arg = arg;
                     let arg_self_ = self.as_raw();
+                    arg_arg.add_ref();
                     let arg_arg = ImplV8value::get_raw(arg_arg);
                     let result = f(arg_self_, arg_arg);
                     result.as_wrapper()
@@ -37507,7 +37842,9 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let (arg_browser, arg_extra_info) = (browser, extra_info);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_extra_info.add_ref();
                     let arg_extra_info = ImplDictionaryValue::get_raw(arg_extra_info);
                     let result = f(arg_self_, arg_browser, arg_extra_info);
                     result.as_wrapper()
@@ -37522,6 +37859,7 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
@@ -37553,8 +37891,11 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_context) = (browser, frame, context);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_context.add_ref();
                     let arg_context = ImplV8context::get_raw(arg_context);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_context);
                     result.as_wrapper()
@@ -37574,8 +37915,11 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_context) = (browser, frame, context);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_context.add_ref();
                     let arg_context = ImplV8context::get_raw(arg_context);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_context);
                     result.as_wrapper()
@@ -37598,10 +37942,15 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                     let (arg_browser, arg_frame, arg_context, arg_exception, arg_stack_trace) =
                         (browser, frame, context, exception, stack_trace);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_context.add_ref();
                     let arg_context = ImplV8context::get_raw(arg_context);
+                    arg_exception.add_ref();
                     let arg_exception = ImplV8exception::get_raw(arg_exception);
+                    arg_stack_trace.add_ref();
                     let arg_stack_trace = ImplV8stackTrace::get_raw(arg_stack_trace);
                     let result = f(
                         arg_self_,
@@ -37628,8 +37977,11 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_node) = (browser, frame, node);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
+                    arg_node.add_ref();
                     let arg_node = ImplDomnode::get_raw(arg_node);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_node);
                     result.as_wrapper()
@@ -37651,9 +38003,12 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                     let (arg_browser, arg_frame, arg_source_process, arg_message) =
                         (browser, frame, source_process, message);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_source_process = arg_source_process.as_raw();
+                    arg_message.add_ref();
                     let arg_message = ImplProcessMessage::get_raw(arg_message);
                     let result = f(
                         arg_self_,
@@ -38071,9 +38426,12 @@ impl ImplSchemeHandlerFactory for SchemeHandlerFactory {
                     let (arg_browser, arg_frame, arg_scheme_name, arg_request) =
                         (browser, frame, scheme_name, request);
                     let arg_self_ = self.as_raw();
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    arg_frame.add_ref();
                     let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_scheme_name = arg_scheme_name.as_raw();
+                    arg_request.add_ref();
                     let arg_request = ImplRequest::get_raw(arg_request);
                     let result = f(
                         arg_self_,
@@ -38229,6 +38587,7 @@ impl ImplApp for App {
                     let (arg_process_type, arg_command_line) = (process_type, command_line);
                     let arg_self_ = self.as_raw();
                     let arg_process_type = arg_process_type.as_raw();
+                    arg_command_line.add_ref();
                     let arg_command_line = ImplCommandLine::get_raw(arg_command_line);
                     let result = f(arg_self_, arg_process_type, arg_command_line);
                     result.as_wrapper()
@@ -38699,6 +39058,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .map(|f| {
                     let arg_request = request;
                     let arg_self_ = self.as_raw();
+                    arg_request.add_ref();
                     let arg_request = ImplUrlrequest::get_raw(arg_request);
                     let result = f(arg_self_, arg_request);
                     result.as_wrapper()
@@ -38713,6 +39073,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .map(|f| {
                     let (arg_request, arg_current, arg_total) = (request, current, total);
                     let arg_self_ = self.as_raw();
+                    arg_request.add_ref();
                     let arg_request = ImplUrlrequest::get_raw(arg_request);
                     let arg_current = arg_current;
                     let arg_total = arg_total;
@@ -38729,6 +39090,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .map(|f| {
                     let (arg_request, arg_current, arg_total) = (request, current, total);
                     let arg_self_ = self.as_raw();
+                    arg_request.add_ref();
                     let arg_request = ImplUrlrequest::get_raw(arg_request);
                     let arg_current = arg_current;
                     let arg_total = arg_total;
@@ -38750,6 +39112,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .map(|f| {
                     let (arg_request, arg_data, arg_data_length) = (request, data, data_length);
                     let arg_self_ = self.as_raw();
+                    arg_request.add_ref();
                     let arg_request = ImplUrlrequest::get_raw(arg_request);
                     let arg_data = arg_data as *const _;
                     let arg_data_length = arg_data_length;
@@ -38780,6 +39143,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                     let arg_port = arg_port;
                     let arg_realm = arg_realm.as_raw();
                     let arg_scheme = arg_scheme.as_raw();
+                    arg_callback.add_ref();
                     let arg_callback = ImplAuthCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
@@ -39030,6 +39394,7 @@ impl ImplBoxLayout for BoxLayout {
                 .map(|f| {
                     let (arg_view, arg_flex) = (view, flex);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let arg_flex = arg_flex;
                     let result = f(arg_self_, arg_view, arg_flex);
@@ -39045,6 +39410,7 @@ impl ImplBoxLayout for BoxLayout {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -39376,6 +39742,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -39390,6 +39757,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -39404,6 +39772,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -39422,6 +39791,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_width) = (view, width);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let arg_width = arg_width;
                     let result = f(arg_self_, arg_view, arg_width);
@@ -39442,8 +39812,10 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_added, arg_parent) = (view, added, parent);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let arg_added = arg_added;
+                    arg_parent.add_ref();
                     let arg_parent = ImplView::get_raw(arg_parent);
                     let result = f(arg_self_, arg_view, arg_added, arg_parent);
                     result.as_wrapper()
@@ -39463,8 +39835,10 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_added, arg_child) = (view, added, child);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let arg_added = arg_added;
+                    arg_child.add_ref();
                     let arg_child = ImplView::get_raw(arg_child);
                     let result = f(arg_self_, arg_view, arg_added, arg_child);
                     result.as_wrapper()
@@ -39479,6 +39853,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_added) = (view, added);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let arg_added = arg_added;
                     let result = f(arg_self_, arg_view, arg_added);
@@ -39494,6 +39869,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_new_bounds) = (view, new_bounds);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let arg_new_bounds: _cef_rect_t = arg_new_bounds.clone().into();
                     let arg_new_bounds = &arg_new_bounds;
@@ -39510,6 +39886,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -39524,6 +39901,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -39538,6 +39916,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -40322,6 +40701,7 @@ impl ImplView for View {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplView::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -40862,6 +41242,7 @@ impl ImplView for View {
                 .map(|f| {
                     let (arg_view, arg_point) = (view, point);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let mut arg_point: _cef_point_t = arg_point.clone().into();
                     let arg_point = &mut arg_point;
@@ -40882,6 +41263,7 @@ impl ImplView for View {
                 .map(|f| {
                     let (arg_view, arg_point) = (view, point);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let mut arg_point: _cef_point_t = arg_point.clone().into();
                     let arg_point = &mut arg_point;
@@ -41467,6 +41849,7 @@ impl ImplButtonDelegate for ButtonDelegate {
                 .map(|f| {
                     let arg_button = button;
                     let arg_self_ = self.as_raw();
+                    arg_button.add_ref();
                     let arg_button = ImplButton::get_raw(arg_button);
                     let result = f(arg_self_, arg_button);
                     result.as_wrapper()
@@ -41481,6 +41864,7 @@ impl ImplButtonDelegate for ButtonDelegate {
                 .map(|f| {
                     let arg_button = button;
                     let arg_self_ = self.as_raw();
+                    arg_button.add_ref();
                     let arg_button = ImplButton::get_raw(arg_button);
                     let result = f(arg_self_, arg_button);
                     result.as_wrapper()
@@ -41985,6 +42369,7 @@ impl ImplLabelButton for LabelButton {
                     let (arg_button_state, arg_image) = (button_state, image);
                     let arg_self_ = self.as_raw();
                     let arg_button_state = arg_button_state.as_raw();
+                    arg_image.add_ref();
                     let arg_image = ImplImage::get_raw(arg_image);
                     let result = f(arg_self_, arg_button_state, arg_image);
                     result.as_wrapper()
@@ -42328,9 +42713,11 @@ impl ImplMenuButtonDelegate for MenuButtonDelegate {
                     let (arg_menu_button, arg_screen_point, arg_button_pressed_lock) =
                         (menu_button, screen_point, button_pressed_lock);
                     let arg_self_ = self.as_raw();
+                    arg_menu_button.add_ref();
                     let arg_menu_button = ImplMenuButton::get_raw(arg_menu_button);
                     let arg_screen_point: _cef_point_t = arg_screen_point.clone().into();
                     let arg_screen_point = &arg_screen_point;
+                    arg_button_pressed_lock.add_ref();
                     let arg_button_pressed_lock =
                         ImplMenuButtonPressedLock::get_raw(arg_button_pressed_lock);
                     let result = f(
@@ -42745,6 +43132,7 @@ impl ImplMenuButton for MenuButton {
                     let (arg_menu_model, arg_screen_point, arg_anchor_position) =
                         (menu_model, screen_point, anchor_position);
                     let arg_self_ = self.as_raw();
+                    arg_menu_model.add_ref();
                     let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_screen_point: _cef_point_t = arg_screen_point.clone().into();
                     let arg_screen_point = &arg_screen_point;
@@ -42939,6 +43327,7 @@ impl ImplTextfieldDelegate for TextfieldDelegate {
                 .map(|f| {
                     let (arg_textfield, arg_event) = (textfield, event);
                     let arg_self_ = self.as_raw();
+                    arg_textfield.add_ref();
                     let arg_textfield = ImplTextfield::get_raw(arg_textfield);
                     let arg_event: _cef_key_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
@@ -42955,6 +43344,7 @@ impl ImplTextfieldDelegate for TextfieldDelegate {
                 .map(|f| {
                     let arg_textfield = textfield;
                     let arg_self_ = self.as_raw();
+                    arg_textfield.add_ref();
                     let arg_textfield = ImplTextfield::get_raw(arg_textfield);
                     let result = f(arg_self_, arg_textfield);
                     result.as_wrapper()
@@ -44357,7 +44747,9 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let (arg_browser_view, arg_browser) = (browser_view, browser);
                     let arg_self_ = self.as_raw();
+                    arg_browser_view.add_ref();
                     let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser_view, arg_browser);
                     result.as_wrapper()
@@ -44376,7 +44768,9 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let (arg_browser_view, arg_browser) = (browser_view, browser);
                     let arg_self_ = self.as_raw();
+                    arg_browser_view.add_ref();
                     let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
+                    arg_browser.add_ref();
                     let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser_view, arg_browser);
                     result.as_wrapper()
@@ -44398,9 +44792,11 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     let (arg_browser_view, arg_settings, arg_client, arg_is_devtools) =
                         (browser_view, settings, client, is_devtools);
                     let arg_self_ = self.as_raw();
+                    arg_browser_view.add_ref();
                     let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
                     let arg_settings = &arg_settings;
+                    arg_client.add_ref();
                     let arg_client = ImplClient::get_raw(arg_client);
                     let arg_is_devtools = arg_is_devtools;
                     let result = f(
@@ -44428,7 +44824,9 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     let (arg_browser_view, arg_popup_browser_view, arg_is_devtools) =
                         (browser_view, popup_browser_view, is_devtools);
                     let arg_self_ = self.as_raw();
+                    arg_browser_view.add_ref();
                     let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
+                    arg_popup_browser_view.add_ref();
                     let arg_popup_browser_view = ImplBrowserView::get_raw(arg_popup_browser_view);
                     let arg_is_devtools = arg_is_devtools;
                     let result = f(
@@ -44452,6 +44850,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let arg_browser_view = browser_view;
                     let arg_self_ = self.as_raw();
+                    arg_browser_view.add_ref();
                     let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let result = f(arg_self_, arg_browser_view);
                     result.as_wrapper()
@@ -44469,6 +44868,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let arg_browser_view = browser_view;
                     let arg_self_ = self.as_raw();
+                    arg_browser_view.add_ref();
                     let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let result = f(arg_self_, arg_browser_view);
                     result.as_wrapper()
@@ -44487,6 +44887,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let (arg_browser_view, arg_gesture_command) = (browser_view, gesture_command);
                     let arg_self_ = self.as_raw();
+                    arg_browser_view.add_ref();
                     let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let arg_gesture_command = arg_gesture_command.as_raw();
                     let result = f(arg_self_, arg_browser_view, arg_gesture_command);
@@ -45239,6 +45640,7 @@ impl ImplScrollView for ScrollView {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -45854,6 +46256,7 @@ impl ImplOverlayController for OverlayController {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
+                    arg_that.add_ref();
                     let arg_that = ImplOverlayController::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
@@ -46680,6 +47083,7 @@ impl ImplPanel for Panel {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -46694,6 +47098,7 @@ impl ImplPanel for Panel {
                 .map(|f| {
                     let (arg_view, arg_index) = (view, index);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_view, arg_index);
@@ -46709,6 +47114,7 @@ impl ImplPanel for Panel {
                 .map(|f| {
                     let (arg_view, arg_index) = (view, index);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_view, arg_index);
@@ -46724,6 +47130,7 @@ impl ImplPanel for Panel {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
@@ -47307,6 +47714,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47321,6 +47729,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47335,6 +47744,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47353,6 +47763,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_active) = (window, active);
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_active = arg_active;
                     let result = f(arg_self_, arg_window, arg_active);
@@ -47368,6 +47779,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_new_bounds) = (window, new_bounds);
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_new_bounds: _cef_rect_t = arg_new_bounds.clone().into();
                     let arg_new_bounds = &arg_new_bounds;
@@ -47388,6 +47800,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_is_completed) = (window, is_completed);
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_is_completed = arg_is_completed;
                     let result = f(arg_self_, arg_window, arg_is_completed);
@@ -47409,6 +47822,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let (arg_window, arg_is_menu, arg_can_activate_menu) =
                         (window, is_menu, can_activate_menu);
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_is_menu = arg_is_menu as *mut _;
                     let arg_can_activate_menu = arg_can_activate_menu as *mut _;
@@ -47425,6 +47839,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47439,6 +47854,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47453,6 +47869,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47467,6 +47884,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47481,6 +47899,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47499,6 +47918,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_titlebar_height) = (window, titlebar_height);
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_titlebar_height = arg_titlebar_height as *mut _;
                     let result = f(arg_self_, arg_window, arg_titlebar_height);
@@ -47514,6 +47934,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47528,6 +47949,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47542,6 +47964,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47556,6 +47979,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47570,6 +47994,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
@@ -47588,6 +48013,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_command_id) = (window, command_id);
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_command_id = arg_command_id;
                     let result = f(arg_self_, arg_window, arg_command_id);
@@ -47607,6 +48033,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_event) = (window, event);
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_event: _cef_key_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
@@ -47627,6 +48054,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_chrome_theme) = (window, chrome_theme);
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_chrome_theme = arg_chrome_theme;
                     let result = f(arg_self_, arg_window, arg_chrome_theme);
@@ -47658,6 +48086,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_properties) = (window, properties);
                     let arg_self_ = self.as_raw();
+                    arg_window.add_ref();
                     let arg_window = ImplWindow::get_raw(arg_window);
                     let mut arg_properties: _cef_linux_window_properties_t =
                         arg_properties.clone().into();
@@ -48579,6 +49008,7 @@ impl ImplWindow for Window {
                 .map(|f| {
                     let arg_browser_view = browser_view;
                     let arg_self_ = self.as_raw();
+                    arg_browser_view.add_ref();
                     let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let result = f(arg_self_, arg_browser_view);
                     result.as_wrapper()
@@ -48842,6 +49272,7 @@ impl ImplWindow for Window {
                 .map(|f| {
                     let arg_image = image;
                     let arg_self_ = self.as_raw();
+                    arg_image.add_ref();
                     let arg_image = ImplImage::get_raw(arg_image);
                     let result = f(arg_self_, arg_image);
                     result.as_wrapper()
@@ -48868,6 +49299,7 @@ impl ImplWindow for Window {
                 .map(|f| {
                     let arg_image = image;
                     let arg_self_ = self.as_raw();
+                    arg_image.add_ref();
                     let arg_image = ImplImage::get_raw(arg_image);
                     let result = f(arg_self_, arg_image);
                     result.as_wrapper()
@@ -48900,6 +49332,7 @@ impl ImplWindow for Window {
                     let (arg_view, arg_docking_mode, arg_can_activate) =
                         (view, docking_mode, can_activate);
                     let arg_self_ = self.as_raw();
+                    arg_view.add_ref();
                     let arg_view = ImplView::get_raw(arg_view);
                     let arg_docking_mode = arg_docking_mode.as_raw();
                     let arg_can_activate = arg_can_activate;
@@ -48922,6 +49355,7 @@ impl ImplWindow for Window {
                     let (arg_menu_model, arg_screen_point, arg_anchor_position) =
                         (menu_model, screen_point, anchor_position);
                     let arg_self_ = self.as_raw();
+                    arg_menu_model.add_ref();
                     let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_screen_point: _cef_point_t = arg_screen_point.clone().into();
                     let arg_screen_point = &arg_screen_point;
@@ -52715,6 +53149,7 @@ pub fn stream_reader_create_for_data(data: *mut u8, size: usize) -> StreamReader
 pub fn stream_reader_create_for_handler(handler: &mut impl ImplReadHandler) -> StreamReader {
     unsafe {
         let arg_handler = handler;
+        arg_handler.add_ref();
         let arg_handler = ImplReadHandler::get_raw(arg_handler);
         let result = cef_stream_reader_create_for_handler(arg_handler);
         result.as_wrapper()
@@ -52731,6 +53166,7 @@ pub fn stream_writer_create_for_file(file_name: &CefStringUtf16) -> StreamWriter
 pub fn stream_writer_create_for_handler(handler: &mut impl ImplWriteHandler) -> StreamWriter {
     unsafe {
         let arg_handler = handler;
+        arg_handler.add_ref();
         let arg_handler = ImplWriteHandler::get_raw(arg_handler);
         let result = cef_stream_writer_create_for_handler(arg_handler);
         result.as_wrapper()
@@ -52773,6 +53209,7 @@ pub fn cookie_manager_get_global_manager(
 ) -> CookieManager {
     unsafe {
         let arg_callback = callback;
+        arg_callback.add_ref();
         let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
         let result = cef_cookie_manager_get_global_manager(arg_callback);
         result.as_wrapper()
@@ -52781,6 +53218,7 @@ pub fn cookie_manager_get_global_manager(
 pub fn media_router_get_global(callback: &mut impl ImplCompletionCallback) -> MediaRouter {
     unsafe {
         let arg_callback = callback;
+        arg_callback.add_ref();
         let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
         let result = cef_media_router_get_global(arg_callback);
         result.as_wrapper()
@@ -52806,6 +53244,7 @@ pub fn request_context_create_context(
         let (arg_settings, arg_handler) = (settings, handler);
         let arg_settings: _cef_request_context_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
+        arg_handler.add_ref();
         let arg_handler = ImplRequestContextHandler::get_raw(arg_handler);
         let result = cef_request_context_create_context(arg_settings, arg_handler);
         result.as_wrapper()
@@ -52817,7 +53256,9 @@ pub fn create_context_shared(
 ) -> RequestContext {
     unsafe {
         let (arg_other, arg_handler) = (other, handler);
+        arg_other.add_ref();
         let arg_other = ImplRequestContext::get_raw(arg_other);
+        arg_handler.add_ref();
         let arg_handler = ImplRequestContextHandler::get_raw(arg_handler);
         let result = cef_create_context_shared(arg_other, arg_handler);
         result.as_wrapper()
@@ -52849,11 +53290,14 @@ pub fn browser_host_create_browser(
         );
         let arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
         let arg_window_info = &arg_window_info;
+        arg_client.add_ref();
         let arg_client = ImplClient::get_raw(arg_client);
         let arg_url = arg_url.as_raw();
         let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
+        arg_extra_info.add_ref();
         let arg_extra_info = ImplDictionaryValue::get_raw(arg_extra_info);
+        arg_request_context.add_ref();
         let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
         let result = cef_browser_host_create_browser(
             arg_window_info,
@@ -52892,11 +53336,14 @@ pub fn browser_host_create_browser_sync(
         );
         let arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
         let arg_window_info = &arg_window_info;
+        arg_client.add_ref();
         let arg_client = ImplClient::get_raw(arg_client);
         let arg_url = arg_url.as_raw();
         let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
+        arg_extra_info.add_ref();
         let arg_extra_info = ImplDictionaryValue::get_raw(arg_extra_info);
+        arg_request_context.add_ref();
         let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
         let result = cef_browser_host_create_browser_sync(
             arg_window_info,
@@ -52920,6 +53367,7 @@ pub fn browser_host_get_browser_by_identifier(browser_id: ::std::os::raw::c_int)
 pub fn menu_model_create(delegate: &mut impl ImplMenuModelDelegate) -> MenuModel {
     unsafe {
         let arg_delegate = delegate;
+        arg_delegate.add_ref();
         let arg_delegate = ImplMenuModelDelegate::get_raw(arg_delegate);
         let result = cef_menu_model_create(arg_delegate);
         result.as_wrapper()
@@ -52983,6 +53431,7 @@ pub fn post_task(thread_id: ThreadId, task: &mut impl ImplTask) -> ::std::os::ra
     unsafe {
         let (arg_thread_id, arg_task) = (thread_id, task);
         let arg_thread_id = arg_thread_id.as_raw();
+        arg_task.add_ref();
         let arg_task = ImplTask::get_raw(arg_task);
         let result = cef_post_task(arg_thread_id, arg_task);
         result.as_wrapper()
@@ -52996,6 +53445,7 @@ pub fn post_delayed_task(
     unsafe {
         let (arg_thread_id, arg_task, arg_delay_ms) = (thread_id, task, delay_ms);
         let arg_thread_id = arg_thread_id.as_raw();
+        arg_task.add_ref();
         let arg_task = ImplTask::get_raw(arg_task);
         let arg_delay_ms = arg_delay_ms;
         let result = cef_post_delayed_task(arg_thread_id, arg_task, arg_delay_ms);
@@ -53085,7 +53535,9 @@ pub fn v8value_create_object(
 ) -> V8value {
     unsafe {
         let (arg_accessor, arg_interceptor) = (accessor, interceptor);
+        arg_accessor.add_ref();
         let arg_accessor = ImplV8accessor::get_raw(arg_accessor);
+        arg_interceptor.add_ref();
         let arg_interceptor = ImplV8interceptor::get_raw(arg_interceptor);
         let result = cef_v8value_create_object(arg_accessor, arg_interceptor);
         result.as_wrapper()
@@ -53108,6 +53560,7 @@ pub fn v8value_create_array_buffer(
         let (arg_buffer, arg_length, arg_release_callback) = (buffer, length, release_callback);
         let arg_buffer = arg_buffer as *mut _;
         let arg_length = arg_length;
+        arg_release_callback.add_ref();
         let arg_release_callback = ImplV8arrayBufferReleaseCallback::get_raw(arg_release_callback);
         let result = cef_v8value_create_array_buffer(arg_buffer, arg_length, arg_release_callback);
         result.as_wrapper()
@@ -53126,6 +53579,7 @@ pub fn v8value_create_function(name: &CefStringUtf16, handler: &mut impl ImplV8h
     unsafe {
         let (arg_name, arg_handler) = (name, handler);
         let arg_name = arg_name.as_raw();
+        arg_handler.add_ref();
         let arg_handler = ImplV8handler::get_raw(arg_handler);
         let result = cef_v8value_create_function(arg_name, arg_handler);
         result.as_wrapper()
@@ -53155,6 +53609,7 @@ pub fn register_extension(
             (extension_name, javascript_code, handler);
         let arg_extension_name = arg_extension_name.as_raw();
         let arg_javascript_code = arg_javascript_code.as_raw();
+        arg_handler.add_ref();
         let arg_handler = ImplV8handler::get_raw(arg_handler);
         let result = cef_register_extension(arg_extension_name, arg_javascript_code, arg_handler);
         result.as_wrapper()
@@ -53169,6 +53624,7 @@ pub fn register_scheme_handler_factory(
         let (arg_scheme_name, arg_domain_name, arg_factory) = (scheme_name, domain_name, factory);
         let arg_scheme_name = arg_scheme_name.as_raw();
         let arg_domain_name = arg_domain_name.as_raw();
+        arg_factory.add_ref();
         let arg_factory = ImplSchemeHandlerFactory::get_raw(arg_factory);
         let result =
             cef_register_scheme_handler_factory(arg_scheme_name, arg_domain_name, arg_factory);
@@ -53191,6 +53647,7 @@ pub fn execute_process(
             (args, application, windows_sandbox_info);
         let arg_args: _cef_main_args_t = arg_args.clone().into();
         let arg_args = &arg_args;
+        arg_application.add_ref();
         let arg_application = ImplApp::get_raw(arg_application);
         let arg_windows_sandbox_info = arg_windows_sandbox_info as *mut _;
         let result = cef_execute_process(arg_args, arg_application, arg_windows_sandbox_info);
@@ -53210,6 +53667,7 @@ pub fn initialize(
         let arg_args = &arg_args;
         let arg_settings: _cef_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
+        arg_application.add_ref();
         let arg_application = ImplApp::get_raw(arg_application);
         let arg_windows_sandbox_info = arg_windows_sandbox_info as *mut _;
         let result = cef_initialize(
@@ -53258,8 +53716,11 @@ pub fn urlrequest_create(
 ) -> Urlrequest {
     unsafe {
         let (arg_request, arg_client, arg_request_context) = (request, client, request_context);
+        arg_request.add_ref();
         let arg_request = ImplRequest::get_raw(arg_request);
+        arg_client.add_ref();
         let arg_client = ImplUrlrequestClient::get_raw(arg_client);
+        arg_request_context.add_ref();
         let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
         let result = cef_urlrequest_create(arg_request, arg_client, arg_request_context);
         result.as_wrapper()
@@ -53271,6 +53732,7 @@ pub fn label_button_create(
 ) -> LabelButton {
     unsafe {
         let (arg_delegate, arg_text) = (delegate, text);
+        arg_delegate.add_ref();
         let arg_delegate = ImplButtonDelegate::get_raw(arg_delegate);
         let arg_text = arg_text.as_raw();
         let result = cef_label_button_create(arg_delegate, arg_text);
@@ -53283,6 +53745,7 @@ pub fn menu_button_create(
 ) -> MenuButton {
     unsafe {
         let (arg_delegate, arg_text) = (delegate, text);
+        arg_delegate.add_ref();
         let arg_delegate = ImplMenuButtonDelegate::get_raw(arg_delegate);
         let arg_text = arg_text.as_raw();
         let result = cef_menu_button_create(arg_delegate, arg_text);
@@ -53292,6 +53755,7 @@ pub fn menu_button_create(
 pub fn textfield_create(delegate: &mut impl ImplTextfieldDelegate) -> Textfield {
     unsafe {
         let arg_delegate = delegate;
+        arg_delegate.add_ref();
         let arg_delegate = ImplTextfieldDelegate::get_raw(arg_delegate);
         let result = cef_textfield_create(arg_delegate);
         result.as_wrapper()
@@ -53308,12 +53772,16 @@ pub fn browser_view_create(
     unsafe {
         let (arg_client, arg_url, arg_settings, arg_extra_info, arg_request_context, arg_delegate) =
             (client, url, settings, extra_info, request_context, delegate);
+        arg_client.add_ref();
         let arg_client = ImplClient::get_raw(arg_client);
         let arg_url = arg_url.as_raw();
         let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
+        arg_extra_info.add_ref();
         let arg_extra_info = ImplDictionaryValue::get_raw(arg_extra_info);
+        arg_request_context.add_ref();
         let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
+        arg_delegate.add_ref();
         let arg_delegate = ImplBrowserViewDelegate::get_raw(arg_delegate);
         let result = cef_browser_view_create(
             arg_client,
@@ -53329,6 +53797,7 @@ pub fn browser_view_create(
 pub fn browser_view_get_for_browser(browser: &mut impl ImplBrowser) -> BrowserView {
     unsafe {
         let arg_browser = browser;
+        arg_browser.add_ref();
         let arg_browser = ImplBrowser::get_raw(arg_browser);
         let result = cef_browser_view_get_for_browser(arg_browser);
         result.as_wrapper()
@@ -53337,6 +53806,7 @@ pub fn browser_view_get_for_browser(browser: &mut impl ImplBrowser) -> BrowserVi
 pub fn scroll_view_create(delegate: &mut impl ImplViewDelegate) -> ScrollView {
     unsafe {
         let arg_delegate = delegate;
+        arg_delegate.add_ref();
         let arg_delegate = ImplViewDelegate::get_raw(arg_delegate);
         let result = cef_scroll_view_create(arg_delegate);
         result.as_wrapper()
@@ -53462,6 +53932,7 @@ pub fn display_convert_screen_rect_from_pixels(rect: &Rect) -> Rect {
 pub fn panel_create(delegate: &mut impl ImplPanelDelegate) -> Panel {
     unsafe {
         let arg_delegate = delegate;
+        arg_delegate.add_ref();
         let arg_delegate = ImplPanelDelegate::get_raw(arg_delegate);
         let result = cef_panel_create(arg_delegate);
         result.as_wrapper()
@@ -53470,6 +53941,7 @@ pub fn panel_create(delegate: &mut impl ImplPanelDelegate) -> Panel {
 pub fn window_create_top_level(delegate: &mut impl ImplWindowDelegate) -> Window {
     unsafe {
         let arg_delegate = delegate;
+        arg_delegate.add_ref();
         let arg_delegate = ImplWindowDelegate::get_raw(arg_delegate);
         let result = cef_window_create_top_level(arg_delegate);
         result.as_wrapper()

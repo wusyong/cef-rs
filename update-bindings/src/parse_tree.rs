@@ -431,7 +431,10 @@ impl SignatureRef<'_> {
                         match modifiers {
                             [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
                                 Some(quote! {
-                                    let mut #name = #name.map(|arg| arg.get_raw());
+                                    let mut #name = #name.map(|arg|  {
+                                        arg.add_ref();
+                                        arg.get_raw()
+                                    });
                                     let #name = #name
                                         .as_mut()
                                         .map(|arg| arg as *mut _)
@@ -441,6 +444,7 @@ impl SignatureRef<'_> {
                             _ => {
                                 if ty_string.as_str() == BASE_REF_COUNTED {
                                     Some(quote!{
+                                        #name.add_ref();
                                         let #name = #name.as_raw();
                                     })
                                 } else {
@@ -455,6 +459,7 @@ impl SignatureRef<'_> {
                                         .unwrap_or_else(|| quote!{ #name.get_raw() });
     
                                     Some(quote! {
+                                        #name.add_ref();
                                         let #name = #cast;
                                     })
                                 }
