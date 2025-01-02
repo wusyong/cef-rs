@@ -13703,7 +13703,9 @@ pub trait ImplRequestContext: ImplPreferenceManager {
         impl_cef_preference_manager_t::init_methods::<Self>(&mut object.base);
         impl_cef_request_context_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_request_context_t;
+    fn get_raw(&self) -> *mut _cef_request_context_t {
+        <Self as ImplPreferenceManager>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_request_context_t {
     use super::*;
@@ -38867,7 +38869,9 @@ pub trait ImplBoxLayout: ImplLayout {
         impl_cef_layout_t::init_methods::<Self>(&mut object.base);
         impl_cef_box_layout_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_box_layout_t;
+    fn get_raw(&self) -> *mut _cef_box_layout_t {
+        <Self as ImplLayout>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_box_layout_t {
     use super::*;
@@ -38994,7 +38998,9 @@ pub trait ImplFillLayout: ImplLayout {
         impl_cef_layout_t::init_methods::<Self>(&mut object.base);
         impl_cef_fill_layout_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_fill_layout_t;
+    fn get_raw(&self) -> *mut _cef_fill_layout_t {
+        <Self as ImplLayout>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_fill_layout_t {
     use super::*;
@@ -40821,7 +40827,9 @@ pub trait ImplButton: ImplView {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
         impl_cef_button_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_button_t;
+    fn get_raw(&self) -> *mut _cef_button_t {
+        <Self as ImplView>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_button_t {
     use super::*;
@@ -41228,7 +41236,9 @@ pub trait ImplButtonDelegate: ImplViewDelegate {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
         impl_cef_button_delegate_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_button_delegate_t;
+    fn get_raw(&self) -> *mut _cef_button_delegate_t {
+        <Self as ImplViewDelegate>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_button_delegate_t {
     use super::*;
@@ -41416,7 +41426,9 @@ pub trait ImplLabelButton: ImplButton {
         impl_cef_button_t::init_methods::<Self>(&mut object.base);
         impl_cef_label_button_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_label_button_t;
+    fn get_raw(&self) -> *mut _cef_label_button_t {
+        <Self as ImplButton>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_label_button_t {
     use super::*;
@@ -42054,7 +42066,9 @@ pub trait ImplMenuButtonDelegate: ImplButtonDelegate {
         impl_cef_button_delegate_t::init_methods::<Self>(&mut object.base);
         impl_cef_menu_button_delegate_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_menu_button_delegate_t;
+    fn get_raw(&self) -> *mut _cef_menu_button_delegate_t {
+        <Self as ImplButtonDelegate>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_menu_button_delegate_t {
     use super::*;
@@ -42250,7 +42264,9 @@ pub trait ImplMenuButton: ImplLabelButton {
         impl_cef_label_button_t::init_methods::<Self>(&mut object.base);
         impl_cef_menu_button_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_menu_button_t;
+    fn get_raw(&self) -> *mut _cef_menu_button_t {
+        <Self as ImplLabelButton>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_menu_button_t {
     use super::*;
@@ -42674,7 +42690,9 @@ pub trait ImplTextfieldDelegate: ImplViewDelegate {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
         impl_cef_textfield_delegate_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_textfield_delegate_t;
+    fn get_raw(&self) -> *mut _cef_textfield_delegate_t {
+        <Self as ImplViewDelegate>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_textfield_delegate_t {
     use super::*;
@@ -42911,7 +42929,9 @@ pub trait ImplTextfield: ImplView {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
         impl_cef_textfield_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_textfield_t;
+    fn get_raw(&self) -> *mut _cef_textfield_t {
+        <Self as ImplView>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_textfield_t {
     use super::*;
@@ -43945,7 +43965,9 @@ pub trait ImplBrowserViewDelegate: ImplViewDelegate {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
         impl_cef_browser_view_delegate_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_browser_view_delegate_t;
+    fn get_raw(&self) -> *mut _cef_browser_view_delegate_t {
+        <Self as ImplViewDelegate>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_browser_view_delegate_t {
     use super::*;
@@ -44382,7 +44404,9 @@ pub trait ImplBrowserView: ImplView {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
         impl_cef_browser_view_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_browser_view_t;
+    fn get_raw(&self) -> *mut _cef_browser_view_t {
+        <Self as ImplView>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_browser_view_t {
     use super::*;
@@ -44759,7 +44783,9 @@ pub trait ImplScrollView: ImplView {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
         impl_cef_scroll_view_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_scroll_view_t;
+    fn get_raw(&self) -> *mut _cef_scroll_view_t {
+        <Self as ImplView>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_scroll_view_t {
     use super::*;
@@ -45924,7 +45950,9 @@ pub trait ImplPanelDelegate: ImplViewDelegate {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
         impl_cef_panel_delegate_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_panel_delegate_t;
+    fn get_raw(&self) -> *mut _cef_panel_delegate_t {
+        <Self as ImplViewDelegate>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_panel_delegate_t {
     use super::*;
@@ -46067,7 +46095,9 @@ pub trait ImplPanel: ImplView {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
         impl_cef_panel_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_panel_t;
+    fn get_raw(&self) -> *mut _cef_panel_t {
+        <Self as ImplView>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_panel_t {
     use super::*;
@@ -46698,7 +46728,9 @@ pub trait ImplWindowDelegate: ImplPanelDelegate {
         impl_cef_panel_delegate_t::init_methods::<Self>(&mut object.base);
         impl_cef_window_delegate_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_window_delegate_t;
+    fn get_raw(&self) -> *mut _cef_window_delegate_t {
+        <Self as ImplPanelDelegate>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_window_delegate_t {
     use super::*;
@@ -47615,7 +47647,9 @@ pub trait ImplWindow: ImplPanel {
         impl_cef_panel_t::init_methods::<Self>(&mut object.base);
         impl_cef_window_t::init_methods::<Self>(object);
     }
-    fn get_raw(&self) -> *mut _cef_window_t;
+    fn get_raw(&self) -> *mut _cef_window_t {
+        <Self as ImplPanel>::get_raw(self) as *mut _
+    }
 }
 mod impl_cef_window_t {
     use super::*;

@@ -1590,8 +1590,15 @@ impl<'a> ParseTree<'a> {
                         let base = &entry.name;
                         let base = format_ident!("Impl{base}");
                         quote! { #base }
-                    })
-                    .unwrap_or(quote! { Clone + Sized + Rc });
+                    });
+                let impl_get_raw = impl_base_name.as_ref().map(|impl_base_name| {
+                    quote! {
+                        fn get_raw(&self) -> *mut #name_ident {
+                            <Self as #impl_base_name>::get_raw(self) as *mut _
+                        }
+                    }
+                }).unwrap_or(quote! { fn get_raw(&self) -> *mut #name_ident; });
+                let impl_base_name = impl_base_name.unwrap_or(quote! { Clone + Sized + Rc });
                 let impl_methods = s.methods.iter().map(|m| {
                     let sig = m.get_signature(self);
                     let impl_default = m.output.map(|ty| {
@@ -1746,7 +1753,7 @@ impl<'a> ParseTree<'a> {
                             #impl_mod::init_methods::<Self>(object);
                         }
 
-                        fn get_raw(&self) -> *mut #name_ident;
+                        #impl_get_raw
                     }
 
                     mod #impl_mod {
