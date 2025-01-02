@@ -475,7 +475,10 @@ impl Into<_cef_settings_t> for Settings {
 }
 impl Default for Settings {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self {
+            size: std::mem::size_of::<_cef_settings_t>(),
+            ..unsafe { std::mem::zeroed() }
+        }
     }
 }
 #[doc = "See [_cef_request_context_settings_t] for more documentation."]
@@ -514,7 +517,10 @@ impl Into<_cef_request_context_settings_t> for RequestContextSettings {
 }
 impl Default for RequestContextSettings {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self {
+            size: std::mem::size_of::<_cef_request_context_settings_t>(),
+            ..unsafe { std::mem::zeroed() }
+        }
     }
 }
 #[doc = "See [_cef_browser_settings_t] for more documentation."]
@@ -619,7 +625,10 @@ impl Into<_cef_browser_settings_t> for BrowserSettings {
 }
 impl Default for BrowserSettings {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self {
+            size: std::mem::size_of::<_cef_browser_settings_t>(),
+            ..unsafe { std::mem::zeroed() }
+        }
     }
 }
 #[doc = "See [_cef_urlparts_t] for more documentation."]

@@ -308,13 +308,9 @@ fn main() {
     let args = Args::new(std::env::args());
     // dbg!(&args);
     let mut app = Application::new();
-    let settings = Settings {
-        size: std::mem::size_of::<cef_sys::_cef_settings_t>(),
-        ..Default::default()
-    };
     dbg!(initialize(
         args.as_main_args(),
-        &settings,
+        &Default::default(),
         &mut app,
         std::ptr::null_mut()
     ));
@@ -326,10 +322,6 @@ fn main() {
         ));
 
         // let window_info = WindowInfo::new();
-        let browser_settings = BrowserSettings {
-            size: std::mem::size_of::<cef_sys::_cef_browser_settings_t>(),
-            ..Default::default()
-        };
         let mut client = DemoClient::new();
         let url = CefString::from(&CefStringUtf8::from("https://www.google.com"));
 
@@ -341,7 +333,7 @@ fn main() {
         let browser_view = browser_view_create(
             &mut client,
             &url,
-            &browser_settings,
+            &Default::default(),
             &mut extra_info,
             &mut request_context,
             &mut delegate,

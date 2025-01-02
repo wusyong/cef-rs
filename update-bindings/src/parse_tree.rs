@@ -1978,6 +1978,17 @@ impl<'a> ParseTree<'a> {
                         _ => quote! { #name: self.#rust_name.into(), },
                     })
                 });
+                let impl_default = match s.fields.first() {
+                    Some(f) if f.name.as_str() == "size" => {
+                        quote! {
+                            Self {
+                                size: std::mem::size_of::<#name_ident>(),
+                                ..unsafe { std::mem::zeroed() }
+                            }
+                        }
+                    }
+                    _ => quote!{ unsafe { std::mem::zeroed() } },
+                };
 
                 quote! {
                     #[doc = #comment]
@@ -2004,7 +2015,7 @@ impl<'a> ParseTree<'a> {
 
                     impl Default for #rust_name {
                         fn default() -> Self {
-                            unsafe { std::mem::zeroed() }
+                            #impl_default
                         }
                     }
                 }
