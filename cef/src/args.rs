@@ -31,7 +31,7 @@ impl Args {
         }
     }
 
-    pub fn as_raw(&self) -> &MainArgs {
+    pub fn as_main_args(&self) -> &MainArgs {
         &self.main_args
     }
 }

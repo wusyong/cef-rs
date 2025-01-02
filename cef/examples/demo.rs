@@ -1,56 +1,272 @@
-use cef::{args::Args, rc::Rc, *};
+use cef::{args::Args, rc::*, *};
 
-#[derive(Clone)]
-struct Application(*mut cef_sys::_cef_app_t);
+struct Application(*mut RcImpl<cef_sys::_cef_app_t, Application>);
+
+impl Application {
+    fn new() -> App {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <Self as ImplApp>::init_methods(&mut cef_object);
+            let interface = Self(std::ptr::null_mut());
+            let object = RcImpl::new(cef_object, interface);
+            (*object).interface.0 = object;
+            (object as *mut cef_sys::_cef_app_t).as_wrapper()
+        }
+    }
+}
+
+impl Clone for Application {
+    fn clone(&self) -> Self {
+        unsafe {
+            let rc_impl = &mut *self.0;
+            rc_impl.interface.add_ref();
+        }
+
+        Self(self.0)
+    }
+}
 
 impl Rc for Application {
     fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
-        unsafe { &*(self.0 as *const _) }
+        unsafe {
+            let base = &*self.0;
+            std::mem::transmute(&base.cef_object)
+        }
     }
 }
 
-impl Default for Application {
-    fn default() -> Self {
-        Self(App::default().into_raw())
+impl ImplApp for Application {
+    fn get_raw(&self) -> *mut cef_sys::_cef_app_t {
+        self.0 as *mut cef_sys::_cef_app_t
     }
 }
 
-impl ImplApp for Application {}
+struct DemoClient(*mut RcImpl<cef_sys::_cef_client_t, DemoClient>);
 
-#[derive(Clone)]
-struct DemoClient(*mut cef_sys::_cef_client_t);
+impl DemoClient {
+    fn new() -> Client {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <Self as ImplClient>::init_methods(&mut cef_object);
+            let interface = Self(std::ptr::null_mut());
+            let object = RcImpl::new(cef_object, interface);
+            (*object).interface.0 = object;
+            (object as *mut cef_sys::_cef_client_t).as_wrapper()
+        }
+    }
+}
+
+impl Clone for DemoClient {
+    fn clone(&self) -> Self {
+        unsafe {
+            let rc_impl = &mut *self.0;
+            rc_impl.interface.add_ref();
+        }
+
+        Self(self.0)
+    }
+}
 
 impl Rc for DemoClient {
     fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
-        unsafe { &*(self.0 as *const _) }
+        unsafe {
+            let base = &*self.0;
+            std::mem::transmute(&base.cef_object)
+        }
     }
 }
 
-impl Default for DemoClient {
-    fn default() -> Self {
-        Self(Client::default().into_raw())
+impl ImplClient for DemoClient {
+    fn get_raw(&self) -> *mut cef_sys::_cef_client_t {
+        self.0 as *mut cef_sys::_cef_client_t
     }
 }
 
-impl ImplClient for DemoClient {}
+struct DemoDictionaryValue(*mut RcImpl<cef_sys::_cef_dictionary_value_t, DemoDictionaryValue>);
 
-#[derive(Clone)]
+impl DemoDictionaryValue {
+    fn new() -> DictionaryValue {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <Self as ImplDictionaryValue>::init_methods(&mut cef_object);
+            let interface = Self(std::ptr::null_mut());
+            let object = RcImpl::new(cef_object, interface);
+            (*object).interface.0 = object;
+            (object as *mut cef_sys::_cef_dictionary_value_t).as_wrapper()
+        }
+    }
+}
+
+impl Clone for DemoDictionaryValue {
+    fn clone(&self) -> Self {
+        unsafe {
+            let rc_impl = &mut *self.0;
+            rc_impl.interface.add_ref();
+        }
+
+        Self(self.0)
+    }
+}
+
+impl Rc for DemoDictionaryValue {
+    fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
+        unsafe {
+            let base = &*self.0;
+            std::mem::transmute(&base.cef_object)
+        }
+    }
+}
+
+impl ImplDictionaryValue for DemoDictionaryValue {
+    fn get_raw(&self) -> *mut cef_sys::_cef_dictionary_value_t {
+        self.0 as *mut cef_sys::_cef_dictionary_value_t
+    }
+}
+
+struct DemoRequestContext(*mut RcImpl<cef_sys::_cef_request_context_t, DemoRequestContext>);
+
+impl DemoRequestContext {
+    fn new() -> RequestContext {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <Self as ImplRequestContext>::init_methods(&mut cef_object);
+            let interface = Self(std::ptr::null_mut());
+            let object = RcImpl::new(cef_object, interface);
+            (*object).interface.0 = object;
+            (object as *mut cef_sys::_cef_request_context_t).as_wrapper()
+        }
+    }
+}
+
+impl Clone for DemoRequestContext {
+    fn clone(&self) -> Self {
+        unsafe {
+            let rc_impl = &mut *self.0;
+            rc_impl.interface.add_ref();
+        }
+
+        Self(self.0)
+    }
+}
+
+impl Rc for DemoRequestContext {
+    fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
+        unsafe {
+            let base = &*self.0;
+            std::mem::transmute(&base.cef_object)
+        }
+    }
+}
+
+impl ImplPreferenceManager for DemoRequestContext {
+    fn get_raw(&self) -> *mut cef_sys::_cef_preference_manager_t {
+        self.0 as *mut cef_sys::_cef_preference_manager_t
+    }
+}
+
+impl ImplRequestContext for DemoRequestContext {
+    fn get_raw(&self) -> *mut cef_sys::_cef_request_context_t {
+        self.0 as *mut cef_sys::_cef_request_context_t
+    }
+}
+
+struct DemoBrowserViewDelegate(
+    *mut RcImpl<cef_sys::_cef_browser_view_delegate_t, DemoBrowserViewDelegate>,
+);
+
+impl DemoBrowserViewDelegate {
+    fn new() -> BrowserViewDelegate {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <Self as ImplBrowserViewDelegate>::init_methods(&mut cef_object);
+            let interface = Self(std::ptr::null_mut());
+            let object = RcImpl::new(cef_object, interface);
+            (*object).interface.0 = object;
+            (object as *mut cef_sys::_cef_browser_view_delegate_t).as_wrapper()
+        }
+    }
+}
+
+impl Clone for DemoBrowserViewDelegate {
+    fn clone(&self) -> Self {
+        unsafe {
+            let rc_impl = &mut *self.0;
+            rc_impl.interface.add_ref();
+        }
+
+        Self(self.0)
+    }
+}
+
+impl Rc for DemoBrowserViewDelegate {
+    fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
+        unsafe {
+            let base = &*self.0;
+            std::mem::transmute(&base.cef_object)
+        }
+    }
+}
+
+impl ImplViewDelegate for DemoBrowserViewDelegate {
+    fn get_raw(&self) -> *mut cef_sys::_cef_view_delegate_t {
+        self.0 as *mut cef_sys::_cef_view_delegate_t
+    }
+}
+
+impl ImplBrowserViewDelegate for DemoBrowserViewDelegate {
+    fn get_raw(&self) -> *mut cef_sys::_cef_browser_view_delegate_t {
+        self.0 as *mut cef_sys::_cef_browser_view_delegate_t
+    }
+
+    // TODO: make proper Default implementation for enums that cannot be zero-initialized.
+    fn get_chrome_toolbar_type(
+        &self,
+        _browser_view: &mut impl ImplBrowserView,
+    ) -> ChromeToolbarType {
+        cef_sys::cef_chrome_toolbar_type_t::CEF_CTT_NONE.into()
+    }
+}
+
 struct DemoWindow {
-    base: *mut cef_sys::_cef_window_delegate_t,
+    base: *mut RcImpl<cef_sys::_cef_window_delegate_t, DemoWindow>,
     browser_view: BrowserView,
+}
+
+impl DemoWindow {
+    fn new(browser_view: BrowserView) -> WindowDelegate {
+        unsafe {
+            let mut cef_object: cef_sys::_cef_window_delegate_t = std::mem::zeroed();
+            <Self as ImplWindowDelegate>::init_methods(&mut cef_object);
+            let interface = Self {
+                base: std::ptr::null_mut(),
+                browser_view,
+            };
+            let object = RcImpl::new(cef_object, interface);
+            (*object).interface.base = object;
+            (object as *mut cef_sys::_cef_window_delegate_t).as_wrapper()
+        }
+    }
+}
+
+impl Clone for DemoWindow {
+    fn clone(&self) -> Self {
+        unsafe {
+            let rc_impl = &mut *self.base;
+            rc_impl.interface.add_ref();
+        }
+
+        Self {
+            base: self.base,
+            browser_view: self.browser_view.clone(),
+        }
+    }
 }
 
 impl Rc for DemoWindow {
     fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
-        unsafe { &*(self.base as *const _) }
-    }
-}
-
-impl Default for DemoWindow {
-    fn default() -> Self {
-        Self {
-            base: ImplWindowDelegate::into_raw(WindowDelegate::default()),
-            browser_view: BrowserView::default(),
+        unsafe {
+            let base = &*self.base;
+            std::mem::transmute(&base.cef_object)
         }
     }
 }
@@ -64,8 +280,18 @@ impl ImplViewDelegate for DemoWindow {
     ) {
         // view.as_panel().map(|x| x.as_window().map(|w| w.close()));
     }
+
+    fn get_raw(&self) -> *mut cef_sys::_cef_view_delegate_t {
+        self.base as *mut cef_sys::_cef_view_delegate_t
+    }
 }
-impl ImplPanelDelegate for DemoWindow {}
+
+impl ImplPanelDelegate for DemoWindow {
+    fn get_raw(&self) -> *mut cef_sys::_cef_panel_delegate_t {
+        self.base as *mut cef_sys::_cef_panel_delegate_t
+    }
+}
+
 impl ImplWindowDelegate for DemoWindow {
     fn on_window_created(&self, window: &mut impl ImplWindow) {
         let mut view = self.browser_view.clone();
@@ -73,47 +299,79 @@ impl ImplWindowDelegate for DemoWindow {
         window.show();
     }
 
+    fn can_close(&self, _window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
+        1
+    }
+
     fn on_window_destroyed(&self, _window: &mut impl ImplWindow) {
         quit_message_loop();
+    }
+
+    fn get_raw(&self) -> *mut cef_sys::_cef_window_delegate_t {
+        self.base as *mut cef_sys::_cef_window_delegate_t
+    }
+
+    // TODO: make proper Default implementation for enums that cannot be zero-initialized.
+    fn get_initial_show_state(&self, _window: &mut impl ImplWindow) -> ShowState {
+        cef_sys::cef_show_state_t::CEF_SHOW_STATE_NORMAL.into()
     }
 }
 
 fn main() {
     let args = Args::new(std::env::args());
     // dbg!(&args);
-    let mut app = Application::default();
-    let settings = Settings::default();
-    dbg!(initialize(args.as_raw(), &settings, &mut app, std::ptr::null_mut()));
-    dbg!(execute_process(args.as_raw(), &mut app, std::ptr::null_mut()));
-
-    // let window_info = WindowInfo::new();
-    let browser_settings = BrowserSettings::default();
-    let mut client = DemoClient::default();
-    let url = CefString::from(&CefStringUtf8::from("https://www.google.com"));
-
-    let browser_view = browser_view_create(
-        &mut client,
-        &url,
-        &browser_settings,
-        &mut DictionaryValue::default(),
-        &mut RequestContext::default(),
-        &mut BrowserViewDelegate::default(),
-    );
-    let mut delegate = DemoWindow {
-        browser_view,
+    let mut app = Application::new();
+    let settings = Settings {
+        size: std::mem::size_of::<cef_sys::_cef_settings_t>(),
         ..Default::default()
     };
+    dbg!(initialize(
+        args.as_main_args(),
+        &settings,
+        &mut app,
+        std::ptr::null_mut()
+    ));
+    {
+        dbg!(execute_process(
+            args.as_main_args(),
+            &mut app,
+            std::ptr::null_mut()
+        ));
 
-    let x = window_create_top_level(&mut delegate);
-    // dbg!(cef::create_browser(
-    //     window_info,
-    //     Some(client),
-    //     url,
-    //     browser_settings
-    // ));
+        // let window_info = WindowInfo::new();
+        let browser_settings = BrowserSettings {
+            size: std::mem::size_of::<cef_sys::_cef_browser_settings_t>(),
+            ..Default::default()
+        };
+        let mut client = DemoClient::new();
+        let url = CefString::from(&CefStringUtf8::from("https://www.google.com"));
 
-    run_message_loop();
-    dbg!(x.has_one_ref());
+        // TODO: Make Default::default() work for this, and make these arguments Option<&mut T>.
+        let mut extra_info = DemoDictionaryValue::new();
+        let mut request_context = DemoRequestContext::new();
+        let mut delegate = DemoBrowserViewDelegate::new();
+
+        let browser_view = browser_view_create(
+            &mut client,
+            &url,
+            &browser_settings,
+            &mut extra_info,
+            &mut request_context,
+            &mut delegate,
+        );
+        let mut delegate = DemoWindow::new(browser_view);
+
+        let x = window_create_top_level(&mut delegate);
+        // dbg!(cef::create_browser(
+        //     window_info,
+        //     Some(client),
+        //     url,
+        //     browser_settings
+        // ));
+
+        run_message_loop();
+        dbg!(x.has_one_ref());
+    }
 
     shutdown();
 }

@@ -1376,6 +1376,11 @@ impl Default for TaskInfo {
 #[doc = "See [_cef_base_ref_counted_t] for more documentation."]
 #[derive(Clone)]
 pub struct BaseRefCounted(RefGuard<_cef_base_ref_counted_t>);
+impl BaseRefCounted {
+    fn get_raw(&self) -> *mut _cef_base_ref_counted_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
+}
 impl Rc for BaseRefCounted {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
         self.0.as_base()
@@ -1398,7 +1403,9 @@ impl ConvertReturnValue<BaseRefCounted> for *mut _cef_base_ref_counted_t {
 }
 impl Into<*mut _cef_base_ref_counted_t> for BaseRefCounted {
     fn into(self) -> *mut _cef_base_ref_counted_t {
-        unsafe { self.0.into_raw() }
+        let object = self.get_raw();
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for BaseRefCounted {
@@ -1443,7 +1450,7 @@ impl Default for BaseScoped {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDevToolsMessageObserver: Clone + Default + Sized + Rc {
+pub trait ImplDevToolsMessageObserver: Clone + Sized + Rc {
     fn on_dev_tools_message(
         &self,
         browser: &mut impl ImplBrowser,
@@ -1474,11 +1481,10 @@ pub trait ImplDevToolsMessageObserver: Clone + Default + Sized + Rc {
     fn on_dev_tools_agent_detached(&self, browser: &mut impl ImplBrowser) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_dev_tools_message_observer_t {
-        let mut object: _cef_dev_tools_message_observer_t = unsafe { std::mem::zeroed() };
-        impl_cef_dev_tools_message_observer_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_dev_tools_message_observer_t) {
+        impl_cef_dev_tools_message_observer_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_dev_tools_message_observer_t;
 }
 mod impl_cef_dev_tools_message_observer_t {
     use super::*;
@@ -1599,7 +1605,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .map(|f| {
                     let (arg_browser, arg_message) = (browser, message);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_message_size = arg_message
                         .as_ref()
                         .map(|arg| arg.len())
@@ -1634,7 +1640,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                     let (arg_browser, arg_message_id, arg_success, arg_result) =
                         (browser, message_id, success, result);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_message_id = arg_message_id;
                     let arg_success = arg_success;
                     let arg_result_size =
@@ -1674,7 +1680,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .map(|f| {
                     let (arg_browser, arg_method, arg_params) = (browser, method, params);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_method = arg_method.as_raw();
                     let arg_params_size =
                         arg_params.as_ref().map(|arg| arg.len()).unwrap_or_default();
@@ -1707,7 +1713,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -1721,12 +1727,15 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_dev_tools_message_observer_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_dev_tools_message_observer_t {
@@ -1756,7 +1765,9 @@ impl ConvertReturnValue<DevToolsMessageObserver> for *mut _cef_dev_tools_message
 }
 impl Into<*mut _cef_dev_tools_message_observer_t> for DevToolsMessageObserver {
     fn into(self) -> *mut _cef_dev_tools_message_observer_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDevToolsMessageObserver::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DevToolsMessageObserver {
@@ -1764,7 +1775,7 @@ impl Default for DevToolsMessageObserver {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplValue: Clone + Default + Sized + Rc {
+pub trait ImplValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -1831,11 +1842,10 @@ pub trait ImplValue: Clone + Default + Sized + Rc {
     fn set_list(&self, value: &mut impl ImplListValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_value_t {
-        let mut object: _cef_value_t = unsafe { std::mem::zeroed() };
-        impl_cef_value_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_value_t) {
+        impl_cef_value_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_value_t;
 }
 mod impl_cef_value_t {
     use super::*;
@@ -2082,7 +2092,7 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplValue::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -2096,7 +2106,7 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplValue::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -2286,7 +2296,7 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
-                    let arg_value = ImplBinaryValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplBinaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
@@ -2300,7 +2310,7 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
-                    let arg_value = ImplDictionaryValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplDictionaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
@@ -2314,12 +2324,15 @@ impl ImplValue for Value {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
-                    let arg_value = ImplListValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplListValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_value_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_value_t {
@@ -2349,7 +2362,9 @@ impl ConvertReturnValue<Value> for *mut _cef_value_t {
 }
 impl Into<*mut _cef_value_t> for Value {
     fn into(self) -> *mut _cef_value_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplValue::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Value {
@@ -2357,7 +2372,7 @@ impl Default for Value {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplBinaryValue: Clone + Default + Sized + Rc {
+pub trait ImplBinaryValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -2382,11 +2397,10 @@ pub trait ImplBinaryValue: Clone + Default + Sized + Rc {
     fn get_data(&self, buffer: Option<&mut Vec<u8>>, data_offset: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_binary_value_t {
-        let mut object: _cef_binary_value_t = unsafe { std::mem::zeroed() };
-        impl_cef_binary_value_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_binary_value_t) {
+        impl_cef_binary_value_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_binary_value_t;
 }
 mod impl_cef_binary_value_t {
     use super::*;
@@ -2516,7 +2530,7 @@ impl ImplBinaryValue for BinaryValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplBinaryValue::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplBinaryValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -2530,7 +2544,7 @@ impl ImplBinaryValue for BinaryValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplBinaryValue::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplBinaryValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -2600,6 +2614,9 @@ impl ImplBinaryValue for BinaryValue {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_binary_value_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_binary_value_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -2628,7 +2645,9 @@ impl ConvertReturnValue<BinaryValue> for *mut _cef_binary_value_t {
 }
 impl Into<*mut _cef_binary_value_t> for BinaryValue {
     fn into(self) -> *mut _cef_binary_value_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplBinaryValue::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for BinaryValue {
@@ -2636,7 +2655,7 @@ impl Default for BinaryValue {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDictionaryValue: Clone + Default + Sized + Rc {
+pub trait ImplDictionaryValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -2740,11 +2759,10 @@ pub trait ImplDictionaryValue: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_dictionary_value_t {
-        let mut object: _cef_dictionary_value_t = unsafe { std::mem::zeroed() };
-        impl_cef_dictionary_value_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_dictionary_value_t) {
+        impl_cef_dictionary_value_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_dictionary_value_t;
 }
 mod impl_cef_dictionary_value_t {
     use super::*;
@@ -3143,7 +3161,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplDictionaryValue::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplDictionaryValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -3157,7 +3175,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplDictionaryValue::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplDictionaryValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -3378,7 +3396,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let (arg_key, arg_value) = (key, value);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
-                    let arg_value = ImplValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
@@ -3475,7 +3493,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let (arg_key, arg_value) = (key, value);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
-                    let arg_value = ImplBinaryValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplBinaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
@@ -3494,7 +3512,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let (arg_key, arg_value) = (key, value);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
-                    let arg_value = ImplDictionaryValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplDictionaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
@@ -3513,12 +3531,15 @@ impl ImplDictionaryValue for DictionaryValue {
                     let (arg_key, arg_value) = (key, value);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
-                    let arg_value = ImplListValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplListValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_dictionary_value_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_dictionary_value_t {
@@ -3548,7 +3569,9 @@ impl ConvertReturnValue<DictionaryValue> for *mut _cef_dictionary_value_t {
 }
 impl Into<*mut _cef_dictionary_value_t> for DictionaryValue {
     fn into(self) -> *mut _cef_dictionary_value_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDictionaryValue::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DictionaryValue {
@@ -3556,7 +3579,7 @@ impl Default for DictionaryValue {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplListValue: Clone + Default + Sized + Rc {
+pub trait ImplListValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -3645,11 +3668,10 @@ pub trait ImplListValue: Clone + Default + Sized + Rc {
     fn set_list(&self, index: usize, value: &mut impl ImplListValue) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_list_value_t {
-        let mut object: _cef_list_value_t = unsafe { std::mem::zeroed() };
-        impl_cef_list_value_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_list_value_t) {
+        impl_cef_list_value_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_list_value_t;
 }
 mod impl_cef_list_value_t {
     use super::*;
@@ -4007,7 +4029,7 @@ impl ImplListValue for ListValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplListValue::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplListValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -4021,7 +4043,7 @@ impl ImplListValue for ListValue {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplListValue::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplListValue::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -4226,7 +4248,7 @@ impl ImplListValue for ListValue {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
-                    let arg_value = ImplValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
@@ -4315,7 +4337,7 @@ impl ImplListValue for ListValue {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
-                    let arg_value = ImplBinaryValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplBinaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
@@ -4334,7 +4356,7 @@ impl ImplListValue for ListValue {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
-                    let arg_value = ImplDictionaryValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplDictionaryValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
@@ -4349,12 +4371,15 @@ impl ImplListValue for ListValue {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
-                    let arg_value = ImplListValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplListValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_list_value_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_list_value_t {
@@ -4384,7 +4409,9 @@ impl ConvertReturnValue<ListValue> for *mut _cef_list_value_t {
 }
 impl Into<*mut _cef_list_value_t> for ListValue {
     fn into(self) -> *mut _cef_list_value_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplListValue::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ListValue {
@@ -4392,7 +4419,7 @@ impl Default for ListValue {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplImage: Clone + Default + Sized + Rc {
+pub trait ImplImage: Clone + Sized + Rc {
     fn is_empty(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -4465,11 +4492,10 @@ pub trait ImplImage: Clone + Default + Sized + Rc {
     ) -> BinaryValue {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_image_t {
-        let mut object: _cef_image_t = unsafe { std::mem::zeroed() };
-        impl_cef_image_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_image_t) {
+        impl_cef_image_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_image_t;
 }
 mod impl_cef_image_t {
     use super::*;
@@ -4775,7 +4801,7 @@ impl ImplImage for Image {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplImage::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplImage::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -5100,6 +5126,9 @@ impl ImplImage for Image {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_image_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_image_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -5128,7 +5157,9 @@ impl ConvertReturnValue<Image> for *mut _cef_image_t {
 }
 impl Into<*mut _cef_image_t> for Image {
     fn into(self) -> *mut _cef_image_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplImage::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Image {
@@ -5136,7 +5167,7 @@ impl Default for Image {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplReadHandler: Clone + Default + Sized + Rc {
+pub trait ImplReadHandler: Clone + Sized + Rc {
     fn read(&self, ptr: *mut u8, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
@@ -5152,11 +5183,10 @@ pub trait ImplReadHandler: Clone + Default + Sized + Rc {
     fn may_block(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_read_handler_t {
-        let mut object: _cef_read_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_read_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_read_handler_t) {
+        impl_cef_read_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_read_handler_t;
 }
 mod impl_cef_read_handler_t {
     use super::*;
@@ -5287,6 +5317,9 @@ impl ImplReadHandler for ReadHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_read_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_read_handler_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -5315,7 +5348,9 @@ impl ConvertReturnValue<ReadHandler> for *mut _cef_read_handler_t {
 }
 impl Into<*mut _cef_read_handler_t> for ReadHandler {
     fn into(self) -> *mut _cef_read_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplReadHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ReadHandler {
@@ -5323,7 +5358,7 @@ impl Default for ReadHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplStreamReader: Clone + Default + Sized + Rc {
+pub trait ImplStreamReader: Clone + Sized + Rc {
     fn read(&self, ptr: *mut u8, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
@@ -5339,11 +5374,10 @@ pub trait ImplStreamReader: Clone + Default + Sized + Rc {
     fn may_block(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_stream_reader_t {
-        let mut object: _cef_stream_reader_t = unsafe { std::mem::zeroed() };
-        impl_cef_stream_reader_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_stream_reader_t) {
+        impl_cef_stream_reader_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_stream_reader_t;
 }
 mod impl_cef_stream_reader_t {
     use super::*;
@@ -5474,6 +5508,9 @@ impl ImplStreamReader for StreamReader {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_stream_reader_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_stream_reader_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -5502,7 +5539,9 @@ impl ConvertReturnValue<StreamReader> for *mut _cef_stream_reader_t {
 }
 impl Into<*mut _cef_stream_reader_t> for StreamReader {
     fn into(self) -> *mut _cef_stream_reader_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplStreamReader::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for StreamReader {
@@ -5510,7 +5549,7 @@ impl Default for StreamReader {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplWriteHandler: Clone + Default + Sized + Rc {
+pub trait ImplWriteHandler: Clone + Sized + Rc {
     fn write(&self, ptr: *const u8, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
@@ -5526,11 +5565,10 @@ pub trait ImplWriteHandler: Clone + Default + Sized + Rc {
     fn may_block(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_write_handler_t {
-        let mut object: _cef_write_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_write_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_write_handler_t) {
+        impl_cef_write_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_write_handler_t;
 }
 mod impl_cef_write_handler_t {
     use super::*;
@@ -5661,6 +5699,9 @@ impl ImplWriteHandler for WriteHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_write_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_write_handler_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -5689,7 +5730,9 @@ impl ConvertReturnValue<WriteHandler> for *mut _cef_write_handler_t {
 }
 impl Into<*mut _cef_write_handler_t> for WriteHandler {
     fn into(self) -> *mut _cef_write_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplWriteHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for WriteHandler {
@@ -5697,7 +5740,7 @@ impl Default for WriteHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplStreamWriter: Clone + Default + Sized + Rc {
+pub trait ImplStreamWriter: Clone + Sized + Rc {
     fn write(&self, ptr: *const u8, size: usize, n: usize) -> usize {
         unsafe { std::mem::zeroed() }
     }
@@ -5713,11 +5756,10 @@ pub trait ImplStreamWriter: Clone + Default + Sized + Rc {
     fn may_block(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_stream_writer_t {
-        let mut object: _cef_stream_writer_t = unsafe { std::mem::zeroed() };
-        impl_cef_stream_writer_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_stream_writer_t) {
+        impl_cef_stream_writer_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_stream_writer_t;
 }
 mod impl_cef_stream_writer_t {
     use super::*;
@@ -5848,6 +5890,9 @@ impl ImplStreamWriter for StreamWriter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_stream_writer_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_stream_writer_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -5876,7 +5921,9 @@ impl ConvertReturnValue<StreamWriter> for *mut _cef_stream_writer_t {
 }
 impl Into<*mut _cef_stream_writer_t> for StreamWriter {
     fn into(self) -> *mut _cef_stream_writer_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplStreamWriter::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for StreamWriter {
@@ -5884,7 +5931,7 @@ impl Default for StreamWriter {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDragData: Clone + Default + Sized + Rc {
+pub trait ImplDragData: Clone + Sized + Rc {
     fn clone(&self) -> DragData {
         unsafe { std::mem::zeroed() }
     }
@@ -5966,11 +6013,10 @@ pub trait ImplDragData: Clone + Default + Sized + Rc {
     fn has_image(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_drag_data_t {
-        let mut object: _cef_drag_data_t = unsafe { std::mem::zeroed() };
-        impl_cef_drag_data_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_drag_data_t) {
+        impl_cef_drag_data_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_drag_data_t;
 }
 mod impl_cef_drag_data_t {
     use super::*;
@@ -6384,7 +6430,7 @@ impl ImplDragData for DragData {
                 .map(|f| {
                     let arg_writer = writer;
                     let arg_self_ = self.as_raw();
-                    let arg_writer = ImplStreamWriter::into_raw(Clone::clone(arg_writer));
+                    let arg_writer = ImplStreamWriter::get_raw(arg_writer);
                     let result = f(arg_self_, arg_writer);
                     result.as_wrapper()
                 })
@@ -6578,6 +6624,9 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_drag_data_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_drag_data_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -6606,7 +6655,9 @@ impl ConvertReturnValue<DragData> for *mut _cef_drag_data_t {
 }
 impl Into<*mut _cef_drag_data_t> for DragData {
     fn into(self) -> *mut _cef_drag_data_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDragData::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DragData {
@@ -6614,15 +6665,14 @@ impl Default for DragData {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDomvisitor: Clone + Default + Sized + Rc {
+pub trait ImplDomvisitor: Clone + Sized + Rc {
     fn visit(&self, document: &mut impl ImplDomdocument) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_domvisitor_t {
-        let mut object: _cef_domvisitor_t = unsafe { std::mem::zeroed() };
-        impl_cef_domvisitor_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_domvisitor_t) {
+        impl_cef_domvisitor_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_domvisitor_t;
 }
 mod impl_cef_domvisitor_t {
     use super::*;
@@ -6650,12 +6700,15 @@ impl ImplDomvisitor for Domvisitor {
                 .map(|f| {
                     let arg_document = document;
                     let arg_self_ = self.as_raw();
-                    let arg_document = ImplDomdocument::into_raw(Clone::clone(arg_document));
+                    let arg_document = ImplDomdocument::get_raw(arg_document);
                     let result = f(arg_self_, arg_document);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_domvisitor_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_domvisitor_t {
@@ -6685,7 +6738,9 @@ impl ConvertReturnValue<Domvisitor> for *mut _cef_domvisitor_t {
 }
 impl Into<*mut _cef_domvisitor_t> for Domvisitor {
     fn into(self) -> *mut _cef_domvisitor_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDomvisitor::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Domvisitor {
@@ -6693,7 +6748,7 @@ impl Default for Domvisitor {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDomdocument: Clone + Default + Sized + Rc {
+pub trait ImplDomdocument: Clone + Sized + Rc {
     fn get_type(&self) -> DomDocumentType {
         unsafe { std::mem::zeroed() }
     }
@@ -6736,11 +6791,10 @@ pub trait ImplDomdocument: Clone + Default + Sized + Rc {
     fn get_complete_url(&self, partial_url: &CefStringUtf16) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_domdocument_t {
-        let mut object: _cef_domdocument_t = unsafe { std::mem::zeroed() };
-        impl_cef_domdocument_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_domdocument_t) {
+        impl_cef_domdocument_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_domdocument_t;
 }
 mod impl_cef_domdocument_t {
     use super::*;
@@ -7055,6 +7109,9 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_domdocument_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_domdocument_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -7083,7 +7140,9 @@ impl ConvertReturnValue<Domdocument> for *mut _cef_domdocument_t {
 }
 impl Into<*mut _cef_domdocument_t> for Domdocument {
     fn into(self) -> *mut _cef_domdocument_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDomdocument::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Domdocument {
@@ -7091,7 +7150,7 @@ impl Default for Domdocument {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDomnode: Clone + Default + Sized + Rc {
+pub trait ImplDomnode: Clone + Sized + Rc {
     fn get_type(&self) -> DomNodeType {
         unsafe { std::mem::zeroed() }
     }
@@ -7174,11 +7233,10 @@ pub trait ImplDomnode: Clone + Default + Sized + Rc {
     fn get_element_bounds(&self) -> Rect {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_domnode_t {
-        let mut object: _cef_domnode_t = unsafe { std::mem::zeroed() };
-        impl_cef_domnode_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_domnode_t) {
+        impl_cef_domnode_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_domnode_t;
 }
 mod impl_cef_domnode_t {
     use super::*;
@@ -7508,7 +7566,7 @@ impl ImplDomnode for Domnode {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplDomnode::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplDomnode::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -7758,6 +7816,9 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_domnode_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_domnode_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -7786,7 +7847,9 @@ impl ConvertReturnValue<Domnode> for *mut _cef_domnode_t {
 }
 impl Into<*mut _cef_domnode_t> for Domnode {
     fn into(self) -> *mut _cef_domnode_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDomnode::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Domnode {
@@ -7794,7 +7857,7 @@ impl Default for Domnode {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplSharedMemoryRegion: Clone + Default + Sized + Rc {
+pub trait ImplSharedMemoryRegion: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -7804,11 +7867,10 @@ pub trait ImplSharedMemoryRegion: Clone + Default + Sized + Rc {
     fn memory(&self) -> *mut ::std::os::raw::c_void {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_shared_memory_region_t {
-        let mut object: _cef_shared_memory_region_t = unsafe { std::mem::zeroed() };
-        impl_cef_shared_memory_region_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_shared_memory_region_t) {
+        impl_cef_shared_memory_region_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_shared_memory_region_t;
 }
 mod impl_cef_shared_memory_region_t {
     use super::*;
@@ -7882,6 +7944,9 @@ impl ImplSharedMemoryRegion for SharedMemoryRegion {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_shared_memory_region_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_shared_memory_region_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -7910,7 +7975,9 @@ impl ConvertReturnValue<SharedMemoryRegion> for *mut _cef_shared_memory_region_t
 }
 impl Into<*mut _cef_shared_memory_region_t> for SharedMemoryRegion {
     fn into(self) -> *mut _cef_shared_memory_region_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplSharedMemoryRegion::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for SharedMemoryRegion {
@@ -7918,7 +7985,7 @@ impl Default for SharedMemoryRegion {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplProcessMessage: Clone + Default + Sized + Rc {
+pub trait ImplProcessMessage: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -7937,11 +8004,10 @@ pub trait ImplProcessMessage: Clone + Default + Sized + Rc {
     fn get_shared_memory_region(&self) -> SharedMemoryRegion {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_process_message_t {
-        let mut object: _cef_process_message_t = unsafe { std::mem::zeroed() };
-        impl_cef_process_message_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_process_message_t) {
+        impl_cef_process_message_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_process_message_t;
 }
 mod impl_cef_process_message_t {
     use super::*;
@@ -8078,6 +8144,9 @@ impl ImplProcessMessage for ProcessMessage {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_process_message_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_process_message_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -8106,7 +8175,9 @@ impl ConvertReturnValue<ProcessMessage> for *mut _cef_process_message_t {
 }
 impl Into<*mut _cef_process_message_t> for ProcessMessage {
     fn into(self) -> *mut _cef_process_message_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplProcessMessage::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ProcessMessage {
@@ -8114,7 +8185,7 @@ impl Default for ProcessMessage {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplRequest: Clone + Default + Sized + Rc {
+pub trait ImplRequest: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -8192,11 +8263,10 @@ pub trait ImplRequest: Clone + Default + Sized + Rc {
     fn get_identifier(&self) -> u64 {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_request_t {
-        let mut object: _cef_request_t = unsafe { std::mem::zeroed() };
-        impl_cef_request_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_request_t) {
+        impl_cef_request_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_request_t;
 }
 mod impl_cef_request_t {
     use super::*;
@@ -8569,7 +8639,7 @@ impl ImplRequest for Request {
                 .map(|f| {
                     let arg_post_data = post_data;
                     let arg_self_ = self.as_raw();
-                    let arg_post_data = ImplPostData::into_raw(Clone::clone(arg_post_data));
+                    let arg_post_data = ImplPostData::get_raw(arg_post_data);
                     let result = f(arg_self_, arg_post_data);
                     result.as_wrapper()
                 })
@@ -8655,7 +8725,7 @@ impl ImplRequest for Request {
                     let arg_self_ = self.as_raw();
                     let arg_url = arg_url.as_raw();
                     let arg_method = arg_method.as_raw();
-                    let arg_post_data = ImplPostData::into_raw(Clone::clone(arg_post_data));
+                    let arg_post_data = ImplPostData::get_raw(arg_post_data);
                     let arg_header_map = arg_header_map.as_raw();
                     let result = f(
                         arg_self_,
@@ -8757,6 +8827,9 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_request_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_request_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -8785,7 +8858,9 @@ impl ConvertReturnValue<Request> for *mut _cef_request_t {
 }
 impl Into<*mut _cef_request_t> for Request {
     fn into(self) -> *mut _cef_request_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRequest::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Request {
@@ -8793,7 +8868,7 @@ impl Default for Request {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPostData: Clone + Default + Sized + Rc {
+pub trait ImplPostData: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -8815,11 +8890,10 @@ pub trait ImplPostData: Clone + Default + Sized + Rc {
     fn remove_elements(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_post_data_t {
-        let mut object: _cef_post_data_t = unsafe { std::mem::zeroed() };
-        impl_cef_post_data_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_post_data_t) {
+        impl_cef_post_data_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_post_data_t;
 }
 mod impl_cef_post_data_t {
     use super::*;
@@ -8974,7 +9048,7 @@ impl ImplPostData for PostData {
                             arg.iter_mut()
                                 .map(|elem| {
                                     elem.as_mut()
-                                        .map(|elem| std::mem::take(elem).into_raw())
+                                        .map(|elem| elem.get_raw())
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -9011,7 +9085,7 @@ impl ImplPostData for PostData {
                 .map(|f| {
                     let arg_element = element;
                     let arg_self_ = self.as_raw();
-                    let arg_element = ImplPostDataElement::into_raw(Clone::clone(arg_element));
+                    let arg_element = ImplPostDataElement::get_raw(arg_element);
                     let result = f(arg_self_, arg_element);
                     result.as_wrapper()
                 })
@@ -9025,7 +9099,7 @@ impl ImplPostData for PostData {
                 .map(|f| {
                     let arg_element = element;
                     let arg_self_ = self.as_raw();
-                    let arg_element = ImplPostDataElement::into_raw(Clone::clone(arg_element));
+                    let arg_element = ImplPostDataElement::get_raw(arg_element);
                     let result = f(arg_self_, arg_element);
                     result.as_wrapper()
                 })
@@ -9043,6 +9117,9 @@ impl ImplPostData for PostData {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_post_data_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_post_data_t {
@@ -9072,7 +9149,9 @@ impl ConvertReturnValue<PostData> for *mut _cef_post_data_t {
 }
 impl Into<*mut _cef_post_data_t> for PostData {
     fn into(self) -> *mut _cef_post_data_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPostData::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PostData {
@@ -9080,7 +9159,7 @@ impl Default for PostData {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPostDataElement: Clone + Default + Sized + Rc {
+pub trait ImplPostDataElement: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -9105,11 +9184,10 @@ pub trait ImplPostDataElement: Clone + Default + Sized + Rc {
     fn get_bytes(&self, size: usize, bytes: *mut u8) -> usize {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_post_data_element_t {
-        let mut object: _cef_post_data_element_t = unsafe { std::mem::zeroed() };
-        impl_cef_post_data_element_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_post_data_element_t) {
+        impl_cef_post_data_element_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_post_data_element_t;
 }
 mod impl_cef_post_data_element_t {
     use super::*;
@@ -9302,6 +9380,9 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_post_data_element_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_post_data_element_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -9330,7 +9411,9 @@ impl ConvertReturnValue<PostDataElement> for *mut _cef_post_data_element_t {
 }
 impl Into<*mut _cef_post_data_element_t> for PostDataElement {
     fn into(self) -> *mut _cef_post_data_element_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPostDataElement::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PostDataElement {
@@ -9338,15 +9421,14 @@ impl Default for PostDataElement {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplCefStringVisitor: Clone + Default + Sized + Rc {
+pub trait ImplCefStringVisitor: Clone + Sized + Rc {
     fn visit(&self, string: &CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_string_visitor_t {
-        let mut object: _cef_string_visitor_t = unsafe { std::mem::zeroed() };
-        impl_cef_string_visitor_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_string_visitor_t) {
+        impl_cef_string_visitor_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_string_visitor_t;
 }
 mod impl_cef_string_visitor_t {
     use super::*;
@@ -9382,6 +9464,9 @@ impl ImplCefStringVisitor for CefStringVisitor {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_string_visitor_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_string_visitor_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -9410,7 +9495,9 @@ impl ConvertReturnValue<CefStringVisitor> for *mut _cef_string_visitor_t {
 }
 impl Into<*mut _cef_string_visitor_t> for CefStringVisitor {
     fn into(self) -> *mut _cef_string_visitor_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplCefStringVisitor::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for CefStringVisitor {
@@ -9418,7 +9505,7 @@ impl Default for CefStringVisitor {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplFrame: Clone + Default + Sized + Rc {
+pub trait ImplFrame: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -9510,11 +9597,10 @@ pub trait ImplFrame: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_frame_t {
-        let mut object: _cef_frame_t = unsafe { std::mem::zeroed() };
-        impl_cef_frame_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_frame_t) {
+        impl_cef_frame_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_frame_t;
 }
 mod impl_cef_frame_t {
     use super::*;
@@ -9870,7 +9956,7 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let arg_visitor = visitor;
                     let arg_self_ = self.as_raw();
-                    let arg_visitor = ImplCefStringVisitor::into_raw(Clone::clone(arg_visitor));
+                    let arg_visitor = ImplCefStringVisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_visitor);
                     result.as_wrapper()
                 })
@@ -9884,7 +9970,7 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let arg_visitor = visitor;
                     let arg_self_ = self.as_raw();
-                    let arg_visitor = ImplCefStringVisitor::into_raw(Clone::clone(arg_visitor));
+                    let arg_visitor = ImplCefStringVisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_visitor);
                     result.as_wrapper()
                 })
@@ -9898,7 +9984,7 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let arg_request = request;
                     let arg_self_ = self.as_raw();
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let result = f(arg_self_, arg_request);
                     result.as_wrapper()
                 })
@@ -10043,7 +10129,7 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let arg_visitor = visitor;
                     let arg_self_ = self.as_raw();
-                    let arg_visitor = ImplDomvisitor::into_raw(Clone::clone(arg_visitor));
+                    let arg_visitor = ImplDomvisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_visitor);
                     result.as_wrapper()
                 })
@@ -10061,8 +10147,8 @@ impl ImplFrame for Frame {
                 .map(|f| {
                     let (arg_request, arg_client) = (request, client);
                     let arg_self_ = self.as_raw();
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
-                    let arg_client = ImplUrlrequestClient::into_raw(Clone::clone(arg_client));
+                    let arg_request = ImplRequest::get_raw(arg_request);
+                    let arg_client = ImplUrlrequestClient::get_raw(arg_client);
                     let result = f(arg_self_, arg_request, arg_client);
                     result.as_wrapper()
                 })
@@ -10081,12 +10167,15 @@ impl ImplFrame for Frame {
                     let (arg_target_process, arg_message) = (target_process, message);
                     let arg_self_ = self.as_raw();
                     let arg_target_process = arg_target_process.as_raw();
-                    let arg_message = ImplProcessMessage::into_raw(Clone::clone(arg_message));
+                    let arg_message = ImplProcessMessage::get_raw(arg_message);
                     let result = f(arg_self_, arg_target_process, arg_message);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_frame_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_frame_t {
@@ -10116,7 +10205,9 @@ impl ConvertReturnValue<Frame> for *mut _cef_frame_t {
 }
 impl Into<*mut _cef_frame_t> for Frame {
     fn into(self) -> *mut _cef_frame_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplFrame::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Frame {
@@ -10124,7 +10215,7 @@ impl Default for Frame {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplX509certPrincipal: Clone + Default + Sized + Rc {
+pub trait ImplX509certPrincipal: Clone + Sized + Rc {
     fn get_display_name(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
@@ -10146,11 +10237,10 @@ pub trait ImplX509certPrincipal: Clone + Default + Sized + Rc {
     fn get_organization_unit_names(&self, names: &mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_x509cert_principal_t {
-        let mut object: _cef_x509cert_principal_t = unsafe { std::mem::zeroed() };
-        impl_cef_x509cert_principal_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_x509cert_principal_t) {
+        impl_cef_x509cert_principal_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_x509cert_principal_t;
 }
 mod impl_cef_x509cert_principal_t {
     use super::*;
@@ -10317,6 +10407,9 @@ impl ImplX509certPrincipal for X509certPrincipal {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_x509cert_principal_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_x509cert_principal_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -10345,7 +10438,9 @@ impl ConvertReturnValue<X509certPrincipal> for *mut _cef_x509cert_principal_t {
 }
 impl Into<*mut _cef_x509cert_principal_t> for X509certPrincipal {
     fn into(self) -> *mut _cef_x509cert_principal_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplX509certPrincipal::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for X509certPrincipal {
@@ -10353,7 +10448,7 @@ impl Default for X509certPrincipal {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplX509certificate: Clone + Default + Sized + Rc {
+pub trait ImplX509certificate: Clone + Sized + Rc {
     fn get_subject(&self) -> X509certPrincipal {
         unsafe { std::mem::zeroed() }
     }
@@ -10384,11 +10479,10 @@ pub trait ImplX509certificate: Clone + Default + Sized + Rc {
     fn get_pemencoded_issuer_chain(&self, chain: Option<&mut Vec<Option<BinaryValue>>>) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_x509certificate_t {
-        let mut object: _cef_x509certificate_t = unsafe { std::mem::zeroed() };
-        impl_cef_x509certificate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_x509certificate_t) {
+        impl_cef_x509certificate_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_x509certificate_t;
 }
 mod impl_cef_x509certificate_t {
     use super::*;
@@ -10652,7 +10746,7 @@ impl ImplX509certificate for X509certificate {
                             arg.iter_mut()
                                 .map(|elem| {
                                     elem.as_mut()
-                                        .map(|elem| std::mem::take(elem).into_raw())
+                                        .map(|elem| elem.get_raw())
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -10699,7 +10793,7 @@ impl ImplX509certificate for X509certificate {
                             arg.iter_mut()
                                 .map(|elem| {
                                     elem.as_mut()
-                                        .map(|elem| std::mem::take(elem).into_raw())
+                                        .map(|elem| elem.get_raw())
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -10729,6 +10823,9 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_x509certificate_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_x509certificate_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -10757,7 +10854,9 @@ impl ConvertReturnValue<X509certificate> for *mut _cef_x509certificate_t {
 }
 impl Into<*mut _cef_x509certificate_t> for X509certificate {
     fn into(self) -> *mut _cef_x509certificate_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplX509certificate::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for X509certificate {
@@ -10765,7 +10864,7 @@ impl Default for X509certificate {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplSslstatus: Clone + Default + Sized + Rc {
+pub trait ImplSslstatus: Clone + Sized + Rc {
     fn is_secure_connection(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -10781,11 +10880,10 @@ pub trait ImplSslstatus: Clone + Default + Sized + Rc {
     fn get_x509certificate(&self) -> X509certificate {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_sslstatus_t {
-        let mut object: _cef_sslstatus_t = unsafe { std::mem::zeroed() };
-        impl_cef_sslstatus_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_sslstatus_t) {
+        impl_cef_sslstatus_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_sslstatus_t;
 }
 mod impl_cef_sslstatus_t {
     use super::*;
@@ -10901,6 +10999,9 @@ impl ImplSslstatus for Sslstatus {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_sslstatus_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_sslstatus_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -10929,7 +11030,9 @@ impl ConvertReturnValue<Sslstatus> for *mut _cef_sslstatus_t {
 }
 impl Into<*mut _cef_sslstatus_t> for Sslstatus {
     fn into(self) -> *mut _cef_sslstatus_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplSslstatus::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Sslstatus {
@@ -10937,7 +11040,7 @@ impl Default for Sslstatus {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplNavigationEntry: Clone + Default + Sized + Rc {
+pub trait ImplNavigationEntry: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -10968,11 +11071,10 @@ pub trait ImplNavigationEntry: Clone + Default + Sized + Rc {
     fn get_sslstatus(&self) -> Sslstatus {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_navigation_entry_t {
-        let mut object: _cef_navigation_entry_t = unsafe { std::mem::zeroed() };
-        impl_cef_navigation_entry_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_navigation_entry_t) {
+        impl_cef_navigation_entry_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_navigation_entry_t;
 }
 mod impl_cef_navigation_entry_t {
     use super::*;
@@ -11193,6 +11295,9 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_navigation_entry_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_navigation_entry_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -11221,7 +11326,9 @@ impl ConvertReturnValue<NavigationEntry> for *mut _cef_navigation_entry_t {
 }
 impl Into<*mut _cef_navigation_entry_t> for NavigationEntry {
     fn into(self) -> *mut _cef_navigation_entry_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplNavigationEntry::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for NavigationEntry {
@@ -11229,12 +11336,11 @@ impl Default for NavigationEntry {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplRegistration: Clone + Default + Sized + Rc {
-    fn into_raw(self) -> *mut _cef_registration_t {
-        let mut object: _cef_registration_t = unsafe { std::mem::zeroed() };
-        impl_cef_registration_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+pub trait ImplRegistration: Clone + Sized + Rc {
+    fn init_methods(object: &mut _cef_registration_t) {
+        impl_cef_registration_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_registration_t;
 }
 mod impl_cef_registration_t {
     use super::*;
@@ -11243,7 +11349,11 @@ mod impl_cef_registration_t {
 #[doc = "See [_cef_registration_t] for more documentation."]
 #[derive(Clone)]
 pub struct Registration(RefGuard<_cef_registration_t>);
-impl ImplRegistration for Registration {}
+impl ImplRegistration for Registration {
+    fn get_raw(&self) -> *mut _cef_registration_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
+}
 impl Rc for _cef_registration_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
         self.base.as_base()
@@ -11271,7 +11381,9 @@ impl ConvertReturnValue<Registration> for *mut _cef_registration_t {
 }
 impl Into<*mut _cef_registration_t> for Registration {
     fn into(self) -> *mut _cef_registration_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRegistration::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Registration {
@@ -11279,18 +11391,17 @@ impl Default for Registration {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplCallback: Clone + Default + Sized + Rc {
+pub trait ImplCallback: Clone + Sized + Rc {
     fn cont(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_callback_t {
-        let mut object: _cef_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_callback_t) {
+        impl_cef_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_callback_t;
 }
 mod impl_cef_callback_t {
     use super::*;
@@ -11337,6 +11448,9 @@ impl ImplCallback for Callback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -11365,7 +11479,9 @@ impl ConvertReturnValue<Callback> for *mut _cef_callback_t {
 }
 impl Into<*mut _cef_callback_t> for Callback {
     fn into(self) -> *mut _cef_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Callback {
@@ -11373,15 +11489,14 @@ impl Default for Callback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplCompletionCallback: Clone + Default + Sized + Rc {
+pub trait ImplCompletionCallback: Clone + Sized + Rc {
     fn on_complete(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_completion_callback_t {
-        let mut object: _cef_completion_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_completion_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_completion_callback_t) {
+        impl_cef_completion_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_completion_callback_t;
 }
 mod impl_cef_completion_callback_t {
     use super::*;
@@ -11409,6 +11524,9 @@ impl ImplCompletionCallback for CompletionCallback {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_completion_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_completion_callback_t {
@@ -11438,7 +11556,9 @@ impl ConvertReturnValue<CompletionCallback> for *mut _cef_completion_callback_t 
 }
 impl Into<*mut _cef_completion_callback_t> for CompletionCallback {
     fn into(self) -> *mut _cef_completion_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplCompletionCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for CompletionCallback {
@@ -11446,7 +11566,7 @@ impl Default for CompletionCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplCookieManager: Clone + Default + Sized + Rc {
+pub trait ImplCookieManager: Clone + Sized + Rc {
     fn visit_all_cookies(&self, visitor: &mut impl ImplCookieVisitor) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -11477,11 +11597,10 @@ pub trait ImplCookieManager: Clone + Default + Sized + Rc {
     fn flush_store(&self, callback: &mut impl ImplCompletionCallback) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_cookie_manager_t {
-        let mut object: _cef_cookie_manager_t = unsafe { std::mem::zeroed() };
-        impl_cef_cookie_manager_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_cookie_manager_t) {
+        impl_cef_cookie_manager_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_cookie_manager_t;
 }
 mod impl_cef_cookie_manager_t {
     use super::*;
@@ -11587,7 +11706,7 @@ impl ImplCookieManager for CookieManager {
                 .map(|f| {
                     let arg_visitor = visitor;
                     let arg_self_ = self.as_raw();
-                    let arg_visitor = ImplCookieVisitor::into_raw(Clone::clone(arg_visitor));
+                    let arg_visitor = ImplCookieVisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_visitor);
                     result.as_wrapper()
                 })
@@ -11609,7 +11728,7 @@ impl ImplCookieManager for CookieManager {
                     let arg_self_ = self.as_raw();
                     let arg_url = arg_url.as_raw();
                     let arg_include_http_only = arg_include_http_only;
-                    let arg_visitor = ImplCookieVisitor::into_raw(Clone::clone(arg_visitor));
+                    let arg_visitor = ImplCookieVisitor::get_raw(arg_visitor);
                     let result = f(arg_self_, arg_url, arg_include_http_only, arg_visitor);
                     result.as_wrapper()
                 })
@@ -11631,7 +11750,7 @@ impl ImplCookieManager for CookieManager {
                     let arg_url = arg_url.as_raw();
                     let arg_cookie: _cef_cookie_t = arg_cookie.clone().into();
                     let arg_cookie = &arg_cookie;
-                    let arg_callback = ImplSetCookieCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplSetCookieCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_url, arg_cookie, arg_callback);
                     result.as_wrapper()
                 })
@@ -11652,8 +11771,7 @@ impl ImplCookieManager for CookieManager {
                     let arg_self_ = self.as_raw();
                     let arg_url = arg_url.as_raw();
                     let arg_cookie_name = arg_cookie_name.as_raw();
-                    let arg_callback =
-                        ImplDeleteCookiesCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplDeleteCookiesCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_url, arg_cookie_name, arg_callback);
                     result.as_wrapper()
                 })
@@ -11667,12 +11785,15 @@ impl ImplCookieManager for CookieManager {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
-                    let arg_callback = ImplCompletionCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_cookie_manager_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_cookie_manager_t {
@@ -11702,7 +11823,9 @@ impl ConvertReturnValue<CookieManager> for *mut _cef_cookie_manager_t {
 }
 impl Into<*mut _cef_cookie_manager_t> for CookieManager {
     fn into(self) -> *mut _cef_cookie_manager_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplCookieManager::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for CookieManager {
@@ -11710,7 +11833,7 @@ impl Default for CookieManager {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplCookieVisitor: Clone + Default + Sized + Rc {
+pub trait ImplCookieVisitor: Clone + Sized + Rc {
     fn visit(
         &self,
         cookie: &Cookie,
@@ -11720,11 +11843,10 @@ pub trait ImplCookieVisitor: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_cookie_visitor_t {
-        let mut object: _cef_cookie_visitor_t = unsafe { std::mem::zeroed() };
-        impl_cef_cookie_visitor_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_cookie_visitor_t) {
+        impl_cef_cookie_visitor_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_cookie_visitor_t;
 }
 mod impl_cef_cookie_visitor_t {
     use super::*;
@@ -11792,6 +11914,9 @@ impl ImplCookieVisitor for CookieVisitor {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_cookie_visitor_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_cookie_visitor_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -11820,7 +11945,9 @@ impl ConvertReturnValue<CookieVisitor> for *mut _cef_cookie_visitor_t {
 }
 impl Into<*mut _cef_cookie_visitor_t> for CookieVisitor {
     fn into(self) -> *mut _cef_cookie_visitor_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplCookieVisitor::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for CookieVisitor {
@@ -11828,15 +11955,14 @@ impl Default for CookieVisitor {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplSetCookieCallback: Clone + Default + Sized + Rc {
+pub trait ImplSetCookieCallback: Clone + Sized + Rc {
     fn on_complete(&self, success: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_set_cookie_callback_t {
-        let mut object: _cef_set_cookie_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_set_cookie_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_set_cookie_callback_t) {
+        impl_cef_set_cookie_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_set_cookie_callback_t;
 }
 mod impl_cef_set_cookie_callback_t {
     use super::*;
@@ -11871,6 +11997,9 @@ impl ImplSetCookieCallback for SetCookieCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_set_cookie_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_set_cookie_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -11899,7 +12028,9 @@ impl ConvertReturnValue<SetCookieCallback> for *mut _cef_set_cookie_callback_t {
 }
 impl Into<*mut _cef_set_cookie_callback_t> for SetCookieCallback {
     fn into(self) -> *mut _cef_set_cookie_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplSetCookieCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for SetCookieCallback {
@@ -11907,15 +12038,14 @@ impl Default for SetCookieCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDeleteCookiesCallback: Clone + Default + Sized + Rc {
+pub trait ImplDeleteCookiesCallback: Clone + Sized + Rc {
     fn on_complete(&self, num_deleted: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_delete_cookies_callback_t {
-        let mut object: _cef_delete_cookies_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_delete_cookies_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_delete_cookies_callback_t) {
+        impl_cef_delete_cookies_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_delete_cookies_callback_t;
 }
 mod impl_cef_delete_cookies_callback_t {
     use super::*;
@@ -11950,6 +12080,9 @@ impl ImplDeleteCookiesCallback for DeleteCookiesCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_delete_cookies_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_delete_cookies_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -11978,7 +12111,9 @@ impl ConvertReturnValue<DeleteCookiesCallback> for *mut _cef_delete_cookies_call
 }
 impl Into<*mut _cef_delete_cookies_callback_t> for DeleteCookiesCallback {
     fn into(self) -> *mut _cef_delete_cookies_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDeleteCookiesCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DeleteCookiesCallback {
@@ -11986,7 +12121,7 @@ impl Default for DeleteCookiesCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMediaRouter: Clone + Default + Sized + Rc {
+pub trait ImplMediaRouter: Clone + Sized + Rc {
     fn add_observer(&self, observer: &mut impl ImplMediaObserver) -> Registration {
         unsafe { std::mem::zeroed() }
     }
@@ -12007,11 +12142,10 @@ pub trait ImplMediaRouter: Clone + Default + Sized + Rc {
     fn notify_current_routes(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_media_router_t {
-        let mut object: _cef_media_router_t = unsafe { std::mem::zeroed() };
-        impl_cef_media_router_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_media_router_t) {
+        impl_cef_media_router_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_media_router_t;
 }
 mod impl_cef_media_router_t {
     use super::*;
@@ -12080,7 +12214,7 @@ impl ImplMediaRouter for MediaRouter {
                 .map(|f| {
                     let arg_observer = observer;
                     let arg_self_ = self.as_raw();
-                    let arg_observer = ImplMediaObserver::into_raw(Clone::clone(arg_observer));
+                    let arg_observer = ImplMediaObserver::get_raw(arg_observer);
                     let result = f(arg_self_, arg_observer);
                     result.as_wrapper()
                 })
@@ -12125,10 +12259,9 @@ impl ImplMediaRouter for MediaRouter {
                 .map(|f| {
                     let (arg_source, arg_sink, arg_callback) = (source, sink, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_source = ImplMediaSource::into_raw(Clone::clone(arg_source));
-                    let arg_sink = ImplMediaSink::into_raw(Clone::clone(arg_sink));
-                    let arg_callback =
-                        ImplMediaRouteCreateCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_source = ImplMediaSource::get_raw(arg_source);
+                    let arg_sink = ImplMediaSink::get_raw(arg_sink);
+                    let arg_callback = ImplMediaRouteCreateCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_source, arg_sink, arg_callback);
                     result.as_wrapper()
                 })
@@ -12146,6 +12279,9 @@ impl ImplMediaRouter for MediaRouter {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_media_router_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_media_router_t {
@@ -12175,7 +12311,9 @@ impl ConvertReturnValue<MediaRouter> for *mut _cef_media_router_t {
 }
 impl Into<*mut _cef_media_router_t> for MediaRouter {
     fn into(self) -> *mut _cef_media_router_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMediaRouter::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MediaRouter {
@@ -12183,7 +12321,7 @@ impl Default for MediaRouter {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMediaObserver: Clone + Default + Sized + Rc {
+pub trait ImplMediaObserver: Clone + Sized + Rc {
     fn on_sinks(&self, sinks: Option<&[Option<impl ImplMediaSink>]>) {
         unsafe { std::mem::zeroed() }
     }
@@ -12200,11 +12338,10 @@ pub trait ImplMediaObserver: Clone + Default + Sized + Rc {
     fn on_route_message_received(&self, route: &mut impl ImplMediaRoute, message: Option<&[u8]>) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_media_observer_t {
-        let mut object: _cef_media_observer_t = unsafe { std::mem::zeroed() };
-        impl_cef_media_observer_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_media_observer_t) {
+        impl_cef_media_observer_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_media_observer_t;
 }
 mod impl_cef_media_observer_t {
     use super::*;
@@ -12311,7 +12448,7 @@ impl ImplMediaObserver for MediaObserver {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| Clone::clone(elem).into_raw())
+                                        .map(|elem| elem.get_raw())
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -12343,7 +12480,7 @@ impl ImplMediaObserver for MediaObserver {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| Clone::clone(elem).into_raw())
+                                        .map(|elem| elem.get_raw())
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -12371,7 +12508,7 @@ impl ImplMediaObserver for MediaObserver {
                 .map(|f| {
                     let (arg_route, arg_state) = (route, state);
                     let arg_self_ = self.as_raw();
-                    let arg_route = ImplMediaRoute::into_raw(Clone::clone(arg_route));
+                    let arg_route = ImplMediaRoute::get_raw(arg_route);
                     let arg_state = arg_state.as_raw();
                     let result = f(arg_self_, arg_route, arg_state);
                     result.as_wrapper()
@@ -12386,7 +12523,7 @@ impl ImplMediaObserver for MediaObserver {
                 .map(|f| {
                     let (arg_route, arg_message) = (route, message);
                     let arg_self_ = self.as_raw();
-                    let arg_route = ImplMediaRoute::into_raw(Clone::clone(arg_route));
+                    let arg_route = ImplMediaRoute::get_raw(arg_route);
                     let arg_message_size = arg_message
                         .as_ref()
                         .map(|arg| arg.len())
@@ -12406,6 +12543,9 @@ impl ImplMediaObserver for MediaObserver {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_media_observer_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_media_observer_t {
@@ -12435,7 +12575,9 @@ impl ConvertReturnValue<MediaObserver> for *mut _cef_media_observer_t {
 }
 impl Into<*mut _cef_media_observer_t> for MediaObserver {
     fn into(self) -> *mut _cef_media_observer_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMediaObserver::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MediaObserver {
@@ -12443,7 +12585,7 @@ impl Default for MediaObserver {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMediaRoute: Clone + Default + Sized + Rc {
+pub trait ImplMediaRoute: Clone + Sized + Rc {
     fn get_id(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
@@ -12459,11 +12601,10 @@ pub trait ImplMediaRoute: Clone + Default + Sized + Rc {
     fn terminate(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_media_route_t {
-        let mut object: _cef_media_route_t = unsafe { std::mem::zeroed() };
-        impl_cef_media_route_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_media_route_t) {
+        impl_cef_media_route_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_media_route_t;
 }
 mod impl_cef_media_route_t {
     use super::*;
@@ -12595,6 +12736,9 @@ impl ImplMediaRoute for MediaRoute {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_media_route_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_media_route_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -12623,7 +12767,9 @@ impl ConvertReturnValue<MediaRoute> for *mut _cef_media_route_t {
 }
 impl Into<*mut _cef_media_route_t> for MediaRoute {
     fn into(self) -> *mut _cef_media_route_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMediaRoute::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MediaRoute {
@@ -12631,7 +12777,7 @@ impl Default for MediaRoute {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMediaRouteCreateCallback: Clone + Default + Sized + Rc {
+pub trait ImplMediaRouteCreateCallback: Clone + Sized + Rc {
     fn on_media_route_create_finished(
         &self,
         result: MediaRouteCreateResult,
@@ -12640,11 +12786,10 @@ pub trait ImplMediaRouteCreateCallback: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_media_route_create_callback_t {
-        let mut object: _cef_media_route_create_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_media_route_create_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_media_route_create_callback_t) {
+        impl_cef_media_route_create_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_media_route_create_callback_t;
 }
 mod impl_cef_media_route_create_callback_t {
     use super::*;
@@ -12691,12 +12836,15 @@ impl ImplMediaRouteCreateCallback for MediaRouteCreateCallback {
                     let arg_self_ = self.as_raw();
                     let arg_result = arg_result.as_raw();
                     let arg_error = arg_error.as_raw();
-                    let arg_route = ImplMediaRoute::into_raw(Clone::clone(arg_route));
+                    let arg_route = ImplMediaRoute::get_raw(arg_route);
                     let result = f(arg_self_, arg_result, arg_error, arg_route);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_media_route_create_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_media_route_create_callback_t {
@@ -12726,7 +12874,9 @@ impl ConvertReturnValue<MediaRouteCreateCallback> for *mut _cef_media_route_crea
 }
 impl Into<*mut _cef_media_route_create_callback_t> for MediaRouteCreateCallback {
     fn into(self) -> *mut _cef_media_route_create_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMediaRouteCreateCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MediaRouteCreateCallback {
@@ -12734,7 +12884,7 @@ impl Default for MediaRouteCreateCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMediaSink: Clone + Default + Sized + Rc {
+pub trait ImplMediaSink: Clone + Sized + Rc {
     fn get_id(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
@@ -12756,11 +12906,10 @@ pub trait ImplMediaSink: Clone + Default + Sized + Rc {
     fn is_compatible_with(&self, source: &mut impl ImplMediaSource) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_media_sink_t {
-        let mut object: _cef_media_sink_t = unsafe { std::mem::zeroed() };
-        impl_cef_media_sink_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_media_sink_t) {
+        impl_cef_media_sink_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_media_sink_t;
 }
 mod impl_cef_media_sink_t {
     use super::*;
@@ -12881,8 +13030,7 @@ impl ImplMediaSink for MediaSink {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
-                    let arg_callback =
-                        ImplMediaSinkDeviceInfoCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplMediaSinkDeviceInfoCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
@@ -12920,12 +13068,15 @@ impl ImplMediaSink for MediaSink {
                 .map(|f| {
                     let arg_source = source;
                     let arg_self_ = self.as_raw();
-                    let arg_source = ImplMediaSource::into_raw(Clone::clone(arg_source));
+                    let arg_source = ImplMediaSource::get_raw(arg_source);
                     let result = f(arg_self_, arg_source);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_media_sink_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_media_sink_t {
@@ -12955,7 +13106,9 @@ impl ConvertReturnValue<MediaSink> for *mut _cef_media_sink_t {
 }
 impl Into<*mut _cef_media_sink_t> for MediaSink {
     fn into(self) -> *mut _cef_media_sink_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMediaSink::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MediaSink {
@@ -12963,15 +13116,14 @@ impl Default for MediaSink {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMediaSinkDeviceInfoCallback: Clone + Default + Sized + Rc {
+pub trait ImplMediaSinkDeviceInfoCallback: Clone + Sized + Rc {
     fn on_media_sink_device_info(&self, device_info: &MediaSinkDeviceInfo) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_media_sink_device_info_callback_t {
-        let mut object: _cef_media_sink_device_info_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_media_sink_device_info_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_media_sink_device_info_callback_t) {
+        impl_cef_media_sink_device_info_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_media_sink_device_info_callback_t;
 }
 mod impl_cef_media_sink_device_info_callback_t {
     use super::*;
@@ -13014,6 +13166,9 @@ impl ImplMediaSinkDeviceInfoCallback for MediaSinkDeviceInfoCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_media_sink_device_info_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_media_sink_device_info_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -13046,7 +13201,9 @@ impl ConvertReturnValue<MediaSinkDeviceInfoCallback>
 }
 impl Into<*mut _cef_media_sink_device_info_callback_t> for MediaSinkDeviceInfoCallback {
     fn into(self) -> *mut _cef_media_sink_device_info_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMediaSinkDeviceInfoCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MediaSinkDeviceInfoCallback {
@@ -13054,7 +13211,7 @@ impl Default for MediaSinkDeviceInfoCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMediaSource: Clone + Default + Sized + Rc {
+pub trait ImplMediaSource: Clone + Sized + Rc {
     fn get_id(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
@@ -13064,11 +13221,10 @@ pub trait ImplMediaSource: Clone + Default + Sized + Rc {
     fn is_dial_source(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_media_source_t {
-        let mut object: _cef_media_source_t = unsafe { std::mem::zeroed() };
-        impl_cef_media_source_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_media_source_t) {
+        impl_cef_media_source_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_media_source_t;
 }
 mod impl_cef_media_source_t {
     use super::*;
@@ -13142,6 +13298,9 @@ impl ImplMediaSource for MediaSource {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_media_source_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_media_source_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -13170,7 +13329,9 @@ impl ConvertReturnValue<MediaSource> for *mut _cef_media_source_t {
 }
 impl Into<*mut _cef_media_source_t> for MediaSource {
     fn into(self) -> *mut _cef_media_source_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMediaSource::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MediaSource {
@@ -13215,7 +13376,7 @@ impl Default for PreferenceRegistrar {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPreferenceManager: Clone + Default + Sized + Rc {
+pub trait ImplPreferenceManager: Clone + Sized + Rc {
     fn has_preference(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -13236,11 +13397,10 @@ pub trait ImplPreferenceManager: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_preference_manager_t {
-        let mut object: _cef_preference_manager_t = unsafe { std::mem::zeroed() };
-        impl_cef_preference_manager_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_preference_manager_t) {
+        impl_cef_preference_manager_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_preference_manager_t;
 }
 mod impl_cef_preference_manager_t {
     use super::*;
@@ -13390,13 +13550,16 @@ impl ImplPreferenceManager for PreferenceManager {
                     let (arg_name, arg_value, arg_error) = (name, value, error);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
-                    let arg_value = ImplValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplValue::get_raw(arg_value);
                     let arg_error = arg_error.as_raw();
                     let result = f(arg_self_, arg_name, arg_value, arg_error);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_preference_manager_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_preference_manager_t {
@@ -13426,7 +13589,9 @@ impl ConvertReturnValue<PreferenceManager> for *mut _cef_preference_manager_t {
 }
 impl Into<*mut _cef_preference_manager_t> for PreferenceManager {
     fn into(self) -> *mut _cef_preference_manager_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPreferenceManager::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PreferenceManager {
@@ -13434,15 +13599,14 @@ impl Default for PreferenceManager {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplResolveCallback: Clone + Default + Sized + Rc {
+pub trait ImplResolveCallback: Clone + Sized + Rc {
     fn on_resolve_completed(&self, result: Errorcode, resolved_ips: &mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_resolve_callback_t {
-        let mut object: _cef_resolve_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_resolve_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_resolve_callback_t) {
+        impl_cef_resolve_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_resolve_callback_t;
 }
 mod impl_cef_resolve_callback_t {
     use super::*;
@@ -13485,6 +13649,9 @@ impl ImplResolveCallback for ResolveCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_resolve_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_resolve_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -13513,7 +13680,9 @@ impl ConvertReturnValue<ResolveCallback> for *mut _cef_resolve_callback_t {
 }
 impl Into<*mut _cef_resolve_callback_t> for ResolveCallback {
     fn into(self) -> *mut _cef_resolve_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplResolveCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ResolveCallback {
@@ -13612,12 +13781,11 @@ pub trait ImplRequestContext: ImplPreferenceManager {
     fn get_chrome_color_scheme_variant(&self) -> ColorVariant {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_request_context_t {
-        let mut object: _cef_request_context_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_request_context_t) {
         impl_cef_preference_manager_t::init_methods::<Self>(&mut object.base);
-        impl_cef_request_context_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_request_context_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_request_context_t;
 }
 mod impl_cef_request_context_t {
     use super::*;
@@ -13958,6 +14126,9 @@ impl ImplPreferenceManager for RequestContext {
         })
         .set_preference(name, value, error)
     }
+    fn get_raw(&self) -> *mut _cef_preference_manager_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplRequestContext for RequestContext {
     fn is_same(&self, other: &mut impl ImplRequestContext) -> ::std::os::raw::c_int {
@@ -13967,7 +14138,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_other = other;
                     let arg_self_ = self.as_raw();
-                    let arg_other = ImplRequestContext::into_raw(Clone::clone(arg_other));
+                    let arg_other = ImplRequestContext::get_raw(arg_other);
                     let result = f(arg_self_, arg_other);
                     result.as_wrapper()
                 })
@@ -13981,7 +14152,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_other = other;
                     let arg_self_ = self.as_raw();
-                    let arg_other = ImplRequestContext::into_raw(Clone::clone(arg_other));
+                    let arg_other = ImplRequestContext::get_raw(arg_other);
                     let result = f(arg_self_, arg_other);
                     result.as_wrapper()
                 })
@@ -14031,7 +14202,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
-                    let arg_callback = ImplCompletionCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
@@ -14053,7 +14224,7 @@ impl ImplRequestContext for RequestContext {
                     let arg_self_ = self.as_raw();
                     let arg_scheme_name = arg_scheme_name.as_raw();
                     let arg_domain_name = arg_domain_name.as_raw();
-                    let arg_factory = ImplSchemeHandlerFactory::into_raw(Clone::clone(arg_factory));
+                    let arg_factory = ImplSchemeHandlerFactory::get_raw(arg_factory);
                     let result = f(arg_self_, arg_scheme_name, arg_domain_name, arg_factory);
                     result.as_wrapper()
                 })
@@ -14079,7 +14250,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
-                    let arg_callback = ImplCompletionCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
@@ -14093,7 +14264,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
-                    let arg_callback = ImplCompletionCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
@@ -14107,7 +14278,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
-                    let arg_callback = ImplCompletionCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
@@ -14122,7 +14293,7 @@ impl ImplRequestContext for RequestContext {
                     let (arg_origin, arg_callback) = (origin, callback);
                     let arg_self_ = self.as_raw();
                     let arg_origin = arg_origin.as_raw();
-                    let arg_callback = ImplResolveCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplResolveCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_origin, arg_callback);
                     result.as_wrapper()
                 })
@@ -14136,7 +14307,7 @@ impl ImplRequestContext for RequestContext {
                 .map(|f| {
                     let arg_callback = callback;
                     let arg_self_ = self.as_raw();
-                    let arg_callback = ImplCompletionCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
@@ -14187,7 +14358,7 @@ impl ImplRequestContext for RequestContext {
                     let arg_requesting_url = arg_requesting_url.as_raw();
                     let arg_top_level_url = arg_top_level_url.as_raw();
                     let arg_content_type = arg_content_type.as_raw();
-                    let arg_value = ImplValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(
                         arg_self_,
                         arg_requesting_url,
@@ -14308,6 +14479,9 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_request_context_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_request_context_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -14336,7 +14510,9 @@ impl ConvertReturnValue<RequestContext> for *mut _cef_request_context_t {
 }
 impl Into<*mut _cef_request_context_t> for RequestContext {
     fn into(self) -> *mut _cef_request_context_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRequestContext::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for RequestContext {
@@ -14344,7 +14520,7 @@ impl Default for RequestContext {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplBrowser: Clone + Default + Sized + Rc {
+pub trait ImplBrowser: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -14408,11 +14584,10 @@ pub trait ImplBrowser: Clone + Default + Sized + Rc {
     fn get_frame_names(&self, names: &mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_browser_t {
-        let mut object: _cef_browser_t = unsafe { std::mem::zeroed() };
-        impl_cef_browser_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_browser_t) {
+        impl_cef_browser_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_browser_t;
 }
 mod impl_cef_browser_t {
     use super::*;
@@ -14734,7 +14909,7 @@ impl ImplBrowser for Browser {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplBrowser::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplBrowser::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -14857,6 +15032,9 @@ impl ImplBrowser for Browser {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_browser_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_browser_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -14885,7 +15063,9 @@ impl ConvertReturnValue<Browser> for *mut _cef_browser_t {
 }
 impl Into<*mut _cef_browser_t> for Browser {
     fn into(self) -> *mut _cef_browser_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplBrowser::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Browser {
@@ -14893,15 +15073,14 @@ impl Default for Browser {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplRunFileDialogCallback: Clone + Default + Sized + Rc {
+pub trait ImplRunFileDialogCallback: Clone + Sized + Rc {
     fn on_file_dialog_dismissed(&self, file_paths: &mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_run_file_dialog_callback_t {
-        let mut object: _cef_run_file_dialog_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_run_file_dialog_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_run_file_dialog_callback_t) {
+        impl_cef_run_file_dialog_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_run_file_dialog_callback_t;
 }
 mod impl_cef_run_file_dialog_callback_t {
     use super::*;
@@ -14942,6 +15121,9 @@ impl ImplRunFileDialogCallback for RunFileDialogCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_run_file_dialog_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_run_file_dialog_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -14970,7 +15152,9 @@ impl ConvertReturnValue<RunFileDialogCallback> for *mut _cef_run_file_dialog_cal
 }
 impl Into<*mut _cef_run_file_dialog_callback_t> for RunFileDialogCallback {
     fn into(self) -> *mut _cef_run_file_dialog_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRunFileDialogCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for RunFileDialogCallback {
@@ -14978,7 +15162,7 @@ impl Default for RunFileDialogCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplNavigationEntryVisitor: Clone + Default + Sized + Rc {
+pub trait ImplNavigationEntryVisitor: Clone + Sized + Rc {
     fn visit(
         &self,
         entry: &mut impl ImplNavigationEntry,
@@ -14988,11 +15172,10 @@ pub trait ImplNavigationEntryVisitor: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_navigation_entry_visitor_t {
-        let mut object: _cef_navigation_entry_visitor_t = unsafe { std::mem::zeroed() };
-        impl_cef_navigation_entry_visitor_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_navigation_entry_visitor_t) {
+        impl_cef_navigation_entry_visitor_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_navigation_entry_visitor_t;
 }
 mod impl_cef_navigation_entry_visitor_t {
     use super::*;
@@ -15043,7 +15226,7 @@ impl ImplNavigationEntryVisitor for NavigationEntryVisitor {
                     let (arg_entry, arg_current, arg_index, arg_total) =
                         (entry, current, index, total);
                     let arg_self_ = self.as_raw();
-                    let arg_entry = ImplNavigationEntry::into_raw(Clone::clone(arg_entry));
+                    let arg_entry = ImplNavigationEntry::get_raw(arg_entry);
                     let arg_current = arg_current;
                     let arg_index = arg_index;
                     let arg_total = arg_total;
@@ -15052,6 +15235,9 @@ impl ImplNavigationEntryVisitor for NavigationEntryVisitor {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_navigation_entry_visitor_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_navigation_entry_visitor_t {
@@ -15081,7 +15267,9 @@ impl ConvertReturnValue<NavigationEntryVisitor> for *mut _cef_navigation_entry_v
 }
 impl Into<*mut _cef_navigation_entry_visitor_t> for NavigationEntryVisitor {
     fn into(self) -> *mut _cef_navigation_entry_visitor_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplNavigationEntryVisitor::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for NavigationEntryVisitor {
@@ -15089,15 +15277,14 @@ impl Default for NavigationEntryVisitor {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPdfPrintCallback: Clone + Default + Sized + Rc {
+pub trait ImplPdfPrintCallback: Clone + Sized + Rc {
     fn on_pdf_print_finished(&self, path: &CefStringUtf16, ok: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_pdf_print_callback_t {
-        let mut object: _cef_pdf_print_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_pdf_print_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_pdf_print_callback_t) {
+        impl_cef_pdf_print_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_pdf_print_callback_t;
 }
 mod impl_cef_pdf_print_callback_t {
     use super::*;
@@ -15137,6 +15324,9 @@ impl ImplPdfPrintCallback for PdfPrintCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_pdf_print_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_pdf_print_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -15165,7 +15355,9 @@ impl ConvertReturnValue<PdfPrintCallback> for *mut _cef_pdf_print_callback_t {
 }
 impl Into<*mut _cef_pdf_print_callback_t> for PdfPrintCallback {
     fn into(self) -> *mut _cef_pdf_print_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPdfPrintCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PdfPrintCallback {
@@ -15173,7 +15365,7 @@ impl Default for PdfPrintCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDownloadImageCallback: Clone + Default + Sized + Rc {
+pub trait ImplDownloadImageCallback: Clone + Sized + Rc {
     fn on_download_image_finished(
         &self,
         image_url: &CefStringUtf16,
@@ -15182,11 +15374,10 @@ pub trait ImplDownloadImageCallback: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_download_image_callback_t {
-        let mut object: _cef_download_image_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_download_image_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_download_image_callback_t) {
+        impl_cef_download_image_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_download_image_callback_t;
 }
 mod impl_cef_download_image_callback_t {
     use super::*;
@@ -15233,12 +15424,15 @@ impl ImplDownloadImageCallback for DownloadImageCallback {
                     let arg_self_ = self.as_raw();
                     let arg_image_url = arg_image_url.as_raw();
                     let arg_http_status_code = arg_http_status_code;
-                    let arg_image = ImplImage::into_raw(Clone::clone(arg_image));
+                    let arg_image = ImplImage::get_raw(arg_image);
                     let result = f(arg_self_, arg_image_url, arg_http_status_code, arg_image);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_download_image_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_download_image_callback_t {
@@ -15268,7 +15462,9 @@ impl ConvertReturnValue<DownloadImageCallback> for *mut _cef_download_image_call
 }
 impl Into<*mut _cef_download_image_callback_t> for DownloadImageCallback {
     fn into(self) -> *mut _cef_download_image_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDownloadImageCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DownloadImageCallback {
@@ -15276,7 +15472,7 @@ impl Default for DownloadImageCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplBrowserHost: Clone + Default + Sized + Rc {
+pub trait ImplBrowserHost: Clone + Sized + Rc {
     fn get_browser(&self) -> Browser {
         unsafe { std::mem::zeroed() }
     }
@@ -15569,11 +15765,10 @@ pub trait ImplBrowserHost: Clone + Default + Sized + Rc {
     fn get_runtime_style(&self) -> RuntimeStyle {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_browser_host_t {
-        let mut object: _cef_browser_host_t = unsafe { std::mem::zeroed() };
-        impl_cef_browser_host_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_browser_host_t) {
+        impl_cef_browser_host_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_browser_host_t;
 }
 mod impl_cef_browser_host_t {
     use super::*;
@@ -16694,8 +16889,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_title = arg_title.as_raw();
                     let arg_default_file_path = arg_default_file_path.as_raw();
                     let arg_accept_filters = arg_accept_filters.as_raw();
-                    let arg_callback =
-                        ImplRunFileDialogCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplRunFileDialogCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_mode,
@@ -16753,8 +16947,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_is_favicon = arg_is_favicon;
                     let arg_max_image_size = arg_max_image_size;
                     let arg_bypass_cache = arg_bypass_cache;
-                    let arg_callback =
-                        ImplDownloadImageCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplDownloadImageCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_image_url,
@@ -16795,7 +16988,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_path = arg_path.as_raw();
                     let arg_settings: _cef_pdf_print_settings_t = arg_settings.clone().into();
                     let arg_settings = &arg_settings;
-                    let arg_callback = ImplPdfPrintCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplPdfPrintCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_path, arg_settings, arg_callback);
                     result.as_wrapper()
                 })
@@ -16862,7 +17055,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_self_ = self.as_raw();
                     let arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
                     let arg_window_info = &arg_window_info;
-                    let arg_client = ImplClient::into_raw(Clone::clone(arg_client));
+                    let arg_client = ImplClient::get_raw(arg_client);
                     let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
                     let arg_settings = &arg_settings;
                     let arg_inspect_element_at: _cef_point_t =
@@ -16945,7 +17138,7 @@ impl ImplBrowserHost for BrowserHost {
                     let arg_self_ = self.as_raw();
                     let arg_message_id = arg_message_id;
                     let arg_method = arg_method.as_raw();
-                    let arg_params = ImplDictionaryValue::into_raw(Clone::clone(arg_params));
+                    let arg_params = ImplDictionaryValue::get_raw(arg_params);
                     let result = f(arg_self_, arg_message_id, arg_method, arg_params);
                     result.as_wrapper()
                 })
@@ -16962,8 +17155,7 @@ impl ImplBrowserHost for BrowserHost {
                 .map(|f| {
                     let arg_observer = observer;
                     let arg_self_ = self.as_raw();
-                    let arg_observer =
-                        ImplDevToolsMessageObserver::into_raw(Clone::clone(arg_observer));
+                    let arg_observer = ImplDevToolsMessageObserver::get_raw(arg_observer);
                     let result = f(arg_self_, arg_observer);
                     result.as_wrapper()
                 })
@@ -16981,8 +17173,7 @@ impl ImplBrowserHost for BrowserHost {
                 .map(|f| {
                     let (arg_visitor, arg_current_only) = (visitor, current_only);
                     let arg_self_ = self.as_raw();
-                    let arg_visitor =
-                        ImplNavigationEntryVisitor::into_raw(Clone::clone(arg_visitor));
+                    let arg_visitor = ImplNavigationEntryVisitor::get_raw(arg_visitor);
                     let arg_current_only = arg_current_only;
                     let result = f(arg_self_, arg_visitor, arg_current_only);
                     result.as_wrapper()
@@ -17358,7 +17549,7 @@ impl ImplBrowserHost for BrowserHost {
                     let (arg_drag_data, arg_event, arg_allowed_ops) =
                         (drag_data, event, allowed_ops);
                     let arg_self_ = self.as_raw();
-                    let arg_drag_data = ImplDragData::into_raw(Clone::clone(arg_drag_data));
+                    let arg_drag_data = ImplDragData::get_raw(arg_drag_data);
                     let arg_event: _cef_mouse_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
                     let arg_allowed_ops = arg_allowed_ops.as_raw();
@@ -17605,6 +17796,9 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_browser_host_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_browser_host_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -17633,7 +17827,9 @@ impl ConvertReturnValue<BrowserHost> for *mut _cef_browser_host_t {
 }
 impl Into<*mut _cef_browser_host_t> for BrowserHost {
     fn into(self) -> *mut _cef_browser_host_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplBrowserHost::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for BrowserHost {
@@ -17641,7 +17837,7 @@ impl Default for BrowserHost {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplAudioHandler: Clone + Default + Sized + Rc {
+pub trait ImplAudioHandler: Clone + Sized + Rc {
     fn get_audio_parameters(
         &self,
         browser: &mut impl ImplBrowser,
@@ -17672,11 +17868,10 @@ pub trait ImplAudioHandler: Clone + Default + Sized + Rc {
     fn on_audio_stream_error(&self, browser: &mut impl ImplBrowser, message: &CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_audio_handler_t {
-        let mut object: _cef_audio_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_audio_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_audio_handler_t) {
+        impl_cef_audio_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_audio_handler_t;
 }
 mod impl_cef_audio_handler_t {
     use super::*;
@@ -17780,7 +17975,7 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let (arg_browser, arg_params) = (browser, params);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_params: _cef_audio_parameters_t = arg_params.clone().into();
                     let arg_params = &mut arg_params;
                     let result = f(arg_self_, arg_browser, arg_params);
@@ -17801,7 +17996,7 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let (arg_browser, arg_params, arg_channels) = (browser, params, channels);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_params: _cef_audio_parameters_t = arg_params.clone().into();
                     let arg_params = &arg_params;
                     let arg_channels = arg_channels;
@@ -17824,7 +18019,7 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let (arg_browser, arg_data, arg_frames, arg_pts) = (browser, data, frames, pts);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_data = arg_data as *mut _;
                     let arg_frames = arg_frames;
                     let arg_pts = arg_pts;
@@ -17841,7 +18036,7 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -17855,13 +18050,16 @@ impl ImplAudioHandler for AudioHandler {
                 .map(|f| {
                     let (arg_browser, arg_message) = (browser, message);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_message = arg_message.as_raw();
                     let result = f(arg_self_, arg_browser, arg_message);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_audio_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_audio_handler_t {
@@ -17891,7 +18089,9 @@ impl ConvertReturnValue<AudioHandler> for *mut _cef_audio_handler_t {
 }
 impl Into<*mut _cef_audio_handler_t> for AudioHandler {
     fn into(self) -> *mut _cef_audio_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplAudioHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for AudioHandler {
@@ -17899,7 +18099,7 @@ impl Default for AudioHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplCommandHandler: Clone + Default + Sized + Rc {
+pub trait ImplCommandHandler: Clone + Sized + Rc {
     fn on_chrome_command(
         &self,
         browser: &mut impl ImplBrowser,
@@ -17934,11 +18134,10 @@ pub trait ImplCommandHandler: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_command_handler_t {
-        let mut object: _cef_command_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_command_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_command_handler_t) {
+        impl_cef_command_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_command_handler_t;
 }
 mod impl_cef_command_handler_t {
     use super::*;
@@ -18045,7 +18244,7 @@ impl ImplCommandHandler for CommandHandler {
                     let (arg_browser, arg_command_id, arg_disposition) =
                         (browser, command_id, disposition);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_command_id = arg_command_id;
                     let arg_disposition = arg_disposition.as_raw();
                     let result = f(arg_self_, arg_browser, arg_command_id, arg_disposition);
@@ -18065,7 +18264,7 @@ impl ImplCommandHandler for CommandHandler {
                 .map(|f| {
                     let (arg_browser, arg_command_id) = (browser, command_id);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_command_id = arg_command_id;
                     let result = f(arg_self_, arg_browser, arg_command_id);
                     result.as_wrapper()
@@ -18084,7 +18283,7 @@ impl ImplCommandHandler for CommandHandler {
                 .map(|f| {
                     let (arg_browser, arg_command_id) = (browser, command_id);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_command_id = arg_command_id;
                     let result = f(arg_self_, arg_browser, arg_command_id);
                     result.as_wrapper()
@@ -18126,6 +18325,9 @@ impl ImplCommandHandler for CommandHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_command_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_command_handler_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -18154,7 +18356,9 @@ impl ConvertReturnValue<CommandHandler> for *mut _cef_command_handler_t {
 }
 impl Into<*mut _cef_command_handler_t> for CommandHandler {
     fn into(self) -> *mut _cef_command_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplCommandHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for CommandHandler {
@@ -18162,7 +18366,7 @@ impl Default for CommandHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMenuModelDelegate: Clone + Default + Sized + Rc {
+pub trait ImplMenuModelDelegate: Clone + Sized + Rc {
     fn execute_command(
         &self,
         menu_model: &mut impl ImplMenuModel,
@@ -18201,11 +18405,10 @@ pub trait ImplMenuModelDelegate: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_menu_model_delegate_t {
-        let mut object: _cef_menu_model_delegate_t = unsafe { std::mem::zeroed() };
-        impl_cef_menu_model_delegate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_menu_model_delegate_t) {
+        impl_cef_menu_model_delegate_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_menu_model_delegate_t;
 }
 mod impl_cef_menu_model_delegate_t {
     use super::*;
@@ -18333,7 +18536,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                     let (arg_menu_model, arg_command_id, arg_event_flags) =
                         (menu_model, command_id, event_flags);
                     let arg_self_ = self.as_raw();
-                    let arg_menu_model = ImplMenuModel::into_raw(Clone::clone(arg_menu_model));
+                    let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_command_id = arg_command_id;
                     let arg_event_flags = arg_event_flags.as_raw();
                     let result = f(arg_self_, arg_menu_model, arg_command_id, arg_event_flags);
@@ -18349,7 +18552,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let (arg_menu_model, arg_screen_point) = (menu_model, screen_point);
                     let arg_self_ = self.as_raw();
-                    let arg_menu_model = ImplMenuModel::into_raw(Clone::clone(arg_menu_model));
+                    let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_screen_point: _cef_point_t = arg_screen_point.clone().into();
                     let arg_screen_point = &arg_screen_point;
                     let result = f(arg_self_, arg_menu_model, arg_screen_point);
@@ -18369,7 +18572,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let (arg_menu_model, arg_is_rtl) = (menu_model, is_rtl);
                     let arg_self_ = self.as_raw();
-                    let arg_menu_model = ImplMenuModel::into_raw(Clone::clone(arg_menu_model));
+                    let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_is_rtl = arg_is_rtl;
                     let result = f(arg_self_, arg_menu_model, arg_is_rtl);
                     result.as_wrapper()
@@ -18388,7 +18591,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let (arg_menu_model, arg_is_rtl) = (menu_model, is_rtl);
                     let arg_self_ = self.as_raw();
-                    let arg_menu_model = ImplMenuModel::into_raw(Clone::clone(arg_menu_model));
+                    let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_is_rtl = arg_is_rtl;
                     let result = f(arg_self_, arg_menu_model, arg_is_rtl);
                     result.as_wrapper()
@@ -18403,7 +18606,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let arg_menu_model = menu_model;
                     let arg_self_ = self.as_raw();
-                    let arg_menu_model = ImplMenuModel::into_raw(Clone::clone(arg_menu_model));
+                    let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let result = f(arg_self_, arg_menu_model);
                     result.as_wrapper()
                 })
@@ -18417,7 +18620,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let arg_menu_model = menu_model;
                     let arg_self_ = self.as_raw();
-                    let arg_menu_model = ImplMenuModel::into_raw(Clone::clone(arg_menu_model));
+                    let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let result = f(arg_self_, arg_menu_model);
                     result.as_wrapper()
                 })
@@ -18435,13 +18638,16 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                 .map(|f| {
                     let (arg_menu_model, arg_label) = (menu_model, label);
                     let arg_self_ = self.as_raw();
-                    let arg_menu_model = ImplMenuModel::into_raw(Clone::clone(arg_menu_model));
+                    let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_label = arg_label.as_raw();
                     let result = f(arg_self_, arg_menu_model, arg_label);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_menu_model_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_menu_model_delegate_t {
@@ -18471,7 +18677,9 @@ impl ConvertReturnValue<MenuModelDelegate> for *mut _cef_menu_model_delegate_t {
 }
 impl Into<*mut _cef_menu_model_delegate_t> for MenuModelDelegate {
     fn into(self) -> *mut _cef_menu_model_delegate_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMenuModelDelegate::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MenuModelDelegate {
@@ -18479,7 +18687,7 @@ impl Default for MenuModelDelegate {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMenuModel: Clone + Default + Sized + Rc {
+pub trait ImplMenuModel: Clone + Sized + Rc {
     fn is_sub_menu(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -18778,11 +18986,10 @@ pub trait ImplMenuModel: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_menu_model_t {
-        let mut object: _cef_menu_model_t = unsafe { std::mem::zeroed() };
-        impl_cef_menu_model_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_menu_model_t) {
+        impl_cef_menu_model_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_menu_model_t;
 }
 mod impl_cef_menu_model_t {
     use super::*;
@@ -20681,6 +20888,9 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_menu_model_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_menu_model_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -20709,7 +20919,9 @@ impl ConvertReturnValue<MenuModel> for *mut _cef_menu_model_t {
 }
 impl Into<*mut _cef_menu_model_t> for MenuModel {
     fn into(self) -> *mut _cef_menu_model_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMenuModel::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MenuModel {
@@ -20717,18 +20929,17 @@ impl Default for MenuModel {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplRunContextMenuCallback: Clone + Default + Sized + Rc {
+pub trait ImplRunContextMenuCallback: Clone + Sized + Rc {
     fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
         unsafe { std::mem::zeroed() }
     }
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_run_context_menu_callback_t {
-        let mut object: _cef_run_context_menu_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_run_context_menu_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_run_context_menu_callback_t) {
+        impl_cef_run_context_menu_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_run_context_menu_callback_t;
 }
 mod impl_cef_run_context_menu_callback_t {
     use super::*;
@@ -20789,6 +21000,9 @@ impl ImplRunContextMenuCallback for RunContextMenuCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_run_context_menu_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_run_context_menu_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -20817,7 +21031,9 @@ impl ConvertReturnValue<RunContextMenuCallback> for *mut _cef_run_context_menu_c
 }
 impl Into<*mut _cef_run_context_menu_callback_t> for RunContextMenuCallback {
     fn into(self) -> *mut _cef_run_context_menu_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRunContextMenuCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for RunContextMenuCallback {
@@ -20825,18 +21041,17 @@ impl Default for RunContextMenuCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplRunQuickMenuCallback: Clone + Default + Sized + Rc {
+pub trait ImplRunQuickMenuCallback: Clone + Sized + Rc {
     fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
         unsafe { std::mem::zeroed() }
     }
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_run_quick_menu_callback_t {
-        let mut object: _cef_run_quick_menu_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_run_quick_menu_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_run_quick_menu_callback_t) {
+        impl_cef_run_quick_menu_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_run_quick_menu_callback_t;
 }
 mod impl_cef_run_quick_menu_callback_t {
     use super::*;
@@ -20893,6 +21108,9 @@ impl ImplRunQuickMenuCallback for RunQuickMenuCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_run_quick_menu_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_run_quick_menu_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -20921,7 +21139,9 @@ impl ConvertReturnValue<RunQuickMenuCallback> for *mut _cef_run_quick_menu_callb
 }
 impl Into<*mut _cef_run_quick_menu_callback_t> for RunQuickMenuCallback {
     fn into(self) -> *mut _cef_run_quick_menu_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRunQuickMenuCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for RunQuickMenuCallback {
@@ -20929,7 +21149,7 @@ impl Default for RunQuickMenuCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplContextMenuHandler: Clone + Default + Sized + Rc {
+pub trait ImplContextMenuHandler: Clone + Sized + Rc {
     fn on_before_context_menu(
         &self,
         browser: &mut impl ImplBrowser,
@@ -20989,11 +21209,10 @@ pub trait ImplContextMenuHandler: Clone + Default + Sized + Rc {
     fn on_quick_menu_dismissed(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_context_menu_handler_t {
-        let mut object: _cef_context_menu_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_context_menu_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_context_menu_handler_t) {
+        impl_cef_context_menu_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_context_menu_handler_t;
 }
 mod impl_cef_context_menu_handler_t {
     use super::*;
@@ -21200,10 +21419,10 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     let (arg_browser, arg_frame, arg_params, arg_model) =
                         (browser, frame, params, model);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_params = ImplContextMenuParams::into_raw(Clone::clone(arg_params));
-                    let arg_model = ImplMenuModel::into_raw(Clone::clone(arg_model));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_params = ImplContextMenuParams::get_raw(arg_params);
+                    let arg_model = ImplMenuModel::get_raw(arg_model);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_params, arg_model);
                     result.as_wrapper()
                 })
@@ -21225,12 +21444,11 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     let (arg_browser, arg_frame, arg_params, arg_model, arg_callback) =
                         (browser, frame, params, model, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_params = ImplContextMenuParams::into_raw(Clone::clone(arg_params));
-                    let arg_model = ImplMenuModel::into_raw(Clone::clone(arg_model));
-                    let arg_callback =
-                        ImplRunContextMenuCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_params = ImplContextMenuParams::get_raw(arg_params);
+                    let arg_model = ImplMenuModel::get_raw(arg_model);
+                    let arg_callback = ImplRunContextMenuCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -21259,9 +21477,9 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     let (arg_browser, arg_frame, arg_params, arg_command_id, arg_event_flags) =
                         (browser, frame, params, command_id, event_flags);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_params = ImplContextMenuParams::into_raw(Clone::clone(arg_params));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_params = ImplContextMenuParams::get_raw(arg_params);
                     let arg_command_id = arg_command_id;
                     let arg_event_flags = arg_event_flags.as_raw();
                     let result = f(
@@ -21288,8 +21506,8 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
                 })
@@ -21318,15 +21536,14 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                         arg_callback,
                     ) = (browser, frame, location, size, edit_state_flags, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_location: _cef_point_t = arg_location.clone().into();
                     let arg_location = &arg_location;
                     let arg_size: _cef_size_t = arg_size.clone().into();
                     let arg_size = &arg_size;
                     let arg_edit_state_flags = arg_edit_state_flags.as_raw();
-                    let arg_callback =
-                        ImplRunQuickMenuCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplRunQuickMenuCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -21355,8 +21572,8 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     let (arg_browser, arg_frame, arg_command_id, arg_event_flags) =
                         (browser, frame, command_id, event_flags);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_command_id = arg_command_id;
                     let arg_event_flags = arg_event_flags.as_raw();
                     let result = f(
@@ -21378,13 +21595,16 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_context_menu_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_context_menu_handler_t {
@@ -21414,7 +21634,9 @@ impl ConvertReturnValue<ContextMenuHandler> for *mut _cef_context_menu_handler_t
 }
 impl Into<*mut _cef_context_menu_handler_t> for ContextMenuHandler {
     fn into(self) -> *mut _cef_context_menu_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplContextMenuHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ContextMenuHandler {
@@ -21422,7 +21644,7 @@ impl Default for ContextMenuHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplContextMenuParams: Clone + Default + Sized + Rc {
+pub trait ImplContextMenuParams: Clone + Sized + Rc {
     fn get_xcoord(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -21483,11 +21705,10 @@ pub trait ImplContextMenuParams: Clone + Default + Sized + Rc {
     fn is_custom_menu(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_context_menu_params_t {
-        let mut object: _cef_context_menu_params_t = unsafe { std::mem::zeroed() };
-        impl_cef_context_menu_params_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_context_menu_params_t) {
+        impl_cef_context_menu_params_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_context_menu_params_t;
 }
 mod impl_cef_context_menu_params_t {
     use super::*;
@@ -21926,6 +22147,9 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_context_menu_params_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_context_menu_params_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -21954,7 +22178,9 @@ impl ConvertReturnValue<ContextMenuParams> for *mut _cef_context_menu_params_t {
 }
 impl Into<*mut _cef_context_menu_params_t> for ContextMenuParams {
     fn into(self) -> *mut _cef_context_menu_params_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplContextMenuParams::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ContextMenuParams {
@@ -21962,18 +22188,17 @@ impl Default for ContextMenuParams {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplFileDialogCallback: Clone + Default + Sized + Rc {
+pub trait ImplFileDialogCallback: Clone + Sized + Rc {
     fn cont(&self, file_paths: &mut CefStringList) {
         unsafe { std::mem::zeroed() }
     }
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_file_dialog_callback_t {
-        let mut object: _cef_file_dialog_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_file_dialog_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_file_dialog_callback_t) {
+        impl_cef_file_dialog_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_file_dialog_callback_t;
 }
 mod impl_cef_file_dialog_callback_t {
     use super::*;
@@ -22027,6 +22252,9 @@ impl ImplFileDialogCallback for FileDialogCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_file_dialog_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_file_dialog_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -22055,7 +22283,9 @@ impl ConvertReturnValue<FileDialogCallback> for *mut _cef_file_dialog_callback_t
 }
 impl Into<*mut _cef_file_dialog_callback_t> for FileDialogCallback {
     fn into(self) -> *mut _cef_file_dialog_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplFileDialogCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for FileDialogCallback {
@@ -22063,7 +22293,7 @@ impl Default for FileDialogCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDialogHandler: Clone + Default + Sized + Rc {
+pub trait ImplDialogHandler: Clone + Sized + Rc {
     fn on_file_dialog(
         &self,
         browser: &mut impl ImplBrowser,
@@ -22077,11 +22307,10 @@ pub trait ImplDialogHandler: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_dialog_handler_t {
-        let mut object: _cef_dialog_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_dialog_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_dialog_handler_t) {
+        impl_cef_dialog_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_dialog_handler_t;
 }
 mod impl_cef_dialog_handler_t {
     use super::*;
@@ -22188,14 +22417,14 @@ impl ImplDialogHandler for DialogHandler {
                         callback,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_mode = arg_mode.as_raw();
                     let arg_title = arg_title.as_raw();
                     let arg_default_file_path = arg_default_file_path.as_raw();
                     let arg_accept_filters = arg_accept_filters.as_raw();
                     let arg_accept_extensions = arg_accept_extensions.as_raw();
                     let arg_accept_descriptions = arg_accept_descriptions.as_raw();
-                    let arg_callback = ImplFileDialogCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplFileDialogCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -22211,6 +22440,9 @@ impl ImplDialogHandler for DialogHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_dialog_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_dialog_handler_t {
@@ -22240,7 +22472,9 @@ impl ConvertReturnValue<DialogHandler> for *mut _cef_dialog_handler_t {
 }
 impl Into<*mut _cef_dialog_handler_t> for DialogHandler {
     fn into(self) -> *mut _cef_dialog_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDialogHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DialogHandler {
@@ -22248,7 +22482,7 @@ impl Default for DialogHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDisplayHandler: Clone + Default + Sized + Rc {
+pub trait ImplDisplayHandler: Clone + Sized + Rc {
     fn on_address_change(
         &self,
         browser: &mut impl ImplBrowser,
@@ -22317,11 +22551,10 @@ pub trait ImplDisplayHandler: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_display_handler_t {
-        let mut object: _cef_display_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_display_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_display_handler_t) {
+        impl_cef_display_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_display_handler_t;
 }
 mod impl_cef_display_handler_t {
     use super::*;
@@ -22544,8 +22777,8 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_url) = (browser, frame, url);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_url = arg_url.as_raw();
                     let result = f(arg_self_, arg_browser, arg_frame, arg_url);
                     result.as_wrapper()
@@ -22560,7 +22793,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_title) = (browser, title);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_title = arg_title.as_raw();
                     let result = f(arg_self_, arg_browser, arg_title);
                     result.as_wrapper()
@@ -22575,7 +22808,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_icon_urls) = (browser, icon_urls);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_icon_urls = arg_icon_urls.as_raw();
                     let result = f(arg_self_, arg_browser, arg_icon_urls);
                     result.as_wrapper()
@@ -22594,7 +22827,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_fullscreen) = (browser, fullscreen);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_fullscreen = arg_fullscreen;
                     let result = f(arg_self_, arg_browser, arg_fullscreen);
                     result.as_wrapper()
@@ -22613,7 +22846,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_text) = (browser, text);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_text = arg_text.as_raw();
                     let result = f(arg_self_, arg_browser, arg_text);
                     result.as_wrapper()
@@ -22628,7 +22861,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_value) = (browser, value);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_value = arg_value.as_raw();
                     let result = f(arg_self_, arg_browser, arg_value);
                     result.as_wrapper()
@@ -22651,7 +22884,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     let (arg_browser, arg_level, arg_message, arg_source, arg_line) =
                         (browser, level, message, source, line);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_level = arg_level.as_raw();
                     let arg_message = arg_message.as_raw();
                     let arg_source = arg_source.as_raw();
@@ -22680,7 +22913,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_new_size) = (browser, new_size);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_new_size: _cef_size_t = arg_new_size.clone().into();
                     let arg_new_size = &arg_new_size;
                     let result = f(arg_self_, arg_browser, arg_new_size);
@@ -22696,7 +22929,7 @@ impl ImplDisplayHandler for DisplayHandler {
                 .map(|f| {
                     let (arg_browser, arg_progress) = (browser, progress);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_progress = arg_progress;
                     let result = f(arg_self_, arg_browser, arg_progress);
                     result.as_wrapper()
@@ -22718,7 +22951,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     let (arg_browser, arg_cursor, arg_type_, arg_custom_cursor_info) =
                         (browser, cursor, type_, custom_cursor_info);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_cursor = arg_cursor;
                     let arg_type_ = arg_type_.as_raw();
                     let arg_custom_cursor_info: _cef_cursor_info_t =
@@ -22749,7 +22982,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     let (arg_browser, arg_has_video_access, arg_has_audio_access) =
                         (browser, has_video_access, has_audio_access);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_has_video_access = arg_has_video_access;
                     let arg_has_audio_access = arg_has_audio_access;
                     let result = f(
@@ -22762,6 +22995,9 @@ impl ImplDisplayHandler for DisplayHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_display_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_display_handler_t {
@@ -22791,7 +23027,9 @@ impl ConvertReturnValue<DisplayHandler> for *mut _cef_display_handler_t {
 }
 impl Into<*mut _cef_display_handler_t> for DisplayHandler {
     fn into(self) -> *mut _cef_display_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDisplayHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DisplayHandler {
@@ -22799,7 +23037,7 @@ impl Default for DisplayHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDownloadItem: Clone + Default + Sized + Rc {
+pub trait ImplDownloadItem: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -22857,11 +23095,10 @@ pub trait ImplDownloadItem: Clone + Default + Sized + Rc {
     fn get_mime_type(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_download_item_t {
-        let mut object: _cef_download_item_t = unsafe { std::mem::zeroed() };
-        impl_cef_download_item_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_download_item_t) {
+        impl_cef_download_item_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_download_item_t;
 }
 mod impl_cef_download_item_t {
     use super::*;
@@ -23263,6 +23500,9 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_download_item_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_download_item_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -23291,7 +23531,9 @@ impl ConvertReturnValue<DownloadItem> for *mut _cef_download_item_t {
 }
 impl Into<*mut _cef_download_item_t> for DownloadItem {
     fn into(self) -> *mut _cef_download_item_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDownloadItem::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DownloadItem {
@@ -23299,15 +23541,14 @@ impl Default for DownloadItem {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplBeforeDownloadCallback: Clone + Default + Sized + Rc {
+pub trait ImplBeforeDownloadCallback: Clone + Sized + Rc {
     fn cont(&self, download_path: &CefStringUtf16, show_dialog: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_before_download_callback_t {
-        let mut object: _cef_before_download_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_before_download_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_before_download_callback_t) {
+        impl_cef_before_download_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_before_download_callback_t;
 }
 mod impl_cef_before_download_callback_t {
     use super::*;
@@ -23352,6 +23593,9 @@ impl ImplBeforeDownloadCallback for BeforeDownloadCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_before_download_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_before_download_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -23380,7 +23624,9 @@ impl ConvertReturnValue<BeforeDownloadCallback> for *mut _cef_before_download_ca
 }
 impl Into<*mut _cef_before_download_callback_t> for BeforeDownloadCallback {
     fn into(self) -> *mut _cef_before_download_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplBeforeDownloadCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for BeforeDownloadCallback {
@@ -23388,7 +23634,7 @@ impl Default for BeforeDownloadCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDownloadItemCallback: Clone + Default + Sized + Rc {
+pub trait ImplDownloadItemCallback: Clone + Sized + Rc {
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
@@ -23398,11 +23644,10 @@ pub trait ImplDownloadItemCallback: Clone + Default + Sized + Rc {
     fn resume(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_download_item_callback_t {
-        let mut object: _cef_download_item_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_download_item_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_download_item_callback_t) {
+        impl_cef_download_item_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_download_item_callback_t;
 }
 mod impl_cef_download_item_callback_t {
     use super::*;
@@ -23467,6 +23712,9 @@ impl ImplDownloadItemCallback for DownloadItemCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_download_item_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_download_item_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -23495,7 +23743,9 @@ impl ConvertReturnValue<DownloadItemCallback> for *mut _cef_download_item_callba
 }
 impl Into<*mut _cef_download_item_callback_t> for DownloadItemCallback {
     fn into(self) -> *mut _cef_download_item_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDownloadItemCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DownloadItemCallback {
@@ -23503,7 +23753,7 @@ impl Default for DownloadItemCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDownloadHandler: Clone + Default + Sized + Rc {
+pub trait ImplDownloadHandler: Clone + Sized + Rc {
     fn can_download(
         &self,
         browser: &mut impl ImplBrowser,
@@ -23529,11 +23779,10 @@ pub trait ImplDownloadHandler: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_download_handler_t {
-        let mut object: _cef_download_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_download_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_download_handler_t) {
+        impl_cef_download_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_download_handler_t;
 }
 mod impl_cef_download_handler_t {
     use super::*;
@@ -23628,7 +23877,7 @@ impl ImplDownloadHandler for DownloadHandler {
                 .map(|f| {
                     let (arg_browser, arg_url, arg_request_method) = (browser, url, request_method);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_url = arg_url.as_raw();
                     let arg_request_method = arg_request_method.as_raw();
                     let result = f(arg_self_, arg_browser, arg_url, arg_request_method);
@@ -23651,12 +23900,10 @@ impl ImplDownloadHandler for DownloadHandler {
                     let (arg_browser, arg_download_item, arg_suggested_name, arg_callback) =
                         (browser, download_item, suggested_name, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_download_item =
-                        ImplDownloadItem::into_raw(Clone::clone(arg_download_item));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_download_item = ImplDownloadItem::get_raw(arg_download_item);
                     let arg_suggested_name = arg_suggested_name.as_raw();
-                    let arg_callback =
-                        ImplBeforeDownloadCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplBeforeDownloadCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -23682,16 +23929,17 @@ impl ImplDownloadHandler for DownloadHandler {
                     let (arg_browser, arg_download_item, arg_callback) =
                         (browser, download_item, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_download_item =
-                        ImplDownloadItem::into_raw(Clone::clone(arg_download_item));
-                    let arg_callback =
-                        ImplDownloadItemCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_download_item = ImplDownloadItem::get_raw(arg_download_item);
+                    let arg_callback = ImplDownloadItemCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_browser, arg_download_item, arg_callback);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_download_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_download_handler_t {
@@ -23721,7 +23969,9 @@ impl ConvertReturnValue<DownloadHandler> for *mut _cef_download_handler_t {
 }
 impl Into<*mut _cef_download_handler_t> for DownloadHandler {
     fn into(self) -> *mut _cef_download_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDownloadHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DownloadHandler {
@@ -23729,7 +23979,7 @@ impl Default for DownloadHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDragHandler: Clone + Default + Sized + Rc {
+pub trait ImplDragHandler: Clone + Sized + Rc {
     fn on_drag_enter(
         &self,
         browser: &mut impl ImplBrowser,
@@ -23747,11 +23997,10 @@ pub trait ImplDragHandler: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_drag_handler_t {
-        let mut object: _cef_drag_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_drag_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_drag_handler_t) {
+        impl_cef_drag_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_drag_handler_t;
 }
 mod impl_cef_drag_handler_t {
     use super::*;
@@ -23818,8 +24067,8 @@ impl ImplDragHandler for DragHandler {
                 .map(|f| {
                     let (arg_browser, arg_drag_data, arg_mask) = (browser, drag_data, mask);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_drag_data = ImplDragData::into_raw(Clone::clone(arg_drag_data));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_drag_data = ImplDragData::get_raw(arg_drag_data);
                     let arg_mask = arg_mask.as_raw();
                     let result = f(arg_self_, arg_browser, arg_drag_data, arg_mask);
                     result.as_wrapper()
@@ -23841,8 +24090,8 @@ impl ImplDragHandler for DragHandler {
                     let (arg_browser, arg_frame, arg_regions_count, arg_regions) =
                         (browser, frame, regions_count, regions);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_regions_count = arg_regions_count;
                     let arg_regions: _cef_draggable_region_t = arg_regions.clone().into();
                     let arg_regions = &arg_regions;
@@ -23857,6 +24106,9 @@ impl ImplDragHandler for DragHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_drag_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_drag_handler_t {
@@ -23886,7 +24138,9 @@ impl ConvertReturnValue<DragHandler> for *mut _cef_drag_handler_t {
 }
 impl Into<*mut _cef_drag_handler_t> for DragHandler {
     fn into(self) -> *mut _cef_drag_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDragHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for DragHandler {
@@ -23894,7 +24148,7 @@ impl Default for DragHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplFindHandler: Clone + Default + Sized + Rc {
+pub trait ImplFindHandler: Clone + Sized + Rc {
     fn on_find_result(
         &self,
         browser: &mut impl ImplBrowser,
@@ -23906,11 +24160,10 @@ pub trait ImplFindHandler: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_find_handler_t {
-        let mut object: _cef_find_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_find_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_find_handler_t) {
+        impl_cef_find_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_find_handler_t;
 }
 mod impl_cef_find_handler_t {
     use super::*;
@@ -23995,7 +24248,7 @@ impl ImplFindHandler for FindHandler {
                         final_update,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_identifier = arg_identifier;
                     let arg_count = arg_count;
                     let arg_selection_rect: _cef_rect_t = arg_selection_rect.clone().into();
@@ -24015,6 +24268,9 @@ impl ImplFindHandler for FindHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_find_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_find_handler_t {
@@ -24044,7 +24300,9 @@ impl ConvertReturnValue<FindHandler> for *mut _cef_find_handler_t {
 }
 impl Into<*mut _cef_find_handler_t> for FindHandler {
     fn into(self) -> *mut _cef_find_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplFindHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for FindHandler {
@@ -24052,7 +24310,7 @@ impl Default for FindHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplFocusHandler: Clone + Default + Sized + Rc {
+pub trait ImplFocusHandler: Clone + Sized + Rc {
     fn on_take_focus(&self, browser: &mut impl ImplBrowser, next: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
@@ -24066,11 +24324,10 @@ pub trait ImplFocusHandler: Clone + Default + Sized + Rc {
     fn on_got_focus(&self, browser: &mut impl ImplBrowser) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_focus_handler_t {
-        let mut object: _cef_focus_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_focus_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_focus_handler_t) {
+        impl_cef_focus_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_focus_handler_t;
 }
 mod impl_cef_focus_handler_t {
     use super::*;
@@ -24123,7 +24380,7 @@ impl ImplFocusHandler for FocusHandler {
                 .map(|f| {
                     let (arg_browser, arg_next) = (browser, next);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_next = arg_next;
                     let result = f(arg_self_, arg_browser, arg_next);
                     result.as_wrapper()
@@ -24142,7 +24399,7 @@ impl ImplFocusHandler for FocusHandler {
                 .map(|f| {
                     let (arg_browser, arg_source) = (browser, source);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_source = arg_source.as_raw();
                     let result = f(arg_self_, arg_browser, arg_source);
                     result.as_wrapper()
@@ -24157,12 +24414,15 @@ impl ImplFocusHandler for FocusHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_focus_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_focus_handler_t {
@@ -24192,7 +24452,9 @@ impl ConvertReturnValue<FocusHandler> for *mut _cef_focus_handler_t {
 }
 impl Into<*mut _cef_focus_handler_t> for FocusHandler {
     fn into(self) -> *mut _cef_focus_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplFocusHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for FocusHandler {
@@ -24200,7 +24462,7 @@ impl Default for FocusHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplFrameHandler: Clone + Default + Sized + Rc {
+pub trait ImplFrameHandler: Clone + Sized + Rc {
     fn on_frame_created(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {
         unsafe { std::mem::zeroed() }
     }
@@ -24226,11 +24488,10 @@ pub trait ImplFrameHandler: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_frame_handler_t {
-        let mut object: _cef_frame_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_frame_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_frame_handler_t) {
+        impl_cef_frame_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_frame_handler_t;
 }
 mod impl_cef_frame_handler_t {
     use super::*;
@@ -24327,8 +24588,8 @@ impl ImplFrameHandler for FrameHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
                 })
@@ -24342,8 +24603,8 @@ impl ImplFrameHandler for FrameHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
                 })
@@ -24362,8 +24623,8 @@ impl ImplFrameHandler for FrameHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_reattached) = (browser, frame, reattached);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_reattached = arg_reattached;
                     let result = f(arg_self_, arg_browser, arg_frame, arg_reattached);
                     result.as_wrapper()
@@ -24378,8 +24639,8 @@ impl ImplFrameHandler for FrameHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame) = (browser, frame);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let result = f(arg_self_, arg_browser, arg_frame);
                     result.as_wrapper()
                 })
@@ -24399,14 +24660,17 @@ impl ImplFrameHandler for FrameHandler {
                     let (arg_browser, arg_old_frame, arg_new_frame) =
                         (browser, old_frame, new_frame);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_old_frame = ImplFrame::into_raw(Clone::clone(arg_old_frame));
-                    let arg_new_frame = ImplFrame::into_raw(Clone::clone(arg_new_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_old_frame = ImplFrame::get_raw(arg_old_frame);
+                    let arg_new_frame = ImplFrame::get_raw(arg_new_frame);
                     let result = f(arg_self_, arg_browser, arg_old_frame, arg_new_frame);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_frame_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_frame_handler_t {
@@ -24436,7 +24700,9 @@ impl ConvertReturnValue<FrameHandler> for *mut _cef_frame_handler_t {
 }
 impl Into<*mut _cef_frame_handler_t> for FrameHandler {
     fn into(self) -> *mut _cef_frame_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplFrameHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for FrameHandler {
@@ -24444,15 +24710,14 @@ impl Default for FrameHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplJsdialogCallback: Clone + Default + Sized + Rc {
+pub trait ImplJsdialogCallback: Clone + Sized + Rc {
     fn cont(&self, success: ::std::os::raw::c_int, user_input: &CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_jsdialog_callback_t {
-        let mut object: _cef_jsdialog_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_jsdialog_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_jsdialog_callback_t) {
+        impl_cef_jsdialog_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_jsdialog_callback_t;
 }
 mod impl_cef_jsdialog_callback_t {
     use super::*;
@@ -24491,6 +24756,9 @@ impl ImplJsdialogCallback for JsdialogCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_jsdialog_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_jsdialog_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -24519,7 +24787,9 @@ impl ConvertReturnValue<JsdialogCallback> for *mut _cef_jsdialog_callback_t {
 }
 impl Into<*mut _cef_jsdialog_callback_t> for JsdialogCallback {
     fn into(self) -> *mut _cef_jsdialog_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplJsdialogCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for JsdialogCallback {
@@ -24527,7 +24797,7 @@ impl Default for JsdialogCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplJsdialogHandler: Clone + Default + Sized + Rc {
+pub trait ImplJsdialogHandler: Clone + Sized + Rc {
     fn on_jsdialog(
         &self,
         browser: &mut impl ImplBrowser,
@@ -24555,11 +24825,10 @@ pub trait ImplJsdialogHandler: Clone + Default + Sized + Rc {
     fn on_dialog_closed(&self, browser: &mut impl ImplBrowser) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_jsdialog_handler_t {
-        let mut object: _cef_jsdialog_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_jsdialog_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_jsdialog_handler_t) {
+        impl_cef_jsdialog_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_jsdialog_handler_t;
 }
 mod impl_cef_jsdialog_handler_t {
     use super::*;
@@ -24704,12 +24973,12 @@ impl ImplJsdialogHandler for JsdialogHandler {
                         suppress_message,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_origin_url = arg_origin_url.as_raw();
                     let arg_dialog_type = arg_dialog_type.as_raw();
                     let arg_message_text = arg_message_text.as_raw();
                     let arg_default_prompt_text = arg_default_prompt_text.as_raw();
-                    let arg_callback = ImplJsdialogCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplJsdialogCallback::get_raw(arg_callback);
                     let arg_suppress_message = arg_suppress_message as *mut _;
                     let result = f(
                         arg_self_,
@@ -24740,10 +25009,10 @@ impl ImplJsdialogHandler for JsdialogHandler {
                     let (arg_browser, arg_message_text, arg_is_reload, arg_callback) =
                         (browser, message_text, is_reload, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_message_text = arg_message_text.as_raw();
                     let arg_is_reload = arg_is_reload;
-                    let arg_callback = ImplJsdialogCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplJsdialogCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -24763,7 +25032,7 @@ impl ImplJsdialogHandler for JsdialogHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -24777,12 +25046,15 @@ impl ImplJsdialogHandler for JsdialogHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_jsdialog_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_jsdialog_handler_t {
@@ -24812,7 +25084,9 @@ impl ConvertReturnValue<JsdialogHandler> for *mut _cef_jsdialog_handler_t {
 }
 impl Into<*mut _cef_jsdialog_handler_t> for JsdialogHandler {
     fn into(self) -> *mut _cef_jsdialog_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplJsdialogHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for JsdialogHandler {
@@ -24820,7 +25094,7 @@ impl Default for JsdialogHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplKeyboardHandler: Clone + Default + Sized + Rc {
+pub trait ImplKeyboardHandler: Clone + Sized + Rc {
     fn on_pre_key_event(
         &self,
         browser: &mut impl ImplBrowser,
@@ -24838,11 +25112,10 @@ pub trait ImplKeyboardHandler: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_keyboard_handler_t {
-        let mut object: _cef_keyboard_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_keyboard_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_keyboard_handler_t) {
+        impl_cef_keyboard_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_keyboard_handler_t;
 }
 mod impl_cef_keyboard_handler_t {
     use super::*;
@@ -24917,7 +25190,7 @@ impl ImplKeyboardHandler for KeyboardHandler {
                     let (arg_browser, arg_event, arg_os_event, arg_is_keyboard_shortcut) =
                         (browser, event, os_event, is_keyboard_shortcut);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_event: _cef_key_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
                     let arg_os_event = arg_os_event as *mut _;
@@ -24946,7 +25219,7 @@ impl ImplKeyboardHandler for KeyboardHandler {
                 .map(|f| {
                     let (arg_browser, arg_event, arg_os_event) = (browser, event, os_event);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_event: _cef_key_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
                     let arg_os_event = arg_os_event as *mut _;
@@ -24955,6 +25228,9 @@ impl ImplKeyboardHandler for KeyboardHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_keyboard_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_keyboard_handler_t {
@@ -24984,7 +25260,9 @@ impl ConvertReturnValue<KeyboardHandler> for *mut _cef_keyboard_handler_t {
 }
 impl Into<*mut _cef_keyboard_handler_t> for KeyboardHandler {
     fn into(self) -> *mut _cef_keyboard_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplKeyboardHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for KeyboardHandler {
@@ -24992,7 +25270,7 @@ impl Default for KeyboardHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplLifeSpanHandler: Clone + Default + Sized + Rc {
+pub trait ImplLifeSpanHandler: Clone + Sized + Rc {
     fn on_before_popup(
         &self,
         browser: &mut impl ImplBrowser,
@@ -25038,11 +25316,10 @@ pub trait ImplLifeSpanHandler: Clone + Default + Sized + Rc {
     fn on_before_close(&self, browser: &mut impl ImplBrowser) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_life_span_handler_t {
-        let mut object: _cef_life_span_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_life_span_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_life_span_handler_t) {
+        impl_cef_life_span_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_life_span_handler_t;
 }
 mod impl_cef_life_span_handler_t {
     use super::*;
@@ -25313,8 +25590,8 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                         no_javascript_access,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_popup_id = arg_popup_id;
                     let arg_target_url = arg_target_url.as_raw();
                     let arg_target_frame_name = arg_target_frame_name.as_raw();
@@ -25325,14 +25602,14 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                     let arg_popup_features = &arg_popup_features;
                     let mut arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
                     let arg_window_info = &mut arg_window_info;
-                    let mut arg_client = arg_client.map(|arg| Clone::clone(arg).into_raw());
+                    let mut arg_client = arg_client.map(|arg| arg.get_raw());
                     let arg_client = arg_client
                         .as_mut()
                         .map(|arg| arg as *mut _)
                         .unwrap_or(std::ptr::null_mut());
                     let mut arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
                     let arg_settings = &mut arg_settings;
-                    let mut arg_extra_info = arg_extra_info.map(|arg| Clone::clone(arg).into_raw());
+                    let mut arg_extra_info = arg_extra_info.map(|arg| arg.get_raw());
                     let arg_extra_info = arg_extra_info
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -25370,7 +25647,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .map(|f| {
                     let (arg_browser, arg_popup_id) = (browser, popup_id);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_popup_id = arg_popup_id;
                     let result = f(arg_self_, arg_browser, arg_popup_id);
                     result.as_wrapper()
@@ -25407,17 +25684,17 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                         use_default_window,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
                     let arg_window_info = &mut arg_window_info;
-                    let mut arg_client = arg_client.map(|arg| Clone::clone(arg).into_raw());
+                    let mut arg_client = arg_client.map(|arg| arg.get_raw());
                     let arg_client = arg_client
                         .as_mut()
                         .map(|arg| arg as *mut _)
                         .unwrap_or(std::ptr::null_mut());
                     let mut arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
                     let arg_settings = &mut arg_settings;
-                    let mut arg_extra_info = arg_extra_info.map(|arg| Clone::clone(arg).into_raw());
+                    let mut arg_extra_info = arg_extra_info.map(|arg| arg.get_raw());
                     let arg_extra_info = arg_extra_info
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -25444,7 +25721,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -25458,7 +25735,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -25472,12 +25749,15 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_life_span_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_life_span_handler_t {
@@ -25507,7 +25787,9 @@ impl ConvertReturnValue<LifeSpanHandler> for *mut _cef_life_span_handler_t {
 }
 impl Into<*mut _cef_life_span_handler_t> for LifeSpanHandler {
     fn into(self) -> *mut _cef_life_span_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplLifeSpanHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for LifeSpanHandler {
@@ -25515,7 +25797,7 @@ impl Default for LifeSpanHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplLoadHandler: Clone + Default + Sized + Rc {
+pub trait ImplLoadHandler: Clone + Sized + Rc {
     fn on_loading_state_change(
         &self,
         browser: &mut impl ImplBrowser,
@@ -25551,11 +25833,10 @@ pub trait ImplLoadHandler: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_load_handler_t {
-        let mut object: _cef_load_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_load_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_load_handler_t) {
+        impl_cef_load_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_load_handler_t;
 }
 mod impl_cef_load_handler_t {
     use super::*;
@@ -25671,7 +25952,7 @@ impl ImplLoadHandler for LoadHandler {
                     let (arg_browser, arg_is_loading, arg_can_go_back, arg_can_go_forward) =
                         (browser, is_loading, can_go_back, can_go_forward);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_is_loading = arg_is_loading;
                     let arg_can_go_back = arg_can_go_back;
                     let arg_can_go_forward = arg_can_go_forward;
@@ -25700,8 +25981,8 @@ impl ImplLoadHandler for LoadHandler {
                     let (arg_browser, arg_frame, arg_transition_type) =
                         (browser, frame, transition_type);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_transition_type = arg_transition_type.as_raw();
                     let result = f(arg_self_, arg_browser, arg_frame, arg_transition_type);
                     result.as_wrapper()
@@ -25722,8 +26003,8 @@ impl ImplLoadHandler for LoadHandler {
                     let (arg_browser, arg_frame, arg_http_status_code) =
                         (browser, frame, http_status_code);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_http_status_code = arg_http_status_code;
                     let result = f(arg_self_, arg_browser, arg_frame, arg_http_status_code);
                     result.as_wrapper()
@@ -25746,8 +26027,8 @@ impl ImplLoadHandler for LoadHandler {
                     let (arg_browser, arg_frame, arg_error_code, arg_error_text, arg_failed_url) =
                         (browser, frame, error_code, error_text, failed_url);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_error_code = arg_error_code.as_raw();
                     let arg_error_text = arg_error_text.as_raw();
                     let arg_failed_url = arg_failed_url.as_raw();
@@ -25763,6 +26044,9 @@ impl ImplLoadHandler for LoadHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_load_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_load_handler_t {
@@ -25792,7 +26076,9 @@ impl ConvertReturnValue<LoadHandler> for *mut _cef_load_handler_t {
 }
 impl Into<*mut _cef_load_handler_t> for LoadHandler {
     fn into(self) -> *mut _cef_load_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplLoadHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for LoadHandler {
@@ -25800,18 +26086,17 @@ impl Default for LoadHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMediaAccessCallback: Clone + Default + Sized + Rc {
+pub trait ImplMediaAccessCallback: Clone + Sized + Rc {
     fn cont(&self, allowed_permissions: u32) {
         unsafe { std::mem::zeroed() }
     }
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_media_access_callback_t {
-        let mut object: _cef_media_access_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_media_access_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_media_access_callback_t) {
+        impl_cef_media_access_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_media_access_callback_t;
 }
 mod impl_cef_media_access_callback_t {
     use super::*;
@@ -25864,6 +26149,9 @@ impl ImplMediaAccessCallback for MediaAccessCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_media_access_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_media_access_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -25892,7 +26180,9 @@ impl ConvertReturnValue<MediaAccessCallback> for *mut _cef_media_access_callback
 }
 impl Into<*mut _cef_media_access_callback_t> for MediaAccessCallback {
     fn into(self) -> *mut _cef_media_access_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMediaAccessCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MediaAccessCallback {
@@ -25900,15 +26190,14 @@ impl Default for MediaAccessCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPermissionPromptCallback: Clone + Default + Sized + Rc {
+pub trait ImplPermissionPromptCallback: Clone + Sized + Rc {
     fn cont(&self, result: PermissionRequestResult) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_permission_prompt_callback_t {
-        let mut object: _cef_permission_prompt_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_permission_prompt_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_permission_prompt_callback_t) {
+        impl_cef_permission_prompt_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_permission_prompt_callback_t;
 }
 mod impl_cef_permission_prompt_callback_t {
     use super::*;
@@ -25945,6 +26234,9 @@ impl ImplPermissionPromptCallback for PermissionPromptCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_permission_prompt_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_permission_prompt_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -25973,7 +26265,9 @@ impl ConvertReturnValue<PermissionPromptCallback> for *mut _cef_permission_promp
 }
 impl Into<*mut _cef_permission_prompt_callback_t> for PermissionPromptCallback {
     fn into(self) -> *mut _cef_permission_prompt_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPermissionPromptCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PermissionPromptCallback {
@@ -25981,7 +26275,7 @@ impl Default for PermissionPromptCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPermissionHandler: Clone + Default + Sized + Rc {
+pub trait ImplPermissionHandler: Clone + Sized + Rc {
     fn on_request_media_access_permission(
         &self,
         browser: &mut impl ImplBrowser,
@@ -26010,11 +26304,10 @@ pub trait ImplPermissionHandler: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_permission_handler_t {
-        let mut object: _cef_permission_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_permission_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_permission_handler_t) {
+        impl_cef_permission_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_permission_handler_t;
 }
 mod impl_cef_permission_handler_t {
     use super::*;
@@ -26155,12 +26448,11 @@ impl ImplPermissionHandler for PermissionHandler {
                         callback,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_requesting_origin = arg_requesting_origin.as_raw();
                     let arg_requested_permissions = arg_requested_permissions;
-                    let arg_callback =
-                        ImplMediaAccessCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplMediaAccessCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -26200,12 +26492,11 @@ impl ImplPermissionHandler for PermissionHandler {
                         callback,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_prompt_id = arg_prompt_id;
                     let arg_requesting_origin = arg_requesting_origin.as_raw();
                     let arg_requested_permissions = arg_requested_permissions;
-                    let arg_callback =
-                        ImplPermissionPromptCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplPermissionPromptCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -26231,7 +26522,7 @@ impl ImplPermissionHandler for PermissionHandler {
                 .map(|f| {
                     let (arg_browser, arg_prompt_id, arg_result) = (browser, prompt_id, result);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_prompt_id = arg_prompt_id;
                     let arg_result = arg_result.as_raw();
                     let result = f(arg_self_, arg_browser, arg_prompt_id, arg_result);
@@ -26239,6 +26530,9 @@ impl ImplPermissionHandler for PermissionHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_permission_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_permission_handler_t {
@@ -26268,7 +26562,9 @@ impl ConvertReturnValue<PermissionHandler> for *mut _cef_permission_handler_t {
 }
 impl Into<*mut _cef_permission_handler_t> for PermissionHandler {
     fn into(self) -> *mut _cef_permission_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPermissionHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PermissionHandler {
@@ -26276,7 +26572,7 @@ impl Default for PermissionHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPrintSettings: Clone + Default + Sized + Rc {
+pub trait ImplPrintSettings: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -26348,11 +26644,10 @@ pub trait ImplPrintSettings: Clone + Default + Sized + Rc {
     fn get_duplex_mode(&self) -> DuplexMode {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_print_settings_t {
-        let mut object: _cef_print_settings_t = unsafe { std::mem::zeroed() };
-        impl_cef_print_settings_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_print_settings_t) {
+        impl_cef_print_settings_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_print_settings_t;
 }
 mod impl_cef_print_settings_t {
     use super::*;
@@ -26920,6 +27215,9 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_print_settings_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_print_settings_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -26948,7 +27246,9 @@ impl ConvertReturnValue<PrintSettings> for *mut _cef_print_settings_t {
 }
 impl Into<*mut _cef_print_settings_t> for PrintSettings {
     fn into(self) -> *mut _cef_print_settings_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPrintSettings::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PrintSettings {
@@ -26956,18 +27256,17 @@ impl Default for PrintSettings {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPrintDialogCallback: Clone + Default + Sized + Rc {
+pub trait ImplPrintDialogCallback: Clone + Sized + Rc {
     fn cont(&self, settings: &mut impl ImplPrintSettings) {
         unsafe { std::mem::zeroed() }
     }
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_print_dialog_callback_t {
-        let mut object: _cef_print_dialog_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_print_dialog_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_print_dialog_callback_t) {
+        impl_cef_print_dialog_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_print_dialog_callback_t;
 }
 mod impl_cef_print_dialog_callback_t {
     use super::*;
@@ -27001,7 +27300,7 @@ impl ImplPrintDialogCallback for PrintDialogCallback {
                 .map(|f| {
                     let arg_settings = settings;
                     let arg_self_ = self.as_raw();
-                    let arg_settings = ImplPrintSettings::into_raw(Clone::clone(arg_settings));
+                    let arg_settings = ImplPrintSettings::get_raw(arg_settings);
                     let result = f(arg_self_, arg_settings);
                     result.as_wrapper()
                 })
@@ -27019,6 +27318,9 @@ impl ImplPrintDialogCallback for PrintDialogCallback {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_print_dialog_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_print_dialog_callback_t {
@@ -27048,7 +27350,9 @@ impl ConvertReturnValue<PrintDialogCallback> for *mut _cef_print_dialog_callback
 }
 impl Into<*mut _cef_print_dialog_callback_t> for PrintDialogCallback {
     fn into(self) -> *mut _cef_print_dialog_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPrintDialogCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PrintDialogCallback {
@@ -27056,15 +27360,14 @@ impl Default for PrintDialogCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPrintJobCallback: Clone + Default + Sized + Rc {
+pub trait ImplPrintJobCallback: Clone + Sized + Rc {
     fn cont(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_print_job_callback_t {
-        let mut object: _cef_print_job_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_print_job_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_print_job_callback_t) {
+        impl_cef_print_job_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_print_job_callback_t;
 }
 mod impl_cef_print_job_callback_t {
     use super::*;
@@ -27092,6 +27395,9 @@ impl ImplPrintJobCallback for PrintJobCallback {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_print_job_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_print_job_callback_t {
@@ -27121,7 +27427,9 @@ impl ConvertReturnValue<PrintJobCallback> for *mut _cef_print_job_callback_t {
 }
 impl Into<*mut _cef_print_job_callback_t> for PrintJobCallback {
     fn into(self) -> *mut _cef_print_job_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPrintJobCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PrintJobCallback {
@@ -27129,7 +27437,7 @@ impl Default for PrintJobCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplPrintHandler: Clone + Default + Sized + Rc {
+pub trait ImplPrintHandler: Clone + Sized + Rc {
     fn on_print_start(&self, browser: &mut impl ImplBrowser) {
         unsafe { std::mem::zeroed() }
     }
@@ -27168,11 +27476,10 @@ pub trait ImplPrintHandler: Clone + Default + Sized + Rc {
     ) -> Size {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_print_handler_t {
-        let mut object: _cef_print_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_print_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_print_handler_t) {
+        impl_cef_print_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_print_handler_t;
 }
 mod impl_cef_print_handler_t {
     use super::*;
@@ -27297,7 +27604,7 @@ impl ImplPrintHandler for PrintHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -27317,8 +27624,8 @@ impl ImplPrintHandler for PrintHandler {
                     let (arg_browser, arg_settings, arg_get_defaults) =
                         (browser, settings, get_defaults);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_settings = ImplPrintSettings::into_raw(Clone::clone(arg_settings));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_settings = ImplPrintSettings::get_raw(arg_settings);
                     let arg_get_defaults = arg_get_defaults;
                     let result = f(arg_self_, arg_browser, arg_settings, arg_get_defaults);
                     result.as_wrapper()
@@ -27339,10 +27646,9 @@ impl ImplPrintHandler for PrintHandler {
                     let (arg_browser, arg_has_selection, arg_callback) =
                         (browser, has_selection, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_has_selection = arg_has_selection;
-                    let arg_callback =
-                        ImplPrintDialogCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplPrintDialogCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_browser, arg_has_selection, arg_callback);
                     result.as_wrapper()
                 })
@@ -27363,10 +27669,10 @@ impl ImplPrintHandler for PrintHandler {
                     let (arg_browser, arg_document_name, arg_pdf_file_path, arg_callback) =
                         (browser, document_name, pdf_file_path, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_document_name = arg_document_name.as_raw();
                     let arg_pdf_file_path = arg_pdf_file_path.as_raw();
-                    let arg_callback = ImplPrintJobCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplPrintJobCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -27386,7 +27692,7 @@ impl ImplPrintHandler for PrintHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -27404,13 +27710,16 @@ impl ImplPrintHandler for PrintHandler {
                 .map(|f| {
                     let (arg_browser, arg_device_units_per_inch) = (browser, device_units_per_inch);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_device_units_per_inch = arg_device_units_per_inch;
                     let result = f(arg_self_, arg_browser, arg_device_units_per_inch);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_print_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_print_handler_t {
@@ -27440,7 +27749,9 @@ impl ConvertReturnValue<PrintHandler> for *mut _cef_print_handler_t {
 }
 impl Into<*mut _cef_print_handler_t> for PrintHandler {
     fn into(self) -> *mut _cef_print_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPrintHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PrintHandler {
@@ -27448,18 +27759,17 @@ impl Default for PrintHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplAccessibilityHandler: Clone + Default + Sized + Rc {
+pub trait ImplAccessibilityHandler: Clone + Sized + Rc {
     fn on_accessibility_tree_change(&self, value: &mut impl ImplValue) {
         unsafe { std::mem::zeroed() }
     }
     fn on_accessibility_location_change(&self, value: &mut impl ImplValue) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_accessibility_handler_t {
-        let mut object: _cef_accessibility_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_accessibility_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_accessibility_handler_t) {
+        impl_cef_accessibility_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_accessibility_handler_t;
 }
 mod impl_cef_accessibility_handler_t {
     use super::*;
@@ -27501,7 +27811,7 @@ impl ImplAccessibilityHandler for AccessibilityHandler {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
-                    let arg_value = ImplValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
@@ -27515,12 +27825,15 @@ impl ImplAccessibilityHandler for AccessibilityHandler {
                 .map(|f| {
                     let arg_value = value;
                     let arg_self_ = self.as_raw();
-                    let arg_value = ImplValue::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplValue::get_raw(arg_value);
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_accessibility_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_accessibility_handler_t {
@@ -27550,7 +27863,9 @@ impl ConvertReturnValue<AccessibilityHandler> for *mut _cef_accessibility_handle
 }
 impl Into<*mut _cef_accessibility_handler_t> for AccessibilityHandler {
     fn into(self) -> *mut _cef_accessibility_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplAccessibilityHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for AccessibilityHandler {
@@ -27558,7 +27873,7 @@ impl Default for AccessibilityHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplRenderHandler: Clone + Default + Sized + Rc {
+pub trait ImplRenderHandler: Clone + Sized + Rc {
     fn get_accessibility_handler(&self) -> AccessibilityHandler {
         unsafe { std::mem::zeroed() }
     }
@@ -27672,11 +27987,10 @@ pub trait ImplRenderHandler: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_render_handler_t {
-        let mut object: _cef_render_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_render_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_render_handler_t) {
+        impl_cef_render_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_render_handler_t;
 }
 mod impl_cef_render_handler_t {
     use super::*;
@@ -28065,7 +28379,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_rect) = (browser, rect);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_rect: _cef_rect_t = arg_rect.clone().into();
                     let arg_rect = &mut arg_rect;
                     let result = f(arg_self_, arg_browser, arg_rect);
@@ -28081,7 +28395,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_rect) = (browser, rect);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_rect: _cef_rect_t = arg_rect.clone().into();
                     let arg_rect = &mut arg_rect;
                     let result = f(arg_self_, arg_browser, arg_rect);
@@ -28105,7 +28419,7 @@ impl ImplRenderHandler for RenderHandler {
                     let (arg_browser, arg_view_x, arg_view_y, arg_screen_x, arg_screen_y) =
                         (browser, view_x, view_y, screen_x, screen_y);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_view_x = arg_view_x;
                     let arg_view_y = arg_view_y;
                     let arg_screen_x = arg_screen_x as *mut _;
@@ -28134,7 +28448,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_screen_info) = (browser, screen_info);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let mut arg_screen_info: _cef_screen_info_t = arg_screen_info.clone().into();
                     let arg_screen_info = &mut arg_screen_info;
                     let result = f(arg_self_, arg_browser, arg_screen_info);
@@ -28150,7 +28464,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_show) = (browser, show);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_show = arg_show;
                     let result = f(arg_self_, arg_browser, arg_show);
                     result.as_wrapper()
@@ -28165,7 +28479,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_rect) = (browser, rect);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_rect: _cef_rect_t = arg_rect.clone().into();
                     let arg_rect = &arg_rect;
                     let result = f(arg_self_, arg_browser, arg_rect);
@@ -28206,7 +28520,7 @@ impl ImplRenderHandler for RenderHandler {
                         height,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_type_ = arg_type_.as_raw();
                     let arg_dirty_rects_count = arg_dirty_rects_count;
                     let arg_dirty_rects: _cef_rect_t = arg_dirty_rects.clone().into();
@@ -28244,7 +28558,7 @@ impl ImplRenderHandler for RenderHandler {
                     let (arg_browser, arg_type_, arg_dirty_rects_count, arg_dirty_rects, arg_info) =
                         (browser, type_, dirty_rects_count, dirty_rects, info);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_type_ = arg_type_.as_raw();
                     let arg_dirty_rects_count = arg_dirty_rects_count;
                     let arg_dirty_rects: _cef_rect_t = arg_dirty_rects.clone().into();
@@ -28276,7 +28590,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_orientation, arg_size) = (browser, orientation, size);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_orientation = arg_orientation.as_raw();
                     let mut arg_size: _cef_size_t = arg_size.clone().into();
                     let arg_size = &mut arg_size;
@@ -28297,7 +28611,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_state) = (browser, state);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_state: _cef_touch_handle_state_t = arg_state.clone().into();
                     let arg_state = &arg_state;
                     let result = f(arg_self_, arg_browser, arg_state);
@@ -28321,8 +28635,8 @@ impl ImplRenderHandler for RenderHandler {
                     let (arg_browser, arg_drag_data, arg_allowed_ops, arg_x, arg_y) =
                         (browser, drag_data, allowed_ops, x, y);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_drag_data = ImplDragData::into_raw(Clone::clone(arg_drag_data));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_drag_data = ImplDragData::get_raw(arg_drag_data);
                     let arg_allowed_ops = arg_allowed_ops.as_raw();
                     let arg_x = arg_x;
                     let arg_y = arg_y;
@@ -28346,7 +28660,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_operation) = (browser, operation);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_operation = arg_operation.as_raw();
                     let result = f(arg_self_, arg_browser, arg_operation);
                     result.as_wrapper()
@@ -28361,7 +28675,7 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_x, arg_y) = (browser, x, y);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_x = arg_x;
                     let arg_y = arg_y;
                     let result = f(arg_self_, arg_browser, arg_x, arg_y);
@@ -28393,7 +28707,7 @@ impl ImplRenderHandler for RenderHandler {
                         character_bounds,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_selected_range: _cef_range_t = arg_selected_range.clone().into();
                     let arg_selected_range = &arg_selected_range;
                     let arg_character_bounds_count = arg_character_bounds_count;
@@ -28424,7 +28738,7 @@ impl ImplRenderHandler for RenderHandler {
                     let (arg_browser, arg_selected_text, arg_selected_range) =
                         (browser, selected_text, selected_range);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_selected_text = arg_selected_text.as_raw();
                     let arg_selected_range: _cef_range_t = arg_selected_range.clone().into();
                     let arg_selected_range = &arg_selected_range;
@@ -28450,13 +28764,16 @@ impl ImplRenderHandler for RenderHandler {
                 .map(|f| {
                     let (arg_browser, arg_input_mode) = (browser, input_mode);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_input_mode = arg_input_mode.as_raw();
                     let result = f(arg_self_, arg_browser, arg_input_mode);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_render_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_render_handler_t {
@@ -28486,7 +28803,9 @@ impl ConvertReturnValue<RenderHandler> for *mut _cef_render_handler_t {
 }
 impl Into<*mut _cef_render_handler_t> for RenderHandler {
     fn into(self) -> *mut _cef_render_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRenderHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for RenderHandler {
@@ -28494,18 +28813,17 @@ impl Default for RenderHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplAuthCallback: Clone + Default + Sized + Rc {
+pub trait ImplAuthCallback: Clone + Sized + Rc {
     fn cont(&self, username: &CefStringUtf16, password: &CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_auth_callback_t {
-        let mut object: _cef_auth_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_auth_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_auth_callback_t) {
+        impl_cef_auth_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_auth_callback_t;
 }
 mod impl_cef_auth_callback_t {
     use super::*;
@@ -28563,6 +28881,9 @@ impl ImplAuthCallback for AuthCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_auth_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_auth_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -28591,7 +28912,9 @@ impl ConvertReturnValue<AuthCallback> for *mut _cef_auth_callback_t {
 }
 impl Into<*mut _cef_auth_callback_t> for AuthCallback {
     fn into(self) -> *mut _cef_auth_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplAuthCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for AuthCallback {
@@ -28599,7 +28922,7 @@ impl Default for AuthCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplResponse: Clone + Default + Sized + Rc {
+pub trait ImplResponse: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -28656,11 +28979,10 @@ pub trait ImplResponse: Clone + Default + Sized + Rc {
     fn set_url(&self, url: &CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_response_t {
-        let mut object: _cef_response_t = unsafe { std::mem::zeroed() };
-        impl_cef_response_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_response_t) {
+        impl_cef_response_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_response_t;
 }
 mod impl_cef_response_t {
     use super::*;
@@ -29079,6 +29401,9 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_response_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_response_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -29107,7 +29432,9 @@ impl ConvertReturnValue<Response> for *mut _cef_response_t {
 }
 impl Into<*mut _cef_response_t> for Response {
     fn into(self) -> *mut _cef_response_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplResponse::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Response {
@@ -29115,15 +29442,14 @@ impl Default for Response {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplResourceSkipCallback: Clone + Default + Sized + Rc {
+pub trait ImplResourceSkipCallback: Clone + Sized + Rc {
     fn cont(&self, bytes_skipped: i64) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_resource_skip_callback_t {
-        let mut object: _cef_resource_skip_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_resource_skip_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_resource_skip_callback_t) {
+        impl_cef_resource_skip_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_resource_skip_callback_t;
 }
 mod impl_cef_resource_skip_callback_t {
     use super::*;
@@ -29158,6 +29484,9 @@ impl ImplResourceSkipCallback for ResourceSkipCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_resource_skip_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_resource_skip_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -29186,7 +29515,9 @@ impl ConvertReturnValue<ResourceSkipCallback> for *mut _cef_resource_skip_callba
 }
 impl Into<*mut _cef_resource_skip_callback_t> for ResourceSkipCallback {
     fn into(self) -> *mut _cef_resource_skip_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplResourceSkipCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ResourceSkipCallback {
@@ -29194,15 +29525,14 @@ impl Default for ResourceSkipCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplResourceReadCallback: Clone + Default + Sized + Rc {
+pub trait ImplResourceReadCallback: Clone + Sized + Rc {
     fn cont(&self, bytes_read: ::std::os::raw::c_int) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_resource_read_callback_t {
-        let mut object: _cef_resource_read_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_resource_read_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_resource_read_callback_t) {
+        impl_cef_resource_read_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_resource_read_callback_t;
 }
 mod impl_cef_resource_read_callback_t {
     use super::*;
@@ -29237,6 +29567,9 @@ impl ImplResourceReadCallback for ResourceReadCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_resource_read_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_resource_read_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -29265,7 +29598,9 @@ impl ConvertReturnValue<ResourceReadCallback> for *mut _cef_resource_read_callba
 }
 impl Into<*mut _cef_resource_read_callback_t> for ResourceReadCallback {
     fn into(self) -> *mut _cef_resource_read_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplResourceReadCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ResourceReadCallback {
@@ -29273,7 +29608,7 @@ impl Default for ResourceReadCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplResourceHandler: Clone + Default + Sized + Rc {
+pub trait ImplResourceHandler: Clone + Sized + Rc {
     fn open(
         &self,
         request: &mut impl ImplRequest,
@@ -29326,11 +29661,10 @@ pub trait ImplResourceHandler: Clone + Default + Sized + Rc {
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_resource_handler_t {
-        let mut object: _cef_resource_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_resource_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_resource_handler_t) {
+        impl_cef_resource_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_resource_handler_t;
 }
 mod impl_cef_resource_handler_t {
     use super::*;
@@ -29493,9 +29827,9 @@ impl ImplResourceHandler for ResourceHandler {
                     let (arg_request, arg_handle_request, arg_callback) =
                         (request, handle_request, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_handle_request = arg_handle_request as *mut _;
-                    let arg_callback = ImplCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_request, arg_handle_request, arg_callback);
                     result.as_wrapper()
                 })
@@ -29513,8 +29847,8 @@ impl ImplResourceHandler for ResourceHandler {
                 .map(|f| {
                     let (arg_request, arg_callback) = (request, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
-                    let arg_callback = ImplCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_request = ImplRequest::get_raw(arg_request);
+                    let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_request, arg_callback);
                     result.as_wrapper()
                 })
@@ -29534,7 +29868,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let (arg_response, arg_response_length, arg_redirect_url) =
                         (response, response_length, redirect_url);
                     let arg_self_ = self.as_raw();
-                    let arg_response = ImplResponse::into_raw(Clone::clone(arg_response));
+                    let arg_response = ImplResponse::get_raw(arg_response);
                     let arg_response_length = arg_response_length as *mut _;
                     let arg_redirect_url = arg_redirect_url.as_raw();
                     let result = f(
@@ -29563,8 +29897,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let arg_self_ = self.as_raw();
                     let arg_bytes_to_skip = arg_bytes_to_skip;
                     let arg_bytes_skipped = arg_bytes_skipped as *mut _;
-                    let arg_callback =
-                        ImplResourceSkipCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplResourceSkipCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_bytes_to_skip,
@@ -29593,8 +29926,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let arg_data_out = arg_data_out as *mut _;
                     let arg_bytes_to_read = arg_bytes_to_read;
                     let arg_bytes_read = arg_bytes_read as *mut _;
-                    let arg_callback =
-                        ImplResourceReadCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplResourceReadCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_data_out,
@@ -29624,7 +29956,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let arg_data_out = arg_data_out as *mut _;
                     let arg_bytes_to_read = arg_bytes_to_read;
                     let arg_bytes_read = arg_bytes_read as *mut _;
-                    let arg_callback = ImplCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_data_out,
@@ -29648,6 +29980,9 @@ impl ImplResourceHandler for ResourceHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_resource_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_resource_handler_t {
@@ -29677,7 +30012,9 @@ impl ConvertReturnValue<ResourceHandler> for *mut _cef_resource_handler_t {
 }
 impl Into<*mut _cef_resource_handler_t> for ResourceHandler {
     fn into(self) -> *mut _cef_resource_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplResourceHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ResourceHandler {
@@ -29685,7 +30022,7 @@ impl Default for ResourceHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplResponseFilter: Clone + Default + Sized + Rc {
+pub trait ImplResponseFilter: Clone + Sized + Rc {
     fn init_filter(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -29698,11 +30035,10 @@ pub trait ImplResponseFilter: Clone + Default + Sized + Rc {
     ) -> ResponseFilterStatus {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_response_filter_t {
-        let mut object: _cef_response_filter_t = unsafe { std::mem::zeroed() };
-        impl_cef_response_filter_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_response_filter_t) {
+        impl_cef_response_filter_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_response_filter_t;
 }
 mod impl_cef_response_filter_t {
     use super::*;
@@ -29853,6 +30189,9 @@ impl ImplResponseFilter for ResponseFilter {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_response_filter_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_response_filter_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -29881,7 +30220,9 @@ impl ConvertReturnValue<ResponseFilter> for *mut _cef_response_filter_t {
 }
 impl Into<*mut _cef_response_filter_t> for ResponseFilter {
     fn into(self) -> *mut _cef_response_filter_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplResponseFilter::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ResponseFilter {
@@ -29889,7 +30230,7 @@ impl Default for ResponseFilter {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplResourceRequestHandler: Clone + Default + Sized + Rc {
+pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
     fn get_cookie_access_filter(
         &self,
         browser: &mut impl ImplBrowser,
@@ -29963,11 +30304,10 @@ pub trait ImplResourceRequestHandler: Clone + Default + Sized + Rc {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_resource_request_handler_t {
-        let mut object: _cef_resource_request_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_resource_request_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_resource_request_handler_t) {
+        impl_cef_resource_request_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_resource_request_handler_t;
 }
 mod impl_cef_resource_request_handler_t {
     use super::*;
@@ -30200,9 +30540,9 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_request) = (browser, frame, request);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request);
                     result.as_wrapper()
                 })
@@ -30223,10 +30563,10 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_callback) =
                         (browser, frame, request, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
-                    let arg_callback = ImplCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
+                    let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_callback);
                     result.as_wrapper()
                 })
@@ -30245,9 +30585,9 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_request) = (browser, frame, request);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request);
                     result.as_wrapper()
                 })
@@ -30269,10 +30609,10 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_response, arg_new_url) =
                         (browser, frame, request, response, new_url);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
-                    let arg_response = ImplResponse::into_raw(Clone::clone(arg_response));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
+                    let arg_response = ImplResponse::get_raw(arg_response);
                     let arg_new_url = arg_new_url.as_raw();
                     let result = f(
                         arg_self_,
@@ -30301,10 +30641,10 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_response) =
                         (browser, frame, request, response);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
-                    let arg_response = ImplResponse::into_raw(Clone::clone(arg_response));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
+                    let arg_response = ImplResponse::get_raw(arg_response);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_response);
                     result.as_wrapper()
                 })
@@ -30325,10 +30665,10 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_response) =
                         (browser, frame, request, response);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
-                    let arg_response = ImplResponse::into_raw(Clone::clone(arg_response));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
+                    let arg_response = ImplResponse::get_raw(arg_response);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_response);
                     result.as_wrapper()
                 })
@@ -30364,10 +30704,10 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                         received_content_length,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
-                    let arg_response = ImplResponse::into_raw(Clone::clone(arg_response));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
+                    let arg_response = ImplResponse::get_raw(arg_response);
                     let arg_status = arg_status.as_raw();
                     let arg_received_content_length = arg_received_content_length;
                     let result = f(
@@ -30398,9 +30738,9 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_allow_os_execution) =
                         (browser, frame, request, allow_os_execution);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_allow_os_execution = arg_allow_os_execution as *mut _;
                     let result = f(
                         arg_self_,
@@ -30413,6 +30753,9 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_resource_request_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_resource_request_handler_t {
@@ -30442,7 +30785,9 @@ impl ConvertReturnValue<ResourceRequestHandler> for *mut _cef_resource_request_h
 }
 impl Into<*mut _cef_resource_request_handler_t> for ResourceRequestHandler {
     fn into(self) -> *mut _cef_resource_request_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplResourceRequestHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ResourceRequestHandler {
@@ -30450,7 +30795,7 @@ impl Default for ResourceRequestHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplCookieAccessFilter: Clone + Default + Sized + Rc {
+pub trait ImplCookieAccessFilter: Clone + Sized + Rc {
     fn can_send_cookie(
         &self,
         browser: &mut impl ImplBrowser,
@@ -30470,11 +30815,10 @@ pub trait ImplCookieAccessFilter: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_cookie_access_filter_t {
-        let mut object: _cef_cookie_access_filter_t = unsafe { std::mem::zeroed() };
-        impl_cef_cookie_access_filter_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_cookie_access_filter_t) {
+        impl_cef_cookie_access_filter_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_cookie_access_filter_t;
 }
 mod impl_cef_cookie_access_filter_t {
     use super::*;
@@ -30552,9 +30896,9 @@ impl ImplCookieAccessFilter for CookieAccessFilter {
                     let (arg_browser, arg_frame, arg_request, arg_cookie) =
                         (browser, frame, request, cookie);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_cookie: _cef_cookie_t = arg_cookie.clone().into();
                     let arg_cookie = &arg_cookie;
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_cookie);
@@ -30578,10 +30922,10 @@ impl ImplCookieAccessFilter for CookieAccessFilter {
                     let (arg_browser, arg_frame, arg_request, arg_response, arg_cookie) =
                         (browser, frame, request, response, cookie);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
-                    let arg_response = ImplResponse::into_raw(Clone::clone(arg_response));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
+                    let arg_response = ImplResponse::get_raw(arg_response);
                     let arg_cookie: _cef_cookie_t = arg_cookie.clone().into();
                     let arg_cookie = &arg_cookie;
                     let result = f(
@@ -30596,6 +30940,9 @@ impl ImplCookieAccessFilter for CookieAccessFilter {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_cookie_access_filter_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_cookie_access_filter_t {
@@ -30625,7 +30972,9 @@ impl ConvertReturnValue<CookieAccessFilter> for *mut _cef_cookie_access_filter_t
 }
 impl Into<*mut _cef_cookie_access_filter_t> for CookieAccessFilter {
     fn into(self) -> *mut _cef_cookie_access_filter_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplCookieAccessFilter::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for CookieAccessFilter {
@@ -30633,18 +30982,17 @@ impl Default for CookieAccessFilter {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplSslinfo: Clone + Default + Sized + Rc {
+pub trait ImplSslinfo: Clone + Sized + Rc {
     fn get_cert_status(&self) -> CertStatus {
         unsafe { std::mem::zeroed() }
     }
     fn get_x509certificate(&self) -> X509certificate {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_sslinfo_t {
-        let mut object: _cef_sslinfo_t = unsafe { std::mem::zeroed() };
-        impl_cef_sslinfo_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_sslinfo_t) {
+        impl_cef_sslinfo_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_sslinfo_t;
 }
 mod impl_cef_sslinfo_t {
     use super::*;
@@ -30695,6 +31043,9 @@ impl ImplSslinfo for Sslinfo {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_sslinfo_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_sslinfo_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -30723,7 +31074,9 @@ impl ConvertReturnValue<Sslinfo> for *mut _cef_sslinfo_t {
 }
 impl Into<*mut _cef_sslinfo_t> for Sslinfo {
     fn into(self) -> *mut _cef_sslinfo_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplSslinfo::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Sslinfo {
@@ -30731,18 +31084,17 @@ impl Default for Sslinfo {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplUnresponsiveProcessCallback: Clone + Default + Sized + Rc {
+pub trait ImplUnresponsiveProcessCallback: Clone + Sized + Rc {
     fn wait(&self) {
         unsafe { std::mem::zeroed() }
     }
     fn terminate(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_unresponsive_process_callback_t {
-        let mut object: _cef_unresponsive_process_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_unresponsive_process_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_unresponsive_process_callback_t) {
+        impl_cef_unresponsive_process_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_unresponsive_process_callback_t;
 }
 mod impl_cef_unresponsive_process_callback_t {
     use super::*;
@@ -30795,6 +31147,9 @@ impl ImplUnresponsiveProcessCallback for UnresponsiveProcessCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_unresponsive_process_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_unresponsive_process_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -30823,7 +31178,9 @@ impl ConvertReturnValue<UnresponsiveProcessCallback> for *mut _cef_unresponsive_
 }
 impl Into<*mut _cef_unresponsive_process_callback_t> for UnresponsiveProcessCallback {
     fn into(self) -> *mut _cef_unresponsive_process_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplUnresponsiveProcessCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for UnresponsiveProcessCallback {
@@ -30831,15 +31188,14 @@ impl Default for UnresponsiveProcessCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplSelectClientCertificateCallback: Clone + Default + Sized + Rc {
+pub trait ImplSelectClientCertificateCallback: Clone + Sized + Rc {
     fn select(&self, cert: &mut impl ImplX509certificate) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_select_client_certificate_callback_t {
-        let mut object: _cef_select_client_certificate_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_select_client_certificate_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_select_client_certificate_callback_t) {
+        impl_cef_select_client_certificate_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_select_client_certificate_callback_t;
 }
 mod impl_cef_select_client_certificate_callback_t {
     use super::*;
@@ -30869,12 +31225,15 @@ impl ImplSelectClientCertificateCallback for SelectClientCertificateCallback {
                 .map(|f| {
                     let arg_cert = cert;
                     let arg_self_ = self.as_raw();
-                    let arg_cert = ImplX509certificate::into_raw(Clone::clone(arg_cert));
+                    let arg_cert = ImplX509certificate::get_raw(arg_cert);
                     let result = f(arg_self_, arg_cert);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_select_client_certificate_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_select_client_certificate_callback_t {
@@ -30910,7 +31269,9 @@ impl ConvertReturnValue<SelectClientCertificateCallback>
 }
 impl Into<*mut _cef_select_client_certificate_callback_t> for SelectClientCertificateCallback {
     fn into(self) -> *mut _cef_select_client_certificate_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplSelectClientCertificateCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for SelectClientCertificateCallback {
@@ -30918,7 +31279,7 @@ impl Default for SelectClientCertificateCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplRequestHandler: Clone + Default + Sized + Rc {
+pub trait ImplRequestHandler: Clone + Sized + Rc {
     fn on_before_browse(
         &self,
         browser: &mut impl ImplBrowser,
@@ -31010,11 +31371,10 @@ pub trait ImplRequestHandler: Clone + Default + Sized + Rc {
     fn on_document_available_in_main_frame(&self, browser: &mut impl ImplBrowser) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_request_handler_t {
-        let mut object: _cef_request_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_request_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_request_handler_t) {
+        impl_cef_request_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_request_handler_t;
 }
 mod impl_cef_request_handler_t {
     use super::*;
@@ -31381,9 +31741,9 @@ impl ImplRequestHandler for RequestHandler {
                     let (arg_browser, arg_frame, arg_request, arg_user_gesture, arg_is_redirect) =
                         (browser, frame, request, user_gesture, is_redirect);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_user_gesture = arg_user_gesture;
                     let arg_is_redirect = arg_is_redirect;
                     let result = f(
@@ -31419,8 +31779,8 @@ impl ImplRequestHandler for RequestHandler {
                         arg_user_gesture,
                     ) = (browser, frame, target_url, target_disposition, user_gesture);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_target_url = arg_target_url.as_raw();
                     let arg_target_disposition = arg_target_disposition.as_raw();
                     let arg_user_gesture = arg_user_gesture;
@@ -31469,9 +31829,9 @@ impl ImplRequestHandler for RequestHandler {
                         disable_default_handling,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_is_navigation = arg_is_navigation;
                     let arg_is_download = arg_is_download;
                     let arg_request_initiator = arg_request_initiator.as_raw();
@@ -31519,14 +31879,14 @@ impl ImplRequestHandler for RequestHandler {
                         browser, origin_url, is_proxy, host, port, realm, scheme, callback,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_origin_url = arg_origin_url.as_raw();
                     let arg_is_proxy = arg_is_proxy;
                     let arg_host = arg_host.as_raw();
                     let arg_port = arg_port;
                     let arg_realm = arg_realm.as_raw();
                     let arg_scheme = arg_scheme.as_raw();
-                    let arg_callback = ImplAuthCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplAuthCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -31558,11 +31918,11 @@ impl ImplRequestHandler for RequestHandler {
                     let (arg_browser, arg_cert_error, arg_request_url, arg_ssl_info, arg_callback) =
                         (browser, cert_error, request_url, ssl_info, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_cert_error = arg_cert_error.as_raw();
                     let arg_request_url = arg_request_url.as_raw();
-                    let arg_ssl_info = ImplSslinfo::into_raw(Clone::clone(arg_ssl_info));
-                    let arg_callback = ImplCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_ssl_info = ImplSslinfo::get_raw(arg_ssl_info);
+                    let arg_callback = ImplCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -31598,7 +31958,7 @@ impl ImplRequestHandler for RequestHandler {
                         arg_callback,
                     ) = (browser, is_proxy, host, port, certificates, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_is_proxy = arg_is_proxy;
                     let arg_host = arg_host.as_raw();
                     let arg_port = arg_port;
@@ -31612,7 +31972,7 @@ impl ImplRequestHandler for RequestHandler {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| Clone::clone(elem).into_raw())
+                                        .map(|elem| elem.get_raw())
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -31623,8 +31983,7 @@ impl ImplRequestHandler for RequestHandler {
                     } else {
                         vec_certificates.as_ptr()
                     };
-                    let arg_callback =
-                        ImplSelectClientCertificateCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplSelectClientCertificateCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -31647,7 +32006,7 @@ impl ImplRequestHandler for RequestHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -31665,9 +32024,8 @@ impl ImplRequestHandler for RequestHandler {
                 .map(|f| {
                     let (arg_browser, arg_callback) = (browser, callback);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_callback =
-                        ImplUnresponsiveProcessCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_callback = ImplUnresponsiveProcessCallback::get_raw(arg_callback);
                     let result = f(arg_self_, arg_browser, arg_callback);
                     result.as_wrapper()
                 })
@@ -31681,7 +32039,7 @@ impl ImplRequestHandler for RequestHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -31702,7 +32060,7 @@ impl ImplRequestHandler for RequestHandler {
                     let (arg_browser, arg_status, arg_error_code, arg_error_string) =
                         (browser, status, error_code, error_string);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let arg_status = arg_status.as_raw();
                     let arg_error_code = arg_error_code;
                     let arg_error_string = arg_error_string.as_raw();
@@ -31725,12 +32083,15 @@ impl ImplRequestHandler for RequestHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_request_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_request_handler_t {
@@ -31760,7 +32121,9 @@ impl ConvertReturnValue<RequestHandler> for *mut _cef_request_handler_t {
 }
 impl Into<*mut _cef_request_handler_t> for RequestHandler {
     fn into(self) -> *mut _cef_request_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRequestHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for RequestHandler {
@@ -31768,7 +32131,7 @@ impl Default for RequestHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplClient: Clone + Default + Sized + Rc {
+pub trait ImplClient: Clone + Sized + Rc {
     fn get_audio_handler(&self) -> AudioHandler {
         unsafe { std::mem::zeroed() }
     }
@@ -31832,11 +32195,10 @@ pub trait ImplClient: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_client_t {
-        let mut object: _cef_client_t = unsafe { std::mem::zeroed() };
-        impl_cef_client_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_client_t) {
+        impl_cef_client_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_client_t;
 }
 mod impl_cef_client_t {
     use super::*;
@@ -32263,10 +32625,10 @@ impl ImplClient for Client {
                     let (arg_browser, arg_frame, arg_source_process, arg_message) =
                         (browser, frame, source_process, message);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_source_process = arg_source_process.as_raw();
-                    let arg_message = ImplProcessMessage::into_raw(Clone::clone(arg_message));
+                    let arg_message = ImplProcessMessage::get_raw(arg_message);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -32278,6 +32640,9 @@ impl ImplClient for Client {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_client_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_client_t {
@@ -32307,7 +32672,9 @@ impl ConvertReturnValue<Client> for *mut _cef_client_t {
 }
 impl Into<*mut _cef_client_t> for Client {
     fn into(self) -> *mut _cef_client_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplClient::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Client {
@@ -32315,7 +32682,7 @@ impl Default for Client {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplCommandLine: Clone + Default + Sized + Rc {
+pub trait ImplCommandLine: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -32380,11 +32747,10 @@ pub trait ImplCommandLine: Clone + Default + Sized + Rc {
     fn prepend_wrapper(&self, wrapper: &CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_command_line_t {
-        let mut object: _cef_command_line_t = unsafe { std::mem::zeroed() };
-        impl_cef_command_line_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_command_line_t) {
+        impl_cef_command_line_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_command_line_t;
 }
 mod impl_cef_command_line_t {
     use super::*;
@@ -32873,6 +33239,9 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_command_line_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_command_line_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -32901,7 +33270,9 @@ impl ConvertReturnValue<CommandLine> for *mut _cef_command_line_t {
 }
 impl Into<*mut _cef_command_line_t> for CommandLine {
     fn into(self) -> *mut _cef_command_line_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplCommandLine::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for CommandLine {
@@ -32909,7 +33280,7 @@ impl Default for CommandLine {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplRequestContextHandler: Clone + Default + Sized + Rc {
+pub trait ImplRequestContextHandler: Clone + Sized + Rc {
     fn on_request_context_initialized(&self, request_context: &mut impl ImplRequestContext) {
         unsafe { std::mem::zeroed() }
     }
@@ -32925,11 +33296,10 @@ pub trait ImplRequestContextHandler: Clone + Default + Sized + Rc {
     ) -> ResourceRequestHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_request_context_handler_t {
-        let mut object: _cef_request_context_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_request_context_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_request_context_handler_t) {
+        impl_cef_request_context_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_request_context_handler_t;
 }
 mod impl_cef_request_context_handler_t {
     use super::*;
@@ -33014,8 +33384,7 @@ impl ImplRequestContextHandler for RequestContextHandler {
                 .map(|f| {
                     let arg_request_context = request_context;
                     let arg_self_ = self.as_raw();
-                    let arg_request_context =
-                        ImplRequestContext::into_raw(Clone::clone(arg_request_context));
+                    let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
                     let result = f(arg_self_, arg_request_context);
                     result.as_wrapper()
                 })
@@ -33054,9 +33423,9 @@ impl ImplRequestContextHandler for RequestContextHandler {
                         disable_default_handling,
                     );
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let arg_is_navigation = arg_is_navigation;
                     let arg_is_download = arg_is_download;
                     let arg_request_initiator = arg_request_initiator.as_raw();
@@ -33075,6 +33444,9 @@ impl ImplRequestContextHandler for RequestContextHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_request_context_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_request_context_handler_t {
@@ -33104,7 +33476,9 @@ impl ConvertReturnValue<RequestContextHandler> for *mut _cef_request_context_han
 }
 impl Into<*mut _cef_request_context_handler_t> for RequestContextHandler {
     fn into(self) -> *mut _cef_request_context_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRequestContextHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for RequestContextHandler {
@@ -33112,7 +33486,7 @@ impl Default for RequestContextHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplBrowserProcessHandler: Clone + Default + Sized + Rc {
+pub trait ImplBrowserProcessHandler: Clone + Sized + Rc {
     fn on_register_custom_preferences(
         &self,
         type_: PreferencesType,
@@ -33142,11 +33516,10 @@ pub trait ImplBrowserProcessHandler: Clone + Default + Sized + Rc {
     fn get_default_request_context_handler(&self) -> RequestContextHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_browser_process_handler_t {
-        let mut object: _cef_browser_process_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_browser_process_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_browser_process_handler_t) {
+        impl_cef_browser_process_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_browser_process_handler_t;
 }
 mod impl_cef_browser_process_handler_t {
     use super::*;
@@ -33286,8 +33659,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .map(|f| {
                     let arg_command_line = command_line;
                     let arg_self_ = self.as_raw();
-                    let arg_command_line =
-                        ImplCommandLine::into_raw(Clone::clone(arg_command_line));
+                    let arg_command_line = ImplCommandLine::get_raw(arg_command_line);
                     let result = f(arg_self_, arg_command_line);
                     result.as_wrapper()
                 })
@@ -33306,8 +33678,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                     let (arg_command_line, arg_current_directory) =
                         (command_line, current_directory);
                     let arg_self_ = self.as_raw();
-                    let arg_command_line =
-                        ImplCommandLine::into_raw(Clone::clone(arg_command_line));
+                    let arg_command_line = ImplCommandLine::get_raw(arg_command_line);
                     let arg_current_directory = arg_current_directory.as_raw();
                     let result = f(arg_self_, arg_command_line, arg_current_directory);
                     result.as_wrapper()
@@ -33353,6 +33724,9 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_browser_process_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_browser_process_handler_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -33381,7 +33755,9 @@ impl ConvertReturnValue<BrowserProcessHandler> for *mut _cef_browser_process_han
 }
 impl Into<*mut _cef_browser_process_handler_t> for BrowserProcessHandler {
     fn into(self) -> *mut _cef_browser_process_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplBrowserProcessHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for BrowserProcessHandler {
@@ -33389,15 +33765,14 @@ impl Default for BrowserProcessHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplTask: Clone + Default + Sized + Rc {
+pub trait ImplTask: Clone + Sized + Rc {
     fn execute(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_task_t {
-        let mut object: _cef_task_t = unsafe { std::mem::zeroed() };
-        impl_cef_task_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_task_t) {
+        impl_cef_task_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_task_t;
 }
 mod impl_cef_task_t {
     use super::*;
@@ -33425,6 +33800,9 @@ impl ImplTask for Task {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_task_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_task_t {
@@ -33454,7 +33832,9 @@ impl ConvertReturnValue<Task> for *mut _cef_task_t {
 }
 impl Into<*mut _cef_task_t> for Task {
     fn into(self) -> *mut _cef_task_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplTask::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Task {
@@ -33462,7 +33842,7 @@ impl Default for Task {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplTaskRunner: Clone + Default + Sized + Rc {
+pub trait ImplTaskRunner: Clone + Sized + Rc {
     fn is_same(&self, that: &mut impl ImplTaskRunner) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -33478,11 +33858,10 @@ pub trait ImplTaskRunner: Clone + Default + Sized + Rc {
     fn post_delayed_task(&self, task: &mut impl ImplTask, delay_ms: i64) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_task_runner_t {
-        let mut object: _cef_task_runner_t = unsafe { std::mem::zeroed() };
-        impl_cef_task_runner_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_task_runner_t) {
+        impl_cef_task_runner_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_task_runner_t;
 }
 mod impl_cef_task_runner_t {
     use super::*;
@@ -33556,7 +33935,7 @@ impl ImplTaskRunner for TaskRunner {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplTaskRunner::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplTaskRunner::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -33596,7 +33975,7 @@ impl ImplTaskRunner for TaskRunner {
                 .map(|f| {
                     let arg_task = task;
                     let arg_self_ = self.as_raw();
-                    let arg_task = ImplTask::into_raw(Clone::clone(arg_task));
+                    let arg_task = ImplTask::get_raw(arg_task);
                     let result = f(arg_self_, arg_task);
                     result.as_wrapper()
                 })
@@ -33610,13 +33989,16 @@ impl ImplTaskRunner for TaskRunner {
                 .map(|f| {
                     let (arg_task, arg_delay_ms) = (task, delay_ms);
                     let arg_self_ = self.as_raw();
-                    let arg_task = ImplTask::into_raw(Clone::clone(arg_task));
+                    let arg_task = ImplTask::get_raw(arg_task);
                     let arg_delay_ms = arg_delay_ms;
                     let result = f(arg_self_, arg_task, arg_delay_ms);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_task_runner_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_task_runner_t {
@@ -33646,7 +34028,9 @@ impl ConvertReturnValue<TaskRunner> for *mut _cef_task_runner_t {
 }
 impl Into<*mut _cef_task_runner_t> for TaskRunner {
     fn into(self) -> *mut _cef_task_runner_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplTaskRunner::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for TaskRunner {
@@ -33654,7 +34038,7 @@ impl Default for TaskRunner {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplV8context: Clone + Default + Sized + Rc {
+pub trait ImplV8context: Clone + Sized + Rc {
     fn get_task_runner(&self) -> TaskRunner {
         unsafe { std::mem::zeroed() }
     }
@@ -33689,11 +34073,10 @@ pub trait ImplV8context: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_v8context_t {
-        let mut object: _cef_v8context_t = unsafe { std::mem::zeroed() };
-        impl_cef_v8context_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_v8context_t) {
+        impl_cef_v8context_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_v8context_t;
 }
 mod impl_cef_v8context_t {
     use super::*;
@@ -33906,7 +34289,7 @@ impl ImplV8context for V8context {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplV8context::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplV8context::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -33931,12 +34314,12 @@ impl ImplV8context for V8context {
                     let arg_code = arg_code.as_raw();
                     let arg_script_url = arg_script_url.as_raw();
                     let arg_start_line = arg_start_line;
-                    let mut arg_retval = arg_retval.map(|arg| Clone::clone(arg).into_raw());
+                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
                         .unwrap_or(std::ptr::null_mut());
-                    let mut arg_exception = arg_exception.map(|arg| Clone::clone(arg).into_raw());
+                    let mut arg_exception = arg_exception.map(|arg| arg.get_raw());
                     let arg_exception = arg_exception
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -33953,6 +34336,9 @@ impl ImplV8context for V8context {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_v8context_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_v8context_t {
@@ -33982,7 +34368,9 @@ impl ConvertReturnValue<V8context> for *mut _cef_v8context_t {
 }
 impl Into<*mut _cef_v8context_t> for V8context {
     fn into(self) -> *mut _cef_v8context_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplV8context::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for V8context {
@@ -33990,7 +34378,7 @@ impl Default for V8context {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplV8handler: Clone + Default + Sized + Rc {
+pub trait ImplV8handler: Clone + Sized + Rc {
     fn execute(
         &self,
         name: &CefStringUtf16,
@@ -34001,11 +34389,10 @@ pub trait ImplV8handler: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_v8handler_t {
-        let mut object: _cef_v8handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_v8handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_v8handler_t) {
+        impl_cef_v8handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_v8handler_t;
 }
 mod impl_cef_v8handler_t {
     use super::*;
@@ -34097,7 +34484,7 @@ impl ImplV8handler for V8handler {
                         (name, object, arguments, retval, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
-                    let arg_object = ImplV8value::into_raw(Clone::clone(arg_object));
+                    let arg_object = ImplV8value::get_raw(arg_object);
                     let arg_arguments_count = arg_arguments
                         .as_ref()
                         .map(|arg| arg.len())
@@ -34108,7 +34495,7 @@ impl ImplV8handler for V8handler {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| Clone::clone(elem).into_raw())
+                                        .map(|elem| elem.get_raw())
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -34119,7 +34506,7 @@ impl ImplV8handler for V8handler {
                     } else {
                         vec_arguments.as_ptr()
                     };
-                    let mut arg_retval = arg_retval.map(|arg| Clone::clone(arg).into_raw());
+                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -34138,6 +34525,9 @@ impl ImplV8handler for V8handler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_v8handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_v8handler_t {
@@ -34167,7 +34557,9 @@ impl ConvertReturnValue<V8handler> for *mut _cef_v8handler_t {
 }
 impl Into<*mut _cef_v8handler_t> for V8handler {
     fn into(self) -> *mut _cef_v8handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplV8handler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for V8handler {
@@ -34175,7 +34567,7 @@ impl Default for V8handler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplV8accessor: Clone + Default + Sized + Rc {
+pub trait ImplV8accessor: Clone + Sized + Rc {
     fn get(
         &self,
         name: &CefStringUtf16,
@@ -34194,11 +34586,10 @@ pub trait ImplV8accessor: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_v8accessor_t {
-        let mut object: _cef_v8accessor_t = unsafe { std::mem::zeroed() };
-        impl_cef_v8accessor_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_v8accessor_t) {
+        impl_cef_v8accessor_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_v8accessor_t;
 }
 mod impl_cef_v8accessor_t {
     use super::*;
@@ -34283,8 +34674,8 @@ impl ImplV8accessor for V8accessor {
                         (name, object, retval, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
-                    let arg_object = ImplV8value::into_raw(Clone::clone(arg_object));
-                    let mut arg_retval = arg_retval.map(|arg| Clone::clone(arg).into_raw());
+                    let arg_object = ImplV8value::get_raw(arg_object);
+                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -34311,14 +34702,17 @@ impl ImplV8accessor for V8accessor {
                         (name, object, value, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
-                    let arg_object = ImplV8value::into_raw(Clone::clone(arg_object));
-                    let arg_value = ImplV8value::into_raw(Clone::clone(arg_value));
+                    let arg_object = ImplV8value::get_raw(arg_object);
+                    let arg_value = ImplV8value::get_raw(arg_value);
                     let arg_exception = arg_exception.as_raw();
                     let result = f(arg_self_, arg_name, arg_object, arg_value, arg_exception);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_v8accessor_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_v8accessor_t {
@@ -34348,7 +34742,9 @@ impl ConvertReturnValue<V8accessor> for *mut _cef_v8accessor_t {
 }
 impl Into<*mut _cef_v8accessor_t> for V8accessor {
     fn into(self) -> *mut _cef_v8accessor_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplV8accessor::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for V8accessor {
@@ -34356,7 +34752,7 @@ impl Default for V8accessor {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplV8interceptor: Clone + Default + Sized + Rc {
+pub trait ImplV8interceptor: Clone + Sized + Rc {
     fn get_byname(
         &self,
         name: &CefStringUtf16,
@@ -34393,11 +34789,10 @@ pub trait ImplV8interceptor: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_v8interceptor_t {
-        let mut object: _cef_v8interceptor_t = unsafe { std::mem::zeroed() };
-        impl_cef_v8interceptor_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_v8interceptor_t) {
+        impl_cef_v8interceptor_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_v8interceptor_t;
 }
 mod impl_cef_v8interceptor_t {
     use super::*;
@@ -34539,8 +34934,8 @@ impl ImplV8interceptor for V8interceptor {
                         (name, object, retval, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
-                    let arg_object = ImplV8value::into_raw(Clone::clone(arg_object));
-                    let mut arg_retval = arg_retval.map(|arg| Clone::clone(arg).into_raw());
+                    let arg_object = ImplV8value::get_raw(arg_object);
+                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -34567,8 +34962,8 @@ impl ImplV8interceptor for V8interceptor {
                         (index, object, retval, exception);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
-                    let arg_object = ImplV8value::into_raw(Clone::clone(arg_object));
-                    let mut arg_retval = arg_retval.map(|arg| Clone::clone(arg).into_raw());
+                    let arg_object = ImplV8value::get_raw(arg_object);
+                    let mut arg_retval = arg_retval.map(|arg| arg.get_raw());
                     let arg_retval = arg_retval
                         .as_mut()
                         .map(|arg| arg as *mut _)
@@ -34595,8 +34990,8 @@ impl ImplV8interceptor for V8interceptor {
                         (name, object, value, exception);
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.as_raw();
-                    let arg_object = ImplV8value::into_raw(Clone::clone(arg_object));
-                    let arg_value = ImplV8value::into_raw(Clone::clone(arg_value));
+                    let arg_object = ImplV8value::get_raw(arg_object);
+                    let arg_value = ImplV8value::get_raw(arg_value);
                     let arg_exception = arg_exception.as_raw();
                     let result = f(arg_self_, arg_name, arg_object, arg_value, arg_exception);
                     result.as_wrapper()
@@ -34619,14 +35014,17 @@ impl ImplV8interceptor for V8interceptor {
                         (index, object, value, exception);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
-                    let arg_object = ImplV8value::into_raw(Clone::clone(arg_object));
-                    let arg_value = ImplV8value::into_raw(Clone::clone(arg_value));
+                    let arg_object = ImplV8value::get_raw(arg_object);
+                    let arg_value = ImplV8value::get_raw(arg_value);
                     let arg_exception = arg_exception.as_raw();
                     let result = f(arg_self_, arg_index, arg_object, arg_value, arg_exception);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_v8interceptor_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_v8interceptor_t {
@@ -34656,7 +35054,9 @@ impl ConvertReturnValue<V8interceptor> for *mut _cef_v8interceptor_t {
 }
 impl Into<*mut _cef_v8interceptor_t> for V8interceptor {
     fn into(self) -> *mut _cef_v8interceptor_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplV8interceptor::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for V8interceptor {
@@ -34664,7 +35064,7 @@ impl Default for V8interceptor {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplV8exception: Clone + Default + Sized + Rc {
+pub trait ImplV8exception: Clone + Sized + Rc {
     fn get_message(&self) -> CefStringUtf16 {
         unsafe { std::mem::zeroed() }
     }
@@ -34689,11 +35089,10 @@ pub trait ImplV8exception: Clone + Default + Sized + Rc {
     fn get_end_column(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_v8exception_t {
-        let mut object: _cef_v8exception_t = unsafe { std::mem::zeroed() };
-        impl_cef_v8exception_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_v8exception_t) {
+        impl_cef_v8exception_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_v8exception_t;
 }
 mod impl_cef_v8exception_t {
     use super::*;
@@ -34872,6 +35271,9 @@ impl ImplV8exception for V8exception {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_v8exception_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_v8exception_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -34900,7 +35302,9 @@ impl ConvertReturnValue<V8exception> for *mut _cef_v8exception_t {
 }
 impl Into<*mut _cef_v8exception_t> for V8exception {
     fn into(self) -> *mut _cef_v8exception_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplV8exception::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for V8exception {
@@ -34908,15 +35312,14 @@ impl Default for V8exception {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplV8arrayBufferReleaseCallback: Clone + Default + Sized + Rc {
+pub trait ImplV8arrayBufferReleaseCallback: Clone + Sized + Rc {
     fn release_buffer(&self, buffer: *mut u8) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_v8array_buffer_release_callback_t {
-        let mut object: _cef_v8array_buffer_release_callback_t = unsafe { std::mem::zeroed() };
-        impl_cef_v8array_buffer_release_callback_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_v8array_buffer_release_callback_t) {
+        impl_cef_v8array_buffer_release_callback_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_v8array_buffer_release_callback_t;
 }
 mod impl_cef_v8array_buffer_release_callback_t {
     use super::*;
@@ -34954,6 +35357,9 @@ impl ImplV8arrayBufferReleaseCallback for V8arrayBufferReleaseCallback {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_v8array_buffer_release_callback_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_v8array_buffer_release_callback_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -34986,7 +35392,9 @@ impl ConvertReturnValue<V8arrayBufferReleaseCallback>
 }
 impl Into<*mut _cef_v8array_buffer_release_callback_t> for V8arrayBufferReleaseCallback {
     fn into(self) -> *mut _cef_v8array_buffer_release_callback_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplV8arrayBufferReleaseCallback::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for V8arrayBufferReleaseCallback {
@@ -34994,7 +35402,7 @@ impl Default for V8arrayBufferReleaseCallback {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplV8value: Clone + Default + Sized + Rc {
+pub trait ImplV8value: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -35176,11 +35584,10 @@ pub trait ImplV8value: Clone + Default + Sized + Rc {
     fn reject_promise(&self, error_msg: &CefStringUtf16) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_v8value_t {
-        let mut object: _cef_v8value_t = unsafe { std::mem::zeroed() };
-        impl_cef_v8value_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_v8value_t) {
+        impl_cef_v8value_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_v8value_t;
 }
 mod impl_cef_v8value_t {
     use super::*;
@@ -35900,7 +36307,7 @@ impl ImplV8value for V8value {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplV8value::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplV8value::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -36150,7 +36557,7 @@ impl ImplV8value for V8value {
                     let (arg_key, arg_value, arg_attribute) = (key, value, attribute);
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.as_raw();
-                    let arg_value = ImplV8value::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplV8value::get_raw(arg_value);
                     let arg_attribute = arg_attribute.as_raw();
                     let result = f(arg_self_, arg_key, arg_value, arg_attribute);
                     result.as_wrapper()
@@ -36170,7 +36577,7 @@ impl ImplV8value for V8value {
                     let (arg_index, arg_value) = (index, value);
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
-                    let arg_value = ImplV8value::into_raw(Clone::clone(arg_value));
+                    let arg_value = ImplV8value::get_raw(arg_value);
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
@@ -36360,7 +36767,7 @@ impl ImplV8value for V8value {
                 .map(|f| {
                     let (arg_object, arg_arguments) = (object, arguments);
                     let arg_self_ = self.as_raw();
-                    let arg_object = ImplV8value::into_raw(Clone::clone(arg_object));
+                    let arg_object = ImplV8value::get_raw(arg_object);
                     let arg_arguments_count = arg_arguments
                         .as_ref()
                         .map(|arg| arg.len())
@@ -36371,7 +36778,7 @@ impl ImplV8value for V8value {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| Clone::clone(elem).into_raw())
+                                        .map(|elem| elem.get_raw())
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -36400,8 +36807,8 @@ impl ImplV8value for V8value {
                 .map(|f| {
                     let (arg_context, arg_object, arg_arguments) = (context, object, arguments);
                     let arg_self_ = self.as_raw();
-                    let arg_context = ImplV8context::into_raw(Clone::clone(arg_context));
-                    let arg_object = ImplV8value::into_raw(Clone::clone(arg_object));
+                    let arg_context = ImplV8context::get_raw(arg_context);
+                    let arg_object = ImplV8value::get_raw(arg_object);
                     let arg_arguments_count = arg_arguments
                         .as_ref()
                         .map(|arg| arg.len())
@@ -36412,7 +36819,7 @@ impl ImplV8value for V8value {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| Clone::clone(elem).into_raw())
+                                        .map(|elem| elem.get_raw())
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -36442,7 +36849,7 @@ impl ImplV8value for V8value {
                 .map(|f| {
                     let arg_arg = arg;
                     let arg_self_ = self.as_raw();
-                    let arg_arg = ImplV8value::into_raw(Clone::clone(arg_arg));
+                    let arg_arg = ImplV8value::get_raw(arg_arg);
                     let result = f(arg_self_, arg_arg);
                     result.as_wrapper()
                 })
@@ -36462,6 +36869,9 @@ impl ImplV8value for V8value {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_v8value_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_v8value_t {
@@ -36491,7 +36901,9 @@ impl ConvertReturnValue<V8value> for *mut _cef_v8value_t {
 }
 impl Into<*mut _cef_v8value_t> for V8value {
     fn into(self) -> *mut _cef_v8value_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplV8value::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for V8value {
@@ -36499,7 +36911,7 @@ impl Default for V8value {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplV8stackTrace: Clone + Default + Sized + Rc {
+pub trait ImplV8stackTrace: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -36509,11 +36921,10 @@ pub trait ImplV8stackTrace: Clone + Default + Sized + Rc {
     fn get_frame(&self, index: ::std::os::raw::c_int) -> V8stackFrame {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_v8stack_trace_t {
-        let mut object: _cef_v8stack_trace_t = unsafe { std::mem::zeroed() };
-        impl_cef_v8stack_trace_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_v8stack_trace_t) {
+        impl_cef_v8stack_trace_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_v8stack_trace_t;
 }
 mod impl_cef_v8stack_trace_t {
     use super::*;
@@ -36591,6 +37002,9 @@ impl ImplV8stackTrace for V8stackTrace {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_v8stack_trace_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_v8stack_trace_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -36619,7 +37033,9 @@ impl ConvertReturnValue<V8stackTrace> for *mut _cef_v8stack_trace_t {
 }
 impl Into<*mut _cef_v8stack_trace_t> for V8stackTrace {
     fn into(self) -> *mut _cef_v8stack_trace_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplV8stackTrace::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for V8stackTrace {
@@ -36627,7 +37043,7 @@ impl Default for V8stackTrace {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplV8stackFrame: Clone + Default + Sized + Rc {
+pub trait ImplV8stackFrame: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -36652,11 +37068,10 @@ pub trait ImplV8stackFrame: Clone + Default + Sized + Rc {
     fn is_constructor(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_v8stack_frame_t {
-        let mut object: _cef_v8stack_frame_t = unsafe { std::mem::zeroed() };
-        impl_cef_v8stack_frame_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_v8stack_frame_t) {
+        impl_cef_v8stack_frame_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_v8stack_frame_t;
 }
 mod impl_cef_v8stack_frame_t {
     use super::*;
@@ -36835,6 +37250,9 @@ impl ImplV8stackFrame for V8stackFrame {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_v8stack_frame_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_v8stack_frame_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -36863,7 +37281,9 @@ impl ConvertReturnValue<V8stackFrame> for *mut _cef_v8stack_frame_t {
 }
 impl Into<*mut _cef_v8stack_frame_t> for V8stackFrame {
     fn into(self) -> *mut _cef_v8stack_frame_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplV8stackFrame::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for V8stackFrame {
@@ -36871,7 +37291,7 @@ impl Default for V8stackFrame {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplRenderProcessHandler: Clone + Default + Sized + Rc {
+pub trait ImplRenderProcessHandler: Clone + Sized + Rc {
     fn on_web_kit_initialized(&self) {
         unsafe { std::mem::zeroed() }
     }
@@ -36931,11 +37351,10 @@ pub trait ImplRenderProcessHandler: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_render_process_handler_t {
-        let mut object: _cef_render_process_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_render_process_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_render_process_handler_t) {
+        impl_cef_render_process_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_render_process_handler_t;
 }
 mod impl_cef_render_process_handler_t {
     use super::*;
@@ -37122,9 +37541,8 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let (arg_browser, arg_extra_info) = (browser, extra_info);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_extra_info =
-                        ImplDictionaryValue::into_raw(Clone::clone(arg_extra_info));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_extra_info = ImplDictionaryValue::get_raw(arg_extra_info);
                     let result = f(arg_self_, arg_browser, arg_extra_info);
                     result.as_wrapper()
                 })
@@ -37138,7 +37556,7 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let arg_browser = browser;
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
@@ -37169,9 +37587,9 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_context) = (browser, frame, context);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_context = ImplV8context::into_raw(Clone::clone(arg_context));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_context = ImplV8context::get_raw(arg_context);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_context);
                     result.as_wrapper()
                 })
@@ -37190,9 +37608,9 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_context) = (browser, frame, context);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_context = ImplV8context::into_raw(Clone::clone(arg_context));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_context = ImplV8context::get_raw(arg_context);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_context);
                     result.as_wrapper()
                 })
@@ -37214,11 +37632,11 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                     let (arg_browser, arg_frame, arg_context, arg_exception, arg_stack_trace) =
                         (browser, frame, context, exception, stack_trace);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_context = ImplV8context::into_raw(Clone::clone(arg_context));
-                    let arg_exception = ImplV8exception::into_raw(Clone::clone(arg_exception));
-                    let arg_stack_trace = ImplV8stackTrace::into_raw(Clone::clone(arg_stack_trace));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_context = ImplV8context::get_raw(arg_context);
+                    let arg_exception = ImplV8exception::get_raw(arg_exception);
+                    let arg_stack_trace = ImplV8stackTrace::get_raw(arg_stack_trace);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -37244,9 +37662,9 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .map(|f| {
                     let (arg_browser, arg_frame, arg_node) = (browser, frame, node);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
-                    let arg_node = ImplDomnode::into_raw(Clone::clone(arg_node));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
+                    let arg_node = ImplDomnode::get_raw(arg_node);
                     let result = f(arg_self_, arg_browser, arg_frame, arg_node);
                     result.as_wrapper()
                 })
@@ -37267,10 +37685,10 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                     let (arg_browser, arg_frame, arg_source_process, arg_message) =
                         (browser, frame, source_process, message);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_source_process = arg_source_process.as_raw();
-                    let arg_message = ImplProcessMessage::into_raw(Clone::clone(arg_message));
+                    let arg_message = ImplProcessMessage::get_raw(arg_message);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -37282,6 +37700,9 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_render_process_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_render_process_handler_t {
@@ -37311,7 +37732,9 @@ impl ConvertReturnValue<RenderProcessHandler> for *mut _cef_render_process_handl
 }
 impl Into<*mut _cef_render_process_handler_t> for RenderProcessHandler {
     fn into(self) -> *mut _cef_render_process_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplRenderProcessHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for RenderProcessHandler {
@@ -37319,7 +37742,7 @@ impl Default for RenderProcessHandler {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplResourceBundleHandler: Clone + Default + Sized + Rc {
+pub trait ImplResourceBundleHandler: Clone + Sized + Rc {
     fn get_localized_string(
         &self,
         string_id: ::std::os::raw::c_int,
@@ -37342,11 +37765,10 @@ pub trait ImplResourceBundleHandler: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_resource_bundle_handler_t {
-        let mut object: _cef_resource_bundle_handler_t = unsafe { std::mem::zeroed() };
-        impl_cef_resource_bundle_handler_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_resource_bundle_handler_t) {
+        impl_cef_resource_bundle_handler_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_resource_bundle_handler_t;
 }
 mod impl_cef_resource_bundle_handler_t {
     use super::*;
@@ -37542,6 +37964,9 @@ impl ImplResourceBundleHandler for ResourceBundleHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_resource_bundle_handler_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_resource_bundle_handler_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -37570,7 +37995,9 @@ impl ConvertReturnValue<ResourceBundleHandler> for *mut _cef_resource_bundle_han
 }
 impl Into<*mut _cef_resource_bundle_handler_t> for ResourceBundleHandler {
     fn into(self) -> *mut _cef_resource_bundle_handler_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplResourceBundleHandler::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ResourceBundleHandler {
@@ -37615,7 +38042,7 @@ impl Default for SchemeRegistrar {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplSchemeHandlerFactory: Clone + Default + Sized + Rc {
+pub trait ImplSchemeHandlerFactory: Clone + Sized + Rc {
     fn create(
         &self,
         browser: &mut impl ImplBrowser,
@@ -37625,11 +38052,10 @@ pub trait ImplSchemeHandlerFactory: Clone + Default + Sized + Rc {
     ) -> ResourceHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_scheme_handler_factory_t {
-        let mut object: _cef_scheme_handler_factory_t = unsafe { std::mem::zeroed() };
-        impl_cef_scheme_handler_factory_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_scheme_handler_factory_t) {
+        impl_cef_scheme_handler_factory_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_scheme_handler_factory_t;
 }
 mod impl_cef_scheme_handler_factory_t {
     use super::*;
@@ -37679,10 +38105,10 @@ impl ImplSchemeHandlerFactory for SchemeHandlerFactory {
                     let (arg_browser, arg_frame, arg_scheme_name, arg_request) =
                         (browser, frame, scheme_name, request);
                     let arg_self_ = self.as_raw();
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
-                    let arg_frame = ImplFrame::into_raw(Clone::clone(arg_frame));
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
+                    let arg_frame = ImplFrame::get_raw(arg_frame);
                     let arg_scheme_name = arg_scheme_name.as_raw();
-                    let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
+                    let arg_request = ImplRequest::get_raw(arg_request);
                     let result = f(
                         arg_self_,
                         arg_browser,
@@ -37694,6 +38120,9 @@ impl ImplSchemeHandlerFactory for SchemeHandlerFactory {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_scheme_handler_factory_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_scheme_handler_factory_t {
@@ -37723,7 +38152,9 @@ impl ConvertReturnValue<SchemeHandlerFactory> for *mut _cef_scheme_handler_facto
 }
 impl Into<*mut _cef_scheme_handler_factory_t> for SchemeHandlerFactory {
     fn into(self) -> *mut _cef_scheme_handler_factory_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplSchemeHandlerFactory::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for SchemeHandlerFactory {
@@ -37731,7 +38162,7 @@ impl Default for SchemeHandlerFactory {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplApp: Clone + Default + Sized + Rc {
+pub trait ImplApp: Clone + Sized + Rc {
     fn on_before_command_line_processing(
         &self,
         process_type: &CefStringUtf16,
@@ -37751,11 +38182,10 @@ pub trait ImplApp: Clone + Default + Sized + Rc {
     fn get_render_process_handler(&self) -> RenderProcessHandler {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_app_t {
-        let mut object: _cef_app_t = unsafe { std::mem::zeroed() };
-        impl_cef_app_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_app_t) {
+        impl_cef_app_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_app_t;
 }
 mod impl_cef_app_t {
     use super::*;
@@ -37834,8 +38264,7 @@ impl ImplApp for App {
                     let (arg_process_type, arg_command_line) = (process_type, command_line);
                     let arg_self_ = self.as_raw();
                     let arg_process_type = arg_process_type.as_raw();
-                    let arg_command_line =
-                        ImplCommandLine::into_raw(Clone::clone(arg_command_line));
+                    let arg_command_line = ImplCommandLine::get_raw(arg_command_line);
                     let result = f(arg_self_, arg_process_type, arg_command_line);
                     result.as_wrapper()
                 })
@@ -37892,6 +38321,9 @@ impl ImplApp for App {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_app_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_app_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -37920,7 +38352,9 @@ impl ConvertReturnValue<App> for *mut _cef_app_t {
 }
 impl Into<*mut _cef_app_t> for App {
     fn into(self) -> *mut _cef_app_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplApp::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for App {
@@ -37928,7 +38362,7 @@ impl Default for App {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplUrlrequest: Clone + Default + Sized + Rc {
+pub trait ImplUrlrequest: Clone + Sized + Rc {
     fn get_request(&self) -> Request {
         unsafe { std::mem::zeroed() }
     }
@@ -37950,11 +38384,10 @@ pub trait ImplUrlrequest: Clone + Default + Sized + Rc {
     fn cancel(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_urlrequest_t {
-        let mut object: _cef_urlrequest_t = unsafe { std::mem::zeroed() };
-        impl_cef_urlrequest_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_urlrequest_t) {
+        impl_cef_urlrequest_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_urlrequest_t;
 }
 mod impl_cef_urlrequest_t {
     use super::*;
@@ -38109,6 +38542,9 @@ impl ImplUrlrequest for Urlrequest {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_urlrequest_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_urlrequest_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -38137,7 +38573,9 @@ impl ConvertReturnValue<Urlrequest> for *mut _cef_urlrequest_t {
 }
 impl Into<*mut _cef_urlrequest_t> for Urlrequest {
     fn into(self) -> *mut _cef_urlrequest_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplUrlrequest::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Urlrequest {
@@ -38145,7 +38583,7 @@ impl Default for Urlrequest {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplUrlrequestClient: Clone + Default + Sized + Rc {
+pub trait ImplUrlrequestClient: Clone + Sized + Rc {
     fn on_request_complete(&self, request: &mut impl ImplUrlrequest) {
         unsafe { std::mem::zeroed() }
     }
@@ -38174,11 +38612,10 @@ pub trait ImplUrlrequestClient: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_urlrequest_client_t {
-        let mut object: _cef_urlrequest_client_t = unsafe { std::mem::zeroed() };
-        impl_cef_urlrequest_client_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_urlrequest_client_t) {
+        impl_cef_urlrequest_client_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_urlrequest_client_t;
 }
 mod impl_cef_urlrequest_client_t {
     use super::*;
@@ -38297,7 +38734,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .map(|f| {
                     let arg_request = request;
                     let arg_self_ = self.as_raw();
-                    let arg_request = ImplUrlrequest::into_raw(Clone::clone(arg_request));
+                    let arg_request = ImplUrlrequest::get_raw(arg_request);
                     let result = f(arg_self_, arg_request);
                     result.as_wrapper()
                 })
@@ -38311,7 +38748,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .map(|f| {
                     let (arg_request, arg_current, arg_total) = (request, current, total);
                     let arg_self_ = self.as_raw();
-                    let arg_request = ImplUrlrequest::into_raw(Clone::clone(arg_request));
+                    let arg_request = ImplUrlrequest::get_raw(arg_request);
                     let arg_current = arg_current;
                     let arg_total = arg_total;
                     let result = f(arg_self_, arg_request, arg_current, arg_total);
@@ -38327,7 +38764,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .map(|f| {
                     let (arg_request, arg_current, arg_total) = (request, current, total);
                     let arg_self_ = self.as_raw();
-                    let arg_request = ImplUrlrequest::into_raw(Clone::clone(arg_request));
+                    let arg_request = ImplUrlrequest::get_raw(arg_request);
                     let arg_current = arg_current;
                     let arg_total = arg_total;
                     let result = f(arg_self_, arg_request, arg_current, arg_total);
@@ -38348,7 +38785,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 .map(|f| {
                     let (arg_request, arg_data, arg_data_length) = (request, data, data_length);
                     let arg_self_ = self.as_raw();
-                    let arg_request = ImplUrlrequest::into_raw(Clone::clone(arg_request));
+                    let arg_request = ImplUrlrequest::get_raw(arg_request);
                     let arg_data = arg_data as *const _;
                     let arg_data_length = arg_data_length;
                     let result = f(arg_self_, arg_request, arg_data, arg_data_length);
@@ -38378,7 +38815,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                     let arg_port = arg_port;
                     let arg_realm = arg_realm.as_raw();
                     let arg_scheme = arg_scheme.as_raw();
-                    let arg_callback = ImplAuthCallback::into_raw(Clone::clone(arg_callback));
+                    let arg_callback = ImplAuthCallback::get_raw(arg_callback);
                     let result = f(
                         arg_self_,
                         arg_is_proxy,
@@ -38392,6 +38829,9 @@ impl ImplUrlrequestClient for UrlrequestClient {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_urlrequest_client_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_urlrequest_client_t {
@@ -38421,7 +38861,9 @@ impl ConvertReturnValue<UrlrequestClient> for *mut _cef_urlrequest_client_t {
 }
 impl Into<*mut _cef_urlrequest_client_t> for UrlrequestClient {
     fn into(self) -> *mut _cef_urlrequest_client_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplUrlrequestClient::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for UrlrequestClient {
@@ -38429,7 +38871,7 @@ impl Default for UrlrequestClient {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplLayout: Clone + Default + Sized + Rc {
+pub trait ImplLayout: Clone + Sized + Rc {
     fn as_box_layout(&self) -> BoxLayout {
         unsafe { std::mem::zeroed() }
     }
@@ -38439,11 +38881,10 @@ pub trait ImplLayout: Clone + Default + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_layout_t {
-        let mut object: _cef_layout_t = unsafe { std::mem::zeroed() };
-        impl_cef_layout_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_layout_t) {
+        impl_cef_layout_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_layout_t;
 }
 mod impl_cef_layout_t {
     use super::*;
@@ -38515,6 +38956,9 @@ impl ImplLayout for Layout {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_layout_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_layout_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -38543,7 +38987,9 @@ impl ConvertReturnValue<Layout> for *mut _cef_layout_t {
 }
 impl Into<*mut _cef_layout_t> for Layout {
     fn into(self) -> *mut _cef_layout_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplLayout::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Layout {
@@ -38558,12 +39004,11 @@ pub trait ImplBoxLayout: ImplLayout {
     fn clear_flex_for_view(&self, view: &mut impl ImplView) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_box_layout_t {
-        let mut object: _cef_box_layout_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_box_layout_t) {
         impl_cef_layout_t::init_methods::<Self>(&mut object.base);
-        impl_cef_box_layout_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_box_layout_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_box_layout_t;
 }
 mod impl_cef_box_layout_t {
     use super::*;
@@ -38608,6 +39053,9 @@ impl ImplLayout for BoxLayout {
         Layout(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_valid()
     }
+    fn get_raw(&self) -> *mut _cef_layout_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplBoxLayout for BoxLayout {
     fn set_flex_for_view(&self, view: &mut impl ImplView, flex: ::std::os::raw::c_int) {
@@ -38617,7 +39065,7 @@ impl ImplBoxLayout for BoxLayout {
                 .map(|f| {
                     let (arg_view, arg_flex) = (view, flex);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let arg_flex = arg_flex;
                     let result = f(arg_self_, arg_view, arg_flex);
                     result.as_wrapper()
@@ -38632,12 +39080,15 @@ impl ImplBoxLayout for BoxLayout {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_box_layout_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_box_layout_t {
@@ -38667,7 +39118,9 @@ impl ConvertReturnValue<BoxLayout> for *mut _cef_box_layout_t {
 }
 impl Into<*mut _cef_box_layout_t> for BoxLayout {
     fn into(self) -> *mut _cef_box_layout_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplBoxLayout::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for BoxLayout {
@@ -38676,12 +39129,11 @@ impl Default for BoxLayout {
     }
 }
 pub trait ImplFillLayout: ImplLayout {
-    fn into_raw(self) -> *mut _cef_fill_layout_t {
-        let mut object: _cef_fill_layout_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_fill_layout_t) {
         impl_cef_layout_t::init_methods::<Self>(&mut object.base);
-        impl_cef_fill_layout_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_fill_layout_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_fill_layout_t;
 }
 mod impl_cef_fill_layout_t {
     use super::*;
@@ -38703,8 +39155,15 @@ impl ImplLayout for FillLayout {
         Layout(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_valid()
     }
+    fn get_raw(&self) -> *mut _cef_layout_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
-impl ImplFillLayout for FillLayout {}
+impl ImplFillLayout for FillLayout {
+    fn get_raw(&self) -> *mut _cef_fill_layout_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
+}
 impl Rc for _cef_fill_layout_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
         self.base.as_base()
@@ -38732,7 +39191,9 @@ impl ConvertReturnValue<FillLayout> for *mut _cef_fill_layout_t {
 }
 impl Into<*mut _cef_fill_layout_t> for FillLayout {
     fn into(self) -> *mut _cef_fill_layout_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplFillLayout::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for FillLayout {
@@ -38740,7 +39201,7 @@ impl Default for FillLayout {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplViewDelegate: Clone + Default + Sized + Rc {
+pub trait ImplViewDelegate: Clone + Sized + Rc {
     fn get_preferred_size(&self, view: &mut impl ImplView) -> Size {
         unsafe { std::mem::zeroed() }
     }
@@ -38788,11 +39249,10 @@ pub trait ImplViewDelegate: Clone + Default + Sized + Rc {
     fn on_theme_changed(&self, view: &mut impl ImplView) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_view_delegate_t {
-        let mut object: _cef_view_delegate_t = unsafe { std::mem::zeroed() };
-        impl_cef_view_delegate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_view_delegate_t) {
+        impl_cef_view_delegate_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_view_delegate_t;
 }
 mod impl_cef_view_delegate_t {
     use super::*;
@@ -38951,7 +39411,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
@@ -38965,7 +39425,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
@@ -38979,7 +39439,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
@@ -38997,7 +39457,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_width) = (view, width);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let arg_width = arg_width;
                     let result = f(arg_self_, arg_view, arg_width);
                     result.as_wrapper()
@@ -39017,9 +39477,9 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_added, arg_parent) = (view, added, parent);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let arg_added = arg_added;
-                    let arg_parent = ImplView::into_raw(Clone::clone(arg_parent));
+                    let arg_parent = ImplView::get_raw(arg_parent);
                     let result = f(arg_self_, arg_view, arg_added, arg_parent);
                     result.as_wrapper()
                 })
@@ -39038,9 +39498,9 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_added, arg_child) = (view, added, child);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let arg_added = arg_added;
-                    let arg_child = ImplView::into_raw(Clone::clone(arg_child));
+                    let arg_child = ImplView::get_raw(arg_child);
                     let result = f(arg_self_, arg_view, arg_added, arg_child);
                     result.as_wrapper()
                 })
@@ -39054,7 +39514,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_added) = (view, added);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let arg_added = arg_added;
                     let result = f(arg_self_, arg_view, arg_added);
                     result.as_wrapper()
@@ -39069,7 +39529,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let (arg_view, arg_new_bounds) = (view, new_bounds);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let arg_new_bounds: _cef_rect_t = arg_new_bounds.clone().into();
                     let arg_new_bounds = &arg_new_bounds;
                     let result = f(arg_self_, arg_view, arg_new_bounds);
@@ -39085,7 +39545,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
@@ -39099,7 +39559,7 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
@@ -39113,12 +39573,15 @@ impl ImplViewDelegate for ViewDelegate {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_view_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_view_delegate_t {
@@ -39148,7 +39611,9 @@ impl ConvertReturnValue<ViewDelegate> for *mut _cef_view_delegate_t {
 }
 impl Into<*mut _cef_view_delegate_t> for ViewDelegate {
     fn into(self) -> *mut _cef_view_delegate_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplViewDelegate::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ViewDelegate {
@@ -39156,7 +39621,7 @@ impl Default for ViewDelegate {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplView: Clone + Default + Sized + Rc {
+pub trait ImplView: Clone + Sized + Rc {
     fn as_browser_view(&self) -> BrowserView {
         unsafe { std::mem::zeroed() }
     }
@@ -39321,11 +39786,10 @@ pub trait ImplView: Clone + Default + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_view_t {
-        let mut object: _cef_view_t = unsafe { std::mem::zeroed() };
-        impl_cef_view_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_view_t) {
+        impl_cef_view_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_view_t;
 }
 mod impl_cef_view_t {
     use super::*;
@@ -39893,7 +40357,7 @@ impl ImplView for View {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplView::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplView::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -40433,7 +40897,7 @@ impl ImplView for View {
                 .map(|f| {
                     let (arg_view, arg_point) = (view, point);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let mut arg_point: _cef_point_t = arg_point.clone().into();
                     let arg_point = &mut arg_point;
                     let result = f(arg_self_, arg_view, arg_point);
@@ -40453,7 +40917,7 @@ impl ImplView for View {
                 .map(|f| {
                     let (arg_view, arg_point) = (view, point);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let mut arg_point: _cef_point_t = arg_point.clone().into();
                     let arg_point = &mut arg_point;
                     let result = f(arg_self_, arg_view, arg_point);
@@ -40461,6 +40925,9 @@ impl ImplView for View {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_view_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_view_t {
@@ -40490,7 +40957,9 @@ impl ConvertReturnValue<View> for *mut _cef_view_t {
 }
 impl Into<*mut _cef_view_t> for View {
     fn into(self) -> *mut _cef_view_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplView::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for View {
@@ -40517,12 +40986,11 @@ pub trait ImplButton: ImplView {
     fn set_accessible_name(&self, name: &CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_button_t {
-        let mut object: _cef_button_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_button_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
-        impl_cef_button_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_button_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_button_t;
 }
 mod impl_cef_button_t {
     use super::*;
@@ -40796,6 +41264,9 @@ impl ImplView for Button {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .convert_point_from_view(view, point)
     }
+    fn get_raw(&self) -> *mut _cef_view_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplButton for Button {
     fn as_label_button(&self) -> LabelButton {
@@ -40878,6 +41349,9 @@ impl ImplButton for Button {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_button_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_button_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -40906,7 +41380,9 @@ impl ConvertReturnValue<Button> for *mut _cef_button_t {
 }
 impl Into<*mut _cef_button_t> for Button {
     fn into(self) -> *mut _cef_button_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplButton::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Button {
@@ -40921,12 +41397,11 @@ pub trait ImplButtonDelegate: ImplViewDelegate {
     fn on_button_state_changed(&self, button: &mut impl ImplButton) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_button_delegate_t {
-        let mut object: _cef_button_delegate_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_button_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
-        impl_cef_button_delegate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_button_delegate_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_button_delegate_t;
 }
 mod impl_cef_button_delegate_t {
     use super::*;
@@ -41015,6 +41490,9 @@ impl ImplViewDelegate for ButtonDelegate {
         ViewDelegate(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .on_theme_changed(view)
     }
+    fn get_raw(&self) -> *mut _cef_view_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplButtonDelegate for ButtonDelegate {
     fn on_button_pressed(&self, button: &mut impl ImplButton) {
@@ -41024,7 +41502,7 @@ impl ImplButtonDelegate for ButtonDelegate {
                 .map(|f| {
                     let arg_button = button;
                     let arg_self_ = self.as_raw();
-                    let arg_button = ImplButton::into_raw(Clone::clone(arg_button));
+                    let arg_button = ImplButton::get_raw(arg_button);
                     let result = f(arg_self_, arg_button);
                     result.as_wrapper()
                 })
@@ -41038,12 +41516,15 @@ impl ImplButtonDelegate for ButtonDelegate {
                 .map(|f| {
                     let arg_button = button;
                     let arg_self_ = self.as_raw();
-                    let arg_button = ImplButton::into_raw(Clone::clone(arg_button));
+                    let arg_button = ImplButton::get_raw(arg_button);
                     let result = f(arg_self_, arg_button);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_button_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_button_delegate_t {
@@ -41073,7 +41554,9 @@ impl ConvertReturnValue<ButtonDelegate> for *mut _cef_button_delegate_t {
 }
 impl Into<*mut _cef_button_delegate_t> for ButtonDelegate {
     fn into(self) -> *mut _cef_button_delegate_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplButtonDelegate::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ButtonDelegate {
@@ -41115,13 +41598,12 @@ pub trait ImplLabelButton: ImplButton {
     fn set_maximum_size(&self, size: &Size) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_label_button_t {
-        let mut object: _cef_label_button_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_label_button_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base.base);
         impl_cef_button_t::init_methods::<Self>(&mut object.base);
-        impl_cef_label_button_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_label_button_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_label_button_t;
 }
 mod impl_cef_label_button_t {
     use super::*;
@@ -41458,6 +41940,9 @@ impl ImplView for LabelButton {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .convert_point_from_view(view, point)
     }
+    fn get_raw(&self) -> *mut _cef_view_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplButton for LabelButton {
     fn as_label_button(&self) -> LabelButton {
@@ -41483,6 +41968,9 @@ impl ImplButton for LabelButton {
     fn set_accessible_name(&self, name: &CefStringUtf16) {
         Button(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_accessible_name(name)
+    }
+    fn get_raw(&self) -> *mut _cef_button_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
     }
 }
 impl ImplLabelButton for LabelButton {
@@ -41532,7 +42020,7 @@ impl ImplLabelButton for LabelButton {
                     let (arg_button_state, arg_image) = (button_state, image);
                     let arg_self_ = self.as_raw();
                     let arg_button_state = arg_button_state.as_raw();
-                    let arg_image = ImplImage::into_raw(Clone::clone(arg_image));
+                    let arg_image = ImplImage::get_raw(arg_image);
                     let result = f(arg_self_, arg_button_state, arg_image);
                     result.as_wrapper()
                 })
@@ -41640,6 +42128,9 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_label_button_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_label_button_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -41668,7 +42159,9 @@ impl ConvertReturnValue<LabelButton> for *mut _cef_label_button_t {
 }
 impl Into<*mut _cef_label_button_t> for LabelButton {
     fn into(self) -> *mut _cef_label_button_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplLabelButton::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for LabelButton {
@@ -41676,12 +42169,11 @@ impl Default for LabelButton {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplMenuButtonPressedLock: Clone + Default + Sized + Rc {
-    fn into_raw(self) -> *mut _cef_menu_button_pressed_lock_t {
-        let mut object: _cef_menu_button_pressed_lock_t = unsafe { std::mem::zeroed() };
-        impl_cef_menu_button_pressed_lock_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+pub trait ImplMenuButtonPressedLock: Clone + Sized + Rc {
+    fn init_methods(object: &mut _cef_menu_button_pressed_lock_t) {
+        impl_cef_menu_button_pressed_lock_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_menu_button_pressed_lock_t;
 }
 mod impl_cef_menu_button_pressed_lock_t {
     use super::*;
@@ -41693,7 +42185,11 @@ mod impl_cef_menu_button_pressed_lock_t {
 #[doc = "See [_cef_menu_button_pressed_lock_t] for more documentation."]
 #[derive(Clone)]
 pub struct MenuButtonPressedLock(RefGuard<_cef_menu_button_pressed_lock_t>);
-impl ImplMenuButtonPressedLock for MenuButtonPressedLock {}
+impl ImplMenuButtonPressedLock for MenuButtonPressedLock {
+    fn get_raw(&self) -> *mut _cef_menu_button_pressed_lock_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
+}
 impl Rc for _cef_menu_button_pressed_lock_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
         self.base.as_base()
@@ -41721,7 +42217,9 @@ impl ConvertReturnValue<MenuButtonPressedLock> for *mut _cef_menu_button_pressed
 }
 impl Into<*mut _cef_menu_button_pressed_lock_t> for MenuButtonPressedLock {
     fn into(self) -> *mut _cef_menu_button_pressed_lock_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMenuButtonPressedLock::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MenuButtonPressedLock {
@@ -41738,13 +42236,12 @@ pub trait ImplMenuButtonDelegate: ImplButtonDelegate {
     ) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_menu_button_delegate_t {
-        let mut object: _cef_menu_button_delegate_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_menu_button_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base.base);
         impl_cef_button_delegate_t::init_methods::<Self>(&mut object.base);
-        impl_cef_menu_button_delegate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_menu_button_delegate_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_menu_button_delegate_t;
 }
 mod impl_cef_menu_button_delegate_t {
     use super::*;
@@ -41837,6 +42334,9 @@ impl ImplViewDelegate for MenuButtonDelegate {
         ViewDelegate(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .on_theme_changed(view)
     }
+    fn get_raw(&self) -> *mut _cef_view_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplButtonDelegate for MenuButtonDelegate {
     fn on_button_pressed(&self, button: &mut impl ImplButton) {
@@ -41846,6 +42346,9 @@ impl ImplButtonDelegate for MenuButtonDelegate {
     fn on_button_state_changed(&self, button: &mut impl ImplButton) {
         ButtonDelegate(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .on_button_state_changed(button)
+    }
+    fn get_raw(&self) -> *mut _cef_button_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
     }
 }
 impl ImplMenuButtonDelegate for MenuButtonDelegate {
@@ -41862,11 +42365,11 @@ impl ImplMenuButtonDelegate for MenuButtonDelegate {
                     let (arg_menu_button, arg_screen_point, arg_button_pressed_lock) =
                         (menu_button, screen_point, button_pressed_lock);
                     let arg_self_ = self.as_raw();
-                    let arg_menu_button = ImplMenuButton::into_raw(Clone::clone(arg_menu_button));
+                    let arg_menu_button = ImplMenuButton::get_raw(arg_menu_button);
                     let arg_screen_point: _cef_point_t = arg_screen_point.clone().into();
                     let arg_screen_point = &arg_screen_point;
                     let arg_button_pressed_lock =
-                        ImplMenuButtonPressedLock::into_raw(Clone::clone(arg_button_pressed_lock));
+                        ImplMenuButtonPressedLock::get_raw(arg_button_pressed_lock);
                     let result = f(
                         arg_self_,
                         arg_menu_button,
@@ -41877,6 +42380,9 @@ impl ImplMenuButtonDelegate for MenuButtonDelegate {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_menu_button_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_menu_button_delegate_t {
@@ -41906,7 +42412,9 @@ impl ConvertReturnValue<MenuButtonDelegate> for *mut _cef_menu_button_delegate_t
 }
 impl Into<*mut _cef_menu_button_delegate_t> for MenuButtonDelegate {
     fn into(self) -> *mut _cef_menu_button_delegate_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMenuButtonDelegate::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MenuButtonDelegate {
@@ -41926,14 +42434,13 @@ pub trait ImplMenuButton: ImplLabelButton {
     fn trigger_menu(&self) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_menu_button_t {
-        let mut object: _cef_menu_button_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_menu_button_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base.base.base);
         impl_cef_button_t::init_methods::<Self>(&mut object.base.base);
         impl_cef_label_button_t::init_methods::<Self>(&mut object.base);
-        impl_cef_menu_button_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_menu_button_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_menu_button_t;
 }
 mod impl_cef_menu_button_t {
     use super::*;
@@ -42179,6 +42686,9 @@ impl ImplView for MenuButton {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .convert_point_from_view(view, point)
     }
+    fn get_raw(&self) -> *mut _cef_view_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplButton for MenuButton {
     fn as_label_button(&self) -> LabelButton {
@@ -42204,6 +42714,9 @@ impl ImplButton for MenuButton {
     fn set_accessible_name(&self, name: &CefStringUtf16) {
         Button(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_accessible_name(name)
+    }
+    fn get_raw(&self) -> *mut _cef_button_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
     }
 }
 impl ImplLabelButton for MenuButton {
@@ -42251,6 +42764,9 @@ impl ImplLabelButton for MenuButton {
         LabelButton(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_maximum_size(size)
     }
+    fn get_raw(&self) -> *mut _cef_label_button_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplMenuButton for MenuButton {
     fn show_menu(
@@ -42266,7 +42782,7 @@ impl ImplMenuButton for MenuButton {
                     let (arg_menu_model, arg_screen_point, arg_anchor_position) =
                         (menu_model, screen_point, anchor_position);
                     let arg_self_ = self.as_raw();
-                    let arg_menu_model = ImplMenuModel::into_raw(Clone::clone(arg_menu_model));
+                    let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_screen_point: _cef_point_t = arg_screen_point.clone().into();
                     let arg_screen_point = &arg_screen_point;
                     let arg_anchor_position = arg_anchor_position.as_raw();
@@ -42292,6 +42808,9 @@ impl ImplMenuButton for MenuButton {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_menu_button_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_menu_button_t {
@@ -42321,7 +42840,9 @@ impl ConvertReturnValue<MenuButton> for *mut _cef_menu_button_t {
 }
 impl Into<*mut _cef_menu_button_t> for MenuButton {
     fn into(self) -> *mut _cef_menu_button_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplMenuButton::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for MenuButton {
@@ -42340,12 +42861,11 @@ pub trait ImplTextfieldDelegate: ImplViewDelegate {
     fn on_after_user_action(&self, textfield: &mut impl ImplTextfield) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_textfield_delegate_t {
-        let mut object: _cef_textfield_delegate_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_textfield_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
-        impl_cef_textfield_delegate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_textfield_delegate_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_textfield_delegate_t;
 }
 mod impl_cef_textfield_delegate_t {
     use super::*;
@@ -42440,6 +42960,9 @@ impl ImplViewDelegate for TextfieldDelegate {
         ViewDelegate(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .on_theme_changed(view)
     }
+    fn get_raw(&self) -> *mut _cef_view_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplTextfieldDelegate for TextfieldDelegate {
     fn on_key_event(
@@ -42453,7 +42976,7 @@ impl ImplTextfieldDelegate for TextfieldDelegate {
                 .map(|f| {
                     let (arg_textfield, arg_event) = (textfield, event);
                     let arg_self_ = self.as_raw();
-                    let arg_textfield = ImplTextfield::into_raw(Clone::clone(arg_textfield));
+                    let arg_textfield = ImplTextfield::get_raw(arg_textfield);
                     let arg_event: _cef_key_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
                     let result = f(arg_self_, arg_textfield, arg_event);
@@ -42469,12 +42992,15 @@ impl ImplTextfieldDelegate for TextfieldDelegate {
                 .map(|f| {
                     let arg_textfield = textfield;
                     let arg_self_ = self.as_raw();
-                    let arg_textfield = ImplTextfield::into_raw(Clone::clone(arg_textfield));
+                    let arg_textfield = ImplTextfield::get_raw(arg_textfield);
                     let result = f(arg_self_, arg_textfield);
                     result.as_wrapper()
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_textfield_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_textfield_delegate_t {
@@ -42504,7 +43030,9 @@ impl ConvertReturnValue<TextfieldDelegate> for *mut _cef_textfield_delegate_t {
 }
 impl Into<*mut _cef_textfield_delegate_t> for TextfieldDelegate {
     fn into(self) -> *mut _cef_textfield_delegate_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplTextfieldDelegate::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for TextfieldDelegate {
@@ -42606,12 +43134,11 @@ pub trait ImplTextfield: ImplView {
     fn set_accessible_name(&self, name: &CefStringUtf16) {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_textfield_t {
-        let mut object: _cef_textfield_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_textfield_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
-        impl_cef_textfield_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_textfield_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_textfield_t;
 }
 mod impl_cef_textfield_t {
     use super::*;
@@ -43129,6 +43656,9 @@ impl ImplView for Textfield {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .convert_point_from_view(view, point)
     }
+    fn get_raw(&self) -> *mut _cef_view_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplTextfield for Textfield {
     fn set_password_input(&self, password_input: ::std::os::raw::c_int) {
@@ -43545,6 +44075,9 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_textfield_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_textfield_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -43573,7 +44106,9 @@ impl ConvertReturnValue<Textfield> for *mut _cef_textfield_t {
 }
 impl Into<*mut _cef_textfield_t> for Textfield {
     fn into(self) -> *mut _cef_textfield_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplTextfield::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Textfield {
@@ -43635,12 +44170,11 @@ pub trait ImplBrowserViewDelegate: ImplViewDelegate {
     fn get_browser_runtime_style(&self) -> RuntimeStyle {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_browser_view_delegate_t {
-        let mut object: _cef_browser_view_delegate_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_browser_view_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
-        impl_cef_browser_view_delegate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_browser_view_delegate_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_browser_view_delegate_t;
 }
 mod impl_cef_browser_view_delegate_t {
     use super::*;
@@ -43851,6 +44385,9 @@ impl ImplViewDelegate for BrowserViewDelegate {
         ViewDelegate(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .on_theme_changed(view)
     }
+    fn get_raw(&self) -> *mut _cef_view_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplBrowserViewDelegate for BrowserViewDelegate {
     fn on_browser_created(
@@ -43864,9 +44401,8 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let (arg_browser_view, arg_browser) = (browser_view, browser);
                     let arg_self_ = self.as_raw();
-                    let arg_browser_view =
-                        ImplBrowserView::into_raw(Clone::clone(arg_browser_view));
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser_view, arg_browser);
                     result.as_wrapper()
                 })
@@ -43884,9 +44420,8 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let (arg_browser_view, arg_browser) = (browser_view, browser);
                     let arg_self_ = self.as_raw();
-                    let arg_browser_view =
-                        ImplBrowserView::into_raw(Clone::clone(arg_browser_view));
-                    let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+                    let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
+                    let arg_browser = ImplBrowser::get_raw(arg_browser);
                     let result = f(arg_self_, arg_browser_view, arg_browser);
                     result.as_wrapper()
                 })
@@ -43907,11 +44442,10 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     let (arg_browser_view, arg_settings, arg_client, arg_is_devtools) =
                         (browser_view, settings, client, is_devtools);
                     let arg_self_ = self.as_raw();
-                    let arg_browser_view =
-                        ImplBrowserView::into_raw(Clone::clone(arg_browser_view));
+                    let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
                     let arg_settings = &arg_settings;
-                    let arg_client = ImplClient::into_raw(Clone::clone(arg_client));
+                    let arg_client = ImplClient::get_raw(arg_client);
                     let arg_is_devtools = arg_is_devtools;
                     let result = f(
                         arg_self_,
@@ -43938,10 +44472,8 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     let (arg_browser_view, arg_popup_browser_view, arg_is_devtools) =
                         (browser_view, popup_browser_view, is_devtools);
                     let arg_self_ = self.as_raw();
-                    let arg_browser_view =
-                        ImplBrowserView::into_raw(Clone::clone(arg_browser_view));
-                    let arg_popup_browser_view =
-                        ImplBrowserView::into_raw(Clone::clone(arg_popup_browser_view));
+                    let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
+                    let arg_popup_browser_view = ImplBrowserView::get_raw(arg_popup_browser_view);
                     let arg_is_devtools = arg_is_devtools;
                     let result = f(
                         arg_self_,
@@ -43964,8 +44496,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let arg_browser_view = browser_view;
                     let arg_self_ = self.as_raw();
-                    let arg_browser_view =
-                        ImplBrowserView::into_raw(Clone::clone(arg_browser_view));
+                    let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let result = f(arg_self_, arg_browser_view);
                     result.as_wrapper()
                 })
@@ -43982,8 +44513,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let arg_browser_view = browser_view;
                     let arg_self_ = self.as_raw();
-                    let arg_browser_view =
-                        ImplBrowserView::into_raw(Clone::clone(arg_browser_view));
+                    let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let result = f(arg_self_, arg_browser_view);
                     result.as_wrapper()
                 })
@@ -44001,8 +44531,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 .map(|f| {
                     let (arg_browser_view, arg_gesture_command) = (browser_view, gesture_command);
                     let arg_self_ = self.as_raw();
-                    let arg_browser_view =
-                        ImplBrowserView::into_raw(Clone::clone(arg_browser_view));
+                    let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let arg_gesture_command = arg_gesture_command.as_raw();
                     let result = f(arg_self_, arg_browser_view, arg_gesture_command);
                     result.as_wrapper()
@@ -44021,6 +44550,9 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_browser_view_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_browser_view_delegate_t {
@@ -44050,7 +44582,9 @@ impl ConvertReturnValue<BrowserViewDelegate> for *mut _cef_browser_view_delegate
 }
 impl Into<*mut _cef_browser_view_delegate_t> for BrowserViewDelegate {
     fn into(self) -> *mut _cef_browser_view_delegate_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplBrowserViewDelegate::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for BrowserViewDelegate {
@@ -44071,12 +44605,11 @@ pub trait ImplBrowserView: ImplView {
     fn get_runtime_style(&self) -> RuntimeStyle {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_browser_view_t {
-        let mut object: _cef_browser_view_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_browser_view_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
-        impl_cef_browser_view_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_browser_view_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_browser_view_t;
 }
 mod impl_cef_browser_view_t {
     use super::*;
@@ -44333,6 +44866,9 @@ impl ImplView for BrowserView {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .convert_point_from_view(view, point)
     }
+    fn get_raw(&self) -> *mut _cef_view_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplBrowserView for BrowserView {
     fn get_browser(&self) -> Browser {
@@ -44385,6 +44921,9 @@ impl ImplBrowserView for BrowserView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_browser_view_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_browser_view_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -44413,7 +44952,9 @@ impl ConvertReturnValue<BrowserView> for *mut _cef_browser_view_t {
 }
 impl Into<*mut _cef_browser_view_t> for BrowserView {
     fn into(self) -> *mut _cef_browser_view_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplBrowserView::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for BrowserView {
@@ -44443,12 +44984,11 @@ pub trait ImplScrollView: ImplView {
     fn get_vertical_scrollbar_width(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_scroll_view_t {
-        let mut object: _cef_scroll_view_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_scroll_view_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
-        impl_cef_scroll_view_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_scroll_view_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_scroll_view_t;
 }
 mod impl_cef_scroll_view_t {
     use super::*;
@@ -44731,6 +45271,9 @@ impl ImplView for ScrollView {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .convert_point_from_view(view, point)
     }
+    fn get_raw(&self) -> *mut _cef_view_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplScrollView for ScrollView {
     fn set_content_view(&self, view: &mut impl ImplView) {
@@ -44740,7 +45283,7 @@ impl ImplScrollView for ScrollView {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
@@ -44819,6 +45362,9 @@ impl ImplScrollView for ScrollView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_scroll_view_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_scroll_view_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -44847,7 +45393,9 @@ impl ConvertReturnValue<ScrollView> for *mut _cef_scroll_view_t {
 }
 impl Into<*mut _cef_scroll_view_t> for ScrollView {
     fn into(self) -> *mut _cef_scroll_view_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplScrollView::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for ScrollView {
@@ -44855,7 +45403,7 @@ impl Default for ScrollView {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplDisplay: Clone + Default + Sized + Rc {
+pub trait ImplDisplay: Clone + Sized + Rc {
     fn get_id(&self) -> i64 {
         unsafe { std::mem::zeroed() }
     }
@@ -44877,11 +45425,10 @@ pub trait ImplDisplay: Clone + Default + Sized + Rc {
     fn get_rotation(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_display_t {
-        let mut object: _cef_display_t = unsafe { std::mem::zeroed() };
-        impl_cef_display_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_display_t) {
+        impl_cef_display_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_display_t;
 }
 mod impl_cef_display_t {
     use super::*;
@@ -45041,6 +45588,9 @@ impl ImplDisplay for Display {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_display_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_display_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -45069,7 +45619,9 @@ impl ConvertReturnValue<Display> for *mut _cef_display_t {
 }
 impl Into<*mut _cef_display_t> for Display {
     fn into(self) -> *mut _cef_display_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplDisplay::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Display {
@@ -45077,7 +45629,7 @@ impl Default for Display {
         unsafe { std::mem::zeroed() }
     }
 }
-pub trait ImplOverlayController: Clone + Default + Sized + Rc {
+pub trait ImplOverlayController: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
@@ -45135,11 +45687,10 @@ pub trait ImplOverlayController: Clone + Default + Sized + Rc {
     fn is_drawn(&self) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_overlay_controller_t {
-        let mut object: _cef_overlay_controller_t = unsafe { std::mem::zeroed() };
-        impl_cef_overlay_controller_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+    fn init_methods(object: &mut _cef_overlay_controller_t) {
+        impl_cef_overlay_controller_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_overlay_controller_t;
 }
 mod impl_cef_overlay_controller_t {
     use super::*;
@@ -45347,7 +45898,7 @@ impl ImplOverlayController for OverlayController {
                 .map(|f| {
                     let arg_that = that;
                     let arg_self_ = self.as_raw();
-                    let arg_that = ImplOverlayController::into_raw(Clone::clone(arg_that));
+                    let arg_that = ImplOverlayController::get_raw(arg_that);
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
@@ -45572,6 +46123,9 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_overlay_controller_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_overlay_controller_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -45600,7 +46154,9 @@ impl ConvertReturnValue<OverlayController> for *mut _cef_overlay_controller_t {
 }
 impl Into<*mut _cef_overlay_controller_t> for OverlayController {
     fn into(self) -> *mut _cef_overlay_controller_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplOverlayController::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for OverlayController {
@@ -45609,12 +46165,11 @@ impl Default for OverlayController {
     }
 }
 pub trait ImplPanelDelegate: ImplViewDelegate {
-    fn into_raw(self) -> *mut _cef_panel_delegate_t {
-        let mut object: _cef_panel_delegate_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_panel_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
-        impl_cef_panel_delegate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_panel_delegate_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_panel_delegate_t;
 }
 mod impl_cef_panel_delegate_t {
     use super::*;
@@ -45682,8 +46237,15 @@ impl ImplViewDelegate for PanelDelegate {
         ViewDelegate(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .on_theme_changed(view)
     }
+    fn get_raw(&self) -> *mut _cef_view_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
-impl ImplPanelDelegate for PanelDelegate {}
+impl ImplPanelDelegate for PanelDelegate {
+    fn get_raw(&self) -> *mut _cef_panel_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
+}
 impl Rc for _cef_panel_delegate_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
         self.base.as_base()
@@ -45711,7 +46273,9 @@ impl ConvertReturnValue<PanelDelegate> for *mut _cef_panel_delegate_t {
 }
 impl Into<*mut _cef_panel_delegate_t> for PanelDelegate {
     fn into(self) -> *mut _cef_panel_delegate_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPanelDelegate::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for PanelDelegate {
@@ -45756,12 +46320,11 @@ pub trait ImplPanel: ImplView {
     fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> View {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_panel_t {
-        let mut object: _cef_panel_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_panel_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
-        impl_cef_panel_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_panel_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_panel_t;
 }
 mod impl_cef_panel_t {
     use super::*;
@@ -46086,6 +46649,9 @@ impl ImplView for Panel {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .convert_point_from_view(view, point)
     }
+    fn get_raw(&self) -> *mut _cef_view_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplPanel for Panel {
     fn as_window(&self) -> Window {
@@ -46158,7 +46724,7 @@ impl ImplPanel for Panel {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
@@ -46172,7 +46738,7 @@ impl ImplPanel for Panel {
                 .map(|f| {
                     let (arg_view, arg_index) = (view, index);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_view, arg_index);
                     result.as_wrapper()
@@ -46187,7 +46753,7 @@ impl ImplPanel for Panel {
                 .map(|f| {
                     let (arg_view, arg_index) = (view, index);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_view, arg_index);
                     result.as_wrapper()
@@ -46202,7 +46768,7 @@ impl ImplPanel for Panel {
                 .map(|f| {
                     let arg_view = view;
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
@@ -46247,6 +46813,9 @@ impl ImplPanel for Panel {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_panel_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_panel_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -46275,7 +46844,9 @@ impl ConvertReturnValue<Panel> for *mut _cef_panel_t {
 }
 impl Into<*mut _cef_panel_t> for Panel {
     fn into(self) -> *mut _cef_panel_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplPanel::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Panel {
@@ -46386,13 +46957,12 @@ pub trait ImplWindowDelegate: ImplPanelDelegate {
     ) -> ::std::os::raw::c_int {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_window_delegate_t {
-        let mut object: _cef_window_delegate_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_window_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base.base);
         impl_cef_panel_delegate_t::init_methods::<Self>(&mut object.base);
-        impl_cef_window_delegate_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_window_delegate_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_window_delegate_t;
 }
 mod impl_cef_window_delegate_t {
     use super::*;
@@ -46764,8 +47334,15 @@ impl ImplViewDelegate for WindowDelegate {
         ViewDelegate(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .on_theme_changed(view)
     }
+    fn get_raw(&self) -> *mut _cef_view_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
-impl ImplPanelDelegate for WindowDelegate {}
+impl ImplPanelDelegate for WindowDelegate {
+    fn get_raw(&self) -> *mut _cef_panel_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
+}
 impl ImplWindowDelegate for WindowDelegate {
     fn on_window_created(&self, window: &mut impl ImplWindow) {
         unsafe {
@@ -46774,7 +47351,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -46788,7 +47365,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -46802,7 +47379,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -46820,7 +47397,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_active) = (window, active);
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_active = arg_active;
                     let result = f(arg_self_, arg_window, arg_active);
                     result.as_wrapper()
@@ -46835,7 +47412,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_new_bounds) = (window, new_bounds);
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_new_bounds: _cef_rect_t = arg_new_bounds.clone().into();
                     let arg_new_bounds = &arg_new_bounds;
                     let result = f(arg_self_, arg_window, arg_new_bounds);
@@ -46855,7 +47432,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_is_completed) = (window, is_completed);
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_is_completed = arg_is_completed;
                     let result = f(arg_self_, arg_window, arg_is_completed);
                     result.as_wrapper()
@@ -46876,7 +47453,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let (arg_window, arg_is_menu, arg_can_activate_menu) =
                         (window, is_menu, can_activate_menu);
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_is_menu = arg_is_menu as *mut _;
                     let arg_can_activate_menu = arg_can_activate_menu as *mut _;
                     let result = f(arg_self_, arg_window, arg_is_menu, arg_can_activate_menu);
@@ -46892,7 +47469,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -46906,7 +47483,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -46920,7 +47497,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -46934,7 +47511,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -46948,7 +47525,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -46966,7 +47543,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_titlebar_height) = (window, titlebar_height);
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_titlebar_height = arg_titlebar_height as *mut _;
                     let result = f(arg_self_, arg_window, arg_titlebar_height);
                     result.as_wrapper()
@@ -46981,7 +47558,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -46995,7 +47572,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -47009,7 +47586,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -47023,7 +47600,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -47037,7 +47614,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let arg_window = window;
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
@@ -47055,7 +47632,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_command_id) = (window, command_id);
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_command_id = arg_command_id;
                     let result = f(arg_self_, arg_window, arg_command_id);
                     result.as_wrapper()
@@ -47074,7 +47651,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_event) = (window, event);
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_event: _cef_key_event_t = arg_event.clone().into();
                     let arg_event = &arg_event;
                     let result = f(arg_self_, arg_window, arg_event);
@@ -47094,7 +47671,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_chrome_theme) = (window, chrome_theme);
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let arg_chrome_theme = arg_chrome_theme;
                     let result = f(arg_self_, arg_window, arg_chrome_theme);
                     result.as_wrapper()
@@ -47125,7 +47702,7 @@ impl ImplWindowDelegate for WindowDelegate {
                 .map(|f| {
                     let (arg_window, arg_properties) = (window, properties);
                     let arg_self_ = self.as_raw();
-                    let arg_window = ImplWindow::into_raw(Clone::clone(arg_window));
+                    let arg_window = ImplWindow::get_raw(arg_window);
                     let mut arg_properties: _cef_linux_window_properties_t =
                         arg_properties.clone().into();
                     let arg_properties = &mut arg_properties;
@@ -47134,6 +47711,9 @@ impl ImplWindowDelegate for WindowDelegate {
                 })
                 .unwrap_or_else(|| std::mem::zeroed())
         }
+    }
+    fn get_raw(&self) -> *mut _cef_window_delegate_t {
+        unsafe { RefGuard::as_raw(&self.0) }
     }
 }
 impl Rc for _cef_window_delegate_t {
@@ -47163,7 +47743,9 @@ impl ConvertReturnValue<WindowDelegate> for *mut _cef_window_delegate_t {
 }
 impl Into<*mut _cef_window_delegate_t> for WindowDelegate {
     fn into(self) -> *mut _cef_window_delegate_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplWindowDelegate::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for WindowDelegate {
@@ -47321,13 +47903,12 @@ pub trait ImplWindow: ImplPanel {
     fn get_runtime_style(&self) -> RuntimeStyle {
         unsafe { std::mem::zeroed() }
     }
-    fn into_raw(self) -> *mut _cef_window_t {
-        let mut object: _cef_window_t = unsafe { std::mem::zeroed() };
+    fn init_methods(object: &mut _cef_window_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base.base);
         impl_cef_panel_t::init_methods::<Self>(&mut object.base);
-        impl_cef_window_t::init_methods::<Self>(&mut object);
-        RcImpl::new(object, self) as *mut _
+        impl_cef_window_t::init_methods::<Self>(object);
     }
+    fn get_raw(&self) -> *mut _cef_window_t;
 }
 mod impl_cef_window_t {
     use super::*;
@@ -47967,6 +48548,9 @@ impl ImplView for Window {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .convert_point_from_view(view, point)
     }
+    fn get_raw(&self) -> *mut _cef_view_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplPanel for Window {
     fn as_window(&self) -> Window {
@@ -48016,6 +48600,9 @@ impl ImplPanel for Window {
         Panel(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_child_view_at(index)
     }
+    fn get_raw(&self) -> *mut _cef_panel_t {
+        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+    }
 }
 impl ImplWindow for Window {
     fn show(&self) {
@@ -48037,8 +48624,7 @@ impl ImplWindow for Window {
                 .map(|f| {
                     let arg_browser_view = browser_view;
                     let arg_self_ = self.as_raw();
-                    let arg_browser_view =
-                        ImplBrowserView::into_raw(Clone::clone(arg_browser_view));
+                    let arg_browser_view = ImplBrowserView::get_raw(arg_browser_view);
                     let result = f(arg_self_, arg_browser_view);
                     result.as_wrapper()
                 })
@@ -48301,7 +48887,7 @@ impl ImplWindow for Window {
                 .map(|f| {
                     let arg_image = image;
                     let arg_self_ = self.as_raw();
-                    let arg_image = ImplImage::into_raw(Clone::clone(arg_image));
+                    let arg_image = ImplImage::get_raw(arg_image);
                     let result = f(arg_self_, arg_image);
                     result.as_wrapper()
                 })
@@ -48327,7 +48913,7 @@ impl ImplWindow for Window {
                 .map(|f| {
                     let arg_image = image;
                     let arg_self_ = self.as_raw();
-                    let arg_image = ImplImage::into_raw(Clone::clone(arg_image));
+                    let arg_image = ImplImage::get_raw(arg_image);
                     let result = f(arg_self_, arg_image);
                     result.as_wrapper()
                 })
@@ -48359,7 +48945,7 @@ impl ImplWindow for Window {
                     let (arg_view, arg_docking_mode, arg_can_activate) =
                         (view, docking_mode, can_activate);
                     let arg_self_ = self.as_raw();
-                    let arg_view = ImplView::into_raw(Clone::clone(arg_view));
+                    let arg_view = ImplView::get_raw(arg_view);
                     let arg_docking_mode = arg_docking_mode.as_raw();
                     let arg_can_activate = arg_can_activate;
                     let result = f(arg_self_, arg_view, arg_docking_mode, arg_can_activate);
@@ -48381,7 +48967,7 @@ impl ImplWindow for Window {
                     let (arg_menu_model, arg_screen_point, arg_anchor_position) =
                         (menu_model, screen_point, anchor_position);
                     let arg_self_ = self.as_raw();
-                    let arg_menu_model = ImplMenuModel::into_raw(Clone::clone(arg_menu_model));
+                    let arg_menu_model = ImplMenuModel::get_raw(arg_menu_model);
                     let arg_screen_point: _cef_point_t = arg_screen_point.clone().into();
                     let arg_screen_point = &arg_screen_point;
                     let arg_anchor_position = arg_anchor_position.as_raw();
@@ -48625,6 +49211,9 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
+    fn get_raw(&self) -> *mut _cef_window_t {
+        unsafe { RefGuard::as_raw(&self.0) }
+    }
 }
 impl Rc for _cef_window_t {
     fn as_base(&self) -> &_cef_base_ref_counted_t {
@@ -48653,7 +49242,9 @@ impl ConvertReturnValue<Window> for *mut _cef_window_t {
 }
 impl Into<*mut _cef_window_t> for Window {
     fn into(self) -> *mut _cef_window_t {
-        unsafe { self.0.into_raw() }
+        let object = ImplWindow::get_raw(&self);
+        std::mem::forget(self);
+        object
     }
 }
 impl Default for Window {
@@ -52169,7 +52760,7 @@ pub fn stream_reader_create_for_data(data: *mut u8, size: usize) -> StreamReader
 pub fn stream_reader_create_for_handler(handler: &mut impl ImplReadHandler) -> StreamReader {
     unsafe {
         let arg_handler = handler;
-        let arg_handler = ImplReadHandler::into_raw(Clone::clone(arg_handler));
+        let arg_handler = ImplReadHandler::get_raw(arg_handler);
         let result = cef_stream_reader_create_for_handler(arg_handler);
         result.as_wrapper()
     }
@@ -52185,7 +52776,7 @@ pub fn stream_writer_create_for_file(file_name: &CefStringUtf16) -> StreamWriter
 pub fn stream_writer_create_for_handler(handler: &mut impl ImplWriteHandler) -> StreamWriter {
     unsafe {
         let arg_handler = handler;
-        let arg_handler = ImplWriteHandler::into_raw(Clone::clone(arg_handler));
+        let arg_handler = ImplWriteHandler::get_raw(arg_handler);
         let result = cef_stream_writer_create_for_handler(arg_handler);
         result.as_wrapper()
     }
@@ -52227,7 +52818,7 @@ pub fn cookie_manager_get_global_manager(
 ) -> CookieManager {
     unsafe {
         let arg_callback = callback;
-        let arg_callback = ImplCompletionCallback::into_raw(Clone::clone(arg_callback));
+        let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
         let result = cef_cookie_manager_get_global_manager(arg_callback);
         result.as_wrapper()
     }
@@ -52235,7 +52826,7 @@ pub fn cookie_manager_get_global_manager(
 pub fn media_router_get_global(callback: &mut impl ImplCompletionCallback) -> MediaRouter {
     unsafe {
         let arg_callback = callback;
-        let arg_callback = ImplCompletionCallback::into_raw(Clone::clone(arg_callback));
+        let arg_callback = ImplCompletionCallback::get_raw(arg_callback);
         let result = cef_media_router_get_global(arg_callback);
         result.as_wrapper()
     }
@@ -52260,7 +52851,7 @@ pub fn request_context_create_context(
         let (arg_settings, arg_handler) = (settings, handler);
         let arg_settings: _cef_request_context_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
-        let arg_handler = ImplRequestContextHandler::into_raw(Clone::clone(arg_handler));
+        let arg_handler = ImplRequestContextHandler::get_raw(arg_handler);
         let result = cef_request_context_create_context(arg_settings, arg_handler);
         result.as_wrapper()
     }
@@ -52271,8 +52862,8 @@ pub fn create_context_shared(
 ) -> RequestContext {
     unsafe {
         let (arg_other, arg_handler) = (other, handler);
-        let arg_other = ImplRequestContext::into_raw(Clone::clone(arg_other));
-        let arg_handler = ImplRequestContextHandler::into_raw(Clone::clone(arg_handler));
+        let arg_other = ImplRequestContext::get_raw(arg_other);
+        let arg_handler = ImplRequestContextHandler::get_raw(arg_handler);
         let result = cef_create_context_shared(arg_other, arg_handler);
         result.as_wrapper()
     }
@@ -52303,12 +52894,12 @@ pub fn browser_host_create_browser(
         );
         let arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
         let arg_window_info = &arg_window_info;
-        let arg_client = ImplClient::into_raw(Clone::clone(arg_client));
+        let arg_client = ImplClient::get_raw(arg_client);
         let arg_url = arg_url.as_raw();
         let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
-        let arg_extra_info = ImplDictionaryValue::into_raw(Clone::clone(arg_extra_info));
-        let arg_request_context = ImplRequestContext::into_raw(Clone::clone(arg_request_context));
+        let arg_extra_info = ImplDictionaryValue::get_raw(arg_extra_info);
+        let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
         let result = cef_browser_host_create_browser(
             arg_window_info,
             arg_client,
@@ -52346,12 +52937,12 @@ pub fn browser_host_create_browser_sync(
         );
         let arg_window_info: _cef_window_info_t = arg_window_info.clone().into();
         let arg_window_info = &arg_window_info;
-        let arg_client = ImplClient::into_raw(Clone::clone(arg_client));
+        let arg_client = ImplClient::get_raw(arg_client);
         let arg_url = arg_url.as_raw();
         let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
-        let arg_extra_info = ImplDictionaryValue::into_raw(Clone::clone(arg_extra_info));
-        let arg_request_context = ImplRequestContext::into_raw(Clone::clone(arg_request_context));
+        let arg_extra_info = ImplDictionaryValue::get_raw(arg_extra_info);
+        let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
         let result = cef_browser_host_create_browser_sync(
             arg_window_info,
             arg_client,
@@ -52374,7 +52965,7 @@ pub fn browser_host_get_browser_by_identifier(browser_id: ::std::os::raw::c_int)
 pub fn menu_model_create(delegate: &mut impl ImplMenuModelDelegate) -> MenuModel {
     unsafe {
         let arg_delegate = delegate;
-        let arg_delegate = ImplMenuModelDelegate::into_raw(Clone::clone(arg_delegate));
+        let arg_delegate = ImplMenuModelDelegate::get_raw(arg_delegate);
         let result = cef_menu_model_create(arg_delegate);
         result.as_wrapper()
     }
@@ -52437,7 +53028,7 @@ pub fn post_task(thread_id: ThreadId, task: &mut impl ImplTask) -> ::std::os::ra
     unsafe {
         let (arg_thread_id, arg_task) = (thread_id, task);
         let arg_thread_id = arg_thread_id.as_raw();
-        let arg_task = ImplTask::into_raw(Clone::clone(arg_task));
+        let arg_task = ImplTask::get_raw(arg_task);
         let result = cef_post_task(arg_thread_id, arg_task);
         result.as_wrapper()
     }
@@ -52450,7 +53041,7 @@ pub fn post_delayed_task(
     unsafe {
         let (arg_thread_id, arg_task, arg_delay_ms) = (thread_id, task, delay_ms);
         let arg_thread_id = arg_thread_id.as_raw();
-        let arg_task = ImplTask::into_raw(Clone::clone(arg_task));
+        let arg_task = ImplTask::get_raw(arg_task);
         let arg_delay_ms = arg_delay_ms;
         let result = cef_post_delayed_task(arg_thread_id, arg_task, arg_delay_ms);
         result.as_wrapper()
@@ -52539,8 +53130,8 @@ pub fn v8value_create_object(
 ) -> V8value {
     unsafe {
         let (arg_accessor, arg_interceptor) = (accessor, interceptor);
-        let arg_accessor = ImplV8accessor::into_raw(Clone::clone(arg_accessor));
-        let arg_interceptor = ImplV8interceptor::into_raw(Clone::clone(arg_interceptor));
+        let arg_accessor = ImplV8accessor::get_raw(arg_accessor);
+        let arg_interceptor = ImplV8interceptor::get_raw(arg_interceptor);
         let result = cef_v8value_create_object(arg_accessor, arg_interceptor);
         result.as_wrapper()
     }
@@ -52562,8 +53153,7 @@ pub fn v8value_create_array_buffer(
         let (arg_buffer, arg_length, arg_release_callback) = (buffer, length, release_callback);
         let arg_buffer = arg_buffer as *mut _;
         let arg_length = arg_length;
-        let arg_release_callback =
-            ImplV8arrayBufferReleaseCallback::into_raw(Clone::clone(arg_release_callback));
+        let arg_release_callback = ImplV8arrayBufferReleaseCallback::get_raw(arg_release_callback);
         let result = cef_v8value_create_array_buffer(arg_buffer, arg_length, arg_release_callback);
         result.as_wrapper()
     }
@@ -52581,7 +53171,7 @@ pub fn v8value_create_function(name: &CefStringUtf16, handler: &mut impl ImplV8h
     unsafe {
         let (arg_name, arg_handler) = (name, handler);
         let arg_name = arg_name.as_raw();
-        let arg_handler = ImplV8handler::into_raw(Clone::clone(arg_handler));
+        let arg_handler = ImplV8handler::get_raw(arg_handler);
         let result = cef_v8value_create_function(arg_name, arg_handler);
         result.as_wrapper()
     }
@@ -52610,7 +53200,7 @@ pub fn register_extension(
             (extension_name, javascript_code, handler);
         let arg_extension_name = arg_extension_name.as_raw();
         let arg_javascript_code = arg_javascript_code.as_raw();
-        let arg_handler = ImplV8handler::into_raw(Clone::clone(arg_handler));
+        let arg_handler = ImplV8handler::get_raw(arg_handler);
         let result = cef_register_extension(arg_extension_name, arg_javascript_code, arg_handler);
         result.as_wrapper()
     }
@@ -52624,7 +53214,7 @@ pub fn register_scheme_handler_factory(
         let (arg_scheme_name, arg_domain_name, arg_factory) = (scheme_name, domain_name, factory);
         let arg_scheme_name = arg_scheme_name.as_raw();
         let arg_domain_name = arg_domain_name.as_raw();
-        let arg_factory = ImplSchemeHandlerFactory::into_raw(Clone::clone(arg_factory));
+        let arg_factory = ImplSchemeHandlerFactory::get_raw(arg_factory);
         let result =
             cef_register_scheme_handler_factory(arg_scheme_name, arg_domain_name, arg_factory);
         result.as_wrapper()
@@ -52646,7 +53236,7 @@ pub fn execute_process(
             (args, application, windows_sandbox_info);
         let arg_args: _cef_main_args_t = arg_args.clone().into();
         let arg_args = &arg_args;
-        let arg_application = ImplApp::into_raw(Clone::clone(arg_application));
+        let arg_application = ImplApp::get_raw(arg_application);
         let arg_windows_sandbox_info = arg_windows_sandbox_info as *mut _;
         let result = cef_execute_process(arg_args, arg_application, arg_windows_sandbox_info);
         result.as_wrapper()
@@ -52665,7 +53255,7 @@ pub fn initialize(
         let arg_args = &arg_args;
         let arg_settings: _cef_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
-        let arg_application = ImplApp::into_raw(Clone::clone(arg_application));
+        let arg_application = ImplApp::get_raw(arg_application);
         let arg_windows_sandbox_info = arg_windows_sandbox_info as *mut _;
         let result = cef_initialize(
             arg_args,
@@ -52713,9 +53303,9 @@ pub fn urlrequest_create(
 ) -> Urlrequest {
     unsafe {
         let (arg_request, arg_client, arg_request_context) = (request, client, request_context);
-        let arg_request = ImplRequest::into_raw(Clone::clone(arg_request));
-        let arg_client = ImplUrlrequestClient::into_raw(Clone::clone(arg_client));
-        let arg_request_context = ImplRequestContext::into_raw(Clone::clone(arg_request_context));
+        let arg_request = ImplRequest::get_raw(arg_request);
+        let arg_client = ImplUrlrequestClient::get_raw(arg_client);
+        let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
         let result = cef_urlrequest_create(arg_request, arg_client, arg_request_context);
         result.as_wrapper()
     }
@@ -52726,7 +53316,7 @@ pub fn label_button_create(
 ) -> LabelButton {
     unsafe {
         let (arg_delegate, arg_text) = (delegate, text);
-        let arg_delegate = ImplButtonDelegate::into_raw(Clone::clone(arg_delegate));
+        let arg_delegate = ImplButtonDelegate::get_raw(arg_delegate);
         let arg_text = arg_text.as_raw();
         let result = cef_label_button_create(arg_delegate, arg_text);
         result.as_wrapper()
@@ -52738,7 +53328,7 @@ pub fn menu_button_create(
 ) -> MenuButton {
     unsafe {
         let (arg_delegate, arg_text) = (delegate, text);
-        let arg_delegate = ImplMenuButtonDelegate::into_raw(Clone::clone(arg_delegate));
+        let arg_delegate = ImplMenuButtonDelegate::get_raw(arg_delegate);
         let arg_text = arg_text.as_raw();
         let result = cef_menu_button_create(arg_delegate, arg_text);
         result.as_wrapper()
@@ -52747,7 +53337,7 @@ pub fn menu_button_create(
 pub fn textfield_create(delegate: &mut impl ImplTextfieldDelegate) -> Textfield {
     unsafe {
         let arg_delegate = delegate;
-        let arg_delegate = ImplTextfieldDelegate::into_raw(Clone::clone(arg_delegate));
+        let arg_delegate = ImplTextfieldDelegate::get_raw(arg_delegate);
         let result = cef_textfield_create(arg_delegate);
         result.as_wrapper()
     }
@@ -52763,13 +53353,13 @@ pub fn browser_view_create(
     unsafe {
         let (arg_client, arg_url, arg_settings, arg_extra_info, arg_request_context, arg_delegate) =
             (client, url, settings, extra_info, request_context, delegate);
-        let arg_client = ImplClient::into_raw(Clone::clone(arg_client));
+        let arg_client = ImplClient::get_raw(arg_client);
         let arg_url = arg_url.as_raw();
         let arg_settings: _cef_browser_settings_t = arg_settings.clone().into();
         let arg_settings = &arg_settings;
-        let arg_extra_info = ImplDictionaryValue::into_raw(Clone::clone(arg_extra_info));
-        let arg_request_context = ImplRequestContext::into_raw(Clone::clone(arg_request_context));
-        let arg_delegate = ImplBrowserViewDelegate::into_raw(Clone::clone(arg_delegate));
+        let arg_extra_info = ImplDictionaryValue::get_raw(arg_extra_info);
+        let arg_request_context = ImplRequestContext::get_raw(arg_request_context);
+        let arg_delegate = ImplBrowserViewDelegate::get_raw(arg_delegate);
         let result = cef_browser_view_create(
             arg_client,
             arg_url,
@@ -52784,7 +53374,7 @@ pub fn browser_view_create(
 pub fn browser_view_get_for_browser(browser: &mut impl ImplBrowser) -> BrowserView {
     unsafe {
         let arg_browser = browser;
-        let arg_browser = ImplBrowser::into_raw(Clone::clone(arg_browser));
+        let arg_browser = ImplBrowser::get_raw(arg_browser);
         let result = cef_browser_view_get_for_browser(arg_browser);
         result.as_wrapper()
     }
@@ -52792,7 +53382,7 @@ pub fn browser_view_get_for_browser(browser: &mut impl ImplBrowser) -> BrowserVi
 pub fn scroll_view_create(delegate: &mut impl ImplViewDelegate) -> ScrollView {
     unsafe {
         let arg_delegate = delegate;
-        let arg_delegate = ImplViewDelegate::into_raw(Clone::clone(arg_delegate));
+        let arg_delegate = ImplViewDelegate::get_raw(arg_delegate);
         let result = cef_scroll_view_create(arg_delegate);
         result.as_wrapper()
     }
@@ -52850,7 +53440,7 @@ pub fn display_get_alls(displays: Option<&mut Vec<Option<Display>>>) {
                 arg.iter_mut()
                     .map(|elem| {
                         elem.as_mut()
-                            .map(|elem| std::mem::take(elem).into_raw())
+                            .map(|elem| elem.get_raw())
                             .unwrap_or(std::ptr::null_mut())
                     })
                     .collect::<Vec<_>>()
@@ -52917,7 +53507,7 @@ pub fn display_convert_screen_rect_from_pixels(rect: &Rect) -> Rect {
 pub fn panel_create(delegate: &mut impl ImplPanelDelegate) -> Panel {
     unsafe {
         let arg_delegate = delegate;
-        let arg_delegate = ImplPanelDelegate::into_raw(Clone::clone(arg_delegate));
+        let arg_delegate = ImplPanelDelegate::get_raw(arg_delegate);
         let result = cef_panel_create(arg_delegate);
         result.as_wrapper()
     }
@@ -52925,7 +53515,7 @@ pub fn panel_create(delegate: &mut impl ImplPanelDelegate) -> Panel {
 pub fn window_create_top_level(delegate: &mut impl ImplWindowDelegate) -> Window {
     unsafe {
         let arg_delegate = delegate;
-        let arg_delegate = ImplWindowDelegate::into_raw(Clone::clone(arg_delegate));
+        let arg_delegate = ImplWindowDelegate::get_raw(arg_delegate);
         let result = cef_window_create_top_level(arg_delegate);
         result.as_wrapper()
     }

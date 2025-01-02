@@ -431,7 +431,7 @@ impl SignatureRef<'_> {
                         match modifiers {
                             [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
                                 Some(quote! {
-                                    let mut #name = #name.map(|arg| Clone::clone(arg).into_raw());
+                                    let mut #name = #name.map(|arg| arg.get_raw());
                                     let #name = #name
                                         .as_mut()
                                         .map(|arg| arg as *mut _)
@@ -450,9 +450,9 @@ impl SignatureRef<'_> {
                                         .map(|ty| {
                                             let ty = ty.to_token_stream().to_string();
                                             let ty = format_ident!("Impl{ty}");
-                                            quote!{ #ty::into_raw(Clone::clone(#name)) }
+                                            quote!{ #ty::get_raw(#name) }
                                         })
-                                        .unwrap_or_else(|| quote!{ Clone::clone(#name).into_raw() });
+                                        .unwrap_or_else(|| quote!{ #name.get_raw() });
     
                                     Some(quote! {
                                         let #name = #cast;
@@ -536,7 +536,7 @@ impl SignatureRef<'_> {
                                 .iter()
                                 .map(|elem| elem
                                     .as_ref()
-                                    .map(|elem| Clone::clone(elem).into_raw())
+                                    .map(|elem| elem.get_raw())
                                     .unwrap_or(std::ptr::null_mut()))
                                 .collect::<Vec<_>>())
                             .unwrap_or_default();
@@ -559,7 +559,7 @@ impl SignatureRef<'_> {
                                 .iter_mut()
                                 .map(|elem| elem
                                     .as_mut()
-                                    .map(|elem| std::mem::take(elem).into_raw())
+                                    .map(|elem| elem.get_raw())
                                     .unwrap_or(std::ptr::null_mut()))
                                 .collect::<Vec<_>>())
                             .unwrap_or_default();
@@ -1577,7 +1577,7 @@ impl<'a> ParseTree<'a> {
                         let base = format_ident!("Impl{base}");
                         quote! { #base }
                     })
-                    .unwrap_or(quote! { Clone + Default + Sized + Rc });
+                    .unwrap_or(quote! { Clone + Sized + Rc });
                 let impl_methods = s.methods.iter().map(|m| {
                     let sig = m.get_signature(self);
                     quote! {
@@ -1618,6 +1618,8 @@ impl<'a> ParseTree<'a> {
                     .into_iter()
                     .filter_map(|base_struct| {
                         self.cef_name_map.get(&base_struct.name).map(|entry| {
+                            let name = &base_struct.name;
+                            let name_ident = format_ident!("{name}");
                             let base = &entry.name;
                             let base_trait = format_ident!("Impl{base}");
                             let base = format_ident!("{base}");
@@ -1650,6 +1652,10 @@ impl<'a> ParseTree<'a> {
                             quote! {
                                 impl #base_trait for #rust_name {
                                     #(#base_methods)*
+
+                                    fn get_raw(&self) -> *mut #name_ident {
+                                        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+                                    }
                                 }
                             }
                         })
@@ -1713,12 +1719,12 @@ impl<'a> ParseTree<'a> {
                     pub trait #impl_trait : #impl_base_name {
                         #(#impl_methods)*
 
-                        fn into_raw(self) -> *mut #name_ident {
-                            let mut object: #name_ident = unsafe { std::mem::zeroed() };
+                        fn init_methods(object: &mut #name_ident) {
                             #(#init_bases)*
-                            #impl_mod::init_methods::<Self>(&mut object);
-                            RcImpl::new(object, self) as *mut _
+                            #impl_mod::init_methods::<Self>(object);
                         }
+
+                        fn get_raw(&self) -> *mut #name_ident;
                     }
 
                     mod #impl_mod {
@@ -1739,6 +1745,10 @@ impl<'a> ParseTree<'a> {
 
                     impl #impl_trait for #rust_name {
                         #(#methods)*
+
+                        fn get_raw(&self) -> *mut #name_ident {
+                            unsafe { RefGuard::as_raw(&self.0) }
+                        }
                     }
 
                     impl Rc for #name_ident {
@@ -1773,7 +1783,9 @@ impl<'a> ParseTree<'a> {
 
                     impl Into<*mut #name_ident> for #rust_name {
                         fn into(self) -> *mut #name_ident {
-                            unsafe { self.0.into_raw() }
+                            let object = #impl_trait::get_raw(&self);
+                            std::mem::forget(self);
+                            object
                         }
                     }
 
@@ -1788,6 +1800,12 @@ impl<'a> ParseTree<'a> {
                     #[doc = #comment]
                     #[derive(Clone)]
                     pub struct #rust_name(RefGuard<#name_ident>);
+
+                    impl #rust_name {
+                        fn get_raw(&self) -> *mut #name_ident {
+                            unsafe { RefGuard::as_raw(&self.0) }
+                        }
+                    }
 
                     impl Rc for #rust_name {
                         fn as_base(&self) -> &#name_ident {
@@ -1815,7 +1833,9 @@ impl<'a> ParseTree<'a> {
 
                     impl Into<*mut #name_ident> for #rust_name {
                         fn into(self) -> *mut #name_ident {
-                            unsafe { self.0.into_raw() }
+                            let object = self.get_raw();
+                            std::mem::forget(self);
+                            object
                         }
                     }
 
