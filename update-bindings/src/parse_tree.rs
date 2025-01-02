@@ -46,6 +46,11 @@ struct TypeAliasRef<'a> {
     ty: &'a syn::Type,
 }
 
+struct EnumRef<'a> {
+    name: String,
+    ty: Option<&'a syn::ItemEnum>,
+}
+
 struct FieldRef<'a> {
     name: String,
     ty: &'a syn::Type,
@@ -1378,7 +1383,7 @@ impl syn::parse::Parse for ModifiedType {
 #[derive(Default)]
 struct ParseTree<'a> {
     type_aliases: Vec<TypeAliasRef<'a>>,
-    enum_names: Vec<String>,
+    enum_names: Vec<EnumRef<'a>>,
     struct_declarations: Vec<StructDeclarationRef<'a>>,
     global_function_declarations: Vec<SignatureRef<'a>>,
 
@@ -1399,7 +1404,6 @@ impl<'a> ParseTree<'a> {
             #![allow(
                 dead_code,
                 improper_ctypes_definitions,
-                invalid_value,
                 non_camel_case_types,
                 unused_variables
             )]
@@ -1557,6 +1561,11 @@ impl<'a> ParseTree<'a> {
                         quote! { #name }
                     });
                     let post_forward_args = m.rewrap_rust_args(self);
+                    let impl_default = m.output.and_then(|ty| {
+                        let ty = syn::parse2::<ModifiedType>(ty.to_token_stream()).ok()?;
+                        (ty.ty.to_token_stream().to_string() != quote!{ ::std::os::raw::c_void }.to_string())
+                            .then(|| quote! { .unwrap_or_default() })
+                    }).unwrap_or(quote! { .unwrap_or_else(|| std::mem::zeroed()) });
                     quote! {
                         #sig {
                             unsafe {
@@ -1566,7 +1575,7 @@ impl<'a> ParseTree<'a> {
                                     #post_forward_args
                                     result.as_wrapper()
                                 })
-                                .unwrap_or_else(|| std::mem::zeroed())
+                                #impl_default
                             }
                         }
                     }
@@ -1585,9 +1594,17 @@ impl<'a> ParseTree<'a> {
                     .unwrap_or(quote! { Clone + Sized + Rc });
                 let impl_methods = s.methods.iter().map(|m| {
                     let sig = m.get_signature(self);
+                    let impl_default = m.output.map(|ty| {
+                        match syn::parse2::<ModifiedType>(ty.to_token_stream()) {
+                            Ok(ty) if ty.ty.to_token_stream().to_string() != quote!{ ::std::os::raw::c_void }.to_string() => {
+                                quote! {  Default::default() }
+                            }
+                            _ => quote! { unsafe { std::mem::zeroed() } },
+                        }
+                    });
                     quote! {
                         #sig {
-                            unsafe { std::mem::zeroed() }
+                            #impl_default
                         }
                     }
                 });
@@ -2009,11 +2026,18 @@ impl<'a> ParseTree<'a> {
         let enum_names = self
             .enum_names
             .iter()
-            .filter_map(|name| make_rust_type_name(name).map(|rust_name| (rust_name, name)));
-        let declarations = enum_names.map(|(rust_name, name)| {
+            .filter_map(|e| make_rust_type_name(&e.name).map(|rust_name| (rust_name, e)));
+        let declarations = enum_names.map(|(rust_name, e)| {
+            let name = &e.name;
             let comment = format!(r#"See [{name}] for more documentation."#);
             let name = format_ident!("{name}");
             let rust_name = format_ident!("{rust_name}");
+            let impl_default = e.ty.and_then(|ty| ty.variants.first())
+                .map(|v| {
+                    let v = &v.ident;
+                    quote!{ Self(#name::#v) }
+                })
+                .unwrap_or(quote! { unsafe { std::mem::zeroed() } });
             quote! {
                 #[doc = #comment]
                 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -2045,7 +2069,7 @@ impl<'a> ParseTree<'a> {
 
                 impl Default for #rust_name {
                     fn default() -> Self {
-                        unsafe { std::mem::zeroed() }
+                        #impl_default
                     }
                 }
             }
@@ -2143,10 +2167,10 @@ impl<'a> From<&'a syn::File> for ParseTree<'a> {
             .items
             .iter()
             .filter_map(|item| match item {
-                syn::Item::Enum(syn::ItemEnum { ident, .. }) => Some(ident.to_string()),
+                syn::Item::Enum(e) => Some(EnumRef { name: e.ident.to_string(), ty: Some(e) }),
                 syn::Item::Struct(item_struct) => match &item_struct.fields {
                     syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
-                        Some(item_struct.ident.to_string())
+                        Some(EnumRef { name: item_struct.ident.to_string(), ty: None })
                     }
                     _ => None,
                 },
@@ -2247,7 +2271,7 @@ impl<'a> From<&'a syn::File> for ParseTree<'a> {
             .chain(
                 tree.enum_names
                     .iter()
-                    .map(String::as_str)
+                    .map(|e| e.name.as_str())
                     .map(|cef_name| (cef_name, NameMapType::EnumName)),
             )
             .chain(
@@ -2297,7 +2321,7 @@ impl<'a> From<&'a syn::File> for ParseTree<'a> {
             .enum_names
             .iter()
             .enumerate()
-            .map(|(index, name)| (name.clone(), index))
+            .map(|(index, e)| (e.name.clone(), index))
             .collect();
         tree.lookup_struct_declaration = tree
             .struct_declarations

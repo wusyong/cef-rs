@@ -1,7 +1,6 @@
 #![allow(
     dead_code,
     improper_ctypes_definitions,
-    invalid_value,
     non_camel_case_types,
     unused_variables
 )]
@@ -1456,7 +1455,7 @@ pub trait ImplDevToolsMessageObserver: Clone + Sized + Rc {
         browser: &mut impl ImplBrowser,
         message: Option<&[u8]>,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_dev_tools_method_result(
         &self,
@@ -1465,7 +1464,6 @@ pub trait ImplDevToolsMessageObserver: Clone + Sized + Rc {
         success: ::std::os::raw::c_int,
         result: Option<&[u8]>,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_dev_tools_event(
         &self,
@@ -1473,14 +1471,9 @@ pub trait ImplDevToolsMessageObserver: Clone + Sized + Rc {
         method: &CefStringUtf16,
         params: Option<&[u8]>,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_dev_tools_agent_attached(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_dev_tools_agent_detached(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_dev_tools_agent_attached(&self, browser: &mut impl ImplBrowser) {}
+    fn on_dev_tools_agent_detached(&self, browser: &mut impl ImplBrowser) {}
     fn init_methods(object: &mut _cef_dev_tools_message_observer_t) {
         impl_cef_dev_tools_message_observer_t::init_methods::<Self>(object);
     }
@@ -1624,7 +1617,7 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                     let result = f(arg_self_, arg_browser, arg_message, arg_message_size);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_dev_tools_method_result(
@@ -1782,70 +1775,70 @@ impl Default for DevToolsMessageObserver {
 }
 pub trait ImplValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_owned(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_equal(&self, that: &mut impl ImplValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn copy(&self) -> Value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_type(&self) -> ValueType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_bool(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_int(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_double(&self) -> f64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_string(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_binary(&self) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_dictionary(&self) -> DictionaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_list(&self) -> ListValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_null(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_bool(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_int(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_double(&self, value: f64) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_string(&self, value: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_binary(&self, value: &mut impl ImplBinaryValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_dictionary(&self, value: &mut impl ImplDictionaryValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_list(&self, value: &mut impl ImplListValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_value_t) {
         impl_cef_value_t::init_methods::<Self>(object);
@@ -2063,7 +2056,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_owned(&self) -> ::std::os::raw::c_int {
@@ -2075,7 +2068,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
@@ -2087,7 +2080,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplValue) -> ::std::os::raw::c_int {
@@ -2102,7 +2095,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_equal(&self, that: &mut impl ImplValue) -> ::std::os::raw::c_int {
@@ -2117,7 +2110,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn copy(&self) -> Value {
@@ -2129,7 +2122,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_type(&self) -> ValueType {
@@ -2141,7 +2134,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_bool(&self) -> ::std::os::raw::c_int {
@@ -2153,7 +2146,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_int(&self) -> ::std::os::raw::c_int {
@@ -2165,7 +2158,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_double(&self) -> f64 {
@@ -2177,7 +2170,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_string(&self) -> CefStringUtf16 {
@@ -2189,7 +2182,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_binary(&self) -> BinaryValue {
@@ -2201,7 +2194,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_dictionary(&self) -> DictionaryValue {
@@ -2213,7 +2206,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_list(&self) -> ListValue {
@@ -2225,7 +2218,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_null(&self) -> ::std::os::raw::c_int {
@@ -2237,7 +2230,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_bool(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -2251,7 +2244,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_int(&self, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -2265,7 +2258,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_double(&self, value: f64) -> ::std::os::raw::c_int {
@@ -2279,7 +2272,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_string(&self, value: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -2293,7 +2286,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_binary(&self, value: &mut impl ImplBinaryValue) -> ::std::os::raw::c_int {
@@ -2308,7 +2301,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_dictionary(&self, value: &mut impl ImplDictionaryValue) -> ::std::os::raw::c_int {
@@ -2323,7 +2316,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_list(&self, value: &mut impl ImplListValue) -> ::std::os::raw::c_int {
@@ -2338,7 +2331,7 @@ impl ImplValue for Value {
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_value_t {
@@ -2384,28 +2377,28 @@ impl Default for Value {
 }
 pub trait ImplBinaryValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_owned(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplBinaryValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_equal(&self, that: &mut impl ImplBinaryValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn copy(&self) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_raw_data(&self) -> *const ::std::os::raw::c_void {
         unsafe { std::mem::zeroed() }
     }
     fn get_size(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_data(&self, buffer: Option<&mut Vec<u8>>, data_offset: usize) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_binary_value_t) {
         impl_cef_binary_value_t::init_methods::<Self>(object);
@@ -2518,7 +2511,7 @@ impl ImplBinaryValue for BinaryValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_owned(&self) -> ::std::os::raw::c_int {
@@ -2530,7 +2523,7 @@ impl ImplBinaryValue for BinaryValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplBinaryValue) -> ::std::os::raw::c_int {
@@ -2545,7 +2538,7 @@ impl ImplBinaryValue for BinaryValue {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_equal(&self, that: &mut impl ImplBinaryValue) -> ::std::os::raw::c_int {
@@ -2560,7 +2553,7 @@ impl ImplBinaryValue for BinaryValue {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn copy(&self) -> BinaryValue {
@@ -2572,7 +2565,7 @@ impl ImplBinaryValue for BinaryValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw_data(&self) -> *const ::std::os::raw::c_void {
@@ -2596,7 +2589,7 @@ impl ImplBinaryValue for BinaryValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_data(&self, buffer: Option<&mut Vec<u8>>, data_offset: usize) -> usize {
@@ -2623,7 +2616,7 @@ impl ImplBinaryValue for BinaryValue {
                     let result = f(arg_self_, arg_buffer, arg_buffer_size, arg_data_offset);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_binary_value_t {
@@ -2669,107 +2662,107 @@ impl Default for BinaryValue {
 }
 pub trait ImplDictionaryValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_owned(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplDictionaryValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_equal(&self, that: &mut impl ImplDictionaryValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_size(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn clear(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_key(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn remove(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_type(&self, key: &CefStringUtf16) -> ValueType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_value(&self, key: &CefStringUtf16) -> Value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_bool(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_int(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_double(&self, key: &CefStringUtf16) -> f64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_string(&self, key: &CefStringUtf16) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_binary(&self, key: &CefStringUtf16) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_dictionary(&self, key: &CefStringUtf16) -> DictionaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_list(&self, key: &CefStringUtf16) -> ListValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_value(&self, key: &CefStringUtf16, value: &mut impl ImplValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_null(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_bool(
         &self,
         key: &CefStringUtf16,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_int(&self, key: &CefStringUtf16, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_double(&self, key: &CefStringUtf16, value: f64) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_string(&self, key: &CefStringUtf16, value: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_binary(
         &self,
         key: &CefStringUtf16,
         value: &mut impl ImplBinaryValue,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_dictionary(
         &self,
         key: &CefStringUtf16,
         value: &mut impl ImplDictionaryValue,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_list(
         &self,
         key: &CefStringUtf16,
         value: &mut impl ImplListValue,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_dictionary_value_t) {
         impl_cef_dictionary_value_t::init_methods::<Self>(object);
@@ -3139,7 +3132,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_owned(&self) -> ::std::os::raw::c_int {
@@ -3151,7 +3144,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
@@ -3163,7 +3156,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplDictionaryValue) -> ::std::os::raw::c_int {
@@ -3178,7 +3171,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_equal(&self, that: &mut impl ImplDictionaryValue) -> ::std::os::raw::c_int {
@@ -3193,7 +3186,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue {
@@ -3207,7 +3200,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_exclude_empty_children);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_size(&self) -> usize {
@@ -3219,7 +3212,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn clear(&self) -> ::std::os::raw::c_int {
@@ -3231,7 +3224,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_key(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -3245,7 +3238,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
@@ -3259,7 +3252,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_keys);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn remove(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -3273,7 +3266,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_type(&self, key: &CefStringUtf16) -> ValueType {
@@ -3287,7 +3280,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_value(&self, key: &CefStringUtf16) -> Value {
@@ -3301,7 +3294,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_bool(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -3315,7 +3308,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_int(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -3329,7 +3322,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_double(&self, key: &CefStringUtf16) -> f64 {
@@ -3343,7 +3336,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_string(&self, key: &CefStringUtf16) -> CefStringUtf16 {
@@ -3357,7 +3350,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_binary(&self, key: &CefStringUtf16) -> BinaryValue {
@@ -3371,7 +3364,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_dictionary(&self, key: &CefStringUtf16) -> DictionaryValue {
@@ -3385,7 +3378,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_list(&self, key: &CefStringUtf16) -> ListValue {
@@ -3399,7 +3392,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_value(&self, key: &CefStringUtf16, value: &mut impl ImplValue) -> ::std::os::raw::c_int {
@@ -3415,7 +3408,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_null(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -3429,7 +3422,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_bool(
@@ -3448,7 +3441,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_int(&self, key: &CefStringUtf16, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -3463,7 +3456,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_double(&self, key: &CefStringUtf16, value: f64) -> ::std::os::raw::c_int {
@@ -3478,7 +3471,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_string(&self, key: &CefStringUtf16, value: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -3493,7 +3486,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_binary(
@@ -3513,7 +3506,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_dictionary(
@@ -3533,7 +3526,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_list(
@@ -3553,7 +3546,7 @@ impl ImplDictionaryValue for DictionaryValue {
                     let result = f(arg_self_, arg_key, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_dictionary_value_t {
@@ -3599,92 +3592,92 @@ impl Default for DictionaryValue {
 }
 pub trait ImplListValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_owned(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplListValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_equal(&self, that: &mut impl ImplListValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn copy(&self) -> ListValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_size(&self, size: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_size(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn clear(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn remove(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_type(&self, index: usize) -> ValueType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_value(&self, index: usize) -> Value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_bool(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_int(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_double(&self, index: usize) -> f64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_string(&self, index: usize) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_binary(&self, index: usize) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_dictionary(&self, index: usize) -> DictionaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_list(&self, index: usize) -> ListValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_value(&self, index: usize, value: &mut impl ImplValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_null(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_bool(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_int(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_double(&self, index: usize, value: f64) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_string(&self, index: usize, value: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_binary(&self, index: usize, value: &mut impl ImplBinaryValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_dictionary(
         &self,
         index: usize,
         value: &mut impl ImplDictionaryValue,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_list(&self, index: usize, value: &mut impl ImplListValue) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_list_value_t) {
         impl_cef_list_value_t::init_methods::<Self>(object);
@@ -4013,7 +4006,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_owned(&self) -> ::std::os::raw::c_int {
@@ -4025,7 +4018,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
@@ -4037,7 +4030,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplListValue) -> ::std::os::raw::c_int {
@@ -4052,7 +4045,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_equal(&self, that: &mut impl ImplListValue) -> ::std::os::raw::c_int {
@@ -4067,7 +4060,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn copy(&self) -> ListValue {
@@ -4079,7 +4072,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_size(&self, size: usize) -> ::std::os::raw::c_int {
@@ -4093,7 +4086,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_size);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_size(&self) -> usize {
@@ -4105,7 +4098,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn clear(&self) -> ::std::os::raw::c_int {
@@ -4117,7 +4110,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn remove(&self, index: usize) -> ::std::os::raw::c_int {
@@ -4131,7 +4124,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_type(&self, index: usize) -> ValueType {
@@ -4145,7 +4138,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_value(&self, index: usize) -> Value {
@@ -4159,7 +4152,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_bool(&self, index: usize) -> ::std::os::raw::c_int {
@@ -4173,7 +4166,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_int(&self, index: usize) -> ::std::os::raw::c_int {
@@ -4187,7 +4180,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_double(&self, index: usize) -> f64 {
@@ -4201,7 +4194,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_string(&self, index: usize) -> CefStringUtf16 {
@@ -4215,7 +4208,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_binary(&self, index: usize) -> BinaryValue {
@@ -4229,7 +4222,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_dictionary(&self, index: usize) -> DictionaryValue {
@@ -4243,7 +4236,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_list(&self, index: usize) -> ListValue {
@@ -4257,7 +4250,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_value(&self, index: usize, value: &mut impl ImplValue) -> ::std::os::raw::c_int {
@@ -4273,7 +4266,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_null(&self, index: usize) -> ::std::os::raw::c_int {
@@ -4287,7 +4280,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_bool(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -4302,7 +4295,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_int(&self, index: usize, value: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -4317,7 +4310,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_double(&self, index: usize, value: f64) -> ::std::os::raw::c_int {
@@ -4332,7 +4325,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_string(&self, index: usize, value: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -4347,7 +4340,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_binary(&self, index: usize, value: &mut impl ImplBinaryValue) -> ::std::os::raw::c_int {
@@ -4363,7 +4356,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_dictionary(
@@ -4383,7 +4376,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_list(&self, index: usize, value: &mut impl ImplListValue) -> ::std::os::raw::c_int {
@@ -4399,7 +4392,7 @@ impl ImplListValue for ListValue {
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_list_value_t {
@@ -4445,10 +4438,10 @@ impl Default for ListValue {
 }
 pub trait ImplImage: Clone + Sized + Rc {
     fn is_empty(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplImage) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_bitmap(
         &self,
@@ -4459,25 +4452,25 @@ pub trait ImplImage: Clone + Sized + Rc {
         alpha_type: AlphaType,
         pixel_data: Option<&[u8]>,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_png(&self, scale_factor: f32, png_data: Option<&[u8]>) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_jpeg(&self, scale_factor: f32, jpeg_data: Option<&[u8]>) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_width(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_height(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_representation(&self, scale_factor: f32) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn remove_representation(&self, scale_factor: f32) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_representation_info(
         &self,
@@ -4486,7 +4479,7 @@ pub trait ImplImage: Clone + Sized + Rc {
         pixel_width: *mut ::std::os::raw::c_int,
         pixel_height: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_as_bitmap(
         &self,
@@ -4496,7 +4489,7 @@ pub trait ImplImage: Clone + Sized + Rc {
         pixel_width: *mut ::std::os::raw::c_int,
         pixel_height: *mut ::std::os::raw::c_int,
     ) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_as_png(
         &self,
@@ -4505,7 +4498,7 @@ pub trait ImplImage: Clone + Sized + Rc {
         pixel_width: *mut ::std::os::raw::c_int,
         pixel_height: *mut ::std::os::raw::c_int,
     ) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_as_jpeg(
         &self,
@@ -4514,7 +4507,7 @@ pub trait ImplImage: Clone + Sized + Rc {
         pixel_width: *mut ::std::os::raw::c_int,
         pixel_height: *mut ::std::os::raw::c_int,
     ) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_image_t) {
         impl_cef_image_t::init_methods::<Self>(object);
@@ -4815,7 +4808,7 @@ impl ImplImage for Image {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplImage) -> ::std::os::raw::c_int {
@@ -4830,7 +4823,7 @@ impl ImplImage for Image {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_bitmap(
@@ -4893,7 +4886,7 @@ impl ImplImage for Image {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_png(&self, scale_factor: f32, png_data: Option<&[u8]>) -> ::std::os::raw::c_int {
@@ -4921,7 +4914,7 @@ impl ImplImage for Image {
                     let result = f(arg_self_, arg_scale_factor, arg_png_data, arg_png_data_size);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_jpeg(&self, scale_factor: f32, jpeg_data: Option<&[u8]>) -> ::std::os::raw::c_int {
@@ -4954,7 +4947,7 @@ impl ImplImage for Image {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_width(&self) -> usize {
@@ -4966,7 +4959,7 @@ impl ImplImage for Image {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_height(&self) -> usize {
@@ -4978,7 +4971,7 @@ impl ImplImage for Image {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_representation(&self, scale_factor: f32) -> ::std::os::raw::c_int {
@@ -4992,7 +4985,7 @@ impl ImplImage for Image {
                     let result = f(arg_self_, arg_scale_factor);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn remove_representation(&self, scale_factor: f32) -> ::std::os::raw::c_int {
@@ -5006,7 +4999,7 @@ impl ImplImage for Image {
                     let result = f(arg_self_, arg_scale_factor);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_representation_info(
@@ -5040,7 +5033,7 @@ impl ImplImage for Image {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_as_bitmap(
@@ -5084,7 +5077,7 @@ impl ImplImage for Image {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_as_png(
@@ -5118,7 +5111,7 @@ impl ImplImage for Image {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_as_jpeg(
@@ -5148,7 +5141,7 @@ impl ImplImage for Image {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_image_t {
@@ -5194,19 +5187,19 @@ impl Default for Image {
 }
 pub trait ImplReadHandler: Clone + Sized + Rc {
     fn read(&self, ptr: *mut u8, size: usize, n: usize) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn tell(&self) -> i64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn eof(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn may_block(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_read_handler_t) {
         impl_cef_read_handler_t::init_methods::<Self>(object);
@@ -5288,7 +5281,7 @@ impl ImplReadHandler for ReadHandler {
                     let result = f(arg_self_, arg_ptr, arg_size, arg_n);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -5303,7 +5296,7 @@ impl ImplReadHandler for ReadHandler {
                     let result = f(arg_self_, arg_offset, arg_whence);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn tell(&self) -> i64 {
@@ -5315,7 +5308,7 @@ impl ImplReadHandler for ReadHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn eof(&self) -> ::std::os::raw::c_int {
@@ -5327,7 +5320,7 @@ impl ImplReadHandler for ReadHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn may_block(&self) -> ::std::os::raw::c_int {
@@ -5339,7 +5332,7 @@ impl ImplReadHandler for ReadHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_read_handler_t {
@@ -5385,19 +5378,19 @@ impl Default for ReadHandler {
 }
 pub trait ImplStreamReader: Clone + Sized + Rc {
     fn read(&self, ptr: *mut u8, size: usize, n: usize) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn tell(&self) -> i64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn eof(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn may_block(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_stream_reader_t) {
         impl_cef_stream_reader_t::init_methods::<Self>(object);
@@ -5479,7 +5472,7 @@ impl ImplStreamReader for StreamReader {
                     let result = f(arg_self_, arg_ptr, arg_size, arg_n);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -5494,7 +5487,7 @@ impl ImplStreamReader for StreamReader {
                     let result = f(arg_self_, arg_offset, arg_whence);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn tell(&self) -> i64 {
@@ -5506,7 +5499,7 @@ impl ImplStreamReader for StreamReader {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn eof(&self) -> ::std::os::raw::c_int {
@@ -5518,7 +5511,7 @@ impl ImplStreamReader for StreamReader {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn may_block(&self) -> ::std::os::raw::c_int {
@@ -5530,7 +5523,7 @@ impl ImplStreamReader for StreamReader {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_stream_reader_t {
@@ -5576,19 +5569,19 @@ impl Default for StreamReader {
 }
 pub trait ImplWriteHandler: Clone + Sized + Rc {
     fn write(&self, ptr: *const u8, size: usize, n: usize) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn tell(&self) -> i64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn flush(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn may_block(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_write_handler_t) {
         impl_cef_write_handler_t::init_methods::<Self>(object);
@@ -5670,7 +5663,7 @@ impl ImplWriteHandler for WriteHandler {
                     let result = f(arg_self_, arg_ptr, arg_size, arg_n);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -5685,7 +5678,7 @@ impl ImplWriteHandler for WriteHandler {
                     let result = f(arg_self_, arg_offset, arg_whence);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn tell(&self) -> i64 {
@@ -5697,7 +5690,7 @@ impl ImplWriteHandler for WriteHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn flush(&self) -> ::std::os::raw::c_int {
@@ -5709,7 +5702,7 @@ impl ImplWriteHandler for WriteHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn may_block(&self) -> ::std::os::raw::c_int {
@@ -5721,7 +5714,7 @@ impl ImplWriteHandler for WriteHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_write_handler_t {
@@ -5767,19 +5760,19 @@ impl Default for WriteHandler {
 }
 pub trait ImplStreamWriter: Clone + Sized + Rc {
     fn write(&self, ptr: *const u8, size: usize, n: usize) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn tell(&self) -> i64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn flush(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn may_block(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_stream_writer_t) {
         impl_cef_stream_writer_t::init_methods::<Self>(object);
@@ -5861,7 +5854,7 @@ impl ImplStreamWriter for StreamWriter {
                     let result = f(arg_self_, arg_ptr, arg_size, arg_n);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn seek(&self, offset: i64, whence: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -5876,7 +5869,7 @@ impl ImplStreamWriter for StreamWriter {
                     let result = f(arg_self_, arg_offset, arg_whence);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn tell(&self) -> i64 {
@@ -5888,7 +5881,7 @@ impl ImplStreamWriter for StreamWriter {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn flush(&self) -> ::std::os::raw::c_int {
@@ -5900,7 +5893,7 @@ impl ImplStreamWriter for StreamWriter {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn may_block(&self) -> ::std::os::raw::c_int {
@@ -5912,7 +5905,7 @@ impl ImplStreamWriter for StreamWriter {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_stream_writer_t {
@@ -5958,85 +5951,67 @@ impl Default for StreamWriter {
 }
 pub trait ImplDragData: Clone + Sized + Rc {
     fn clone(&self) -> DragData {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_link(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_fragment(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_file(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_link_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_link_title(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_link_metadata(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_fragment_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_fragment_html(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_fragment_base_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_file_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_file_contents(&self, writer: &mut impl ImplStreamWriter) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_file_names(&self, names: &mut CefStringList) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_file_paths(&self, paths: &mut CefStringList) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_link_url(&self, url: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_link_title(&self, title: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_link_metadata(&self, data: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_fragment_text(&self, text: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_fragment_html(&self, html: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_fragment_base_url(&self, base_url: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn reset_file_contents(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn add_file(&self, path: &CefStringUtf16, display_name: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn clear_filenames(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_link_url(&self, url: &CefStringUtf16) {}
+    fn set_link_title(&self, title: &CefStringUtf16) {}
+    fn set_link_metadata(&self, data: &CefStringUtf16) {}
+    fn set_fragment_text(&self, text: &CefStringUtf16) {}
+    fn set_fragment_html(&self, html: &CefStringUtf16) {}
+    fn set_fragment_base_url(&self, base_url: &CefStringUtf16) {}
+    fn reset_file_contents(&self) {}
+    fn add_file(&self, path: &CefStringUtf16, display_name: &CefStringUtf16) {}
+    fn clear_filenames(&self) {}
     fn get_image(&self) -> Image {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_image_hotspot(&self) -> Point {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_image(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_drag_data_t) {
         impl_cef_drag_data_t::init_methods::<Self>(object);
@@ -6313,7 +6288,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
@@ -6325,7 +6300,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_link(&self) -> ::std::os::raw::c_int {
@@ -6337,7 +6312,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_fragment(&self) -> ::std::os::raw::c_int {
@@ -6349,7 +6324,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_file(&self) -> ::std::os::raw::c_int {
@@ -6361,7 +6336,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_link_url(&self) -> CefStringUtf16 {
@@ -6373,7 +6348,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_link_title(&self) -> CefStringUtf16 {
@@ -6385,7 +6360,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_link_metadata(&self) -> CefStringUtf16 {
@@ -6397,7 +6372,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_fragment_text(&self) -> CefStringUtf16 {
@@ -6409,7 +6384,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_fragment_html(&self) -> CefStringUtf16 {
@@ -6421,7 +6396,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_fragment_base_url(&self) -> CefStringUtf16 {
@@ -6433,7 +6408,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_file_name(&self) -> CefStringUtf16 {
@@ -6445,7 +6420,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_file_contents(&self, writer: &mut impl ImplStreamWriter) -> usize {
@@ -6460,7 +6435,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_, arg_writer);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_file_names(&self, names: &mut CefStringList) -> ::std::os::raw::c_int {
@@ -6474,7 +6449,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_, arg_names);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_file_paths(&self, paths: &mut CefStringList) -> ::std::os::raw::c_int {
@@ -6488,7 +6463,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_, arg_paths);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_link_url(&self, url: &CefStringUtf16) {
@@ -6623,7 +6598,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_image_hotspot(&self) -> Point {
@@ -6635,7 +6610,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_image(&self) -> ::std::os::raw::c_int {
@@ -6647,7 +6622,7 @@ impl ImplDragData for DragData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_drag_data_t {
@@ -6692,9 +6667,7 @@ impl Default for DragData {
     }
 }
 pub trait ImplDomvisitor: Clone + Sized + Rc {
-    fn visit(&self, document: &mut impl ImplDomdocument) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn visit(&self, document: &mut impl ImplDomdocument) {}
     fn init_methods(object: &mut _cef_domvisitor_t) {
         impl_cef_domvisitor_t::init_methods::<Self>(object);
     }
@@ -6777,46 +6750,46 @@ impl Default for Domvisitor {
 }
 pub trait ImplDomdocument: Clone + Sized + Rc {
     fn get_type(&self) -> DomDocumentType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_document(&self) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_body(&self) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_head(&self) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_title(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_element_by_id(&self, id: &CefStringUtf16) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_focused_node(&self) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_selection(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_selection_start_offset(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_selection_end_offset(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_selection_as_markup(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_selection_as_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_base_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_complete_url(&self, partial_url: &CefStringUtf16) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_domdocument_t) {
         impl_cef_domdocument_t::init_methods::<Self>(object);
@@ -6973,7 +6946,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_document(&self) -> Domnode {
@@ -6985,7 +6958,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_body(&self) -> Domnode {
@@ -6997,7 +6970,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_head(&self) -> Domnode {
@@ -7009,7 +6982,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_title(&self) -> CefStringUtf16 {
@@ -7021,7 +6994,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_element_by_id(&self, id: &CefStringUtf16) -> Domnode {
@@ -7035,7 +7008,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_, arg_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_focused_node(&self) -> Domnode {
@@ -7047,7 +7020,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_selection(&self) -> ::std::os::raw::c_int {
@@ -7059,7 +7032,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_selection_start_offset(&self) -> ::std::os::raw::c_int {
@@ -7071,7 +7044,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_selection_end_offset(&self) -> ::std::os::raw::c_int {
@@ -7083,7 +7056,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_selection_as_markup(&self) -> CefStringUtf16 {
@@ -7095,7 +7068,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_selection_as_text(&self) -> CefStringUtf16 {
@@ -7107,7 +7080,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_base_url(&self) -> CefStringUtf16 {
@@ -7119,7 +7092,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_complete_url(&self, partial_url: &CefStringUtf16) -> CefStringUtf16 {
@@ -7133,7 +7106,7 @@ impl ImplDomdocument for Domdocument {
                     let result = f(arg_self_, arg_partial_url);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_domdocument_t {
@@ -7179,86 +7152,84 @@ impl Default for Domdocument {
 }
 pub trait ImplDomnode: Clone + Sized + Rc {
     fn get_type(&self) -> DomNodeType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_text(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_element(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_editable(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_form_control_element(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_form_control_element_type(&self) -> DomFormControlType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplDomnode) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_value(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_value(&self, value: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_as_markup(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_document(&self) -> Domdocument {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_parent(&self) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_previous_sibling(&self) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_next_sibling(&self) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_children(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_first_child(&self) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_last_child(&self) -> Domnode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_element_tag_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_element_attributes(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_element_attribute(&self, attr_name: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_element_attribute(&self, attr_name: &CefStringUtf16) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_element_attributes(&self, attr_map: &mut CefStringMap) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_element_attributes(&self, attr_map: &mut CefStringMap) {}
     fn set_element_attribute(
         &self,
         attr_name: &CefStringUtf16,
         value: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_element_inner_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_element_bounds(&self) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_domnode_t) {
         impl_cef_domnode_t::init_methods::<Self>(object);
@@ -7523,7 +7494,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_text(&self) -> ::std::os::raw::c_int {
@@ -7535,7 +7506,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_element(&self) -> ::std::os::raw::c_int {
@@ -7547,7 +7518,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_editable(&self) -> ::std::os::raw::c_int {
@@ -7559,7 +7530,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_form_control_element(&self) -> ::std::os::raw::c_int {
@@ -7571,7 +7542,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_form_control_element_type(&self) -> DomFormControlType {
@@ -7583,7 +7554,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplDomnode) -> ::std::os::raw::c_int {
@@ -7598,7 +7569,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_name(&self) -> CefStringUtf16 {
@@ -7610,7 +7581,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_value(&self) -> CefStringUtf16 {
@@ -7622,7 +7593,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_value(&self, value: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -7636,7 +7607,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_as_markup(&self) -> CefStringUtf16 {
@@ -7648,7 +7619,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_document(&self) -> Domdocument {
@@ -7660,7 +7631,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_parent(&self) -> Domnode {
@@ -7672,7 +7643,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_previous_sibling(&self) -> Domnode {
@@ -7684,7 +7655,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_next_sibling(&self) -> Domnode {
@@ -7696,7 +7667,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_children(&self) -> ::std::os::raw::c_int {
@@ -7708,7 +7679,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_first_child(&self) -> Domnode {
@@ -7720,7 +7691,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_last_child(&self) -> Domnode {
@@ -7732,7 +7703,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_element_tag_name(&self) -> CefStringUtf16 {
@@ -7744,7 +7715,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_element_attributes(&self) -> ::std::os::raw::c_int {
@@ -7756,7 +7727,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_element_attribute(&self, attr_name: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -7770,7 +7741,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_, arg_attr_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_element_attribute(&self, attr_name: &CefStringUtf16) -> CefStringUtf16 {
@@ -7784,7 +7755,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_, arg_attr_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_element_attributes(&self, attr_map: &mut CefStringMap) {
@@ -7817,7 +7788,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_, arg_attr_name, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_element_inner_text(&self) -> CefStringUtf16 {
@@ -7829,7 +7800,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_element_bounds(&self) -> Rect {
@@ -7841,7 +7812,7 @@ impl ImplDomnode for Domnode {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_domnode_t {
@@ -7887,10 +7858,10 @@ impl Default for Domnode {
 }
 pub trait ImplSharedMemoryRegion: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn size(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn memory(&self) -> *mut ::std::os::raw::c_void {
         unsafe { std::mem::zeroed() }
@@ -7945,7 +7916,7 @@ impl ImplSharedMemoryRegion for SharedMemoryRegion {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn size(&self) -> usize {
@@ -7957,7 +7928,7 @@ impl ImplSharedMemoryRegion for SharedMemoryRegion {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn memory(&self) -> *mut ::std::os::raw::c_void {
@@ -8015,22 +7986,22 @@ impl Default for SharedMemoryRegion {
 }
 pub trait ImplProcessMessage: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn copy(&self) -> ProcessMessage {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_argument_list(&self) -> ListValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_shared_memory_region(&self) -> SharedMemoryRegion {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_process_message_t) {
         impl_cef_process_message_t::init_methods::<Self>(object);
@@ -8109,7 +8080,7 @@ impl ImplProcessMessage for ProcessMessage {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
@@ -8121,7 +8092,7 @@ impl ImplProcessMessage for ProcessMessage {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn copy(&self) -> ProcessMessage {
@@ -8133,7 +8104,7 @@ impl ImplProcessMessage for ProcessMessage {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_name(&self) -> CefStringUtf16 {
@@ -8145,7 +8116,7 @@ impl ImplProcessMessage for ProcessMessage {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_argument_list(&self) -> ListValue {
@@ -8157,7 +8128,7 @@ impl ImplProcessMessage for ProcessMessage {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_shared_memory_region(&self) -> SharedMemoryRegion {
@@ -8169,7 +8140,7 @@ impl ImplProcessMessage for ProcessMessage {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_process_message_t {
@@ -8215,43 +8186,31 @@ impl Default for ProcessMessage {
 }
 pub trait ImplRequest: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_url(&self, url: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_url(&self, url: &CefStringUtf16) {}
     fn get_method(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_method(&self, method: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_referrer(&self, referrer_url: &CefStringUtf16, policy: ReferrerPolicy) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_method(&self, method: &CefStringUtf16) {}
+    fn set_referrer(&self, referrer_url: &CefStringUtf16, policy: ReferrerPolicy) {}
     fn get_referrer_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_referrer_policy(&self) -> ReferrerPolicy {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_post_data(&self) -> PostData {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_post_data(&self, post_data: &mut impl ImplPostData) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_header_map(&self, header_map: &mut CefStringMultimap) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_header_map(&self, header_map: &mut CefStringMultimap) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_post_data(&self, post_data: &mut impl ImplPostData) {}
+    fn get_header_map(&self, header_map: &mut CefStringMultimap) {}
+    fn set_header_map(&self, header_map: &mut CefStringMultimap) {}
     fn get_header_by_name(&self, name: &CefStringUtf16) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_header_by_name(
         &self,
@@ -8259,7 +8218,6 @@ pub trait ImplRequest: Clone + Sized + Rc {
         value: &CefStringUtf16,
         overwrite: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn set(
         &self,
@@ -8268,28 +8226,23 @@ pub trait ImplRequest: Clone + Sized + Rc {
         post_data: &mut impl ImplPostData,
         header_map: &mut CefStringMultimap,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn get_flags(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_flags(&self, flags: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_flags(&self, flags: ::std::os::raw::c_int) {}
     fn get_first_party_for_cookies(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_first_party_for_cookies(&self, url: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_first_party_for_cookies(&self, url: &CefStringUtf16) {}
     fn get_resource_type(&self) -> ResourceType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_transition_type(&self) -> TransitionType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_identifier(&self) -> u64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_request_t) {
         impl_cef_request_t::init_methods::<Self>(object);
@@ -8554,7 +8507,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_url(&self) -> CefStringUtf16 {
@@ -8566,7 +8519,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_url(&self, url: &CefStringUtf16) {
@@ -8592,7 +8545,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_method(&self, method: &CefStringUtf16) {
@@ -8633,7 +8586,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_referrer_policy(&self) -> ReferrerPolicy {
@@ -8645,7 +8598,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_post_data(&self) -> PostData {
@@ -8657,7 +8610,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_post_data(&self, post_data: &mut impl ImplPostData) {
@@ -8714,7 +8667,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_, arg_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_header_by_name(
@@ -8778,7 +8731,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_flags(&self, flags: ::std::os::raw::c_int) {
@@ -8804,7 +8757,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_first_party_for_cookies(&self, url: &CefStringUtf16) {
@@ -8830,7 +8783,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_transition_type(&self) -> TransitionType {
@@ -8842,7 +8795,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_identifier(&self) -> u64 {
@@ -8854,7 +8807,7 @@ impl ImplRequest for Request {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_request_t {
@@ -8900,26 +8853,22 @@ impl Default for Request {
 }
 pub trait ImplPostData: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_excluded_elements(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_element_count(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_elements(&self, elements: Option<&mut Vec<Option<PostDataElement>>>) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_elements(&self, elements: Option<&mut Vec<Option<PostDataElement>>>) {}
     fn remove_element(&self, element: &mut impl ImplPostDataElement) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_element(&self, element: &mut impl ImplPostDataElement) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn remove_elements(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn remove_elements(&self) {}
     fn init_methods(object: &mut _cef_post_data_t) {
         impl_cef_post_data_t::init_methods::<Self>(object);
     }
@@ -9032,7 +8981,7 @@ impl ImplPostData for PostData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_excluded_elements(&self) -> ::std::os::raw::c_int {
@@ -9044,7 +8993,7 @@ impl ImplPostData for PostData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_element_count(&self) -> usize {
@@ -9056,7 +9005,7 @@ impl ImplPostData for PostData {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_elements(&self, elements: Option<&mut Vec<Option<PostDataElement>>>) {
@@ -9120,7 +9069,7 @@ impl ImplPostData for PostData {
                     let result = f(arg_self_, arg_element);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_element(&self, element: &mut impl ImplPostDataElement) -> ::std::os::raw::c_int {
@@ -9135,7 +9084,7 @@ impl ImplPostData for PostData {
                     let result = f(arg_self_, arg_element);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn remove_elements(&self) {
@@ -9193,28 +9142,22 @@ impl Default for PostData {
 }
 pub trait ImplPostDataElement: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_to_empty(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_to_file(&self, file_name: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_to_bytes(&self, size: usize, bytes: *const u8) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_to_empty(&self) {}
+    fn set_to_file(&self, file_name: &CefStringUtf16) {}
+    fn set_to_bytes(&self, size: usize, bytes: *const u8) {}
     fn get_type(&self) -> PostdataelementType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_file(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_bytes_count(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_bytes(&self, size: usize, bytes: *mut u8) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_post_data_element_t) {
         impl_cef_post_data_element_t::init_methods::<Self>(object);
@@ -9317,7 +9260,7 @@ impl ImplPostDataElement for PostDataElement {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_to_empty(&self) {
@@ -9370,7 +9313,7 @@ impl ImplPostDataElement for PostDataElement {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_file(&self) -> CefStringUtf16 {
@@ -9382,7 +9325,7 @@ impl ImplPostDataElement for PostDataElement {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_bytes_count(&self) -> usize {
@@ -9394,7 +9337,7 @@ impl ImplPostDataElement for PostDataElement {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_bytes(&self, size: usize, bytes: *mut u8) -> usize {
@@ -9409,7 +9352,7 @@ impl ImplPostDataElement for PostDataElement {
                     let result = f(arg_self_, arg_size, arg_bytes);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_post_data_element_t {
@@ -9454,9 +9397,7 @@ impl Default for PostDataElement {
     }
 }
 pub trait ImplCefStringVisitor: Clone + Sized + Rc {
-    fn visit(&self, string: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn visit(&self, string: &CefStringUtf16) {}
     fn init_methods(object: &mut _cef_string_visitor_t) {
         impl_cef_string_visitor_t::init_methods::<Self>(object);
     }
@@ -9539,95 +9480,65 @@ impl Default for CefStringVisitor {
 }
 pub trait ImplFrame: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn undo(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn redo(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn cut(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn copy(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn paste(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn paste_and_match_style(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn del(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn select_all(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn view_source(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_source(&self, visitor: &mut impl ImplCefStringVisitor) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_text(&self, visitor: &mut impl ImplCefStringVisitor) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn load_request(&self, request: &mut impl ImplRequest) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn load_url(&self, url: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn undo(&self) {}
+    fn redo(&self) {}
+    fn cut(&self) {}
+    fn copy(&self) {}
+    fn paste(&self) {}
+    fn paste_and_match_style(&self) {}
+    fn del(&self) {}
+    fn select_all(&self) {}
+    fn view_source(&self) {}
+    fn get_source(&self, visitor: &mut impl ImplCefStringVisitor) {}
+    fn get_text(&self, visitor: &mut impl ImplCefStringVisitor) {}
+    fn load_request(&self, request: &mut impl ImplRequest) {}
+    fn load_url(&self, url: &CefStringUtf16) {}
     fn execute_java_script(
         &self,
         code: &CefStringUtf16,
         script_url: &CefStringUtf16,
         start_line: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn is_main(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_focused(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_identifier(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_parent(&self) -> Frame {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_browser(&self) -> Browser {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_v8context(&self) -> V8context {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn visit_dom(&self, visitor: &mut impl ImplDomvisitor) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn visit_dom(&self, visitor: &mut impl ImplDomvisitor) {}
     fn create_urlrequest(
         &self,
         request: &mut impl ImplRequest,
         client: &mut impl ImplUrlrequestClient,
     ) -> Urlrequest {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn send_process_message(
         &self,
         target_process: ProcessId,
         message: &mut impl ImplProcessMessage,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_frame_t) {
         impl_cef_frame_t::init_methods::<Self>(object);
@@ -9870,7 +9781,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn undo(&self) {
@@ -10070,7 +9981,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_focused(&self) -> ::std::os::raw::c_int {
@@ -10082,7 +9993,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_name(&self) -> CefStringUtf16 {
@@ -10094,7 +10005,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_identifier(&self) -> CefStringUtf16 {
@@ -10106,7 +10017,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_parent(&self) -> Frame {
@@ -10118,7 +10029,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_url(&self) -> CefStringUtf16 {
@@ -10130,7 +10041,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_browser(&self) -> Browser {
@@ -10142,7 +10053,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_v8context(&self) -> V8context {
@@ -10154,7 +10065,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn visit_dom(&self, visitor: &mut impl ImplDomvisitor) {
@@ -10190,7 +10101,7 @@ impl ImplFrame for Frame {
                     let result = f(arg_self_, arg_request, arg_client);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn send_process_message(
@@ -10256,26 +10167,22 @@ impl Default for Frame {
 }
 pub trait ImplX509certPrincipal: Clone + Sized + Rc {
     fn get_display_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_common_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_locality_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_state_or_province_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_country_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_organization_names(&self, names: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_organization_unit_names(&self, names: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_organization_names(&self, names: &mut CefStringList) {}
+    fn get_organization_unit_names(&self, names: &mut CefStringList) {}
     fn init_methods(object: &mut _cef_x509cert_principal_t) {
         impl_cef_x509cert_principal_t::init_methods::<Self>(object);
     }
@@ -10367,7 +10274,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_common_name(&self) -> CefStringUtf16 {
@@ -10379,7 +10286,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_locality_name(&self) -> CefStringUtf16 {
@@ -10391,7 +10298,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_state_or_province_name(&self) -> CefStringUtf16 {
@@ -10403,7 +10310,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_country_name(&self) -> CefStringUtf16 {
@@ -10415,7 +10322,7 @@ impl ImplX509certPrincipal for X509certPrincipal {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_organization_names(&self, names: &mut CefStringList) {
@@ -10489,35 +10396,31 @@ impl Default for X509certPrincipal {
 }
 pub trait ImplX509certificate: Clone + Sized + Rc {
     fn get_subject(&self) -> X509certPrincipal {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_issuer(&self) -> X509certPrincipal {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_serial_number(&self) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_valid_start(&self) -> Basetime {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_valid_expiry(&self) -> Basetime {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_derencoded(&self) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_pemencoded(&self) -> BinaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_issuer_chain_size(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_derencoded_issuer_chain(&self, chain: Option<&mut Vec<Option<BinaryValue>>>) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_pemencoded_issuer_chain(&self, chain: Option<&mut Vec<Option<BinaryValue>>>) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_derencoded_issuer_chain(&self, chain: Option<&mut Vec<Option<BinaryValue>>>) {}
+    fn get_pemencoded_issuer_chain(&self, chain: Option<&mut Vec<Option<BinaryValue>>>) {}
     fn init_methods(object: &mut _cef_x509certificate_t) {
         impl_cef_x509certificate_t::init_methods::<Self>(object);
     }
@@ -10681,7 +10584,7 @@ impl ImplX509certificate for X509certificate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_issuer(&self) -> X509certPrincipal {
@@ -10693,7 +10596,7 @@ impl ImplX509certificate for X509certificate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_serial_number(&self) -> BinaryValue {
@@ -10705,7 +10608,7 @@ impl ImplX509certificate for X509certificate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_valid_start(&self) -> Basetime {
@@ -10717,7 +10620,7 @@ impl ImplX509certificate for X509certificate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_valid_expiry(&self) -> Basetime {
@@ -10729,7 +10632,7 @@ impl ImplX509certificate for X509certificate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_derencoded(&self) -> BinaryValue {
@@ -10741,7 +10644,7 @@ impl ImplX509certificate for X509certificate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_pemencoded(&self) -> BinaryValue {
@@ -10753,7 +10656,7 @@ impl ImplX509certificate for X509certificate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_issuer_chain_size(&self) -> usize {
@@ -10765,7 +10668,7 @@ impl ImplX509certificate for X509certificate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_derencoded_issuer_chain(&self, chain: Option<&mut Vec<Option<BinaryValue>>>) {
@@ -10905,19 +10808,19 @@ impl Default for X509certificate {
 }
 pub trait ImplSslstatus: Clone + Sized + Rc {
     fn is_secure_connection(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_cert_status(&self) -> CertStatus {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_sslversion(&self) -> SslVersion {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_content_status(&self) -> SslContentStatus {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_x509certificate(&self) -> X509certificate {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_sslstatus_t) {
         impl_cef_sslstatus_t::init_methods::<Self>(object);
@@ -10987,7 +10890,7 @@ impl ImplSslstatus for Sslstatus {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_cert_status(&self) -> CertStatus {
@@ -10999,7 +10902,7 @@ impl ImplSslstatus for Sslstatus {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_sslversion(&self) -> SslVersion {
@@ -11011,7 +10914,7 @@ impl ImplSslstatus for Sslstatus {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_content_status(&self) -> SslContentStatus {
@@ -11023,7 +10926,7 @@ impl ImplSslstatus for Sslstatus {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_x509certificate(&self) -> X509certificate {
@@ -11035,7 +10938,7 @@ impl ImplSslstatus for Sslstatus {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_sslstatus_t {
@@ -11081,34 +10984,34 @@ impl Default for Sslstatus {
 }
 pub trait ImplNavigationEntry: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_display_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_original_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_title(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_transition_type(&self) -> TransitionType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_post_data(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_completion_time(&self) -> Basetime {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_http_status_code(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_sslstatus(&self) -> Sslstatus {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_navigation_entry_t) {
         impl_cef_navigation_entry_t::init_methods::<Self>(object);
@@ -11223,7 +11126,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_url(&self) -> CefStringUtf16 {
@@ -11235,7 +11138,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_display_url(&self) -> CefStringUtf16 {
@@ -11247,7 +11150,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_original_url(&self) -> CefStringUtf16 {
@@ -11259,7 +11162,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_title(&self) -> CefStringUtf16 {
@@ -11271,7 +11174,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_transition_type(&self) -> TransitionType {
@@ -11283,7 +11186,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_post_data(&self) -> ::std::os::raw::c_int {
@@ -11295,7 +11198,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_completion_time(&self) -> Basetime {
@@ -11307,7 +11210,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_http_status_code(&self) -> ::std::os::raw::c_int {
@@ -11319,7 +11222,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_sslstatus(&self) -> Sslstatus {
@@ -11331,7 +11234,7 @@ impl ImplNavigationEntry for NavigationEntry {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_navigation_entry_t {
@@ -11431,12 +11334,8 @@ impl Default for Registration {
     }
 }
 pub trait ImplCallback: Clone + Sized + Rc {
-    fn cont(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self) {}
+    fn cancel(&self) {}
     fn init_methods(object: &mut _cef_callback_t) {
         impl_cef_callback_t::init_methods::<Self>(object);
     }
@@ -11529,9 +11428,7 @@ impl Default for Callback {
     }
 }
 pub trait ImplCompletionCallback: Clone + Sized + Rc {
-    fn on_complete(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_complete(&self) {}
     fn init_methods(object: &mut _cef_completion_callback_t) {
         impl_cef_completion_callback_t::init_methods::<Self>(object);
     }
@@ -11607,7 +11504,7 @@ impl Default for CompletionCallback {
 }
 pub trait ImplCookieManager: Clone + Sized + Rc {
     fn visit_all_cookies(&self, visitor: &mut impl ImplCookieVisitor) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn visit_url_cookies(
         &self,
@@ -11615,7 +11512,7 @@ pub trait ImplCookieManager: Clone + Sized + Rc {
         include_http_only: ::std::os::raw::c_int,
         visitor: &mut impl ImplCookieVisitor,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_cookie(
         &self,
@@ -11623,7 +11520,7 @@ pub trait ImplCookieManager: Clone + Sized + Rc {
         cookie: &Cookie,
         callback: &mut impl ImplSetCookieCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn delete_cookies(
         &self,
@@ -11631,10 +11528,10 @@ pub trait ImplCookieManager: Clone + Sized + Rc {
         cookie_name: &CefStringUtf16,
         callback: &mut impl ImplDeleteCookiesCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn flush_store(&self, callback: &mut impl ImplCompletionCallback) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_cookie_manager_t) {
         impl_cef_cookie_manager_t::init_methods::<Self>(object);
@@ -11747,7 +11644,7 @@ impl ImplCookieManager for CookieManager {
                     let result = f(arg_self_, arg_visitor);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn visit_url_cookies(
@@ -11770,7 +11667,7 @@ impl ImplCookieManager for CookieManager {
                     let result = f(arg_self_, arg_url, arg_include_http_only, arg_visitor);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_cookie(
@@ -11793,7 +11690,7 @@ impl ImplCookieManager for CookieManager {
                     let result = f(arg_self_, arg_url, arg_cookie, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn delete_cookies(
@@ -11815,7 +11712,7 @@ impl ImplCookieManager for CookieManager {
                     let result = f(arg_self_, arg_url, arg_cookie_name, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn flush_store(&self, callback: &mut impl ImplCompletionCallback) -> ::std::os::raw::c_int {
@@ -11830,7 +11727,7 @@ impl ImplCookieManager for CookieManager {
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_cookie_manager_t {
@@ -11882,7 +11779,7 @@ pub trait ImplCookieVisitor: Clone + Sized + Rc {
         total: ::std::os::raw::c_int,
         delete_cookie: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_cookie_visitor_t) {
         impl_cef_cookie_visitor_t::init_methods::<Self>(object);
@@ -11952,7 +11849,7 @@ impl ImplCookieVisitor for CookieVisitor {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_cookie_visitor_t {
@@ -11997,9 +11894,7 @@ impl Default for CookieVisitor {
     }
 }
 pub trait ImplSetCookieCallback: Clone + Sized + Rc {
-    fn on_complete(&self, success: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_complete(&self, success: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_set_cookie_callback_t) {
         impl_cef_set_cookie_callback_t::init_methods::<Self>(object);
     }
@@ -12080,9 +11975,7 @@ impl Default for SetCookieCallback {
     }
 }
 pub trait ImplDeleteCookiesCallback: Clone + Sized + Rc {
-    fn on_complete(&self, num_deleted: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_complete(&self, num_deleted: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_delete_cookies_callback_t) {
         impl_cef_delete_cookies_callback_t::init_methods::<Self>(object);
     }
@@ -12164,25 +12057,20 @@ impl Default for DeleteCookiesCallback {
 }
 pub trait ImplMediaRouter: Clone + Sized + Rc {
     fn add_observer(&self, observer: &mut impl ImplMediaObserver) -> Registration {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_source(&self, urn: &CefStringUtf16) -> MediaSource {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn notify_current_sinks(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn notify_current_sinks(&self) {}
     fn create_route(
         &self,
         source: &mut impl ImplMediaSource,
         sink: &mut impl ImplMediaSink,
         callback: &mut impl ImplMediaRouteCreateCallback,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn notify_current_routes(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn notify_current_routes(&self) {}
     fn init_methods(object: &mut _cef_media_router_t) {
         impl_cef_media_router_t::init_methods::<Self>(object);
     }
@@ -12260,7 +12148,7 @@ impl ImplMediaRouter for MediaRouter {
                     let result = f(arg_self_, arg_observer);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_source(&self, urn: &CefStringUtf16) -> MediaSource {
@@ -12274,7 +12162,7 @@ impl ImplMediaRouter for MediaRouter {
                     let result = f(arg_self_, arg_urn);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn notify_current_sinks(&self) {
@@ -12367,22 +12255,15 @@ impl Default for MediaRouter {
     }
 }
 pub trait ImplMediaObserver: Clone + Sized + Rc {
-    fn on_sinks(&self, sinks: Option<&[Option<impl ImplMediaSink>]>) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_routes(&self, routes: Option<&[Option<impl ImplMediaRoute>]>) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_sinks(&self, sinks: Option<&[Option<impl ImplMediaSink>]>) {}
+    fn on_routes(&self, routes: Option<&[Option<impl ImplMediaRoute>]>) {}
     fn on_route_state_changed(
         &self,
         route: &mut impl ImplMediaRoute,
         state: MediaRouteConnectionState,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_route_message_received(&self, route: &mut impl ImplMediaRoute, message: Option<&[u8]>) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_route_message_received(&self, route: &mut impl ImplMediaRoute, message: Option<&[u8]>) {}
     fn init_methods(object: &mut _cef_media_observer_t) {
         impl_cef_media_observer_t::init_methods::<Self>(object);
     }
@@ -12634,20 +12515,16 @@ impl Default for MediaObserver {
 }
 pub trait ImplMediaRoute: Clone + Sized + Rc {
     fn get_id(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_source(&self) -> MediaSource {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_sink(&self) -> MediaSink {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn send_route_message(&self, message: Option<&[u8]>) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn terminate(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn send_route_message(&self, message: Option<&[u8]>) {}
+    fn terminate(&self) {}
     fn init_methods(object: &mut _cef_media_route_t) {
         impl_cef_media_route_t::init_methods::<Self>(object);
     }
@@ -12717,7 +12594,7 @@ impl ImplMediaRoute for MediaRoute {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_source(&self) -> MediaSource {
@@ -12729,7 +12606,7 @@ impl ImplMediaRoute for MediaRoute {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_sink(&self) -> MediaSink {
@@ -12741,7 +12618,7 @@ impl ImplMediaRoute for MediaRoute {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn send_route_message(&self, message: Option<&[u8]>) {
@@ -12831,7 +12708,6 @@ pub trait ImplMediaRouteCreateCallback: Clone + Sized + Rc {
         error: &CefStringUtf16,
         route: &mut impl ImplMediaRoute,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_media_route_create_callback_t) {
         impl_cef_media_route_create_callback_t::init_methods::<Self>(object);
@@ -12934,25 +12810,23 @@ impl Default for MediaRouteCreateCallback {
 }
 pub trait ImplMediaSink: Clone + Sized + Rc {
     fn get_id(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_icon_type(&self) -> MediaSinkIconType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_device_info(&self, callback: &mut impl ImplMediaSinkDeviceInfoCallback) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_device_info(&self, callback: &mut impl ImplMediaSinkDeviceInfoCallback) {}
     fn is_cast_sink(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_dial_sink(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_compatible_with(&self, source: &mut impl ImplMediaSource) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_media_sink_t) {
         impl_cef_media_sink_t::init_methods::<Self>(object);
@@ -13044,7 +12918,7 @@ impl ImplMediaSink for MediaSink {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_name(&self) -> CefStringUtf16 {
@@ -13056,7 +12930,7 @@ impl ImplMediaSink for MediaSink {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_icon_type(&self) -> MediaSinkIconType {
@@ -13068,7 +12942,7 @@ impl ImplMediaSink for MediaSink {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_device_info(&self, callback: &mut impl ImplMediaSinkDeviceInfoCallback) {
@@ -13095,7 +12969,7 @@ impl ImplMediaSink for MediaSink {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_dial_sink(&self) -> ::std::os::raw::c_int {
@@ -13107,7 +12981,7 @@ impl ImplMediaSink for MediaSink {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_compatible_with(&self, source: &mut impl ImplMediaSource) -> ::std::os::raw::c_int {
@@ -13122,7 +12996,7 @@ impl ImplMediaSink for MediaSink {
                     let result = f(arg_self_, arg_source);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_media_sink_t {
@@ -13167,9 +13041,7 @@ impl Default for MediaSink {
     }
 }
 pub trait ImplMediaSinkDeviceInfoCallback: Clone + Sized + Rc {
-    fn on_media_sink_device_info(&self, device_info: &MediaSinkDeviceInfo) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_media_sink_device_info(&self, device_info: &MediaSinkDeviceInfo) {}
     fn init_methods(object: &mut _cef_media_sink_device_info_callback_t) {
         impl_cef_media_sink_device_info_callback_t::init_methods::<Self>(object);
     }
@@ -13263,13 +13135,13 @@ impl Default for MediaSinkDeviceInfoCallback {
 }
 pub trait ImplMediaSource: Clone + Sized + Rc {
     fn get_id(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_cast_source(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_dial_source(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_media_source_t) {
         impl_cef_media_source_t::init_methods::<Self>(object);
@@ -13321,7 +13193,7 @@ impl ImplMediaSource for MediaSource {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_cast_source(&self) -> ::std::os::raw::c_int {
@@ -13333,7 +13205,7 @@ impl ImplMediaSource for MediaSource {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_dial_source(&self) -> ::std::os::raw::c_int {
@@ -13345,7 +13217,7 @@ impl ImplMediaSource for MediaSource {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_media_source_t {
@@ -13428,16 +13300,16 @@ impl Default for PreferenceRegistrar {
 }
 pub trait ImplPreferenceManager: Clone + Sized + Rc {
     fn has_preference(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_preference(&self, name: &CefStringUtf16) -> Value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_all_preferences(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn can_set_preference(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_preference(
         &self,
@@ -13445,7 +13317,7 @@ pub trait ImplPreferenceManager: Clone + Sized + Rc {
         value: &mut impl ImplValue,
         error: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_preference_manager_t) {
         impl_cef_preference_manager_t::init_methods::<Self>(object);
@@ -13542,7 +13414,7 @@ impl ImplPreferenceManager for PreferenceManager {
                     let result = f(arg_self_, arg_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_preference(&self, name: &CefStringUtf16) -> Value {
@@ -13556,7 +13428,7 @@ impl ImplPreferenceManager for PreferenceManager {
                     let result = f(arg_self_, arg_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_all_preferences(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
@@ -13570,7 +13442,7 @@ impl ImplPreferenceManager for PreferenceManager {
                     let result = f(arg_self_, arg_include_defaults);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn can_set_preference(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -13584,7 +13456,7 @@ impl ImplPreferenceManager for PreferenceManager {
                     let result = f(arg_self_, arg_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_preference(
@@ -13606,7 +13478,7 @@ impl ImplPreferenceManager for PreferenceManager {
                     let result = f(arg_self_, arg_name, arg_value, arg_error);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_preference_manager_t {
@@ -13651,9 +13523,7 @@ impl Default for PreferenceManager {
     }
 }
 pub trait ImplResolveCallback: Clone + Sized + Rc {
-    fn on_resolve_completed(&self, result: Errorcode, resolved_ips: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_resolve_completed(&self, result: Errorcode, resolved_ips: &mut CefStringList) {}
     fn init_methods(object: &mut _cef_resolve_callback_t) {
         impl_cef_resolve_callback_t::init_methods::<Self>(object);
     }
@@ -13743,22 +13613,22 @@ impl Default for ResolveCallback {
 }
 pub trait ImplRequestContext: ImplPreferenceManager {
     fn is_same(&self, other: &mut impl ImplRequestContext) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_sharing_with(&self, other: &mut impl ImplRequestContext) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_global(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_handler(&self) -> RequestContextHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_cache_path(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_cookie_manager(&self, callback: &mut impl ImplCompletionCallback) -> CookieManager {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn register_scheme_handler_factory(
         &self,
@@ -13766,25 +13636,17 @@ pub trait ImplRequestContext: ImplPreferenceManager {
         domain_name: &CefStringUtf16,
         factory: &mut impl ImplSchemeHandlerFactory,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn clear_scheme_handler_factories(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn clear_certificate_exceptions(&self, callback: &mut impl ImplCompletionCallback) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn clear_http_auth_credentials(&self, callback: &mut impl ImplCompletionCallback) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn close_all_connections(&self, callback: &mut impl ImplCompletionCallback) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn resolve_host(&self, origin: &CefStringUtf16, callback: &mut impl ImplResolveCallback) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn clear_certificate_exceptions(&self, callback: &mut impl ImplCompletionCallback) {}
+    fn clear_http_auth_credentials(&self, callback: &mut impl ImplCompletionCallback) {}
+    fn close_all_connections(&self, callback: &mut impl ImplCompletionCallback) {}
+    fn resolve_host(&self, origin: &CefStringUtf16, callback: &mut impl ImplResolveCallback) {}
     fn get_media_router(&self, callback: &mut impl ImplCompletionCallback) -> MediaRouter {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_website_setting(
         &self,
@@ -13792,7 +13654,7 @@ pub trait ImplRequestContext: ImplPreferenceManager {
         top_level_url: &CefStringUtf16,
         content_type: ContentSettingTypes,
     ) -> Value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_website_setting(
         &self,
@@ -13801,7 +13663,6 @@ pub trait ImplRequestContext: ImplPreferenceManager {
         content_type: ContentSettingTypes,
         value: &mut impl ImplValue,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn get_content_setting(
         &self,
@@ -13809,7 +13670,7 @@ pub trait ImplRequestContext: ImplPreferenceManager {
         top_level_url: &CefStringUtf16,
         content_type: ContentSettingTypes,
     ) -> ContentSettingValues {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_content_setting(
         &self,
@@ -13818,19 +13679,16 @@ pub trait ImplRequestContext: ImplPreferenceManager {
         content_type: ContentSettingTypes,
         value: ContentSettingValues,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn set_chrome_color_scheme(&self, variant: ColorVariant, user_color: u32) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_chrome_color_scheme(&self, variant: ColorVariant, user_color: u32) {}
     fn get_chrome_color_scheme_mode(&self) -> ColorVariant {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_chrome_color_scheme_color(&self) -> cef_color_t {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_chrome_color_scheme_variant(&self) -> ColorVariant {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_request_context_t) {
         impl_cef_preference_manager_t::init_methods::<Self>(&mut object.base);
@@ -14187,7 +14045,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_, arg_other);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_sharing_with(&self, other: &mut impl ImplRequestContext) -> ::std::os::raw::c_int {
@@ -14202,7 +14060,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_, arg_other);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_global(&self) -> ::std::os::raw::c_int {
@@ -14214,7 +14072,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_handler(&self) -> RequestContextHandler {
@@ -14226,7 +14084,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_cache_path(&self) -> CefStringUtf16 {
@@ -14238,7 +14096,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_cookie_manager(&self, callback: &mut impl ImplCompletionCallback) -> CookieManager {
@@ -14253,7 +14111,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn register_scheme_handler_factory(
@@ -14276,7 +14134,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_, arg_scheme_name, arg_domain_name, arg_factory);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn clear_scheme_handler_factories(&self) -> ::std::os::raw::c_int {
@@ -14288,7 +14146,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn clear_certificate_exceptions(&self, callback: &mut impl ImplCompletionCallback) {
@@ -14364,7 +14222,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_website_setting(
@@ -14391,7 +14249,7 @@ impl ImplRequestContext for RequestContext {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_website_setting(
@@ -14449,7 +14307,7 @@ impl ImplRequestContext for RequestContext {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_content_setting(
@@ -14506,7 +14364,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_chrome_color_scheme_color(&self) -> cef_color_t {
@@ -14518,7 +14376,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_chrome_color_scheme_variant(&self) -> ColorVariant {
@@ -14530,7 +14388,7 @@ impl ImplRequestContext for RequestContext {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_request_context_t {
@@ -14576,68 +14434,54 @@ impl Default for RequestContext {
 }
 pub trait ImplBrowser: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_host(&self) -> BrowserHost {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn can_go_back(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn go_back(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn go_back(&self) {}
     fn can_go_forward(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn go_forward(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn go_forward(&self) {}
     fn is_loading(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn reload(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn reload_ignore_cache(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn stop_load(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn reload(&self) {}
+    fn reload_ignore_cache(&self) {}
+    fn stop_load(&self) {}
     fn get_identifier(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplBrowser) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_popup(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_document(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_main_frame(&self) -> Frame {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_focused_frame(&self) -> Frame {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_frame_by_identifier(&self, identifier: &CefStringUtf16) -> Frame {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_frame_by_name(&self, name: &CefStringUtf16) -> Frame {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_frame_count(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_frame_identifiers(&self, identifiers: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_frame_names(&self, names: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_frame_identifiers(&self, identifiers: &mut CefStringList) {}
+    fn get_frame_names(&self, names: &mut CefStringList) {}
     fn init_methods(object: &mut _cef_browser_t) {
         impl_cef_browser_t::init_methods::<Self>(object);
     }
@@ -14833,7 +14677,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_host(&self) -> BrowserHost {
@@ -14845,7 +14689,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn can_go_back(&self) -> ::std::os::raw::c_int {
@@ -14857,7 +14701,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn go_back(&self) {
@@ -14881,7 +14725,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn go_forward(&self) {
@@ -14905,7 +14749,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn reload(&self) {
@@ -14953,7 +14797,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplBrowser) -> ::std::os::raw::c_int {
@@ -14968,7 +14812,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_popup(&self) -> ::std::os::raw::c_int {
@@ -14980,7 +14824,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_document(&self) -> ::std::os::raw::c_int {
@@ -14992,7 +14836,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_main_frame(&self) -> Frame {
@@ -15004,7 +14848,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_focused_frame(&self) -> Frame {
@@ -15016,7 +14860,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame_by_identifier(&self, identifier: &CefStringUtf16) -> Frame {
@@ -15030,7 +14874,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_, arg_identifier);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame_by_name(&self, name: &CefStringUtf16) -> Frame {
@@ -15044,7 +14888,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_, arg_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame_count(&self) -> usize {
@@ -15056,7 +14900,7 @@ impl ImplBrowser for Browser {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame_identifiers(&self, identifiers: &mut CefStringList) {
@@ -15129,9 +14973,7 @@ impl Default for Browser {
     }
 }
 pub trait ImplRunFileDialogCallback: Clone + Sized + Rc {
-    fn on_file_dialog_dismissed(&self, file_paths: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_file_dialog_dismissed(&self, file_paths: &mut CefStringList) {}
     fn init_methods(object: &mut _cef_run_file_dialog_callback_t) {
         impl_cef_run_file_dialog_callback_t::init_methods::<Self>(object);
     }
@@ -15225,7 +15067,7 @@ pub trait ImplNavigationEntryVisitor: Clone + Sized + Rc {
         index: ::std::os::raw::c_int,
         total: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_navigation_entry_visitor_t) {
         impl_cef_navigation_entry_visitor_t::init_methods::<Self>(object);
@@ -15289,7 +15131,7 @@ impl ImplNavigationEntryVisitor for NavigationEntryVisitor {
                     let result = f(arg_self_, arg_entry, arg_current, arg_index, arg_total);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_navigation_entry_visitor_t {
@@ -15334,9 +15176,7 @@ impl Default for NavigationEntryVisitor {
     }
 }
 pub trait ImplPdfPrintCallback: Clone + Sized + Rc {
-    fn on_pdf_print_finished(&self, path: &CefStringUtf16, ok: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_pdf_print_finished(&self, path: &CefStringUtf16, ok: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_pdf_print_callback_t) {
         impl_cef_pdf_print_callback_t::init_methods::<Self>(object);
     }
@@ -15428,7 +15268,6 @@ pub trait ImplDownloadImageCallback: Clone + Sized + Rc {
         http_status_code: ::std::os::raw::c_int,
         image: &mut impl ImplImage,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_download_image_callback_t) {
         impl_cef_download_image_callback_t::init_methods::<Self>(object);
@@ -15531,53 +15370,45 @@ impl Default for DownloadImageCallback {
 }
 pub trait ImplBrowserHost: Clone + Sized + Rc {
     fn get_browser(&self) -> Browser {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn close_browser(&self, force_close: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn close_browser(&self, force_close: ::std::os::raw::c_int) {}
     fn try_close_browser(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_ready_to_be_closed(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_focus(&self, focus: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_focus(&self, focus: ::std::os::raw::c_int) {}
     fn get_window_handle(&self) -> ::std::os::raw::c_ulong {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_opener_window_handle(&self) -> ::std::os::raw::c_ulong {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_opener_identifier(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_view(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_client(&self) -> Client {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_request_context(&self) -> RequestContext {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn can_zoom(&self, command: ZoomCommand) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn zoom(&self, command: ZoomCommand) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn zoom(&self, command: ZoomCommand) {}
     fn get_default_zoom_level(&self) -> f64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_zoom_level(&self) -> f64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_zoom_level(&self, zoom_level: f64) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_zoom_level(&self, zoom_level: f64) {}
     fn run_file_dialog(
         &self,
         mode: FileDialogMode,
@@ -15586,11 +15417,8 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
         accept_filters: &mut CefStringList,
         callback: &mut impl ImplRunFileDialogCallback,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn start_download(&self, url: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn start_download(&self, url: &CefStringUtf16) {}
     fn download_image(
         &self,
         image_url: &CefStringUtf16,
@@ -15599,18 +15427,14 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
         bypass_cache: ::std::os::raw::c_int,
         callback: &mut impl ImplDownloadImageCallback,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn print(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn print(&self) {}
     fn print_to_pdf(
         &self,
         path: &CefStringUtf16,
         settings: &PdfPrintSettings,
         callback: &mut impl ImplPdfPrintCallback,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn find(
         &self,
@@ -15619,11 +15443,8 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
         match_case: ::std::os::raw::c_int,
         find_next: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn stop_finding(&self, clear_selection: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn stop_finding(&self, clear_selection: ::std::os::raw::c_int) {}
     fn show_dev_tools(
         &self,
         window_info: &WindowInfo,
@@ -15631,16 +15452,13 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
         settings: &BrowserSettings,
         inspect_element_at: &Point,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn close_dev_tools(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn close_dev_tools(&self) {}
     fn has_dev_tools(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn send_dev_tools_message(&self, message: Option<&[u8]>) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn execute_dev_tools_method(
         &self,
@@ -15648,48 +15466,31 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
         method: &CefStringUtf16,
         params: &mut impl ImplDictionaryValue,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_dev_tools_message_observer(
         &self,
         observer: &mut impl ImplDevToolsMessageObserver,
     ) -> Registration {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_navigation_entries(
         &self,
         visitor: &mut impl ImplNavigationEntryVisitor,
         current_only: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn replace_misspelling(&self, word: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn add_word_to_dictionary(&self, word: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn replace_misspelling(&self, word: &CefStringUtf16) {}
+    fn add_word_to_dictionary(&self, word: &CefStringUtf16) {}
     fn is_window_rendering_disabled(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn was_resized(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn was_hidden(&self, hidden: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn notify_screen_info_changed(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn invalidate(&self, type_: PaintElementType) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn send_external_begin_frame(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn send_key_event(&self, event: &KeyEvent) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn was_resized(&self) {}
+    fn was_hidden(&self, hidden: ::std::os::raw::c_int) {}
+    fn notify_screen_info_changed(&self) {}
+    fn invalidate(&self, type_: PaintElementType) {}
+    fn send_external_begin_frame(&self) {}
+    fn send_key_event(&self, event: &KeyEvent) {}
     fn send_mouse_click_event(
         &self,
         event: &MouseEvent,
@@ -15697,34 +15498,22 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
         mouse_up: ::std::os::raw::c_int,
         click_count: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn send_mouse_move_event(&self, event: &MouseEvent, mouse_leave: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn send_mouse_move_event(&self, event: &MouseEvent, mouse_leave: ::std::os::raw::c_int) {}
     fn send_mouse_wheel_event(
         &self,
         event: &MouseEvent,
         delta_x: ::std::os::raw::c_int,
         delta_y: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn send_touch_event(&self, event: &TouchEvent) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn send_capture_lost_event(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn notify_move_or_resize_started(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn send_touch_event(&self, event: &TouchEvent) {}
+    fn send_capture_lost_event(&self) {}
+    fn notify_move_or_resize_started(&self) {}
     fn get_windowless_frame_rate(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_windowless_frame_rate(&self, frame_rate: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_windowless_frame_rate(&self, frame_rate: ::std::os::raw::c_int) {}
     fn ime_set_composition(
         &self,
         text: &CefStringUtf16,
@@ -15733,7 +15522,6 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
         replacement_range: &Range,
         selection_range: &Range,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn ime_commit_text(
         &self,
@@ -15741,86 +15529,63 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
         replacement_range: &Range,
         relative_cursor_pos: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn ime_finish_composing_text(&self, keep_selection: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn ime_cancel_composition(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn ime_finish_composing_text(&self, keep_selection: ::std::os::raw::c_int) {}
+    fn ime_cancel_composition(&self) {}
     fn drag_target_drag_enter(
         &self,
         drag_data: &mut impl ImplDragData,
         event: &MouseEvent,
         allowed_ops: DragOperationsMask,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn drag_target_drag_over(&self, event: &MouseEvent, allowed_ops: DragOperationsMask) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn drag_target_drag_leave(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn drag_target_drop(&self, event: &MouseEvent) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn drag_target_drag_over(&self, event: &MouseEvent, allowed_ops: DragOperationsMask) {}
+    fn drag_target_drag_leave(&self) {}
+    fn drag_target_drop(&self, event: &MouseEvent) {}
     fn drag_source_ended_at(
         &self,
         x: ::std::os::raw::c_int,
         y: ::std::os::raw::c_int,
         op: DragOperationsMask,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn drag_source_system_drag_ended(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn drag_source_system_drag_ended(&self) {}
     fn get_visible_navigation_entry(&self) -> NavigationEntry {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_accessibility_state(&self, accessibility_state: State) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_accessibility_state(&self, accessibility_state: State) {}
     fn set_auto_resize_enabled(
         &self,
         enabled: ::std::os::raw::c_int,
         min_size: &Size,
         max_size: &Size,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn set_audio_muted(&self, mute: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_audio_muted(&self, mute: ::std::os::raw::c_int) {}
     fn is_audio_muted(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_fullscreen(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn exit_fullscreen(&self, will_cause_resize: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn exit_fullscreen(&self, will_cause_resize: ::std::os::raw::c_int) {}
     fn can_execute_chrome_command(
         &self,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn execute_chrome_command(
         &self,
         command_id: ::std::os::raw::c_int,
         disposition: WindowOpenDisposition,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn is_render_process_unresponsive(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_runtime_style(&self) -> RuntimeStyle {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_browser_host_t) {
         impl_cef_browser_host_t::init_methods::<Self>(object);
@@ -16725,7 +16490,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn close_browser(&self, force_close: ::std::os::raw::c_int) {
@@ -16751,7 +16516,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_ready_to_be_closed(&self) -> ::std::os::raw::c_int {
@@ -16763,7 +16528,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_focus(&self, focus: ::std::os::raw::c_int) {
@@ -16789,7 +16554,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_opener_window_handle(&self) -> ::std::os::raw::c_ulong {
@@ -16801,7 +16566,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_opener_identifier(&self) -> ::std::os::raw::c_int {
@@ -16813,7 +16578,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_view(&self) -> ::std::os::raw::c_int {
@@ -16825,7 +16590,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_client(&self) -> Client {
@@ -16837,7 +16602,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_request_context(&self) -> RequestContext {
@@ -16849,7 +16614,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn can_zoom(&self, command: ZoomCommand) -> ::std::os::raw::c_int {
@@ -16863,7 +16628,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_, arg_command);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn zoom(&self, command: ZoomCommand) {
@@ -16889,7 +16654,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_zoom_level(&self) -> f64 {
@@ -16901,7 +16666,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_zoom_level(&self, zoom_level: f64) {
@@ -17151,7 +16916,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn send_dev_tools_message(&self, message: Option<&[u8]>) -> ::std::os::raw::c_int {
@@ -17178,7 +16943,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_, arg_message, arg_message_size);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn execute_dev_tools_method(
@@ -17200,7 +16965,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_, arg_message_id, arg_method, arg_params);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_dev_tools_message_observer(
@@ -17218,7 +16983,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_, arg_observer);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_navigation_entries(
@@ -17278,7 +17043,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn was_resized(&self) {
@@ -17477,7 +17242,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_windowless_frame_rate(&self, frame_rate: ::std::os::raw::c_int) {
@@ -17705,7 +17470,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_accessibility_state(&self, accessibility_state: State) {
@@ -17768,7 +17533,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_fullscreen(&self) -> ::std::os::raw::c_int {
@@ -17780,7 +17545,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn exit_fullscreen(&self, will_cause_resize: ::std::os::raw::c_int) {
@@ -17811,7 +17576,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn execute_chrome_command(
@@ -17842,7 +17607,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_runtime_style(&self) -> RuntimeStyle {
@@ -17854,7 +17619,7 @@ impl ImplBrowserHost for BrowserHost {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_browser_host_t {
@@ -17904,7 +17669,7 @@ pub trait ImplAudioHandler: Clone + Sized + Rc {
         browser: &mut impl ImplBrowser,
         params: &mut AudioParameters,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_audio_stream_started(
         &self,
@@ -17912,7 +17677,6 @@ pub trait ImplAudioHandler: Clone + Sized + Rc {
         params: &AudioParameters,
         channels: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_audio_stream_packet(
         &self,
@@ -17921,14 +17685,9 @@ pub trait ImplAudioHandler: Clone + Sized + Rc {
         frames: ::std::os::raw::c_int,
         pts: i64,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_audio_stream_stopped(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_audio_stream_error(&self, browser: &mut impl ImplBrowser, message: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_audio_stream_stopped(&self, browser: &mut impl ImplBrowser) {}
+    fn on_audio_stream_error(&self, browser: &mut impl ImplBrowser, message: &CefStringUtf16) {}
     fn init_methods(object: &mut _cef_audio_handler_t) {
         impl_cef_audio_handler_t::init_methods::<Self>(object);
     }
@@ -18043,7 +17802,7 @@ impl ImplAudioHandler for AudioHandler {
                     let result = f(arg_self_, arg_browser, arg_params);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_audio_stream_started(
@@ -18172,33 +17931,33 @@ pub trait ImplCommandHandler: Clone + Sized + Rc {
         command_id: ::std::os::raw::c_int,
         disposition: WindowOpenDisposition,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_chrome_app_menu_item_visible(
         &self,
         browser: &mut impl ImplBrowser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_chrome_app_menu_item_enabled(
         &self,
         browser: &mut impl ImplBrowser,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_chrome_page_action_icon_visible(
         &self,
         icon_type: ChromePageActionIconType,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_chrome_toolbar_button_visible(
         &self,
         button_type: ChromeToolbarButtonType,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_command_handler_t) {
         impl_cef_command_handler_t::init_methods::<Self>(object);
@@ -18317,7 +18076,7 @@ impl ImplCommandHandler for CommandHandler {
                     let result = f(arg_self_, arg_browser, arg_command_id, arg_disposition);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_chrome_app_menu_item_visible(
@@ -18337,7 +18096,7 @@ impl ImplCommandHandler for CommandHandler {
                     let result = f(arg_self_, arg_browser, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_chrome_app_menu_item_enabled(
@@ -18357,7 +18116,7 @@ impl ImplCommandHandler for CommandHandler {
                     let result = f(arg_self_, arg_browser, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_chrome_page_action_icon_visible(
@@ -18374,7 +18133,7 @@ impl ImplCommandHandler for CommandHandler {
                     let result = f(arg_self_, arg_icon_type);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_chrome_toolbar_button_visible(
@@ -18391,7 +18150,7 @@ impl ImplCommandHandler for CommandHandler {
                     let result = f(arg_self_, arg_button_type);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_command_handler_t {
@@ -18442,37 +18201,28 @@ pub trait ImplMenuModelDelegate: Clone + Sized + Rc {
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn mouse_outside_menu(&self, menu_model: &mut impl ImplMenuModel, screen_point: &Point) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn mouse_outside_menu(&self, menu_model: &mut impl ImplMenuModel, screen_point: &Point) {}
     fn unhandled_open_submenu(
         &self,
         menu_model: &mut impl ImplMenuModel,
         is_rtl: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn unhandled_close_submenu(
         &self,
         menu_model: &mut impl ImplMenuModel,
         is_rtl: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn menu_will_show(&self, menu_model: &mut impl ImplMenuModel) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn menu_closed(&self, menu_model: &mut impl ImplMenuModel) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn menu_will_show(&self, menu_model: &mut impl ImplMenuModel) {}
+    fn menu_closed(&self, menu_model: &mut impl ImplMenuModel) {}
     fn format_label(
         &self,
         menu_model: &mut impl ImplMenuModel,
         label: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_menu_model_delegate_t) {
         impl_cef_menu_model_delegate_t::init_methods::<Self>(object);
@@ -18719,7 +18469,7 @@ impl ImplMenuModelDelegate for MenuModelDelegate {
                     let result = f(arg_self_, arg_menu_model, arg_label);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_menu_model_delegate_t {
@@ -18765,30 +18515,30 @@ impl Default for MenuModelDelegate {
 }
 pub trait ImplMenuModel: Clone + Sized + Rc {
     fn is_sub_menu(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn clear(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_count(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_separator(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_item(
         &self,
         command_id: ::std::os::raw::c_int,
         label: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_check_item(
         &self,
         command_id: ::std::os::raw::c_int,
         label: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_radio_item(
         &self,
@@ -18796,13 +18546,13 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         label: &CefStringUtf16,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_sub_menu(&self, command_id: ::std::os::raw::c_int, label: &CefStringUtf16) -> MenuModel {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn insert_separator_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn insert_item_at(
         &self,
@@ -18810,7 +18560,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         command_id: ::std::os::raw::c_int,
         label: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn insert_check_item_at(
         &self,
@@ -18818,7 +18568,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         command_id: ::std::os::raw::c_int,
         label: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn insert_radio_item_at(
         &self,
@@ -18827,7 +18577,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         label: &CefStringUtf16,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn insert_sub_menu_at(
         &self,
@@ -18835,140 +18585,140 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         command_id: ::std::os::raw::c_int,
         label: &CefStringUtf16,
     ) -> MenuModel {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn remove(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn remove_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_index_of(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_command_id_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_command_id_at(
         &self,
         index: usize,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_label(&self, command_id: ::std::os::raw::c_int) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_label_at(&self, index: usize) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_label(
         &self,
         command_id: ::std::os::raw::c_int,
         label: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_label_at(&self, index: usize, label: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_type(&self, command_id: ::std::os::raw::c_int) -> MenuItemType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_type_at(&self, index: usize) -> MenuItemType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_group_id(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_group_id_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_group_id(
         &self,
         command_id: ::std::os::raw::c_int,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_group_id_at(
         &self,
         index: usize,
         group_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_sub_menu(&self, command_id: ::std::os::raw::c_int) -> MenuModel {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_sub_menu_at(&self, index: usize) -> MenuModel {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_visible(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_visible_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_visible(
         &self,
         command_id: ::std::os::raw::c_int,
         visible: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_visible_at(
         &self,
         index: usize,
         visible: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_enabled(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_enabled_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_enabled(
         &self,
         command_id: ::std::os::raw::c_int,
         enabled: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_enabled_at(
         &self,
         index: usize,
         enabled: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_checked(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_checked_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_checked(
         &self,
         command_id: ::std::os::raw::c_int,
         checked: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_checked_at(
         &self,
         index: usize,
         checked: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_accelerator(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_accelerator_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_accelerator(
         &self,
@@ -18978,7 +18728,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         ctrl_pressed: ::std::os::raw::c_int,
         alt_pressed: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_accelerator_at(
         &self,
@@ -18988,13 +18738,13 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         ctrl_pressed: ::std::os::raw::c_int,
         alt_pressed: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn remove_accelerator(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn remove_accelerator_at(&self, index: usize) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_accelerator(
         &self,
@@ -19004,7 +18754,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         ctrl_pressed: *mut ::std::os::raw::c_int,
         alt_pressed: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_accelerator_at(
         &self,
@@ -19014,7 +18764,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         ctrl_pressed: *mut ::std::os::raw::c_int,
         alt_pressed: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_color(
         &self,
@@ -19022,7 +18772,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         color_type: MenuColorType,
         color: u32,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_color_at(
         &self,
@@ -19030,7 +18780,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         color_type: MenuColorType,
         color: u32,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_color(
         &self,
@@ -19038,7 +18788,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         color_type: MenuColorType,
         color: *mut u32,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_color_at(
         &self,
@@ -19046,21 +18796,21 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         color_type: MenuColorType,
         color: *mut u32,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_font_list(
         &self,
         command_id: ::std::os::raw::c_int,
         font_list: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_font_list_at(
         &self,
         index: ::std::os::raw::c_int,
         font_list: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_menu_model_t) {
         impl_cef_menu_model_t::init_methods::<Self>(object);
@@ -19943,7 +19693,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn clear(&self) -> ::std::os::raw::c_int {
@@ -19955,7 +19705,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_count(&self) -> usize {
@@ -19967,7 +19717,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_separator(&self) -> ::std::os::raw::c_int {
@@ -19979,7 +19729,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_item(
@@ -19998,7 +19748,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_label);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_check_item(
@@ -20017,7 +19767,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_label);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_radio_item(
@@ -20038,7 +19788,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_label, arg_group_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_sub_menu(&self, command_id: ::std::os::raw::c_int, label: &CefStringUtf16) -> MenuModel {
@@ -20053,7 +19803,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_label);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn insert_separator_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20067,7 +19817,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn insert_item_at(
@@ -20088,7 +19838,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_command_id, arg_label);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn insert_check_item_at(
@@ -20109,7 +19859,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_command_id, arg_label);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn insert_radio_item_at(
@@ -20139,7 +19889,7 @@ impl ImplMenuModel for MenuModel {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn insert_sub_menu_at(
@@ -20160,7 +19910,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_command_id, arg_label);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn remove(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20174,7 +19924,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn remove_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20188,7 +19938,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_index_of(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20202,7 +19952,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_command_id_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20216,7 +19966,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_command_id_at(
@@ -20235,7 +19985,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_label(&self, command_id: ::std::os::raw::c_int) -> CefStringUtf16 {
@@ -20249,7 +19999,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_label_at(&self, index: usize) -> CefStringUtf16 {
@@ -20263,7 +20013,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_label(
@@ -20282,7 +20032,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_label);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_label_at(&self, index: usize, label: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -20297,7 +20047,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_label);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_type(&self, command_id: ::std::os::raw::c_int) -> MenuItemType {
@@ -20311,7 +20061,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_type_at(&self, index: usize) -> MenuItemType {
@@ -20325,7 +20075,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_group_id(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20339,7 +20089,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_group_id_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20353,7 +20103,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_group_id(
@@ -20372,7 +20122,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_group_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_group_id_at(
@@ -20391,7 +20141,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_group_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_sub_menu(&self, command_id: ::std::os::raw::c_int) -> MenuModel {
@@ -20405,7 +20155,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_sub_menu_at(&self, index: usize) -> MenuModel {
@@ -20419,7 +20169,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_visible(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20433,7 +20183,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_visible_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20447,7 +20197,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_visible(
@@ -20466,7 +20216,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_visible);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_visible_at(
@@ -20485,7 +20235,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_visible);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_enabled(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20499,7 +20249,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_enabled_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20513,7 +20263,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_enabled(
@@ -20532,7 +20282,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_enabled);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_enabled_at(
@@ -20551,7 +20301,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_enabled);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_checked(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20565,7 +20315,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_checked_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20579,7 +20329,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_checked(
@@ -20598,7 +20348,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_checked);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_checked_at(
@@ -20617,7 +20367,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_checked);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_accelerator(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20631,7 +20381,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_accelerator_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20645,7 +20395,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_accelerator(
@@ -20689,7 +20439,7 @@ impl ImplMenuModel for MenuModel {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_accelerator_at(
@@ -20727,7 +20477,7 @@ impl ImplMenuModel for MenuModel {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn remove_accelerator(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20741,7 +20491,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn remove_accelerator_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20755,7 +20505,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_accelerator(
@@ -20799,7 +20549,7 @@ impl ImplMenuModel for MenuModel {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_accelerator_at(
@@ -20837,7 +20587,7 @@ impl ImplMenuModel for MenuModel {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_color(
@@ -20859,7 +20609,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_color_type, arg_color);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_color_at(
@@ -20880,7 +20630,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_color_type, arg_color);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_color(
@@ -20902,7 +20652,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_color_type, arg_color);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_color_at(
@@ -20923,7 +20673,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_color_type, arg_color);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_font_list(
@@ -20942,7 +20692,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_command_id, arg_font_list);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_font_list_at(
@@ -20961,7 +20711,7 @@ impl ImplMenuModel for MenuModel {
                     let result = f(arg_self_, arg_index, arg_font_list);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_menu_model_t {
@@ -21006,12 +20756,8 @@ impl Default for MenuModel {
     }
 }
 pub trait ImplRunContextMenuCallback: Clone + Sized + Rc {
-    fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {}
+    fn cancel(&self) {}
     fn init_methods(object: &mut _cef_run_context_menu_callback_t) {
         impl_cef_run_context_menu_callback_t::init_methods::<Self>(object);
     }
@@ -21118,12 +20864,8 @@ impl Default for RunContextMenuCallback {
     }
 }
 pub trait ImplRunQuickMenuCallback: Clone + Sized + Rc {
-    fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {}
+    fn cancel(&self) {}
     fn init_methods(object: &mut _cef_run_quick_menu_callback_t) {
         impl_cef_run_quick_menu_callback_t::init_methods::<Self>(object);
     }
@@ -21233,7 +20975,6 @@ pub trait ImplContextMenuHandler: Clone + Sized + Rc {
         params: &mut impl ImplContextMenuParams,
         model: &mut impl ImplMenuModel,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn run_context_menu(
         &self,
@@ -21243,7 +20984,7 @@ pub trait ImplContextMenuHandler: Clone + Sized + Rc {
         model: &mut impl ImplMenuModel,
         callback: &mut impl ImplRunContextMenuCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_context_menu_command(
         &self,
@@ -21253,14 +20994,13 @@ pub trait ImplContextMenuHandler: Clone + Sized + Rc {
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_context_menu_dismissed(
         &self,
         browser: &mut impl ImplBrowser,
         frame: &mut impl ImplFrame,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn run_quick_menu(
         &self,
@@ -21271,7 +21011,7 @@ pub trait ImplContextMenuHandler: Clone + Sized + Rc {
         edit_state_flags: QuickMenuEditStateFlags,
         callback: &mut impl ImplRunQuickMenuCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_quick_menu_command(
         &self,
@@ -21280,11 +21020,9 @@ pub trait ImplContextMenuHandler: Clone + Sized + Rc {
         command_id: ::std::os::raw::c_int,
         event_flags: EventFlags,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_quick_menu_dismissed(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_quick_menu_dismissed(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {}
     fn init_methods(object: &mut _cef_context_menu_handler_t) {
         impl_cef_context_menu_handler_t::init_methods::<Self>(object);
     }
@@ -21542,7 +21280,7 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_context_menu_command(
@@ -21578,7 +21316,7 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_context_menu_dismissed(
@@ -21646,7 +21384,7 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_quick_menu_command(
@@ -21678,7 +21416,7 @@ impl ImplContextMenuHandler for ContextMenuHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_quick_menu_dismissed(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {
@@ -21741,64 +21479,64 @@ impl Default for ContextMenuHandler {
 }
 pub trait ImplContextMenuParams: Clone + Sized + Rc {
     fn get_xcoord(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_ycoord(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_type_flags(&self) -> ContextMenuTypeFlags {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_link_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_unfiltered_link_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_source_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_image_contents(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_title_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_page_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_frame_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_frame_charset(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_media_type(&self) -> ContextMenuMediaType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_media_state_flags(&self) -> ContextMenuMediaStateFlags {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_selection_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_misspelled_word(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_dictionary_suggestions(&self, suggestions: &mut CefStringList) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_editable(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_spell_check_enabled(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_edit_state_flags(&self) -> ContextMenuEditStateFlags {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_custom_menu(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_context_menu_params_t) {
         impl_cef_context_menu_params_t::init_methods::<Self>(object);
@@ -22009,7 +21747,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_ycoord(&self) -> ::std::os::raw::c_int {
@@ -22021,7 +21759,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_type_flags(&self) -> ContextMenuTypeFlags {
@@ -22033,7 +21771,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_link_url(&self) -> CefStringUtf16 {
@@ -22045,7 +21783,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_unfiltered_link_url(&self) -> CefStringUtf16 {
@@ -22057,7 +21795,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_source_url(&self) -> CefStringUtf16 {
@@ -22069,7 +21807,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_image_contents(&self) -> ::std::os::raw::c_int {
@@ -22081,7 +21819,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_title_text(&self) -> CefStringUtf16 {
@@ -22093,7 +21831,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_page_url(&self) -> CefStringUtf16 {
@@ -22105,7 +21843,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame_url(&self) -> CefStringUtf16 {
@@ -22117,7 +21855,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame_charset(&self) -> CefStringUtf16 {
@@ -22129,7 +21867,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_media_type(&self) -> ContextMenuMediaType {
@@ -22141,7 +21879,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_media_state_flags(&self) -> ContextMenuMediaStateFlags {
@@ -22153,7 +21891,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_selection_text(&self) -> CefStringUtf16 {
@@ -22165,7 +21903,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_misspelled_word(&self) -> CefStringUtf16 {
@@ -22177,7 +21915,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_dictionary_suggestions(&self, suggestions: &mut CefStringList) -> ::std::os::raw::c_int {
@@ -22191,7 +21929,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_, arg_suggestions);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_editable(&self) -> ::std::os::raw::c_int {
@@ -22203,7 +21941,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_spell_check_enabled(&self) -> ::std::os::raw::c_int {
@@ -22215,7 +21953,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_edit_state_flags(&self) -> ContextMenuEditStateFlags {
@@ -22227,7 +21965,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_custom_menu(&self) -> ::std::os::raw::c_int {
@@ -22239,7 +21977,7 @@ impl ImplContextMenuParams for ContextMenuParams {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_context_menu_params_t {
@@ -22284,12 +22022,8 @@ impl Default for ContextMenuParams {
     }
 }
 pub trait ImplFileDialogCallback: Clone + Sized + Rc {
-    fn cont(&self, file_paths: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, file_paths: &mut CefStringList) {}
+    fn cancel(&self) {}
     fn init_methods(object: &mut _cef_file_dialog_callback_t) {
         impl_cef_file_dialog_callback_t::init_methods::<Self>(object);
     }
@@ -22400,7 +22134,7 @@ pub trait ImplDialogHandler: Clone + Sized + Rc {
         accept_descriptions: &mut CefStringList,
         callback: &mut impl ImplFileDialogCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_dialog_handler_t) {
         impl_cef_dialog_handler_t::init_methods::<Self>(object);
@@ -22534,7 +22268,7 @@ impl ImplDialogHandler for DialogHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_dialog_handler_t {
@@ -22585,31 +22319,23 @@ pub trait ImplDisplayHandler: Clone + Sized + Rc {
         frame: &mut impl ImplFrame,
         url: &CefStringUtf16,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_title_change(&self, browser: &mut impl ImplBrowser, title: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_favicon_urlchange(&self, browser: &mut impl ImplBrowser, icon_urls: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_title_change(&self, browser: &mut impl ImplBrowser, title: &CefStringUtf16) {}
+    fn on_favicon_urlchange(&self, browser: &mut impl ImplBrowser, icon_urls: &mut CefStringList) {}
     fn on_fullscreen_mode_change(
         &self,
         browser: &mut impl ImplBrowser,
         fullscreen: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_tooltip(
         &self,
         browser: &mut impl ImplBrowser,
         text: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_status_message(&self, browser: &mut impl ImplBrowser, value: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_status_message(&self, browser: &mut impl ImplBrowser, value: &CefStringUtf16) {}
     fn on_console_message(
         &self,
         browser: &mut impl ImplBrowser,
@@ -22618,18 +22344,16 @@ pub trait ImplDisplayHandler: Clone + Sized + Rc {
         source: &CefStringUtf16,
         line: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_auto_resize(
         &self,
         browser: &mut impl ImplBrowser,
         new_size: &Size,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_loading_progress_change(&self, browser: &mut impl ImplBrowser, progress: f64) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_loading_progress_change(&self, browser: &mut impl ImplBrowser, progress: f64) {}
     fn on_cursor_change(
         &self,
         browser: &mut impl ImplBrowser,
@@ -22637,7 +22361,7 @@ pub trait ImplDisplayHandler: Clone + Sized + Rc {
         type_: CursorType,
         custom_cursor_info: &CursorInfo,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_media_access_change(
         &self,
@@ -22645,7 +22369,6 @@ pub trait ImplDisplayHandler: Clone + Sized + Rc {
         has_video_access: ::std::os::raw::c_int,
         has_audio_access: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_display_handler_t) {
         impl_cef_display_handler_t::init_methods::<Self>(object);
@@ -22953,7 +22676,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     let result = f(arg_self_, arg_browser, arg_text);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_status_message(&self, browser: &mut impl ImplBrowser, value: &CefStringUtf16) {
@@ -23003,7 +22726,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_auto_resize(
@@ -23024,7 +22747,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     let result = f(arg_self_, arg_browser, arg_new_size);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_loading_progress_change(&self, browser: &mut impl ImplBrowser, progress: f64) {
@@ -23073,7 +22796,7 @@ impl ImplDisplayHandler for DisplayHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_media_access_change(
@@ -23147,61 +22870,61 @@ impl Default for DisplayHandler {
 }
 pub trait ImplDownloadItem: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_in_progress(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_complete(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_canceled(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_interrupted(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_interrupt_reason(&self) -> DownloadInterruptReason {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_current_speed(&self) -> i64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_percent_complete(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_total_bytes(&self) -> i64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_received_bytes(&self) -> i64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_start_time(&self) -> Basetime {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_end_time(&self) -> Basetime {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_full_path(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_id(&self) -> u32 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_original_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_suggested_file_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_content_disposition(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_mime_type(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_download_item_t) {
         impl_cef_download_item_t::init_methods::<Self>(object);
@@ -23389,7 +23112,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_in_progress(&self) -> ::std::os::raw::c_int {
@@ -23401,7 +23124,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_complete(&self) -> ::std::os::raw::c_int {
@@ -23413,7 +23136,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_canceled(&self) -> ::std::os::raw::c_int {
@@ -23425,7 +23148,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_interrupted(&self) -> ::std::os::raw::c_int {
@@ -23437,7 +23160,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_interrupt_reason(&self) -> DownloadInterruptReason {
@@ -23449,7 +23172,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_current_speed(&self) -> i64 {
@@ -23461,7 +23184,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_percent_complete(&self) -> ::std::os::raw::c_int {
@@ -23473,7 +23196,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_total_bytes(&self) -> i64 {
@@ -23485,7 +23208,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_received_bytes(&self) -> i64 {
@@ -23497,7 +23220,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_start_time(&self) -> Basetime {
@@ -23509,7 +23232,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_end_time(&self) -> Basetime {
@@ -23521,7 +23244,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_full_path(&self) -> CefStringUtf16 {
@@ -23533,7 +23256,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_id(&self) -> u32 {
@@ -23545,7 +23268,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_url(&self) -> CefStringUtf16 {
@@ -23557,7 +23280,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_original_url(&self) -> CefStringUtf16 {
@@ -23569,7 +23292,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_suggested_file_name(&self) -> CefStringUtf16 {
@@ -23581,7 +23304,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_content_disposition(&self) -> CefStringUtf16 {
@@ -23593,7 +23316,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_mime_type(&self) -> CefStringUtf16 {
@@ -23605,7 +23328,7 @@ impl ImplDownloadItem for DownloadItem {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_download_item_t {
@@ -23650,9 +23373,7 @@ impl Default for DownloadItem {
     }
 }
 pub trait ImplBeforeDownloadCallback: Clone + Sized + Rc {
-    fn cont(&self, download_path: &CefStringUtf16, show_dialog: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, download_path: &CefStringUtf16, show_dialog: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_before_download_callback_t) {
         impl_cef_before_download_callback_t::init_methods::<Self>(object);
     }
@@ -23743,15 +23464,9 @@ impl Default for BeforeDownloadCallback {
     }
 }
 pub trait ImplDownloadItemCallback: Clone + Sized + Rc {
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn pause(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn resume(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cancel(&self) {}
+    fn pause(&self) {}
+    fn resume(&self) {}
     fn init_methods(object: &mut _cef_download_item_callback_t) {
         impl_cef_download_item_callback_t::init_methods::<Self>(object);
     }
@@ -23868,7 +23583,7 @@ pub trait ImplDownloadHandler: Clone + Sized + Rc {
         url: &CefStringUtf16,
         request_method: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_before_download(
         &self,
@@ -23877,7 +23592,7 @@ pub trait ImplDownloadHandler: Clone + Sized + Rc {
         suggested_name: &CefStringUtf16,
         callback: &mut impl ImplBeforeDownloadCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_download_updated(
         &self,
@@ -23885,7 +23600,6 @@ pub trait ImplDownloadHandler: Clone + Sized + Rc {
         download_item: &mut impl ImplDownloadItem,
         callback: &mut impl ImplDownloadItemCallback,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_download_handler_t) {
         impl_cef_download_handler_t::init_methods::<Self>(object);
@@ -23988,7 +23702,7 @@ impl ImplDownloadHandler for DownloadHandler {
                     let result = f(arg_self_, arg_browser, arg_url, arg_request_method);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_before_download(
@@ -24021,7 +23735,7 @@ impl ImplDownloadHandler for DownloadHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_download_updated(
@@ -24097,7 +23811,7 @@ pub trait ImplDragHandler: Clone + Sized + Rc {
         drag_data: &mut impl ImplDragData,
         mask: DragOperationsMask,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_draggable_regions_changed(
         &self,
@@ -24106,7 +23820,6 @@ pub trait ImplDragHandler: Clone + Sized + Rc {
         regions_count: usize,
         regions: &DraggableRegion,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_drag_handler_t) {
         impl_cef_drag_handler_t::init_methods::<Self>(object);
@@ -24186,7 +23899,7 @@ impl ImplDragHandler for DragHandler {
                     let result = f(arg_self_, arg_browser, arg_drag_data, arg_mask);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_draggable_regions_changed(
@@ -24273,7 +23986,6 @@ pub trait ImplFindHandler: Clone + Sized + Rc {
         active_match_ordinal: ::std::os::raw::c_int,
         final_update: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_find_handler_t) {
         impl_cef_find_handler_t::init_methods::<Self>(object);
@@ -24427,19 +24139,15 @@ impl Default for FindHandler {
     }
 }
 pub trait ImplFocusHandler: Clone + Sized + Rc {
-    fn on_take_focus(&self, browser: &mut impl ImplBrowser, next: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_take_focus(&self, browser: &mut impl ImplBrowser, next: ::std::os::raw::c_int) {}
     fn on_set_focus(
         &self,
         browser: &mut impl ImplBrowser,
         source: FocusSource,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_got_focus(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_got_focus(&self, browser: &mut impl ImplBrowser) {}
     fn init_methods(object: &mut _cef_focus_handler_t) {
         impl_cef_focus_handler_t::init_methods::<Self>(object);
     }
@@ -24522,7 +24230,7 @@ impl ImplFocusHandler for FocusHandler {
                     let result = f(arg_self_, arg_browser, arg_source);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_got_focus(&self, browser: &mut impl ImplBrowser) {
@@ -24582,30 +24290,22 @@ impl Default for FocusHandler {
     }
 }
 pub trait ImplFrameHandler: Clone + Sized + Rc {
-    fn on_frame_created(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_frame_destroyed(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_frame_created(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {}
+    fn on_frame_destroyed(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {}
     fn on_frame_attached(
         &self,
         browser: &mut impl ImplBrowser,
         frame: &mut impl ImplFrame,
         reattached: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_frame_detached(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_frame_detached(&self, browser: &mut impl ImplBrowser, frame: &mut impl ImplFrame) {}
     fn on_main_frame_changed(
         &self,
         browser: &mut impl ImplBrowser,
         old_frame: &mut impl ImplFrame,
         new_frame: &mut impl ImplFrame,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_frame_handler_t) {
         impl_cef_frame_handler_t::init_methods::<Self>(object);
@@ -24841,9 +24541,7 @@ impl Default for FrameHandler {
     }
 }
 pub trait ImplJsdialogCallback: Clone + Sized + Rc {
-    fn cont(&self, success: ::std::os::raw::c_int, user_input: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, success: ::std::os::raw::c_int, user_input: &CefStringUtf16) {}
     fn init_methods(object: &mut _cef_jsdialog_callback_t) {
         impl_cef_jsdialog_callback_t::init_methods::<Self>(object);
     }
@@ -24938,7 +24636,7 @@ pub trait ImplJsdialogHandler: Clone + Sized + Rc {
         callback: &mut impl ImplJsdialogCallback,
         suppress_message: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_before_unload_dialog(
         &self,
@@ -24947,14 +24645,10 @@ pub trait ImplJsdialogHandler: Clone + Sized + Rc {
         is_reload: ::std::os::raw::c_int,
         callback: &mut impl ImplJsdialogCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_reset_dialog_state(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_dialog_closed(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_reset_dialog_state(&self, browser: &mut impl ImplBrowser) {}
+    fn on_dialog_closed(&self, browser: &mut impl ImplBrowser) {}
     fn init_methods(object: &mut _cef_jsdialog_handler_t) {
         impl_cef_jsdialog_handler_t::init_methods::<Self>(object);
     }
@@ -25122,7 +24816,7 @@ impl ImplJsdialogHandler for JsdialogHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_before_unload_dialog(
@@ -25154,7 +24848,7 @@ impl ImplJsdialogHandler for JsdialogHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_reset_dialog_state(&self, browser: &mut impl ImplBrowser) {
@@ -25236,7 +24930,7 @@ pub trait ImplKeyboardHandler: Clone + Sized + Rc {
         os_event: *mut XEvent,
         is_keyboard_shortcut: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_key_event(
         &self,
@@ -25244,7 +24938,7 @@ pub trait ImplKeyboardHandler: Clone + Sized + Rc {
         event: &KeyEvent,
         os_event: *mut XEvent,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_keyboard_handler_t) {
         impl_cef_keyboard_handler_t::init_methods::<Self>(object);
@@ -25339,7 +25033,7 @@ impl ImplKeyboardHandler for KeyboardHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_key_event(
@@ -25362,7 +25056,7 @@ impl ImplKeyboardHandler for KeyboardHandler {
                     let result = f(arg_self_, arg_browser, arg_event, arg_os_event);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_keyboard_handler_t {
@@ -25423,14 +25117,13 @@ pub trait ImplLifeSpanHandler: Clone + Sized + Rc {
         extra_info: Option<&mut impl ImplDictionaryValue>,
         no_javascript_access: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_before_popup_aborted(
         &self,
         browser: &mut impl ImplBrowser,
         popup_id: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_before_dev_tools_popup(
         &self,
@@ -25441,17 +25134,12 @@ pub trait ImplLifeSpanHandler: Clone + Sized + Rc {
         extra_info: Option<&mut impl ImplDictionaryValue>,
         use_default_window: *mut ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_after_created(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_after_created(&self, browser: &mut impl ImplBrowser) {}
     fn do_close(&self, browser: &mut impl ImplBrowser) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_before_close(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_before_close(&self, browser: &mut impl ImplBrowser) {}
     fn init_methods(object: &mut _cef_life_span_handler_t) {
         impl_cef_life_span_handler_t::init_methods::<Self>(object);
     }
@@ -25777,7 +25465,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_before_popup_aborted(
@@ -25893,7 +25581,7 @@ impl ImplLifeSpanHandler for LifeSpanHandler {
                     let result = f(arg_self_, arg_browser);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_before_close(&self, browser: &mut impl ImplBrowser) {
@@ -25960,7 +25648,6 @@ pub trait ImplLoadHandler: Clone + Sized + Rc {
         can_go_back: ::std::os::raw::c_int,
         can_go_forward: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_load_start(
         &self,
@@ -25968,7 +25655,6 @@ pub trait ImplLoadHandler: Clone + Sized + Rc {
         frame: &mut impl ImplFrame,
         transition_type: TransitionType,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_load_end(
         &self,
@@ -25976,7 +25662,6 @@ pub trait ImplLoadHandler: Clone + Sized + Rc {
         frame: &mut impl ImplFrame,
         http_status_code: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_load_error(
         &self,
@@ -25986,7 +25671,6 @@ pub trait ImplLoadHandler: Clone + Sized + Rc {
         error_text: &CefStringUtf16,
         failed_url: &CefStringUtf16,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_load_handler_t) {
         impl_cef_load_handler_t::init_methods::<Self>(object);
@@ -26249,12 +25933,8 @@ impl Default for LoadHandler {
     }
 }
 pub trait ImplMediaAccessCallback: Clone + Sized + Rc {
-    fn cont(&self, allowed_permissions: u32) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, allowed_permissions: u32) {}
+    fn cancel(&self) {}
     fn init_methods(object: &mut _cef_media_access_callback_t) {
         impl_cef_media_access_callback_t::init_methods::<Self>(object);
     }
@@ -26353,9 +26033,7 @@ impl Default for MediaAccessCallback {
     }
 }
 pub trait ImplPermissionPromptCallback: Clone + Sized + Rc {
-    fn cont(&self, result: PermissionRequestResult) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, result: PermissionRequestResult) {}
     fn init_methods(object: &mut _cef_permission_prompt_callback_t) {
         impl_cef_permission_prompt_callback_t::init_methods::<Self>(object);
     }
@@ -26446,7 +26124,7 @@ pub trait ImplPermissionHandler: Clone + Sized + Rc {
         requested_permissions: u32,
         callback: &mut impl ImplMediaAccessCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_show_permission_prompt(
         &self,
@@ -26456,7 +26134,7 @@ pub trait ImplPermissionHandler: Clone + Sized + Rc {
         requested_permissions: u32,
         callback: &mut impl ImplPermissionPromptCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_dismiss_permission_prompt(
         &self,
@@ -26464,7 +26142,6 @@ pub trait ImplPermissionHandler: Clone + Sized + Rc {
         prompt_id: u64,
         result: PermissionRequestResult,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_permission_handler_t) {
         impl_cef_permission_handler_t::init_methods::<Self>(object);
@@ -26627,7 +26304,7 @@ impl ImplPermissionHandler for PermissionHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_show_permission_prompt(
@@ -26673,7 +26350,7 @@ impl ImplPermissionHandler for PermissionHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_dismiss_permission_prompt(
@@ -26741,16 +26418,14 @@ impl Default for PermissionHandler {
 }
 pub trait ImplPrintSettings: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_orientation(&self, landscape: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_orientation(&self, landscape: ::std::os::raw::c_int) {}
     fn is_landscape(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_printer_printable_area(
         &self,
@@ -26758,58 +26433,39 @@ pub trait ImplPrintSettings: Clone + Sized + Rc {
         printable_area_device_units: &Rect,
         landscape_needs_flip: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn set_device_name(&self, name: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_device_name(&self, name: &CefStringUtf16) {}
     fn get_device_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_dpi(&self, dpi: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_dpi(&self, dpi: ::std::os::raw::c_int) {}
     fn get_dpi(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_page_ranges(&self, ranges_count: usize, ranges: &Range) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_page_ranges(&self, ranges_count: usize, ranges: &Range) {}
     fn get_page_ranges_count(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_page_ranges(&self, ranges_count: *mut usize, ranges: &mut Range) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_selection_only(&self, selection_only: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_page_ranges(&self, ranges_count: *mut usize, ranges: &mut Range) {}
+    fn set_selection_only(&self, selection_only: ::std::os::raw::c_int) {}
     fn is_selection_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_collate(&self, collate: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_collate(&self, collate: ::std::os::raw::c_int) {}
     fn will_collate(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_color_model(&self, model: ColorModel) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_color_model(&self, model: ColorModel) {}
     fn get_color_model(&self) -> ColorModel {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_copies(&self, copies: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_copies(&self, copies: ::std::os::raw::c_int) {}
     fn get_copies(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_duplex_mode(&self, mode: DuplexMode) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_duplex_mode(&self, mode: DuplexMode) {}
     fn get_duplex_mode(&self) -> DuplexMode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_print_settings_t) {
         impl_cef_print_settings_t::init_methods::<Self>(object);
@@ -27077,7 +26733,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
@@ -27089,7 +26745,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_orientation(&self, landscape: ::std::os::raw::c_int) {
@@ -27115,7 +26771,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_printer_printable_area(
@@ -27179,7 +26835,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_dpi(&self, dpi: ::std::os::raw::c_int) {
@@ -27205,7 +26861,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_page_ranges(&self, ranges_count: usize, ranges: &Range) {
@@ -27233,7 +26889,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_page_ranges(&self, ranges_count: *mut usize, ranges: &mut Range) {
@@ -27275,7 +26931,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_collate(&self, collate: ::std::os::raw::c_int) {
@@ -27301,7 +26957,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_color_model(&self, model: ColorModel) {
@@ -27327,7 +26983,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_copies(&self, copies: ::std::os::raw::c_int) {
@@ -27353,7 +27009,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_duplex_mode(&self, mode: DuplexMode) {
@@ -27379,7 +27035,7 @@ impl ImplPrintSettings for PrintSettings {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_print_settings_t {
@@ -27424,12 +27080,8 @@ impl Default for PrintSettings {
     }
 }
 pub trait ImplPrintDialogCallback: Clone + Sized + Rc {
-    fn cont(&self, settings: &mut impl ImplPrintSettings) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, settings: &mut impl ImplPrintSettings) {}
+    fn cancel(&self) {}
     fn init_methods(object: &mut _cef_print_dialog_callback_t) {
         impl_cef_print_dialog_callback_t::init_methods::<Self>(object);
     }
@@ -27529,9 +27181,7 @@ impl Default for PrintDialogCallback {
     }
 }
 pub trait ImplPrintJobCallback: Clone + Sized + Rc {
-    fn cont(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self) {}
     fn init_methods(object: &mut _cef_print_job_callback_t) {
         impl_cef_print_job_callback_t::init_methods::<Self>(object);
     }
@@ -27606,16 +27256,13 @@ impl Default for PrintJobCallback {
     }
 }
 pub trait ImplPrintHandler: Clone + Sized + Rc {
-    fn on_print_start(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_print_start(&self, browser: &mut impl ImplBrowser) {}
     fn on_print_settings(
         &self,
         browser: &mut impl ImplBrowser,
         settings: &mut impl ImplPrintSettings,
         get_defaults: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_print_dialog(
         &self,
@@ -27623,7 +27270,7 @@ pub trait ImplPrintHandler: Clone + Sized + Rc {
         has_selection: ::std::os::raw::c_int,
         callback: &mut impl ImplPrintDialogCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_print_job(
         &self,
@@ -27632,17 +27279,15 @@ pub trait ImplPrintHandler: Clone + Sized + Rc {
         pdf_file_path: &CefStringUtf16,
         callback: &mut impl ImplPrintJobCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_print_reset(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_print_reset(&self, browser: &mut impl ImplBrowser) {}
     fn get_pdf_paper_size(
         &self,
         browser: &mut impl ImplBrowser,
         device_units_per_inch: ::std::os::raw::c_int,
     ) -> Size {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_print_handler_t) {
         impl_cef_print_handler_t::init_methods::<Self>(object);
@@ -27823,7 +27468,7 @@ impl ImplPrintHandler for PrintHandler {
                     let result = f(arg_self_, arg_browser, arg_has_selection, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_print_job(
@@ -27855,7 +27500,7 @@ impl ImplPrintHandler for PrintHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_print_reset(&self, browser: &mut impl ImplBrowser) {
@@ -27890,7 +27535,7 @@ impl ImplPrintHandler for PrintHandler {
                     let result = f(arg_self_, arg_browser, arg_device_units_per_inch);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_print_handler_t {
@@ -27935,12 +27580,8 @@ impl Default for PrintHandler {
     }
 }
 pub trait ImplAccessibilityHandler: Clone + Sized + Rc {
-    fn on_accessibility_tree_change(&self, value: &mut impl ImplValue) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_accessibility_location_change(&self, value: &mut impl ImplValue) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_accessibility_tree_change(&self, value: &mut impl ImplValue) {}
+    fn on_accessibility_location_change(&self, value: &mut impl ImplValue) {}
     fn init_methods(object: &mut _cef_accessibility_handler_t) {
         impl_cef_accessibility_handler_t::init_methods::<Self>(object);
     }
@@ -28052,18 +27693,16 @@ impl Default for AccessibilityHandler {
 }
 pub trait ImplRenderHandler: Clone + Sized + Rc {
     fn get_accessibility_handler(&self) -> AccessibilityHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_root_screen_rect(
         &self,
         browser: &mut impl ImplBrowser,
         rect: &mut Rect,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_view_rect(&self, browser: &mut impl ImplBrowser, rect: &mut Rect) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_view_rect(&self, browser: &mut impl ImplBrowser, rect: &mut Rect) {}
     fn get_screen_point(
         &self,
         browser: &mut impl ImplBrowser,
@@ -28072,21 +27711,17 @@ pub trait ImplRenderHandler: Clone + Sized + Rc {
         screen_x: *mut ::std::os::raw::c_int,
         screen_y: *mut ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_screen_info(
         &self,
         browser: &mut impl ImplBrowser,
         screen_info: &mut ScreenInfo,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_popup_show(&self, browser: &mut impl ImplBrowser, show: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_popup_size(&self, browser: &mut impl ImplBrowser, rect: &Rect) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_popup_show(&self, browser: &mut impl ImplBrowser, show: ::std::os::raw::c_int) {}
+    fn on_popup_size(&self, browser: &mut impl ImplBrowser, rect: &Rect) {}
     fn on_paint(
         &self,
         browser: &mut impl ImplBrowser,
@@ -28097,7 +27732,6 @@ pub trait ImplRenderHandler: Clone + Sized + Rc {
         width: ::std::os::raw::c_int,
         height: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_accelerated_paint(
         &self,
@@ -28107,7 +27741,6 @@ pub trait ImplRenderHandler: Clone + Sized + Rc {
         dirty_rects: &Rect,
         info: &AcceleratedPaintInfo,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn get_touch_handle_size(
         &self,
@@ -28115,14 +27748,12 @@ pub trait ImplRenderHandler: Clone + Sized + Rc {
         orientation: HorizontalAlignment,
         size: &mut Size,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_touch_handle_state_changed(
         &self,
         browser: &mut impl ImplBrowser,
         state: &TouchHandleState,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn start_dragging(
         &self,
@@ -28132,14 +27763,10 @@ pub trait ImplRenderHandler: Clone + Sized + Rc {
         x: ::std::os::raw::c_int,
         y: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn update_drag_cursor(&self, browser: &mut impl ImplBrowser, operation: DragOperationsMask) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_scroll_offset_changed(&self, browser: &mut impl ImplBrowser, x: f64, y: f64) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn update_drag_cursor(&self, browser: &mut impl ImplBrowser, operation: DragOperationsMask) {}
+    fn on_scroll_offset_changed(&self, browser: &mut impl ImplBrowser, x: f64, y: f64) {}
     fn on_ime_composition_range_changed(
         &self,
         browser: &mut impl ImplBrowser,
@@ -28147,7 +27774,6 @@ pub trait ImplRenderHandler: Clone + Sized + Rc {
         character_bounds_count: usize,
         character_bounds: &Rect,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_text_selection_changed(
         &self,
@@ -28155,14 +27781,12 @@ pub trait ImplRenderHandler: Clone + Sized + Rc {
         selected_text: &CefStringUtf16,
         selected_range: &Range,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_virtual_keyboard_requested(
         &self,
         browser: &mut impl ImplBrowser,
         input_mode: TextInputMode,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_render_handler_t) {
         impl_cef_render_handler_t::init_methods::<Self>(object);
@@ -28542,7 +28166,7 @@ impl ImplRenderHandler for RenderHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_root_screen_rect(
@@ -28563,7 +28187,7 @@ impl ImplRenderHandler for RenderHandler {
                     let result = f(arg_self_, arg_browser, arg_rect);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_view_rect(&self, browser: &mut impl ImplBrowser, rect: &mut Rect) {
@@ -28614,7 +28238,7 @@ impl ImplRenderHandler for RenderHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_screen_info(
@@ -28635,7 +28259,7 @@ impl ImplRenderHandler for RenderHandler {
                     let result = f(arg_self_, arg_browser, arg_screen_info);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_popup_show(&self, browser: &mut impl ImplBrowser, show: ::std::os::raw::c_int) {
@@ -28839,7 +28463,7 @@ impl ImplRenderHandler for RenderHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn update_drag_cursor(&self, browser: &mut impl ImplBrowser, operation: DragOperationsMask) {
@@ -29008,12 +28632,8 @@ impl Default for RenderHandler {
     }
 }
 pub trait ImplAuthCallback: Clone + Sized + Rc {
-    fn cont(&self, username: &CefStringUtf16, password: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, username: &CefStringUtf16, password: &CefStringUtf16) {}
+    fn cancel(&self) {}
     fn init_methods(object: &mut _cef_auth_callback_t) {
         impl_cef_auth_callback_t::init_methods::<Self>(object);
     }
@@ -29118,40 +28738,30 @@ impl Default for AuthCallback {
 }
 pub trait ImplResponse: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_error(&self) -> Errorcode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_error(&self, error: Errorcode) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_error(&self, error: Errorcode) {}
     fn get_status(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_status(&self, status: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_status(&self, status: ::std::os::raw::c_int) {}
     fn get_status_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_status_text(&self, status_text: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_status_text(&self, status_text: &CefStringUtf16) {}
     fn get_mime_type(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_mime_type(&self, mime_type: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_mime_type(&self, mime_type: &CefStringUtf16) {}
     fn get_charset(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_charset(&self, charset: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_charset(&self, charset: &CefStringUtf16) {}
     fn get_header_by_name(&self, name: &CefStringUtf16) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_header_by_name(
         &self,
@@ -29159,20 +28769,13 @@ pub trait ImplResponse: Clone + Sized + Rc {
         value: &CefStringUtf16,
         overwrite: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn get_header_map(&self, header_map: &mut CefStringMultimap) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_header_map(&self, header_map: &mut CefStringMultimap) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_header_map(&self, header_map: &mut CefStringMultimap) {}
+    fn set_header_map(&self, header_map: &mut CefStringMultimap) {}
     fn get_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_url(&self, url: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_url(&self, url: &CefStringUtf16) {}
     fn init_methods(object: &mut _cef_response_t) {
         impl_cef_response_t::init_methods::<Self>(object);
     }
@@ -29373,7 +28976,7 @@ impl ImplResponse for Response {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_error(&self) -> Errorcode {
@@ -29385,7 +28988,7 @@ impl ImplResponse for Response {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_error(&self, error: Errorcode) {
@@ -29411,7 +29014,7 @@ impl ImplResponse for Response {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_status(&self, status: ::std::os::raw::c_int) {
@@ -29437,7 +29040,7 @@ impl ImplResponse for Response {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_status_text(&self, status_text: &CefStringUtf16) {
@@ -29463,7 +29066,7 @@ impl ImplResponse for Response {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_mime_type(&self, mime_type: &CefStringUtf16) {
@@ -29489,7 +29092,7 @@ impl ImplResponse for Response {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_charset(&self, charset: &CefStringUtf16) {
@@ -29517,7 +29120,7 @@ impl ImplResponse for Response {
                     let result = f(arg_self_, arg_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_header_by_name(
@@ -29578,7 +29181,7 @@ impl ImplResponse for Response {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_url(&self, url: &CefStringUtf16) {
@@ -29637,9 +29240,7 @@ impl Default for Response {
     }
 }
 pub trait ImplResourceSkipCallback: Clone + Sized + Rc {
-    fn cont(&self, bytes_skipped: i64) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, bytes_skipped: i64) {}
     fn init_methods(object: &mut _cef_resource_skip_callback_t) {
         impl_cef_resource_skip_callback_t::init_methods::<Self>(object);
     }
@@ -29720,9 +29321,7 @@ impl Default for ResourceSkipCallback {
     }
 }
 pub trait ImplResourceReadCallback: Clone + Sized + Rc {
-    fn cont(&self, bytes_read: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cont(&self, bytes_read: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_resource_read_callback_t) {
         impl_cef_resource_read_callback_t::init_methods::<Self>(object);
     }
@@ -29809,14 +29408,14 @@ pub trait ImplResourceHandler: Clone + Sized + Rc {
         handle_request: *mut ::std::os::raw::c_int,
         callback: &mut impl ImplCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn process_request(
         &self,
         request: &mut impl ImplRequest,
         callback: &mut impl ImplCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_response_headers(
         &self,
@@ -29824,7 +29423,6 @@ pub trait ImplResourceHandler: Clone + Sized + Rc {
         response_length: *mut i64,
         redirect_url: &mut CefStringUtf16,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn skip(
         &self,
@@ -29832,7 +29430,7 @@ pub trait ImplResourceHandler: Clone + Sized + Rc {
         bytes_skipped: *mut i64,
         callback: &mut impl ImplResourceSkipCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn read(
         &self,
@@ -29841,7 +29439,7 @@ pub trait ImplResourceHandler: Clone + Sized + Rc {
         bytes_read: *mut ::std::os::raw::c_int,
         callback: &mut impl ImplResourceReadCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn read_response(
         &self,
@@ -29850,11 +29448,9 @@ pub trait ImplResourceHandler: Clone + Sized + Rc {
         bytes_read: *mut ::std::os::raw::c_int,
         callback: &mut impl ImplCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cancel(&self) {}
     fn init_methods(object: &mut _cef_resource_handler_t) {
         impl_cef_resource_handler_t::init_methods::<Self>(object);
     }
@@ -30027,7 +29623,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let result = f(arg_self_, arg_request, arg_handle_request, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn process_request(
@@ -30048,7 +29644,7 @@ impl ImplResourceHandler for ResourceHandler {
                     let result = f(arg_self_, arg_request, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_response_headers(
@@ -30104,7 +29700,7 @@ impl ImplResourceHandler for ResourceHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn read(
@@ -30135,7 +29731,7 @@ impl ImplResourceHandler for ResourceHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn read_response(
@@ -30166,7 +29762,7 @@ impl ImplResourceHandler for ResourceHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn cancel(&self) {
@@ -30224,7 +29820,7 @@ impl Default for ResourceHandler {
 }
 pub trait ImplResponseFilter: Clone + Sized + Rc {
     fn init_filter(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn filter(
         &self,
@@ -30233,7 +29829,7 @@ pub trait ImplResponseFilter: Clone + Sized + Rc {
         data_out: Option<&mut Vec<u8>>,
         data_out_written: *mut usize,
     ) -> ResponseFilterStatus {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_response_filter_t) {
         impl_cef_response_filter_t::init_methods::<Self>(object);
@@ -30326,7 +29922,7 @@ impl ImplResponseFilter for ResponseFilter {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn filter(
@@ -30386,7 +29982,7 @@ impl ImplResponseFilter for ResponseFilter {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_response_filter_t {
@@ -30437,7 +30033,7 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         frame: &mut impl ImplFrame,
         request: &mut impl ImplRequest,
     ) -> CookieAccessFilter {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_before_resource_load(
         &self,
@@ -30446,7 +30042,7 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         request: &mut impl ImplRequest,
         callback: &mut impl ImplCallback,
     ) -> ReturnValue {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_resource_handler(
         &self,
@@ -30454,7 +30050,7 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         frame: &mut impl ImplFrame,
         request: &mut impl ImplRequest,
     ) -> ResourceHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_resource_redirect(
         &self,
@@ -30464,7 +30060,6 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         response: &mut impl ImplResponse,
         new_url: &mut CefStringUtf16,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_resource_response(
         &self,
@@ -30473,7 +30068,7 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         request: &mut impl ImplRequest,
         response: &mut impl ImplResponse,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_resource_response_filter(
         &self,
@@ -30482,7 +30077,7 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         request: &mut impl ImplRequest,
         response: &mut impl ImplResponse,
     ) -> ResponseFilter {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_resource_load_complete(
         &self,
@@ -30493,7 +30088,6 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         status: UrlrequestStatus,
         received_content_length: i64,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_protocol_execution(
         &self,
@@ -30502,7 +30096,6 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         request: &mut impl ImplRequest,
         allow_os_execution: *mut ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_resource_request_handler_t) {
         impl_cef_resource_request_handler_t::init_methods::<Self>(object);
@@ -30749,7 +30342,7 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_before_resource_load(
@@ -30777,7 +30370,7 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_resource_handler(
@@ -30801,7 +30394,7 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_resource_redirect(
@@ -30866,7 +30459,7 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_response);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_resource_response_filter(
@@ -30894,7 +30487,7 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_response);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_resource_load_complete(
@@ -31032,7 +30625,7 @@ pub trait ImplCookieAccessFilter: Clone + Sized + Rc {
         request: &mut impl ImplRequest,
         cookie: &Cookie,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn can_save_cookie(
         &self,
@@ -31042,7 +30635,7 @@ pub trait ImplCookieAccessFilter: Clone + Sized + Rc {
         response: &mut impl ImplResponse,
         cookie: &Cookie,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_cookie_access_filter_t) {
         impl_cef_cookie_access_filter_t::init_methods::<Self>(object);
@@ -31136,7 +30729,7 @@ impl ImplCookieAccessFilter for CookieAccessFilter {
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_cookie);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn can_save_cookie(
@@ -31174,7 +30767,7 @@ impl ImplCookieAccessFilter for CookieAccessFilter {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_cookie_access_filter_t {
@@ -31220,10 +30813,10 @@ impl Default for CookieAccessFilter {
 }
 pub trait ImplSslinfo: Clone + Sized + Rc {
     fn get_cert_status(&self) -> CertStatus {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_x509certificate(&self) -> X509certificate {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_sslinfo_t) {
         impl_cef_sslinfo_t::init_methods::<Self>(object);
@@ -31264,7 +30857,7 @@ impl ImplSslinfo for Sslinfo {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_x509certificate(&self) -> X509certificate {
@@ -31276,7 +30869,7 @@ impl ImplSslinfo for Sslinfo {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_sslinfo_t {
@@ -31321,12 +30914,8 @@ impl Default for Sslinfo {
     }
 }
 pub trait ImplUnresponsiveProcessCallback: Clone + Sized + Rc {
-    fn wait(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn terminate(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn wait(&self) {}
+    fn terminate(&self) {}
     fn init_methods(object: &mut _cef_unresponsive_process_callback_t) {
         impl_cef_unresponsive_process_callback_t::init_methods::<Self>(object);
     }
@@ -31425,9 +31014,7 @@ impl Default for UnresponsiveProcessCallback {
     }
 }
 pub trait ImplSelectClientCertificateCallback: Clone + Sized + Rc {
-    fn select(&self, cert: &mut impl ImplX509certificate) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn select(&self, cert: &mut impl ImplX509certificate) {}
     fn init_methods(object: &mut _cef_select_client_certificate_callback_t) {
         impl_cef_select_client_certificate_callback_t::init_methods::<Self>(object);
     }
@@ -31525,7 +31112,7 @@ pub trait ImplRequestHandler: Clone + Sized + Rc {
         user_gesture: ::std::os::raw::c_int,
         is_redirect: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_open_urlfrom_tab(
         &self,
@@ -31535,7 +31122,7 @@ pub trait ImplRequestHandler: Clone + Sized + Rc {
         target_disposition: WindowOpenDisposition,
         user_gesture: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_resource_request_handler(
         &self,
@@ -31547,7 +31134,7 @@ pub trait ImplRequestHandler: Clone + Sized + Rc {
         request_initiator: &CefStringUtf16,
         disable_default_handling: *mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_auth_credentials(
         &self,
@@ -31560,7 +31147,7 @@ pub trait ImplRequestHandler: Clone + Sized + Rc {
         scheme: &CefStringUtf16,
         callback: &mut impl ImplAuthCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_certificate_error(
         &self,
@@ -31570,7 +31157,7 @@ pub trait ImplRequestHandler: Clone + Sized + Rc {
         ssl_info: &mut impl ImplSslinfo,
         callback: &mut impl ImplCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_select_client_certificate(
         &self,
@@ -31581,21 +31168,17 @@ pub trait ImplRequestHandler: Clone + Sized + Rc {
         certificates: Option<&[Option<impl ImplX509certificate>]>,
         callback: &mut impl ImplSelectClientCertificateCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_render_view_ready(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_render_view_ready(&self, browser: &mut impl ImplBrowser) {}
     fn on_render_process_unresponsive(
         &self,
         browser: &mut impl ImplBrowser,
         callback: &mut impl ImplUnresponsiveProcessCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_render_process_responsive(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_render_process_responsive(&self, browser: &mut impl ImplBrowser) {}
     fn on_render_process_terminated(
         &self,
         browser: &mut impl ImplBrowser,
@@ -31603,11 +31186,8 @@ pub trait ImplRequestHandler: Clone + Sized + Rc {
         error_code: ::std::os::raw::c_int,
         error_string: &CefStringUtf16,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_document_available_in_main_frame(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_document_available_in_main_frame(&self, browser: &mut impl ImplBrowser) {}
     fn init_methods(object: &mut _cef_request_handler_t) {
         impl_cef_request_handler_t::init_methods::<Self>(object);
     }
@@ -31995,7 +31575,7 @@ impl ImplRequestHandler for RequestHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_open_urlfrom_tab(
@@ -32035,7 +31615,7 @@ impl ImplRequestHandler for RequestHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_resource_request_handler(
@@ -32092,7 +31672,7 @@ impl ImplRequestHandler for RequestHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_auth_credentials(
@@ -32146,7 +31726,7 @@ impl ImplRequestHandler for RequestHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_certificate_error(
@@ -32182,7 +31762,7 @@ impl ImplRequestHandler for RequestHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_select_client_certificate(
@@ -32247,7 +31827,7 @@ impl ImplRequestHandler for RequestHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_render_view_ready(&self, browser: &mut impl ImplBrowser) {
@@ -32283,7 +31863,7 @@ impl ImplRequestHandler for RequestHandler {
                     let result = f(arg_self_, arg_browser, arg_callback);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_render_process_responsive(&self, browser: &mut impl ImplBrowser) {
@@ -32390,58 +31970,58 @@ impl Default for RequestHandler {
 }
 pub trait ImplClient: Clone + Sized + Rc {
     fn get_audio_handler(&self) -> AudioHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_command_handler(&self) -> CommandHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_context_menu_handler(&self) -> ContextMenuHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_dialog_handler(&self) -> DialogHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_display_handler(&self) -> DisplayHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_download_handler(&self) -> DownloadHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_drag_handler(&self) -> DragHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_find_handler(&self) -> FindHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_focus_handler(&self) -> FocusHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_frame_handler(&self) -> FrameHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_permission_handler(&self) -> PermissionHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_jsdialog_handler(&self) -> JsdialogHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_keyboard_handler(&self) -> KeyboardHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_life_span_handler(&self) -> LifeSpanHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_load_handler(&self) -> LoadHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_print_handler(&self) -> PrintHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_render_handler(&self) -> RenderHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_request_handler(&self) -> RequestHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_process_message_received(
         &self,
@@ -32450,7 +32030,7 @@ pub trait ImplClient: Clone + Sized + Rc {
         source_process: ProcessId,
         message: &mut impl ImplProcessMessage,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_client_t) {
         impl_cef_client_t::init_methods::<Self>(object);
@@ -32661,7 +32241,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_command_handler(&self) -> CommandHandler {
@@ -32673,7 +32253,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_context_menu_handler(&self) -> ContextMenuHandler {
@@ -32685,7 +32265,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_dialog_handler(&self) -> DialogHandler {
@@ -32697,7 +32277,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_display_handler(&self) -> DisplayHandler {
@@ -32709,7 +32289,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_download_handler(&self) -> DownloadHandler {
@@ -32721,7 +32301,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_drag_handler(&self) -> DragHandler {
@@ -32733,7 +32313,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_find_handler(&self) -> FindHandler {
@@ -32745,7 +32325,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_focus_handler(&self) -> FocusHandler {
@@ -32757,7 +32337,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame_handler(&self) -> FrameHandler {
@@ -32769,7 +32349,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_permission_handler(&self) -> PermissionHandler {
@@ -32781,7 +32361,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_jsdialog_handler(&self) -> JsdialogHandler {
@@ -32793,7 +32373,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_keyboard_handler(&self) -> KeyboardHandler {
@@ -32805,7 +32385,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_life_span_handler(&self) -> LifeSpanHandler {
@@ -32817,7 +32397,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_load_handler(&self) -> LoadHandler {
@@ -32829,7 +32409,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_print_handler(&self) -> PrintHandler {
@@ -32841,7 +32421,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_render_handler(&self) -> RenderHandler {
@@ -32853,7 +32433,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_request_handler(&self) -> RequestHandler {
@@ -32865,7 +32445,7 @@ impl ImplClient for Client {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_process_message_received(
@@ -32898,7 +32478,7 @@ impl ImplClient for Client {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_client_t {
@@ -32944,69 +32524,48 @@ impl Default for Client {
 }
 pub trait ImplCommandLine: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn copy(&self) -> CommandLine {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_from_argv(
         &self,
         argc: ::std::os::raw::c_int,
         argv: *const *const ::std::os::raw::c_char,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn init_from_string(&self, command_line: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn reset(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn get_argv(&self, argv: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn init_from_string(&self, command_line: &CefStringUtf16) {}
+    fn reset(&self) {}
+    fn get_argv(&self, argv: &mut CefStringList) {}
     fn get_command_line_string(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_program(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_program(&self, program: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_program(&self, program: &CefStringUtf16) {}
     fn has_switches(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_switch(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_switch_value(&self, name: &CefStringUtf16) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_switches(&self, switches: &mut CefStringMap) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn append_switch(&self, name: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn append_switch_with_value(&self, name: &CefStringUtf16, value: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_switches(&self, switches: &mut CefStringMap) {}
+    fn append_switch(&self, name: &CefStringUtf16) {}
+    fn append_switch_with_value(&self, name: &CefStringUtf16, value: &CefStringUtf16) {}
     fn has_arguments(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn get_arguments(&self, arguments: &mut CefStringList) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn append_argument(&self, argument: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn prepend_wrapper(&self, wrapper: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn get_arguments(&self, arguments: &mut CefStringList) {}
+    fn append_argument(&self, argument: &CefStringUtf16) {}
+    fn prepend_wrapper(&self, wrapper: &CefStringUtf16) {}
     fn init_methods(object: &mut _cef_command_line_t) {
         impl_cef_command_line_t::init_methods::<Self>(object);
     }
@@ -33238,7 +32797,7 @@ impl ImplCommandLine for CommandLine {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
@@ -33250,7 +32809,7 @@ impl ImplCommandLine for CommandLine {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn copy(&self) -> CommandLine {
@@ -33262,7 +32821,7 @@ impl ImplCommandLine for CommandLine {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn init_from_argv(
@@ -33333,7 +32892,7 @@ impl ImplCommandLine for CommandLine {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_program(&self) -> CefStringUtf16 {
@@ -33345,7 +32904,7 @@ impl ImplCommandLine for CommandLine {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_program(&self, program: &CefStringUtf16) {
@@ -33371,7 +32930,7 @@ impl ImplCommandLine for CommandLine {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_switch(&self, name: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -33385,7 +32944,7 @@ impl ImplCommandLine for CommandLine {
                     let result = f(arg_self_, arg_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_switch_value(&self, name: &CefStringUtf16) -> CefStringUtf16 {
@@ -33399,7 +32958,7 @@ impl ImplCommandLine for CommandLine {
                     let result = f(arg_self_, arg_name);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_switches(&self, switches: &mut CefStringMap) {
@@ -33454,7 +33013,7 @@ impl ImplCommandLine for CommandLine {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_arguments(&self, arguments: &mut CefStringList) {
@@ -33541,9 +33100,7 @@ impl Default for CommandLine {
     }
 }
 pub trait ImplRequestContextHandler: Clone + Sized + Rc {
-    fn on_request_context_initialized(&self, request_context: &mut impl ImplRequestContext) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_request_context_initialized(&self, request_context: &mut impl ImplRequestContext) {}
     fn get_resource_request_handler(
         &self,
         browser: &mut impl ImplBrowser,
@@ -33554,7 +33111,7 @@ pub trait ImplRequestContextHandler: Clone + Sized + Rc {
         request_initiator: &CefStringUtf16,
         disable_default_handling: *mut ::std::os::raw::c_int,
     ) -> ResourceRequestHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_request_context_handler_t) {
         impl_cef_request_context_handler_t::init_methods::<Self>(object);
@@ -33706,7 +33263,7 @@ impl ImplRequestContextHandler for RequestContextHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_request_context_handler_t {
@@ -33756,29 +33313,22 @@ pub trait ImplBrowserProcessHandler: Clone + Sized + Rc {
         type_: PreferencesType,
         registrar: &mut PreferenceRegistrar,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_context_initialized(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_before_child_process_launch(&self, command_line: &mut impl ImplCommandLine) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_context_initialized(&self) {}
+    fn on_before_child_process_launch(&self, command_line: &mut impl ImplCommandLine) {}
     fn on_already_running_app_relaunch(
         &self,
         command_line: &mut impl ImplCommandLine,
         current_directory: &CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_schedule_message_pump_work(&self, delay_ms: i64) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_schedule_message_pump_work(&self, delay_ms: i64) {}
     fn get_default_client(&self) -> Client {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_default_request_context_handler(&self) -> RequestContextHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_browser_process_handler_t) {
         impl_cef_browser_process_handler_t::init_methods::<Self>(object);
@@ -33947,7 +33497,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                     let result = f(arg_self_, arg_command_line, arg_current_directory);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_schedule_message_pump_work(&self, delay_ms: i64) {
@@ -33973,7 +33523,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_default_request_context_handler(&self) -> RequestContextHandler {
@@ -33985,7 +33535,7 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_browser_process_handler_t {
@@ -34030,9 +33580,7 @@ impl Default for BrowserProcessHandler {
     }
 }
 pub trait ImplTask: Clone + Sized + Rc {
-    fn execute(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn execute(&self) {}
     fn init_methods(object: &mut _cef_task_t) {
         impl_cef_task_t::init_methods::<Self>(object);
     }
@@ -34108,19 +33656,19 @@ impl Default for Task {
 }
 pub trait ImplTaskRunner: Clone + Sized + Rc {
     fn is_same(&self, that: &mut impl ImplTaskRunner) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn belongs_to_current_thread(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn belongs_to_thread(&self, thread_id: ThreadId) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn post_task(&self, task: &mut impl ImplTask) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn post_delayed_task(&self, task: &mut impl ImplTask, delay_ms: i64) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_task_runner_t) {
         impl_cef_task_runner_t::init_methods::<Self>(object);
@@ -34204,7 +33752,7 @@ impl ImplTaskRunner for TaskRunner {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn belongs_to_current_thread(&self) -> ::std::os::raw::c_int {
@@ -34216,7 +33764,7 @@ impl ImplTaskRunner for TaskRunner {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn belongs_to_thread(&self, thread_id: ThreadId) -> ::std::os::raw::c_int {
@@ -34230,7 +33778,7 @@ impl ImplTaskRunner for TaskRunner {
                     let result = f(arg_self_, arg_thread_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn post_task(&self, task: &mut impl ImplTask) -> ::std::os::raw::c_int {
@@ -34245,7 +33793,7 @@ impl ImplTaskRunner for TaskRunner {
                     let result = f(arg_self_, arg_task);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn post_delayed_task(&self, task: &mut impl ImplTask, delay_ms: i64) -> ::std::os::raw::c_int {
@@ -34261,7 +33809,7 @@ impl ImplTaskRunner for TaskRunner {
                     let result = f(arg_self_, arg_task, arg_delay_ms);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_task_runner_t {
@@ -34307,28 +33855,28 @@ impl Default for TaskRunner {
 }
 pub trait ImplV8context: Clone + Sized + Rc {
     fn get_task_runner(&self) -> TaskRunner {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_browser(&self) -> Browser {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_frame(&self) -> Frame {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_global(&self) -> V8value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn enter(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn exit(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplV8context) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn eval(
         &self,
@@ -34338,7 +33886,7 @@ pub trait ImplV8context: Clone + Sized + Rc {
         retval: Option<&mut impl ImplV8value>,
         exception: Option<&mut impl ImplV8exception>,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_v8context_t) {
         impl_cef_v8context_t::init_methods::<Self>(object);
@@ -34474,7 +34022,7 @@ impl ImplV8context for V8context {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_valid(&self) -> ::std::os::raw::c_int {
@@ -34486,7 +34034,7 @@ impl ImplV8context for V8context {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_browser(&self) -> Browser {
@@ -34498,7 +34046,7 @@ impl ImplV8context for V8context {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame(&self) -> Frame {
@@ -34510,7 +34058,7 @@ impl ImplV8context for V8context {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_global(&self) -> V8value {
@@ -34522,7 +34070,7 @@ impl ImplV8context for V8context {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn enter(&self) -> ::std::os::raw::c_int {
@@ -34534,7 +34082,7 @@ impl ImplV8context for V8context {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn exit(&self) -> ::std::os::raw::c_int {
@@ -34546,7 +34094,7 @@ impl ImplV8context for V8context {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplV8context) -> ::std::os::raw::c_int {
@@ -34561,7 +34109,7 @@ impl ImplV8context for V8context {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn eval(
@@ -34608,7 +34156,7 @@ impl ImplV8context for V8context {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_v8context_t {
@@ -34661,7 +34209,7 @@ pub trait ImplV8handler: Clone + Sized + Rc {
         retval: Option<&mut impl ImplV8value>,
         exception: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_v8handler_t) {
         impl_cef_v8handler_t::init_methods::<Self>(object);
@@ -34801,7 +34349,7 @@ impl ImplV8handler for V8handler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_v8handler_t {
@@ -34853,7 +34401,7 @@ pub trait ImplV8accessor: Clone + Sized + Rc {
         retval: Option<&mut impl ImplV8value>,
         exception: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set(
         &self,
@@ -34862,7 +34410,7 @@ pub trait ImplV8accessor: Clone + Sized + Rc {
         value: &mut impl ImplV8value,
         exception: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_v8accessor_t) {
         impl_cef_v8accessor_t::init_methods::<Self>(object);
@@ -34966,7 +34514,7 @@ impl ImplV8accessor for V8accessor {
                     let result = f(arg_self_, arg_name, arg_object, arg_retval, arg_exception);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set(
@@ -34992,7 +34540,7 @@ impl ImplV8accessor for V8accessor {
                     let result = f(arg_self_, arg_name, arg_object, arg_value, arg_exception);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_v8accessor_t {
@@ -35044,7 +34592,7 @@ pub trait ImplV8interceptor: Clone + Sized + Rc {
         retval: Option<&mut impl ImplV8value>,
         exception: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_byindex(
         &self,
@@ -35053,7 +34601,7 @@ pub trait ImplV8interceptor: Clone + Sized + Rc {
         retval: Option<&mut impl ImplV8value>,
         exception: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_byname(
         &self,
@@ -35062,7 +34610,7 @@ pub trait ImplV8interceptor: Clone + Sized + Rc {
         value: &mut impl ImplV8value,
         exception: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_byindex(
         &self,
@@ -35071,7 +34619,7 @@ pub trait ImplV8interceptor: Clone + Sized + Rc {
         value: &mut impl ImplV8value,
         exception: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_v8interceptor_t) {
         impl_cef_v8interceptor_t::init_methods::<Self>(object);
@@ -35232,7 +34780,7 @@ impl ImplV8interceptor for V8interceptor {
                     let result = f(arg_self_, arg_name, arg_object, arg_retval, arg_exception);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_byindex(
@@ -35264,7 +34812,7 @@ impl ImplV8interceptor for V8interceptor {
                     let result = f(arg_self_, arg_index, arg_object, arg_retval, arg_exception);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_byname(
@@ -35290,7 +34838,7 @@ impl ImplV8interceptor for V8interceptor {
                     let result = f(arg_self_, arg_name, arg_object, arg_value, arg_exception);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_byindex(
@@ -35316,7 +34864,7 @@ impl ImplV8interceptor for V8interceptor {
                     let result = f(arg_self_, arg_index, arg_object, arg_value, arg_exception);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_v8interceptor_t {
@@ -35362,28 +34910,28 @@ impl Default for V8interceptor {
 }
 pub trait ImplV8exception: Clone + Sized + Rc {
     fn get_message(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_source_line(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_script_resource_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_line_number(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_start_position(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_end_position(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_start_column(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_end_column(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_v8exception_t) {
         impl_cef_v8exception_t::init_methods::<Self>(object);
@@ -35480,7 +35028,7 @@ impl ImplV8exception for V8exception {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_source_line(&self) -> CefStringUtf16 {
@@ -35492,7 +35040,7 @@ impl ImplV8exception for V8exception {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_script_resource_name(&self) -> CefStringUtf16 {
@@ -35504,7 +35052,7 @@ impl ImplV8exception for V8exception {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_line_number(&self) -> ::std::os::raw::c_int {
@@ -35516,7 +35064,7 @@ impl ImplV8exception for V8exception {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_start_position(&self) -> ::std::os::raw::c_int {
@@ -35528,7 +35076,7 @@ impl ImplV8exception for V8exception {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_end_position(&self) -> ::std::os::raw::c_int {
@@ -35540,7 +35088,7 @@ impl ImplV8exception for V8exception {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_start_column(&self) -> ::std::os::raw::c_int {
@@ -35552,7 +35100,7 @@ impl ImplV8exception for V8exception {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_end_column(&self) -> ::std::os::raw::c_int {
@@ -35564,7 +35112,7 @@ impl ImplV8exception for V8exception {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_v8exception_t {
@@ -35609,9 +35157,7 @@ impl Default for V8exception {
     }
 }
 pub trait ImplV8arrayBufferReleaseCallback: Clone + Sized + Rc {
-    fn release_buffer(&self, buffer: *mut u8) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn release_buffer(&self, buffer: *mut u8) {}
     fn init_methods(object: &mut _cef_v8array_buffer_release_callback_t) {
         impl_cef_v8array_buffer_release_callback_t::init_methods::<Self>(object);
     }
@@ -35700,103 +35246,103 @@ impl Default for V8arrayBufferReleaseCallback {
 }
 pub trait ImplV8value: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_undefined(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_null(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_bool(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_int(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_uint(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_double(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_date(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_string(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_object(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_array(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_array_buffer(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_function(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_promise(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplV8value) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_bool_value(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_int_value(&self) -> i32 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_uint_value(&self) -> u32 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_double_value(&self) -> f64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_date_value(&self) -> Basetime {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_string_value(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_user_created(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_exception(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_exception(&self) -> V8exception {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn clear_exception(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn will_rethrow_exceptions(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_rethrow_exceptions(&self, rethrow: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_value_bykey(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn delete_value_bykey(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn delete_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_value_bykey(&self, key: &CefStringUtf16) -> V8value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> V8value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_value_bykey(
         &self,
@@ -35804,67 +35350,67 @@ pub trait ImplV8value: Clone + Sized + Rc {
         value: &mut impl ImplV8value,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_value_byindex(
         &self,
         index: ::std::os::raw::c_int,
         value: &mut impl ImplV8value,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_value_byaccessor(
         &self,
         key: &CefStringUtf16,
         attribute: V8Propertyattribute,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_user_data(&self, user_data: &mut BaseRefCounted) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_user_data(&self) -> BaseRefCounted {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_externally_allocated_memory(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn adjust_externally_allocated_memory(
         &self,
         change_in_bytes: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_array_length(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_array_buffer_release_callback(&self) -> V8arrayBufferReleaseCallback {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn neuter_array_buffer(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_array_buffer_byte_length(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_array_buffer_data(&self) -> *mut ::std::os::raw::c_void {
         unsafe { std::mem::zeroed() }
     }
     fn get_function_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_function_handler(&self) -> V8handler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn execute_function(
         &self,
         object: &mut impl ImplV8value,
         arguments: Option<&[Option<impl ImplV8value>]>,
     ) -> V8value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn execute_function_with_context(
         &self,
@@ -35872,13 +35418,13 @@ pub trait ImplV8value: Clone + Sized + Rc {
         object: &mut impl ImplV8value,
         arguments: Option<&[Option<impl ImplV8value>]>,
     ) -> V8value {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn resolve_promise(&self, arg: &mut impl ImplV8value) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn reject_promise(&self, error_msg: &CefStringUtf16) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_v8value_t) {
         impl_cef_v8value_t::init_methods::<Self>(object);
@@ -36436,7 +35982,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_undefined(&self) -> ::std::os::raw::c_int {
@@ -36448,7 +35994,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_null(&self) -> ::std::os::raw::c_int {
@@ -36460,7 +36006,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_bool(&self) -> ::std::os::raw::c_int {
@@ -36472,7 +36018,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_int(&self) -> ::std::os::raw::c_int {
@@ -36484,7 +36030,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_uint(&self) -> ::std::os::raw::c_int {
@@ -36496,7 +36042,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_double(&self) -> ::std::os::raw::c_int {
@@ -36508,7 +36054,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_date(&self) -> ::std::os::raw::c_int {
@@ -36520,7 +36066,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_string(&self) -> ::std::os::raw::c_int {
@@ -36532,7 +36078,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_object(&self) -> ::std::os::raw::c_int {
@@ -36544,7 +36090,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_array(&self) -> ::std::os::raw::c_int {
@@ -36556,7 +36102,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_array_buffer(&self) -> ::std::os::raw::c_int {
@@ -36568,7 +36114,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_function(&self) -> ::std::os::raw::c_int {
@@ -36580,7 +36126,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_promise(&self) -> ::std::os::raw::c_int {
@@ -36592,7 +36138,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplV8value) -> ::std::os::raw::c_int {
@@ -36607,7 +36153,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_bool_value(&self) -> ::std::os::raw::c_int {
@@ -36619,7 +36165,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_int_value(&self) -> i32 {
@@ -36631,7 +36177,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_uint_value(&self) -> u32 {
@@ -36643,7 +36189,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_double_value(&self) -> f64 {
@@ -36655,7 +36201,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_date_value(&self) -> Basetime {
@@ -36667,7 +36213,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_string_value(&self) -> CefStringUtf16 {
@@ -36679,7 +36225,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_user_created(&self) -> ::std::os::raw::c_int {
@@ -36691,7 +36237,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_exception(&self) -> ::std::os::raw::c_int {
@@ -36703,7 +36249,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_exception(&self) -> V8exception {
@@ -36715,7 +36261,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn clear_exception(&self) -> ::std::os::raw::c_int {
@@ -36727,7 +36273,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn will_rethrow_exceptions(&self) -> ::std::os::raw::c_int {
@@ -36739,7 +36285,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_rethrow_exceptions(&self, rethrow: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -36753,7 +36299,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_rethrow);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_value_bykey(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -36767,7 +36313,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -36781,7 +36327,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn delete_value_bykey(&self, key: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -36795,7 +36341,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn delete_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -36809,7 +36355,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_value_bykey(&self, key: &CefStringUtf16) -> V8value {
@@ -36823,7 +36369,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_key);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> V8value {
@@ -36837,7 +36383,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_value_bykey(
@@ -36859,7 +36405,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_key, arg_value, arg_attribute);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_value_byindex(
@@ -36879,7 +36425,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_index, arg_value);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_value_byaccessor(
@@ -36898,7 +36444,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_key, arg_attribute);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_keys(&self, keys: &mut CefStringList) -> ::std::os::raw::c_int {
@@ -36912,7 +36458,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_keys);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_user_data(&self, user_data: &mut BaseRefCounted) -> ::std::os::raw::c_int {
@@ -36927,7 +36473,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_user_data);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_user_data(&self) -> BaseRefCounted {
@@ -36939,7 +36485,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_externally_allocated_memory(&self) -> ::std::os::raw::c_int {
@@ -36951,7 +36497,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn adjust_externally_allocated_memory(
@@ -36968,7 +36514,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_change_in_bytes);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_array_length(&self) -> ::std::os::raw::c_int {
@@ -36980,7 +36526,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_array_buffer_release_callback(&self) -> V8arrayBufferReleaseCallback {
@@ -36992,7 +36538,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn neuter_array_buffer(&self) -> ::std::os::raw::c_int {
@@ -37004,7 +36550,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_array_buffer_byte_length(&self) -> usize {
@@ -37016,7 +36562,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_array_buffer_data(&self) -> *mut ::std::os::raw::c_void {
@@ -37040,7 +36586,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_function_handler(&self) -> V8handler {
@@ -37052,7 +36598,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn execute_function(
@@ -37092,7 +36638,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_object, arg_arguments_count, arg_arguments);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn execute_function_with_context(
@@ -37141,7 +36687,7 @@ impl ImplV8value for V8value {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn resolve_promise(&self, arg: &mut impl ImplV8value) -> ::std::os::raw::c_int {
@@ -37156,7 +36702,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_arg);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn reject_promise(&self, error_msg: &CefStringUtf16) -> ::std::os::raw::c_int {
@@ -37170,7 +36716,7 @@ impl ImplV8value for V8value {
                     let result = f(arg_self_, arg_error_msg);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_v8value_t {
@@ -37216,13 +36762,13 @@ impl Default for V8value {
 }
 pub trait ImplV8stackTrace: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_frame_count(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_frame(&self, index: ::std::os::raw::c_int) -> V8stackFrame {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_v8stack_trace_t) {
         impl_cef_v8stack_trace_t::init_methods::<Self>(object);
@@ -37276,7 +36822,7 @@ impl ImplV8stackTrace for V8stackTrace {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame_count(&self) -> ::std::os::raw::c_int {
@@ -37288,7 +36834,7 @@ impl ImplV8stackTrace for V8stackTrace {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_frame(&self, index: ::std::os::raw::c_int) -> V8stackFrame {
@@ -37302,7 +36848,7 @@ impl ImplV8stackTrace for V8stackTrace {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_v8stack_trace_t {
@@ -37348,28 +36894,28 @@ impl Default for V8stackTrace {
 }
 pub trait ImplV8stackFrame: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_script_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_script_name_or_source_url(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_function_name(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_line_number(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_column(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_eval(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_constructor(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_v8stack_frame_t) {
         impl_cef_v8stack_frame_t::init_methods::<Self>(object);
@@ -37466,7 +37012,7 @@ impl ImplV8stackFrame for V8stackFrame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_script_name(&self) -> CefStringUtf16 {
@@ -37478,7 +37024,7 @@ impl ImplV8stackFrame for V8stackFrame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_script_name_or_source_url(&self) -> CefStringUtf16 {
@@ -37490,7 +37036,7 @@ impl ImplV8stackFrame for V8stackFrame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_function_name(&self) -> CefStringUtf16 {
@@ -37502,7 +37048,7 @@ impl ImplV8stackFrame for V8stackFrame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_line_number(&self) -> ::std::os::raw::c_int {
@@ -37514,7 +37060,7 @@ impl ImplV8stackFrame for V8stackFrame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_column(&self) -> ::std::os::raw::c_int {
@@ -37526,7 +37072,7 @@ impl ImplV8stackFrame for V8stackFrame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_eval(&self) -> ::std::os::raw::c_int {
@@ -37538,7 +37084,7 @@ impl ImplV8stackFrame for V8stackFrame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_constructor(&self) -> ::std::os::raw::c_int {
@@ -37550,7 +37096,7 @@ impl ImplV8stackFrame for V8stackFrame {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_v8stack_frame_t {
@@ -37595,21 +37141,16 @@ impl Default for V8stackFrame {
     }
 }
 pub trait ImplRenderProcessHandler: Clone + Sized + Rc {
-    fn on_web_kit_initialized(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_web_kit_initialized(&self) {}
     fn on_browser_created(
         &self,
         browser: &mut impl ImplBrowser,
         extra_info: &mut impl ImplDictionaryValue,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_browser_destroyed(&self, browser: &mut impl ImplBrowser) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_browser_destroyed(&self, browser: &mut impl ImplBrowser) {}
     fn get_load_handler(&self) -> LoadHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_context_created(
         &self,
@@ -37617,7 +37158,6 @@ pub trait ImplRenderProcessHandler: Clone + Sized + Rc {
         frame: &mut impl ImplFrame,
         context: &mut impl ImplV8context,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_context_released(
         &self,
@@ -37625,7 +37165,6 @@ pub trait ImplRenderProcessHandler: Clone + Sized + Rc {
         frame: &mut impl ImplFrame,
         context: &mut impl ImplV8context,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_uncaught_exception(
         &self,
@@ -37635,7 +37174,6 @@ pub trait ImplRenderProcessHandler: Clone + Sized + Rc {
         exception: &mut impl ImplV8exception,
         stack_trace: &mut impl ImplV8stackTrace,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_focused_node_changed(
         &self,
@@ -37643,7 +37181,6 @@ pub trait ImplRenderProcessHandler: Clone + Sized + Rc {
         frame: &mut impl ImplFrame,
         node: &mut impl ImplDomnode,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_process_message_received(
         &self,
@@ -37652,7 +37189,7 @@ pub trait ImplRenderProcessHandler: Clone + Sized + Rc {
         source_process: ProcessId,
         message: &mut impl ImplProcessMessage,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_render_process_handler_t) {
         impl_cef_render_process_handler_t::init_methods::<Self>(object);
@@ -37876,7 +37413,7 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_context_created(
@@ -38019,7 +37556,7 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_render_process_handler_t {
@@ -38069,14 +37606,14 @@ pub trait ImplResourceBundleHandler: Clone + Sized + Rc {
         string_id: ::std::os::raw::c_int,
         string: &mut CefStringUtf16,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_data_resource(
         &self,
         resource_id: ::std::os::raw::c_int,
         data: Option<&mut Vec<u8>>,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_data_resource_for_scale(
         &self,
@@ -38084,7 +37621,7 @@ pub trait ImplResourceBundleHandler: Clone + Sized + Rc {
         scale_factor: ScaleFactor,
         data: Option<&mut Vec<u8>>,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_resource_bundle_handler_t) {
         impl_cef_resource_bundle_handler_t::init_methods::<Self>(object);
@@ -38203,7 +37740,7 @@ impl ImplResourceBundleHandler for ResourceBundleHandler {
                     let result = f(arg_self_, arg_string_id, arg_string);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_data_resource(
@@ -38238,7 +37775,7 @@ impl ImplResourceBundleHandler for ResourceBundleHandler {
                     }
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_data_resource_for_scale(
@@ -38282,7 +37819,7 @@ impl ImplResourceBundleHandler for ResourceBundleHandler {
                     }
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_resource_bundle_handler_t {
@@ -38371,7 +37908,7 @@ pub trait ImplSchemeHandlerFactory: Clone + Sized + Rc {
         scheme_name: &CefStringUtf16,
         request: &mut impl ImplRequest,
     ) -> ResourceHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_scheme_handler_factory_t) {
         impl_cef_scheme_handler_factory_t::init_methods::<Self>(object);
@@ -38442,7 +37979,7 @@ impl ImplSchemeHandlerFactory for SchemeHandlerFactory {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_scheme_handler_factory_t {
@@ -38492,19 +38029,16 @@ pub trait ImplApp: Clone + Sized + Rc {
         process_type: &CefStringUtf16,
         command_line: &mut impl ImplCommandLine,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_register_custom_schemes(&self, registrar: &mut SchemeRegistrar) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_register_custom_schemes(&self, registrar: &mut SchemeRegistrar) {}
     fn get_resource_bundle_handler(&self) -> ResourceBundleHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_browser_process_handler(&self) -> BrowserProcessHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_render_process_handler(&self) -> RenderProcessHandler {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_app_t) {
         impl_cef_app_t::init_methods::<Self>(object);
@@ -38618,7 +38152,7 @@ impl ImplApp for App {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_browser_process_handler(&self) -> BrowserProcessHandler {
@@ -38630,7 +38164,7 @@ impl ImplApp for App {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_render_process_handler(&self) -> RenderProcessHandler {
@@ -38642,7 +38176,7 @@ impl ImplApp for App {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_app_t {
@@ -38688,26 +38222,24 @@ impl Default for App {
 }
 pub trait ImplUrlrequest: Clone + Sized + Rc {
     fn get_request(&self) -> Request {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_client(&self) -> UrlrequestClient {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_request_status(&self) -> UrlrequestStatus {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_request_error(&self) -> Errorcode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_response(&self) -> Response {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn response_was_cached(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn cancel(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cancel(&self) {}
     fn init_methods(object: &mut _cef_urlrequest_t) {
         impl_cef_urlrequest_t::init_methods::<Self>(object);
     }
@@ -38791,7 +38323,7 @@ impl ImplUrlrequest for Urlrequest {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_client(&self) -> UrlrequestClient {
@@ -38803,7 +38335,7 @@ impl ImplUrlrequest for Urlrequest {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_request_status(&self) -> UrlrequestStatus {
@@ -38815,7 +38347,7 @@ impl ImplUrlrequest for Urlrequest {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_request_error(&self) -> Errorcode {
@@ -38827,7 +38359,7 @@ impl ImplUrlrequest for Urlrequest {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_response(&self) -> Response {
@@ -38839,7 +38371,7 @@ impl ImplUrlrequest for Urlrequest {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn response_was_cached(&self) -> ::std::os::raw::c_int {
@@ -38851,7 +38383,7 @@ impl ImplUrlrequest for Urlrequest {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn cancel(&self) {
@@ -38908,22 +38440,15 @@ impl Default for Urlrequest {
     }
 }
 pub trait ImplUrlrequestClient: Clone + Sized + Rc {
-    fn on_request_complete(&self, request: &mut impl ImplUrlrequest) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_upload_progress(&self, request: &mut impl ImplUrlrequest, current: i64, total: i64) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_download_progress(&self, request: &mut impl ImplUrlrequest, current: i64, total: i64) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_request_complete(&self, request: &mut impl ImplUrlrequest) {}
+    fn on_upload_progress(&self, request: &mut impl ImplUrlrequest, current: i64, total: i64) {}
+    fn on_download_progress(&self, request: &mut impl ImplUrlrequest, current: i64, total: i64) {}
     fn on_download_data(
         &self,
         request: &mut impl ImplUrlrequest,
         data: *const u8,
         data_length: usize,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn get_auth_credentials(
         &self,
@@ -38934,7 +38459,7 @@ pub trait ImplUrlrequestClient: Clone + Sized + Rc {
         scheme: &CefStringUtf16,
         callback: &mut impl ImplAuthCallback,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_urlrequest_client_t) {
         impl_cef_urlrequest_client_t::init_methods::<Self>(object);
@@ -39156,7 +38681,7 @@ impl ImplUrlrequestClient for UrlrequestClient {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_urlrequest_client_t {
@@ -39202,13 +38727,13 @@ impl Default for UrlrequestClient {
 }
 pub trait ImplLayout: Clone + Sized + Rc {
     fn as_box_layout(&self) -> BoxLayout {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn as_fill_layout(&self) -> FillLayout {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_layout_t) {
         impl_cef_layout_t::init_methods::<Self>(object);
@@ -39258,7 +38783,7 @@ impl ImplLayout for Layout {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn as_fill_layout(&self) -> FillLayout {
@@ -39270,7 +38795,7 @@ impl ImplLayout for Layout {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_valid(&self) -> ::std::os::raw::c_int {
@@ -39282,7 +38807,7 @@ impl ImplLayout for Layout {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_layout_t {
@@ -39327,12 +38852,8 @@ impl Default for Layout {
     }
 }
 pub trait ImplBoxLayout: ImplLayout {
-    fn set_flex_for_view(&self, view: &mut impl ImplView, flex: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn clear_flex_for_view(&self, view: &mut impl ImplView) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_flex_for_view(&self, view: &mut impl ImplView, flex: ::std::os::raw::c_int) {}
+    fn clear_flex_for_view(&self, view: &mut impl ImplView) {}
     fn init_methods(object: &mut _cef_box_layout_t) {
         impl_cef_layout_t::init_methods::<Self>(&mut object.base);
         impl_cef_box_layout_t::init_methods::<Self>(object);
@@ -39534,20 +39055,20 @@ impl Default for FillLayout {
 }
 pub trait ImplViewDelegate: Clone + Sized + Rc {
     fn get_preferred_size(&self, view: &mut impl ImplView) -> Size {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_minimum_size(&self, view: &mut impl ImplView) -> Size {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_maximum_size(&self, view: &mut impl ImplView) -> Size {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_height_for_width(
         &self,
         view: &mut impl ImplView,
         width: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_parent_view_changed(
         &self,
@@ -39555,7 +39076,6 @@ pub trait ImplViewDelegate: Clone + Sized + Rc {
         added: ::std::os::raw::c_int,
         parent: &mut impl ImplView,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_child_view_changed(
         &self,
@@ -39563,23 +39083,12 @@ pub trait ImplViewDelegate: Clone + Sized + Rc {
         added: ::std::os::raw::c_int,
         child: &mut impl ImplView,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_window_changed(&self, view: &mut impl ImplView, added: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_layout_changed(&self, view: &mut impl ImplView, new_bounds: &Rect) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_focus(&self, view: &mut impl ImplView) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_blur(&self, view: &mut impl ImplView) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_theme_changed(&self, view: &mut impl ImplView) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_window_changed(&self, view: &mut impl ImplView, added: ::std::os::raw::c_int) {}
+    fn on_layout_changed(&self, view: &mut impl ImplView, new_bounds: &Rect) {}
+    fn on_focus(&self, view: &mut impl ImplView) {}
+    fn on_blur(&self, view: &mut impl ImplView) {}
+    fn on_theme_changed(&self, view: &mut impl ImplView) {}
     fn init_methods(object: &mut _cef_view_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(object);
     }
@@ -39747,7 +39256,7 @@ impl ImplViewDelegate for ViewDelegate {
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_minimum_size(&self, view: &mut impl ImplView) -> Size {
@@ -39762,7 +39271,7 @@ impl ImplViewDelegate for ViewDelegate {
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_maximum_size(&self, view: &mut impl ImplView) -> Size {
@@ -39777,7 +39286,7 @@ impl ImplViewDelegate for ViewDelegate {
                     let result = f(arg_self_, arg_view);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_height_for_width(
@@ -39797,7 +39306,7 @@ impl ImplViewDelegate for ViewDelegate {
                     let result = f(arg_self_, arg_view, arg_width);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_parent_view_changed(
@@ -39967,168 +39476,142 @@ impl Default for ViewDelegate {
 }
 pub trait ImplView: Clone + Sized + Rc {
     fn as_browser_view(&self) -> BrowserView {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn as_button(&self) -> Button {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn as_panel(&self) -> Panel {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn as_scroll_view(&self) -> ScrollView {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn as_textfield(&self) -> Textfield {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_type_string(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_attached(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplView) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_delegate(&self) -> ViewDelegate {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_window(&self) -> Window {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_id(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_id(&self, id: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_id(&self, id: ::std::os::raw::c_int) {}
     fn get_group_id(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_group_id(&self, group_id: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_group_id(&self, group_id: ::std::os::raw::c_int) {}
     fn get_parent_view(&self) -> View {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_bounds(&self, bounds: &Rect) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_bounds(&self, bounds: &Rect) {}
     fn get_bounds(&self) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_bounds_in_screen(&self) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_size(&self, size: &Size) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_size(&self, size: &Size) {}
     fn get_size(&self) -> Size {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_position(&self, position: &Point) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_position(&self, position: &Point) {}
     fn get_position(&self) -> Point {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_insets(&self, insets: &Insets) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_insets(&self, insets: &Insets) {}
     fn get_insets(&self) -> Insets {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_preferred_size(&self) -> Size {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn size_to_preferred_size(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn size_to_preferred_size(&self) {}
     fn get_minimum_size(&self) -> Size {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_maximum_size(&self) -> Size {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_height_for_width(&self, width: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn invalidate_layout(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_visible(&self, visible: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn invalidate_layout(&self) {}
+    fn set_visible(&self, visible: ::std::os::raw::c_int) {}
     fn is_visible(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_drawn(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_enabled(&self, enabled: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_enabled(&self, enabled: ::std::os::raw::c_int) {}
     fn is_enabled(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_focusable(&self, focusable: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_focusable(&self, focusable: ::std::os::raw::c_int) {}
     fn is_focusable(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_accessibility_focusable(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_focus(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn request_focus(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_background_color(&self, color: u32) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn request_focus(&self) {}
+    fn set_background_color(&self, color: u32) {}
     fn get_background_color(&self) -> cef_color_t {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_theme_color(&self, color_id: ::std::os::raw::c_int) -> cef_color_t {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn convert_point_to_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn convert_point_from_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn convert_point_to_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn convert_point_from_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn convert_point_to_view(
         &self,
         view: &mut impl ImplView,
         point: &mut Point,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn convert_point_from_view(
         &self,
         view: &mut impl ImplView,
         point: &mut Point,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_view_t) {
         impl_cef_view_t::init_methods::<Self>(object);
@@ -40593,7 +40076,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn as_button(&self) -> Button {
@@ -40605,7 +40088,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn as_panel(&self) -> Panel {
@@ -40617,7 +40100,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn as_scroll_view(&self) -> ScrollView {
@@ -40629,7 +40112,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn as_textfield(&self) -> Textfield {
@@ -40641,7 +40124,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_type_string(&self) -> CefStringUtf16 {
@@ -40653,7 +40136,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
@@ -40667,7 +40150,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_include_children);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_valid(&self) -> ::std::os::raw::c_int {
@@ -40679,7 +40162,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_attached(&self) -> ::std::os::raw::c_int {
@@ -40691,7 +40174,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplView) -> ::std::os::raw::c_int {
@@ -40706,7 +40189,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_delegate(&self) -> ViewDelegate {
@@ -40718,7 +40201,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_window(&self) -> Window {
@@ -40730,7 +40213,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_id(&self) -> ::std::os::raw::c_int {
@@ -40742,7 +40225,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_id(&self, id: ::std::os::raw::c_int) {
@@ -40768,7 +40251,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_group_id(&self, group_id: ::std::os::raw::c_int) {
@@ -40794,7 +40277,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
@@ -40808,7 +40291,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_bounds(&self, bounds: &Rect) {
@@ -40835,7 +40318,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_bounds_in_screen(&self) -> Rect {
@@ -40847,7 +40330,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_size(&self, size: &Size) {
@@ -40874,7 +40357,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_position(&self, position: &Point) {
@@ -40901,7 +40384,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_insets(&self, insets: &Insets) {
@@ -40928,7 +40411,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_preferred_size(&self) -> Size {
@@ -40940,7 +40423,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn size_to_preferred_size(&self) {
@@ -40964,7 +40447,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_maximum_size(&self) -> Size {
@@ -40976,7 +40459,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_height_for_width(&self, width: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -40990,7 +40473,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_width);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn invalidate_layout(&self) {
@@ -41028,7 +40511,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_drawn(&self) -> ::std::os::raw::c_int {
@@ -41040,7 +40523,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_enabled(&self, enabled: ::std::os::raw::c_int) {
@@ -41066,7 +40549,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_focusable(&self, focusable: ::std::os::raw::c_int) {
@@ -41092,7 +40575,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_accessibility_focusable(&self) -> ::std::os::raw::c_int {
@@ -41104,7 +40587,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_focus(&self) -> ::std::os::raw::c_int {
@@ -41116,7 +40599,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn request_focus(&self) {
@@ -41154,7 +40637,7 @@ impl ImplView for View {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_theme_color(&self, color_id: ::std::os::raw::c_int) -> cef_color_t {
@@ -41168,7 +40651,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_color_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn convert_point_to_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
@@ -41183,7 +40666,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_point);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn convert_point_from_screen(&self, point: &mut Point) -> ::std::os::raw::c_int {
@@ -41198,7 +40681,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_point);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn convert_point_to_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
@@ -41213,7 +40696,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_point);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn convert_point_from_window(&self, point: &mut Point) -> ::std::os::raw::c_int {
@@ -41228,7 +40711,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_point);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn convert_point_to_view(
@@ -41249,7 +40732,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_view, arg_point);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn convert_point_from_view(
@@ -41270,7 +40753,7 @@ impl ImplView for View {
                     let result = f(arg_self_, arg_view, arg_point);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_view_t {
@@ -41316,23 +40799,15 @@ impl Default for View {
 }
 pub trait ImplButton: ImplView {
     fn as_label_button(&self) -> LabelButton {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_state(&self, state: ButtonState) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_state(&self, state: ButtonState) {}
     fn get_state(&self) -> ButtonState {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_ink_drop_enabled(&self, enabled: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_tooltip_text(&self, tooltip_text: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_accessible_name(&self, name: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_ink_drop_enabled(&self, enabled: ::std::os::raw::c_int) {}
+    fn set_tooltip_text(&self, tooltip_text: &CefStringUtf16) {}
+    fn set_accessible_name(&self, name: &CefStringUtf16) {}
     fn init_methods(object: &mut _cef_button_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
         impl_cef_button_t::init_methods::<Self>(object);
@@ -41625,7 +41100,7 @@ impl ImplButton for Button {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_state(&self, state: ButtonState) {
@@ -41651,7 +41126,7 @@ impl ImplButton for Button {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_ink_drop_enabled(&self, enabled: ::std::os::raw::c_int) {
@@ -41738,12 +41213,8 @@ impl Default for Button {
     }
 }
 pub trait ImplButtonDelegate: ImplViewDelegate {
-    fn on_button_pressed(&self, button: &mut impl ImplButton) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_button_state_changed(&self, button: &mut impl ImplButton) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_button_pressed(&self, button: &mut impl ImplButton) {}
+    fn on_button_state_changed(&self, button: &mut impl ImplButton) {}
     fn init_methods(object: &mut _cef_button_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
         impl_cef_button_delegate_t::init_methods::<Self>(object);
@@ -41915,38 +41386,22 @@ impl Default for ButtonDelegate {
 }
 pub trait ImplLabelButton: ImplButton {
     fn as_menu_button(&self) -> MenuButton {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_text(&self, text: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_text(&self, text: &CefStringUtf16) {}
     fn get_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_image(&self, button_state: ButtonState, image: &mut impl ImplImage) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_image(&self, button_state: ButtonState, image: &mut impl ImplImage) {}
     fn get_image(&self, button_state: ButtonState) -> Image {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_text_color(&self, for_state: ButtonState, color: u32) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_enabled_text_colors(&self, color: u32) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_font_list(&self, font_list: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_horizontal_alignment(&self, alignment: HorizontalAlignment) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_minimum_size(&self, size: &Size) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_maximum_size(&self, size: &Size) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_text_color(&self, for_state: ButtonState, color: u32) {}
+    fn set_enabled_text_colors(&self, color: u32) {}
+    fn set_font_list(&self, font_list: &CefStringUtf16) {}
+    fn set_horizontal_alignment(&self, alignment: HorizontalAlignment) {}
+    fn set_minimum_size(&self, size: &Size) {}
+    fn set_maximum_size(&self, size: &Size) {}
     fn init_methods(object: &mut _cef_label_button_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base.base);
         impl_cef_button_t::init_methods::<Self>(&mut object.base);
@@ -42332,7 +41787,7 @@ impl ImplLabelButton for LabelButton {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_text(&self, text: &CefStringUtf16) {
@@ -42358,7 +41813,7 @@ impl ImplLabelButton for LabelButton {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_image(&self, button_state: ButtonState, image: &mut impl ImplImage) {
@@ -42388,7 +41843,7 @@ impl ImplLabelButton for LabelButton {
                     let result = f(arg_self_, arg_button_state);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_text_color(&self, for_state: ButtonState, color: u32) {
@@ -42584,7 +42039,6 @@ pub trait ImplMenuButtonDelegate: ImplButtonDelegate {
         screen_point: &Point,
         button_pressed_lock: &mut impl ImplMenuButtonPressedLock,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn init_methods(object: &mut _cef_menu_button_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base.base);
@@ -42779,11 +42233,8 @@ pub trait ImplMenuButton: ImplLabelButton {
         screen_point: &Point,
         anchor_position: MenuAnchorPosition,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn trigger_menu(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn trigger_menu(&self) {}
     fn init_methods(object: &mut _cef_menu_button_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base.base.base);
         impl_cef_button_t::init_methods::<Self>(&mut object.base.base);
@@ -43207,11 +42658,9 @@ pub trait ImplTextfieldDelegate: ImplViewDelegate {
         textfield: &mut impl ImplTextfield,
         event: &KeyEvent,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn on_after_user_action(&self, textfield: &mut impl ImplTextfield) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_after_user_action(&self, textfield: &mut impl ImplTextfield) {}
     fn init_methods(object: &mut _cef_textfield_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
         impl_cef_textfield_delegate_t::init_methods::<Self>(object);
@@ -43334,7 +42783,7 @@ impl ImplTextfieldDelegate for TextfieldDelegate {
                     let result = f(arg_self_, arg_textfield, arg_event);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_after_user_action(&self, textfield: &mut impl ImplTextfield) {
@@ -43394,99 +42843,61 @@ impl Default for TextfieldDelegate {
     }
 }
 pub trait ImplTextfield: ImplView {
-    fn set_password_input(&self, password_input: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_password_input(&self, password_input: ::std::os::raw::c_int) {}
     fn is_password_input(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_read_only(&self, read_only: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_read_only(&self, read_only: ::std::os::raw::c_int) {}
     fn is_read_only(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_text(&self, text: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn append_text(&self, text: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn insert_or_replace_text(&self, text: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_text(&self, text: &CefStringUtf16) {}
+    fn append_text(&self, text: &CefStringUtf16) {}
+    fn insert_or_replace_text(&self, text: &CefStringUtf16) {}
     fn has_selection(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_selected_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn select_all(&self, reversed: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn clear_selection(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn select_all(&self, reversed: ::std::os::raw::c_int) {}
+    fn clear_selection(&self) {}
     fn get_selected_range(&self) -> Range {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn select_range(&self, range: &Range) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn select_range(&self, range: &Range) {}
     fn get_cursor_position(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_text_color(&self, color: u32) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_text_color(&self, color: u32) {}
     fn get_text_color(&self) -> cef_color_t {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_selection_text_color(&self, color: u32) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_selection_text_color(&self, color: u32) {}
     fn get_selection_text_color(&self) -> cef_color_t {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_selection_background_color(&self, color: u32) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_selection_background_color(&self, color: u32) {}
     fn get_selection_background_color(&self) -> cef_color_t {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_font_list(&self, font_list: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn apply_text_color(&self, color: u32, range: &Range) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn apply_text_style(&self, style: TextStyle, add: ::std::os::raw::c_int, range: &Range) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_font_list(&self, font_list: &CefStringUtf16) {}
+    fn apply_text_color(&self, color: u32, range: &Range) {}
+    fn apply_text_style(&self, style: TextStyle, add: ::std::os::raw::c_int, range: &Range) {}
     fn is_command_enabled(&self, command_id: TextFieldCommands) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn execute_command(&self, command_id: TextFieldCommands) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn clear_edit_history(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_placeholder_text(&self, text: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn execute_command(&self, command_id: TextFieldCommands) {}
+    fn clear_edit_history(&self) {}
+    fn set_placeholder_text(&self, text: &CefStringUtf16) {}
     fn get_placeholder_text(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_placeholder_text_color(&self, color: u32) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_accessible_name(&self, name: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_placeholder_text_color(&self, color: u32) {}
+    fn set_accessible_name(&self, name: &CefStringUtf16) {}
     fn init_methods(object: &mut _cef_textfield_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
         impl_cef_textfield_t::init_methods::<Self>(object);
@@ -44037,7 +43448,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_read_only(&self, read_only: ::std::os::raw::c_int) {
@@ -44063,7 +43474,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_text(&self) -> CefStringUtf16 {
@@ -44075,7 +43486,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_text(&self, text: &CefStringUtf16) {
@@ -44129,7 +43540,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_selected_text(&self) -> CefStringUtf16 {
@@ -44141,7 +43552,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn select_all(&self, reversed: ::std::os::raw::c_int) {
@@ -44179,7 +43590,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn select_range(&self, range: &Range) {
@@ -44206,7 +43617,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_text_color(&self, color: u32) {
@@ -44232,7 +43643,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_selection_text_color(&self, color: u32) {
@@ -44258,7 +43669,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_selection_background_color(&self, color: u32) {
@@ -44284,7 +43695,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_font_list(&self, font_list: &CefStringUtf16) {
@@ -44345,7 +43756,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn execute_command(&self, command_id: TextFieldCommands) {
@@ -44397,7 +43808,7 @@ impl ImplTextfield for Textfield {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_placeholder_text_color(&self, color: u32) {
@@ -44475,14 +43886,12 @@ pub trait ImplBrowserViewDelegate: ImplViewDelegate {
         browser_view: &mut impl ImplBrowserView,
         browser: &mut impl ImplBrowser,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn on_browser_destroyed(
         &self,
         browser_view: &mut impl ImplBrowserView,
         browser: &mut impl ImplBrowser,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn get_delegate_for_popup_browser_view(
         &self,
@@ -44491,7 +43900,7 @@ pub trait ImplBrowserViewDelegate: ImplViewDelegate {
         client: &mut impl ImplClient,
         is_devtools: ::std::os::raw::c_int,
     ) -> BrowserViewDelegate {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_popup_browser_view_created(
         &self,
@@ -44499,29 +43908,29 @@ pub trait ImplBrowserViewDelegate: ImplViewDelegate {
         popup_browser_view: &mut impl ImplBrowserView,
         is_devtools: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_chrome_toolbar_type(
         &self,
         browser_view: &mut impl ImplBrowserView,
     ) -> ChromeToolbarType {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn use_frameless_window_for_picture_in_picture(
         &self,
         browser_view: &mut impl ImplBrowserView,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_gesture_command(
         &self,
         browser_view: &mut impl ImplBrowserView,
         gesture_command: GestureCommand,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_browser_runtime_style(&self) -> RuntimeStyle {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_browser_view_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
@@ -44808,7 +44217,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_popup_browser_view_created(
@@ -44837,7 +44246,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     );
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_chrome_toolbar_type(
@@ -44855,7 +44264,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     let result = f(arg_self_, arg_browser_view);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn use_frameless_window_for_picture_in_picture(
@@ -44873,7 +44282,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     let result = f(arg_self_, arg_browser_view);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_gesture_command(
@@ -44893,7 +44302,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     let result = f(arg_self_, arg_browser_view, arg_gesture_command);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_browser_runtime_style(&self) -> RuntimeStyle {
@@ -44905,7 +44314,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_browser_view_delegate_t {
@@ -44951,16 +44360,14 @@ impl Default for BrowserViewDelegate {
 }
 pub trait ImplBrowserView: ImplView {
     fn get_browser(&self) -> Browser {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_chrome_toolbar(&self) -> View {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_prefer_accelerators(&self, prefer_accelerators: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_prefer_accelerators(&self, prefer_accelerators: ::std::os::raw::c_int) {}
     fn get_runtime_style(&self) -> RuntimeStyle {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_browser_view_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
@@ -45237,7 +44644,7 @@ impl ImplBrowserView for BrowserView {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_chrome_toolbar(&self) -> View {
@@ -45249,7 +44656,7 @@ impl ImplBrowserView for BrowserView {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_prefer_accelerators(&self, prefer_accelerators: ::std::os::raw::c_int) {
@@ -45275,7 +44682,7 @@ impl ImplBrowserView for BrowserView {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_browser_view_t {
@@ -45320,26 +44727,24 @@ impl Default for BrowserView {
     }
 }
 pub trait ImplScrollView: ImplView {
-    fn set_content_view(&self, view: &mut impl ImplView) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_content_view(&self, view: &mut impl ImplView) {}
     fn get_content_view(&self) -> View {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_visible_content_rect(&self) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_horizontal_scrollbar(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_horizontal_scrollbar_height(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn has_vertical_scrollbar(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_vertical_scrollbar_width(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_scroll_view_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
@@ -45657,7 +45062,7 @@ impl ImplScrollView for ScrollView {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_visible_content_rect(&self) -> Rect {
@@ -45669,7 +45074,7 @@ impl ImplScrollView for ScrollView {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_horizontal_scrollbar(&self) -> ::std::os::raw::c_int {
@@ -45681,7 +45086,7 @@ impl ImplScrollView for ScrollView {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_horizontal_scrollbar_height(&self) -> ::std::os::raw::c_int {
@@ -45693,7 +45098,7 @@ impl ImplScrollView for ScrollView {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn has_vertical_scrollbar(&self) -> ::std::os::raw::c_int {
@@ -45705,7 +45110,7 @@ impl ImplScrollView for ScrollView {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_vertical_scrollbar_width(&self) -> ::std::os::raw::c_int {
@@ -45717,7 +45122,7 @@ impl ImplScrollView for ScrollView {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_scroll_view_t {
@@ -45763,25 +45168,21 @@ impl Default for ScrollView {
 }
 pub trait ImplDisplay: Clone + Sized + Rc {
     fn get_id(&self) -> i64 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_device_scale_factor(&self) -> f32 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn convert_point_to_pixels(&self, point: &mut Point) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn convert_point_from_pixels(&self, point: &mut Point) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn convert_point_to_pixels(&self, point: &mut Point) {}
+    fn convert_point_from_pixels(&self, point: &mut Point) {}
     fn get_bounds(&self) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_work_area(&self) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_rotation(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_display_t) {
         impl_cef_display_t::init_methods::<Self>(object);
@@ -45865,7 +45266,7 @@ impl ImplDisplay for Display {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_device_scale_factor(&self) -> f32 {
@@ -45877,7 +45278,7 @@ impl ImplDisplay for Display {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn convert_point_to_pixels(&self, point: &mut Point) {
@@ -45919,7 +45320,7 @@ impl ImplDisplay for Display {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_work_area(&self) -> Rect {
@@ -45931,7 +45332,7 @@ impl ImplDisplay for Display {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_rotation(&self) -> ::std::os::raw::c_int {
@@ -45943,7 +45344,7 @@ impl ImplDisplay for Display {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_display_t {
@@ -45989,61 +45390,47 @@ impl Default for Display {
 }
 pub trait ImplOverlayController: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_same(&self, that: &mut impl ImplOverlayController) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_contents_view(&self) -> View {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_window(&self) -> Window {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_docking_mode(&self) -> DockingMode {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn destroy(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_bounds(&self, bounds: &Rect) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn destroy(&self) {}
+    fn set_bounds(&self, bounds: &Rect) {}
     fn get_bounds(&self) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_bounds_in_screen(&self) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_size(&self, size: &Size) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_size(&self, size: &Size) {}
     fn get_size(&self) -> Size {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_position(&self, position: &Point) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_position(&self, position: &Point) {}
     fn get_position(&self) -> Point {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_insets(&self, insets: &Insets) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_insets(&self, insets: &Insets) {}
     fn get_insets(&self) -> Insets {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn size_to_preferred_size(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_visible(&self, visible: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn size_to_preferred_size(&self) {}
+    fn set_visible(&self, visible: ::std::os::raw::c_int) {}
     fn is_visible(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_drawn(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_overlay_controller_t) {
         impl_cef_overlay_controller_t::init_methods::<Self>(object);
@@ -46246,7 +45633,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_same(&self, that: &mut impl ImplOverlayController) -> ::std::os::raw::c_int {
@@ -46261,7 +45648,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_, arg_that);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_contents_view(&self) -> View {
@@ -46273,7 +45660,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_window(&self) -> Window {
@@ -46285,7 +45672,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_docking_mode(&self) -> DockingMode {
@@ -46297,7 +45684,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn destroy(&self) {
@@ -46336,7 +45723,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_bounds_in_screen(&self) -> Rect {
@@ -46348,7 +45735,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_size(&self, size: &Size) {
@@ -46375,7 +45762,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_position(&self, position: &Point) {
@@ -46402,7 +45789,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_insets(&self, insets: &Insets) {
@@ -46429,7 +45816,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn size_to_preferred_size(&self) {
@@ -46467,7 +45854,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_drawn(&self) -> ::std::os::raw::c_int {
@@ -46479,7 +45866,7 @@ impl ImplOverlayController for OverlayController {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_overlay_controller_t {
@@ -46644,40 +46031,28 @@ impl Default for PanelDelegate {
 }
 pub trait ImplPanel: ImplView {
     fn as_window(&self) -> Window {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_to_fill_layout(&self) -> FillLayout {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn set_to_box_layout(&self, settings: &BoxLayoutSettings) -> BoxLayout {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_layout(&self) -> Layout {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn layout(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn add_child_view(&self, view: &mut impl ImplView) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn add_child_view_at(&self, view: &mut impl ImplView, index: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn reorder_child_view(&self, view: &mut impl ImplView, index: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn remove_child_view(&self, view: &mut impl ImplView) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn remove_all_child_views(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn layout(&self) {}
+    fn add_child_view(&self, view: &mut impl ImplView) {}
+    fn add_child_view_at(&self, view: &mut impl ImplView, index: ::std::os::raw::c_int) {}
+    fn reorder_child_view(&self, view: &mut impl ImplView, index: ::std::os::raw::c_int) {}
+    fn remove_child_view(&self, view: &mut impl ImplView) {}
+    fn remove_all_child_views(&self) {}
     fn get_child_view_count(&self) -> usize {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> View {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_panel_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base);
@@ -47022,7 +46397,7 @@ impl ImplPanel for Panel {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_to_fill_layout(&self) -> FillLayout {
@@ -47034,7 +46409,7 @@ impl ImplPanel for Panel {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_to_box_layout(&self, settings: &BoxLayoutSettings) -> BoxLayout {
@@ -47049,7 +46424,7 @@ impl ImplPanel for Panel {
                     let result = f(arg_self_, arg_settings);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_layout(&self) -> Layout {
@@ -47061,7 +46436,7 @@ impl ImplPanel for Panel {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn layout(&self) {
@@ -47159,7 +46534,7 @@ impl ImplPanel for Panel {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> View {
@@ -47173,7 +46548,7 @@ impl ImplPanel for Panel {
                     let result = f(arg_self_, arg_index);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_panel_t {
@@ -47218,31 +46593,21 @@ impl Default for Panel {
     }
 }
 pub trait ImplWindowDelegate: ImplPanelDelegate {
-    fn on_window_created(&self, window: &mut impl ImplWindow) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_window_closing(&self, window: &mut impl ImplWindow) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn on_window_destroyed(&self, window: &mut impl ImplWindow) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_window_created(&self, window: &mut impl ImplWindow) {}
+    fn on_window_closing(&self, window: &mut impl ImplWindow) {}
+    fn on_window_destroyed(&self, window: &mut impl ImplWindow) {}
     fn on_window_activation_changed(
         &self,
         window: &mut impl ImplWindow,
         active: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn on_window_bounds_changed(&self, window: &mut impl ImplWindow, new_bounds: &Rect) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn on_window_bounds_changed(&self, window: &mut impl ImplWindow, new_bounds: &Rect) {}
     fn on_window_fullscreen_transition(
         &self,
         window: &mut impl ImplWindow,
         is_completed: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn get_parent_window(
         &self,
@@ -47250,75 +46615,74 @@ pub trait ImplWindowDelegate: ImplPanelDelegate {
         is_menu: *mut ::std::os::raw::c_int,
         can_activate_menu: *mut ::std::os::raw::c_int,
     ) -> Window {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_window_modal_dialog(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_initial_bounds(&self, window: &mut impl ImplWindow) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_initial_show_state(&self, window: &mut impl ImplWindow) -> ShowState {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_frameless(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn with_standard_window_buttons(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_titlebar_height(
         &self,
         window: &mut impl ImplWindow,
         titlebar_height: *mut f32,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn accepts_first_mouse(&self, window: &mut impl ImplWindow) -> State {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn can_resize(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn can_maximize(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn can_minimize(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn can_close(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_accelerator(
         &self,
         window: &mut impl ImplWindow,
         command_id: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_key_event(
         &self,
         window: &mut impl ImplWindow,
         event: &KeyEvent,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn on_theme_colors_changed(
         &self,
         window: &mut impl ImplWindow,
         chrome_theme: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn get_window_runtime_style(&self) -> RuntimeStyle {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_linux_window_properties(
         &self,
         window: &mut impl ImplWindow,
         properties: &mut LinuxWindowProperties,
     ) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_window_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base.base);
@@ -47829,7 +47193,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window, arg_is_menu, arg_can_activate_menu);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_window_modal_dialog(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
@@ -47844,7 +47208,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_initial_bounds(&self, window: &mut impl ImplWindow) -> Rect {
@@ -47859,7 +47223,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_initial_show_state(&self, window: &mut impl ImplWindow) -> ShowState {
@@ -47874,7 +47238,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_frameless(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
@@ -47889,7 +47253,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn with_standard_window_buttons(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
@@ -47904,7 +47268,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_titlebar_height(
@@ -47924,7 +47288,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window, arg_titlebar_height);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn accepts_first_mouse(&self, window: &mut impl ImplWindow) -> State {
@@ -47939,7 +47303,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn can_resize(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
@@ -47954,7 +47318,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn can_maximize(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
@@ -47969,7 +47333,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn can_minimize(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
@@ -47984,7 +47348,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn can_close(&self, window: &mut impl ImplWindow) -> ::std::os::raw::c_int {
@@ -47999,7 +47363,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_accelerator(
@@ -48019,7 +47383,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window, arg_command_id);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_key_event(
@@ -48040,7 +47404,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window, arg_event);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn on_theme_colors_changed(
@@ -48072,7 +47436,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_linux_window_properties(
@@ -48094,7 +47458,7 @@ impl ImplWindowDelegate for WindowDelegate {
                     let result = f(arg_self_, arg_window, arg_properties);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_window_delegate_t {
@@ -48139,83 +47503,51 @@ impl Default for WindowDelegate {
     }
 }
 pub trait ImplWindow: ImplPanel {
-    fn show(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn show_as_browser_modal_dialog(&self, browser_view: &mut impl ImplBrowserView) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn hide(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn center_window(&self, size: &Size) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn close(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn show(&self) {}
+    fn show_as_browser_modal_dialog(&self, browser_view: &mut impl ImplBrowserView) {}
+    fn hide(&self) {}
+    fn center_window(&self, size: &Size) {}
+    fn close(&self) {}
     fn is_closed(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn activate(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn deactivate(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn activate(&self) {}
+    fn deactivate(&self) {}
     fn is_active(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn bring_to_top(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_always_on_top(&self, on_top: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn bring_to_top(&self) {}
+    fn set_always_on_top(&self, on_top: ::std::os::raw::c_int) {}
     fn is_always_on_top(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn maximize(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn minimize(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn restore(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_fullscreen(&self, fullscreen: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn maximize(&self) {}
+    fn minimize(&self) {}
+    fn restore(&self) {}
+    fn set_fullscreen(&self, fullscreen: ::std::os::raw::c_int) {}
     fn is_maximized(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_minimized(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn is_fullscreen(&self) -> ::std::os::raw::c_int {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_focused_view(&self) -> View {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_title(&self, title: &CefStringUtf16) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_title(&self, title: &CefStringUtf16) {}
     fn get_title(&self) -> CefStringUtf16 {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_window_icon(&self, image: &mut impl ImplImage) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_window_icon(&self, image: &mut impl ImplImage) {}
     fn get_window_icon(&self) -> Image {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_window_app_icon(&self, image: &mut impl ImplImage) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_window_app_icon(&self, image: &mut impl ImplImage) {}
     fn get_window_app_icon(&self) -> Image {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn add_overlay_view(
         &self,
@@ -48223,7 +47555,7 @@ pub trait ImplWindow: ImplPanel {
         docking_mode: DockingMode,
         can_activate: ::std::os::raw::c_int,
     ) -> OverlayController {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn show_menu(
         &self,
@@ -48231,36 +47563,26 @@ pub trait ImplWindow: ImplPanel {
         screen_point: &Point,
         anchor_position: MenuAnchorPosition,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn cancel_menu(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn cancel_menu(&self) {}
     fn get_display(&self) -> Display {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn get_client_area_bounds_in_screen(&self) -> Rect {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn set_draggable_regions(&self, regions_count: usize, regions: &DraggableRegion) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn set_draggable_regions(&self, regions_count: usize, regions: &DraggableRegion) {}
     fn get_window_handle(&self) -> ::std::os::raw::c_ulong {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
-    fn send_key_press(&self, key_code: ::std::os::raw::c_int, event_flags: u32) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn send_mouse_move(&self, screen_x: ::std::os::raw::c_int, screen_y: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn send_key_press(&self, key_code: ::std::os::raw::c_int, event_flags: u32) {}
+    fn send_mouse_move(&self, screen_x: ::std::os::raw::c_int, screen_y: ::std::os::raw::c_int) {}
     fn send_mouse_events(
         &self,
         button: MouseButtonType,
         mouse_down: ::std::os::raw::c_int,
         mouse_up: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
     fn set_accelerator(
         &self,
@@ -48271,22 +47593,13 @@ pub trait ImplWindow: ImplPanel {
         alt_pressed: ::std::os::raw::c_int,
         high_priority: ::std::os::raw::c_int,
     ) {
-        unsafe { std::mem::zeroed() }
     }
-    fn remove_accelerator(&self, command_id: ::std::os::raw::c_int) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn remove_all_accelerators(&self) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn set_theme_color(&self, color_id: ::std::os::raw::c_int, color: u32) {
-        unsafe { std::mem::zeroed() }
-    }
-    fn theme_changed(&self) {
-        unsafe { std::mem::zeroed() }
-    }
+    fn remove_accelerator(&self, command_id: ::std::os::raw::c_int) {}
+    fn remove_all_accelerators(&self) {}
+    fn set_theme_color(&self, color_id: ::std::os::raw::c_int, color: u32) {}
+    fn theme_changed(&self) {}
     fn get_runtime_style(&self) -> RuntimeStyle {
-        unsafe { std::mem::zeroed() }
+        Default::default()
     }
     fn init_methods(object: &mut _cef_window_t) {
         impl_cef_view_t::init_methods::<Self>(&mut object.base.base);
@@ -49064,7 +48377,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn activate(&self) {
@@ -49100,7 +48413,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn bring_to_top(&self) {
@@ -49138,7 +48451,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn maximize(&self) {
@@ -49200,7 +48513,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_minimized(&self) -> ::std::os::raw::c_int {
@@ -49212,7 +48525,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn is_fullscreen(&self) -> ::std::os::raw::c_int {
@@ -49224,7 +48537,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_focused_view(&self) -> View {
@@ -49236,7 +48549,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_title(&self, title: &CefStringUtf16) {
@@ -49262,7 +48575,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_window_icon(&self, image: &mut impl ImplImage) {
@@ -49289,7 +48602,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_window_app_icon(&self, image: &mut impl ImplImage) {
@@ -49316,7 +48629,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn add_overlay_view(
@@ -49339,7 +48652,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_, arg_view, arg_docking_mode, arg_can_activate);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn show_menu(
@@ -49392,7 +48705,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_client_area_bounds_in_screen(&self) -> Rect {
@@ -49404,7 +48717,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn set_draggable_regions(&self, regions_count: usize, regions: &DraggableRegion) {
@@ -49432,7 +48745,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn send_key_press(&self, key_code: ::std::os::raw::c_int, event_flags: u32) {
@@ -49597,7 +48910,7 @@ impl ImplWindow for Window {
                     let result = f(arg_self_);
                     result.as_wrapper()
                 })
-                .unwrap_or_else(|| std::mem::zeroed())
+                .unwrap_or_default()
         }
     }
     fn get_raw(&self) -> *mut _cef_window_t {
@@ -49668,7 +48981,7 @@ impl Into<cef_content_setting_types_t> for ContentSettingTypes {
 }
 impl Default for ContentSettingTypes {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_content_setting_types_t::CEF_CONTENT_SETTING_TYPE_COOKIES)
     }
 }
 #[doc = "See [cef_content_setting_values_t] for more documentation."]
@@ -49696,7 +49009,7 @@ impl Into<cef_content_setting_values_t> for ContentSettingValues {
 }
 impl Default for ContentSettingValues {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_content_setting_values_t::CEF_CONTENT_SETTING_VALUE_DEFAULT)
     }
 }
 #[doc = "See [cef_color_type_t] for more documentation."]
@@ -49724,7 +49037,7 @@ impl Into<cef_color_type_t> for ColorType {
 }
 impl Default for ColorType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_color_type_t::CEF_COLOR_TYPE_RGBA_8888)
     }
 }
 #[doc = "See [cef_runtime_style_t] for more documentation."]
@@ -49752,7 +49065,7 @@ impl Into<cef_runtime_style_t> for RuntimeStyle {
 }
 impl Default for RuntimeStyle {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_runtime_style_t::CEF_RUNTIME_STYLE_DEFAULT)
     }
 }
 #[doc = "See [cef_log_severity_t] for more documentation."]
@@ -49780,7 +49093,7 @@ impl Into<cef_log_severity_t> for LogSeverity {
 }
 impl Default for LogSeverity {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_log_severity_t::LOGSEVERITY_DEFAULT)
     }
 }
 #[doc = "See [cef_log_items_t] for more documentation."]
@@ -49808,7 +49121,7 @@ impl Into<cef_log_items_t> for LogItems {
 }
 impl Default for LogItems {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_log_items_t::LOG_ITEMS_DEFAULT)
     }
 }
 #[doc = "See [cef_state_t] for more documentation."]
@@ -49836,7 +49149,7 @@ impl Into<cef_state_t> for State {
 }
 impl Default for State {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_state_t::STATE_DEFAULT)
     }
 }
 #[doc = "See [cef_return_value_t] for more documentation."]
@@ -49864,7 +49177,7 @@ impl Into<cef_return_value_t> for ReturnValue {
 }
 impl Default for ReturnValue {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_return_value_t::RV_CANCEL)
     }
 }
 #[doc = "See [cef_cookie_priority_t] for more documentation."]
@@ -49892,7 +49205,7 @@ impl Into<cef_cookie_priority_t> for CookiePriority {
 }
 impl Default for CookiePriority {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_cookie_priority_t::CEF_COOKIE_PRIORITY_LOW)
     }
 }
 #[doc = "See [cef_cookie_same_site_t] for more documentation."]
@@ -49920,7 +49233,7 @@ impl Into<cef_cookie_same_site_t> for CookieSameSite {
 }
 impl Default for CookieSameSite {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_cookie_same_site_t::CEF_COOKIE_SAME_SITE_UNSPECIFIED)
     }
 }
 #[doc = "See [cef_termination_status_t] for more documentation."]
@@ -49948,7 +49261,7 @@ impl Into<cef_termination_status_t> for TerminationStatus {
 }
 impl Default for TerminationStatus {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_termination_status_t::TS_ABNORMAL_TERMINATION)
     }
 }
 #[doc = "See [cef_path_key_t] for more documentation."]
@@ -49976,7 +49289,7 @@ impl Into<cef_path_key_t> for PathKey {
 }
 impl Default for PathKey {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_path_key_t::PK_DIR_CURRENT)
     }
 }
 #[doc = "See [cef_storage_type_t] for more documentation."]
@@ -50004,7 +49317,7 @@ impl Into<cef_storage_type_t> for StorageType {
 }
 impl Default for StorageType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_storage_type_t::ST_LOCALSTORAGE)
     }
 }
 #[doc = "See [cef_errorcode_t] for more documentation."]
@@ -50032,7 +49345,7 @@ impl Into<cef_errorcode_t> for Errorcode {
 }
 impl Default for Errorcode {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_errorcode_t::ERR_NONE)
     }
 }
 #[doc = "See [cef_cert_status_t] for more documentation."]
@@ -50060,7 +49373,7 @@ impl Into<cef_cert_status_t> for CertStatus {
 }
 impl Default for CertStatus {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_cert_status_t::CERT_STATUS_NONE)
     }
 }
 #[doc = "See [cef_resultcode_t] for more documentation."]
@@ -50088,7 +49401,7 @@ impl Into<cef_resultcode_t> for Resultcode {
 }
 impl Default for Resultcode {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_resultcode_t::CEF_RESULT_CODE_NORMAL_EXIT)
     }
 }
 #[doc = "See [cef_window_open_disposition_t] for more documentation."]
@@ -50116,7 +49429,7 @@ impl Into<cef_window_open_disposition_t> for WindowOpenDisposition {
 }
 impl Default for WindowOpenDisposition {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_window_open_disposition_t::CEF_WOD_UNKNOWN)
     }
 }
 #[doc = "See [cef_drag_operations_mask_t] for more documentation."]
@@ -50172,7 +49485,7 @@ impl Into<cef_text_input_mode_t> for TextInputMode {
 }
 impl Default for TextInputMode {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_text_input_mode_t::CEF_TEXT_INPUT_MODE_DEFAULT)
     }
 }
 #[doc = "See [cef_v8_propertyattribute_t] for more documentation."]
@@ -50200,7 +49513,7 @@ impl Into<cef_v8_propertyattribute_t> for V8Propertyattribute {
 }
 impl Default for V8Propertyattribute {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_v8_propertyattribute_t::V8_PROPERTY_ATTRIBUTE_NONE)
     }
 }
 #[doc = "See [cef_postdataelement_type_t] for more documentation."]
@@ -50228,7 +49541,7 @@ impl Into<cef_postdataelement_type_t> for PostdataelementType {
 }
 impl Default for PostdataelementType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_postdataelement_type_t::PDE_TYPE_EMPTY)
     }
 }
 #[doc = "See [cef_resource_type_t] for more documentation."]
@@ -50256,7 +49569,7 @@ impl Into<cef_resource_type_t> for ResourceType {
 }
 impl Default for ResourceType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_resource_type_t::RT_MAIN_FRAME)
     }
 }
 #[doc = "See [cef_transition_type_t] for more documentation."]
@@ -50284,7 +49597,7 @@ impl Into<cef_transition_type_t> for TransitionType {
 }
 impl Default for TransitionType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_transition_type_t::TT_LINK)
     }
 }
 #[doc = "See [cef_urlrequest_flags_t] for more documentation."]
@@ -50312,7 +49625,7 @@ impl Into<cef_urlrequest_flags_t> for UrlrequestFlags {
 }
 impl Default for UrlrequestFlags {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_urlrequest_flags_t::UR_FLAG_NONE)
     }
 }
 #[doc = "See [cef_urlrequest_status_t] for more documentation."]
@@ -50340,7 +49653,7 @@ impl Into<cef_urlrequest_status_t> for UrlrequestStatus {
 }
 impl Default for UrlrequestStatus {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_urlrequest_status_t::UR_UNKNOWN)
     }
 }
 #[doc = "See [cef_process_id_t] for more documentation."]
@@ -50368,7 +49681,7 @@ impl Into<cef_process_id_t> for ProcessId {
 }
 impl Default for ProcessId {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_process_id_t::PID_BROWSER)
     }
 }
 #[doc = "See [cef_thread_id_t] for more documentation."]
@@ -50396,7 +49709,7 @@ impl Into<cef_thread_id_t> for ThreadId {
 }
 impl Default for ThreadId {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_thread_id_t::TID_UI)
     }
 }
 #[doc = "See [cef_thread_priority_t] for more documentation."]
@@ -50424,7 +49737,7 @@ impl Into<cef_thread_priority_t> for ThreadPriority {
 }
 impl Default for ThreadPriority {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_thread_priority_t::TP_BACKGROUND)
     }
 }
 #[doc = "See [cef_message_loop_type_t] for more documentation."]
@@ -50452,7 +49765,7 @@ impl Into<cef_message_loop_type_t> for MessageLoopType {
 }
 impl Default for MessageLoopType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_message_loop_type_t::ML_TYPE_DEFAULT)
     }
 }
 #[doc = "See [cef_com_init_mode_t] for more documentation."]
@@ -50480,7 +49793,7 @@ impl Into<cef_com_init_mode_t> for ComInitMode {
 }
 impl Default for ComInitMode {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_com_init_mode_t::COM_INIT_MODE_NONE)
     }
 }
 #[doc = "See [cef_value_type_t] for more documentation."]
@@ -50508,7 +49821,7 @@ impl Into<cef_value_type_t> for ValueType {
 }
 impl Default for ValueType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_value_type_t::VTYPE_INVALID)
     }
 }
 #[doc = "See [cef_jsdialog_type_t] for more documentation."]
@@ -50536,7 +49849,7 @@ impl Into<cef_jsdialog_type_t> for JsdialogType {
 }
 impl Default for JsdialogType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_jsdialog_type_t::JSDIALOGTYPE_ALERT)
     }
 }
 #[doc = "See [cef_menu_id_t] for more documentation."]
@@ -50564,7 +49877,7 @@ impl Into<cef_menu_id_t> for MenuId {
 }
 impl Default for MenuId {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_menu_id_t::MENU_ID_BACK)
     }
 }
 #[doc = "See [cef_mouse_button_type_t] for more documentation."]
@@ -50592,7 +49905,7 @@ impl Into<cef_mouse_button_type_t> for MouseButtonType {
 }
 impl Default for MouseButtonType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_mouse_button_type_t::MBT_LEFT)
     }
 }
 #[doc = "See [cef_touch_event_type_t] for more documentation."]
@@ -50620,7 +49933,7 @@ impl Into<cef_touch_event_type_t> for TouchEventType {
 }
 impl Default for TouchEventType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_touch_event_type_t::CEF_TET_RELEASED)
     }
 }
 #[doc = "See [cef_pointer_type_t] for more documentation."]
@@ -50648,7 +49961,7 @@ impl Into<cef_pointer_type_t> for PointerType {
 }
 impl Default for PointerType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_pointer_type_t::CEF_POINTER_TYPE_TOUCH)
     }
 }
 #[doc = "See [cef_paint_element_type_t] for more documentation."]
@@ -50676,7 +49989,7 @@ impl Into<cef_paint_element_type_t> for PaintElementType {
 }
 impl Default for PaintElementType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_paint_element_type_t::PET_VIEW)
     }
 }
 #[doc = "See [cef_event_flags_t] for more documentation."]
@@ -50704,7 +50017,7 @@ impl Into<cef_event_flags_t> for EventFlags {
 }
 impl Default for EventFlags {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_event_flags_t::EVENTFLAG_NONE)
     }
 }
 #[doc = "See [cef_menu_item_type_t] for more documentation."]
@@ -50732,7 +50045,7 @@ impl Into<cef_menu_item_type_t> for MenuItemType {
 }
 impl Default for MenuItemType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_menu_item_type_t::MENUITEMTYPE_NONE)
     }
 }
 #[doc = "See [cef_context_menu_type_flags_t] for more documentation."]
@@ -50760,7 +50073,7 @@ impl Into<cef_context_menu_type_flags_t> for ContextMenuTypeFlags {
 }
 impl Default for ContextMenuTypeFlags {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_context_menu_type_flags_t::CM_TYPEFLAG_NONE)
     }
 }
 #[doc = "See [cef_context_menu_media_type_t] for more documentation."]
@@ -50788,7 +50101,7 @@ impl Into<cef_context_menu_media_type_t> for ContextMenuMediaType {
 }
 impl Default for ContextMenuMediaType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_context_menu_media_type_t::CM_MEDIATYPE_NONE)
     }
 }
 #[doc = "See [cef_context_menu_media_state_flags_t] for more documentation."]
@@ -50816,7 +50129,7 @@ impl Into<cef_context_menu_media_state_flags_t> for ContextMenuMediaStateFlags {
 }
 impl Default for ContextMenuMediaStateFlags {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_context_menu_media_state_flags_t::CM_MEDIAFLAG_NONE)
     }
 }
 #[doc = "See [cef_context_menu_edit_state_flags_t] for more documentation."]
@@ -50844,7 +50157,7 @@ impl Into<cef_context_menu_edit_state_flags_t> for ContextMenuEditStateFlags {
 }
 impl Default for ContextMenuEditStateFlags {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_context_menu_edit_state_flags_t::CM_EDITFLAG_NONE)
     }
 }
 #[doc = "See [cef_quick_menu_edit_state_flags_t] for more documentation."]
@@ -50872,7 +50185,7 @@ impl Into<cef_quick_menu_edit_state_flags_t> for QuickMenuEditStateFlags {
 }
 impl Default for QuickMenuEditStateFlags {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_quick_menu_edit_state_flags_t::QM_EDITFLAG_NONE)
     }
 }
 #[doc = "See [cef_key_event_type_t] for more documentation."]
@@ -50900,7 +50213,7 @@ impl Into<cef_key_event_type_t> for KeyEventType {
 }
 impl Default for KeyEventType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_key_event_type_t::KEYEVENT_RAWKEYDOWN)
     }
 }
 #[doc = "See [cef_focus_source_t] for more documentation."]
@@ -50928,7 +50241,7 @@ impl Into<cef_focus_source_t> for FocusSource {
 }
 impl Default for FocusSource {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_focus_source_t::FOCUS_SOURCE_NAVIGATION)
     }
 }
 #[doc = "See [cef_navigation_type_t] for more documentation."]
@@ -50956,7 +50269,7 @@ impl Into<cef_navigation_type_t> for NavigationType {
 }
 impl Default for NavigationType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_navigation_type_t::NAVIGATION_LINK_CLICKED)
     }
 }
 #[doc = "See [cef_xml_encoding_type_t] for more documentation."]
@@ -50984,7 +50297,7 @@ impl Into<cef_xml_encoding_type_t> for XmlEncodingType {
 }
 impl Default for XmlEncodingType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_xml_encoding_type_t::XML_ENCODING_NONE)
     }
 }
 #[doc = "See [cef_xml_node_type_t] for more documentation."]
@@ -51012,7 +50325,7 @@ impl Into<cef_xml_node_type_t> for XmlNodeType {
 }
 impl Default for XmlNodeType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_xml_node_type_t::XML_NODE_UNSUPPORTED)
     }
 }
 #[doc = "See [cef_dom_document_type_t] for more documentation."]
@@ -51040,7 +50353,7 @@ impl Into<cef_dom_document_type_t> for DomDocumentType {
 }
 impl Default for DomDocumentType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_dom_document_type_t::DOM_DOCUMENT_TYPE_UNKNOWN)
     }
 }
 #[doc = "See [cef_dom_event_category_t] for more documentation."]
@@ -51068,7 +50381,7 @@ impl Into<cef_dom_event_category_t> for DomEventCategory {
 }
 impl Default for DomEventCategory {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_dom_event_category_t::DOM_EVENT_CATEGORY_UNKNOWN)
     }
 }
 #[doc = "See [cef_dom_event_phase_t] for more documentation."]
@@ -51096,7 +50409,7 @@ impl Into<cef_dom_event_phase_t> for DomEventPhase {
 }
 impl Default for DomEventPhase {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_dom_event_phase_t::DOM_EVENT_PHASE_UNKNOWN)
     }
 }
 #[doc = "See [cef_dom_node_type_t] for more documentation."]
@@ -51124,7 +50437,7 @@ impl Into<cef_dom_node_type_t> for DomNodeType {
 }
 impl Default for DomNodeType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_dom_node_type_t::DOM_NODE_TYPE_UNSUPPORTED)
     }
 }
 #[doc = "See [cef_dom_form_control_type_t] for more documentation."]
@@ -51152,7 +50465,7 @@ impl Into<cef_dom_form_control_type_t> for DomFormControlType {
 }
 impl Default for DomFormControlType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_dom_form_control_type_t::DOM_FORM_CONTROL_TYPE_UNSUPPORTED)
     }
 }
 #[doc = "See [cef_file_dialog_mode_t] for more documentation."]
@@ -51180,7 +50493,7 @@ impl Into<cef_file_dialog_mode_t> for FileDialogMode {
 }
 impl Default for FileDialogMode {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_file_dialog_mode_t::FILE_DIALOG_OPEN)
     }
 }
 #[doc = "See [cef_color_model_t] for more documentation."]
@@ -51208,7 +50521,7 @@ impl Into<cef_color_model_t> for ColorModel {
 }
 impl Default for ColorModel {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_color_model_t::COLOR_MODEL_UNKNOWN)
     }
 }
 #[doc = "See [cef_duplex_mode_t] for more documentation."]
@@ -51236,7 +50549,7 @@ impl Into<cef_duplex_mode_t> for DuplexMode {
 }
 impl Default for DuplexMode {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_duplex_mode_t::DUPLEX_MODE_UNKNOWN)
     }
 }
 #[doc = "See [cef_cursor_type_t] for more documentation."]
@@ -51264,7 +50577,7 @@ impl Into<cef_cursor_type_t> for CursorType {
 }
 impl Default for CursorType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_cursor_type_t::CT_POINTER)
     }
 }
 #[doc = "See [cef_uri_unescape_rule_t] for more documentation."]
@@ -51292,7 +50605,7 @@ impl Into<cef_uri_unescape_rule_t> for UriUnescapeRule {
 }
 impl Default for UriUnescapeRule {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_uri_unescape_rule_t::UU_NONE)
     }
 }
 #[doc = "See [cef_json_parser_options_t] for more documentation."]
@@ -51320,7 +50633,7 @@ impl Into<cef_json_parser_options_t> for JsonParserOptions {
 }
 impl Default for JsonParserOptions {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_json_parser_options_t::JSON_PARSER_RFC)
     }
 }
 #[doc = "See [cef_json_writer_options_t] for more documentation."]
@@ -51348,7 +50661,7 @@ impl Into<cef_json_writer_options_t> for JsonWriterOptions {
 }
 impl Default for JsonWriterOptions {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_json_writer_options_t::JSON_WRITER_DEFAULT)
     }
 }
 #[doc = "See [cef_pdf_print_margin_type_t] for more documentation."]
@@ -51376,7 +50689,7 @@ impl Into<cef_pdf_print_margin_type_t> for PdfPrintMarginType {
 }
 impl Default for PdfPrintMarginType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_pdf_print_margin_type_t::PDF_PRINT_MARGIN_DEFAULT)
     }
 }
 #[doc = "See [cef_scale_factor_t] for more documentation."]
@@ -51404,7 +50717,7 @@ impl Into<cef_scale_factor_t> for ScaleFactor {
 }
 impl Default for ScaleFactor {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_scale_factor_t::SCALE_FACTOR_NONE)
     }
 }
 #[doc = "See [cef_referrer_policy_t] for more documentation."]
@@ -51432,7 +50745,7 @@ impl Into<cef_referrer_policy_t> for ReferrerPolicy {
 }
 impl Default for ReferrerPolicy {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self (cef_referrer_policy_t :: REFERRER_POLICY_CLEAR_REFERRER_ON_TRANSITION_FROM_SECURE_TO_INSECURE)
     }
 }
 #[doc = "See [cef_response_filter_status_t] for more documentation."]
@@ -51460,7 +50773,7 @@ impl Into<cef_response_filter_status_t> for ResponseFilterStatus {
 }
 impl Default for ResponseFilterStatus {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_response_filter_status_t::RESPONSE_FILTER_NEED_MORE_DATA)
     }
 }
 #[doc = "See [cef_alpha_type_t] for more documentation."]
@@ -51488,7 +50801,7 @@ impl Into<cef_alpha_type_t> for AlphaType {
 }
 impl Default for AlphaType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_alpha_type_t::CEF_ALPHA_TYPE_OPAQUE)
     }
 }
 #[doc = "See [cef_text_style_t] for more documentation."]
@@ -51516,7 +50829,7 @@ impl Into<cef_text_style_t> for TextStyle {
 }
 impl Default for TextStyle {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_text_style_t::CEF_TEXT_STYLE_BOLD)
     }
 }
 #[doc = "See [cef_axis_alignment_t] for more documentation."]
@@ -51544,7 +50857,7 @@ impl Into<cef_axis_alignment_t> for AxisAlignment {
 }
 impl Default for AxisAlignment {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_axis_alignment_t::CEF_AXIS_ALIGNMENT_START)
     }
 }
 #[doc = "See [cef_button_state_t] for more documentation."]
@@ -51572,7 +50885,7 @@ impl Into<cef_button_state_t> for ButtonState {
 }
 impl Default for ButtonState {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_button_state_t::CEF_BUTTON_STATE_NORMAL)
     }
 }
 #[doc = "See [cef_horizontal_alignment_t] for more documentation."]
@@ -51600,7 +50913,7 @@ impl Into<cef_horizontal_alignment_t> for HorizontalAlignment {
 }
 impl Default for HorizontalAlignment {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_horizontal_alignment_t::CEF_HORIZONTAL_ALIGNMENT_LEFT)
     }
 }
 #[doc = "See [cef_menu_anchor_position_t] for more documentation."]
@@ -51628,7 +50941,7 @@ impl Into<cef_menu_anchor_position_t> for MenuAnchorPosition {
 }
 impl Default for MenuAnchorPosition {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_menu_anchor_position_t::CEF_MENU_ANCHOR_TOPLEFT)
     }
 }
 #[doc = "See [cef_menu_color_type_t] for more documentation."]
@@ -51656,7 +50969,7 @@ impl Into<cef_menu_color_type_t> for MenuColorType {
 }
 impl Default for MenuColorType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_menu_color_type_t::CEF_MENU_COLOR_TEXT)
     }
 }
 #[doc = "See [cef_ssl_version_t] for more documentation."]
@@ -51684,7 +50997,7 @@ impl Into<cef_ssl_version_t> for SslVersion {
 }
 impl Default for SslVersion {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_ssl_version_t::SSL_CONNECTION_VERSION_UNKNOWN)
     }
 }
 #[doc = "See [cef_ssl_content_status_t] for more documentation."]
@@ -51712,7 +51025,7 @@ impl Into<cef_ssl_content_status_t> for SslContentStatus {
 }
 impl Default for SslContentStatus {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_ssl_content_status_t::SSL_CONTENT_NORMAL_CONTENT)
     }
 }
 #[doc = "See [cef_scheme_options_t] for more documentation."]
@@ -51740,7 +51053,7 @@ impl Into<cef_scheme_options_t> for SchemeOptions {
 }
 impl Default for SchemeOptions {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_scheme_options_t::CEF_SCHEME_OPTION_NONE)
     }
 }
 #[doc = "See [cef_composition_underline_style_t] for more documentation."]
@@ -51768,7 +51081,7 @@ impl Into<cef_composition_underline_style_t> for CompositionUnderlineStyle {
 }
 impl Default for CompositionUnderlineStyle {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_composition_underline_style_t::CEF_CUS_SOLID)
     }
 }
 #[doc = "See [cef_channel_layout_t] for more documentation."]
@@ -51796,7 +51109,7 @@ impl Into<cef_channel_layout_t> for ChannelLayout {
 }
 impl Default for ChannelLayout {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_channel_layout_t::CEF_CHANNEL_LAYOUT_NONE)
     }
 }
 #[doc = "See [cef_media_route_create_result_t] for more documentation."]
@@ -51824,7 +51137,7 @@ impl Into<cef_media_route_create_result_t> for MediaRouteCreateResult {
 }
 impl Default for MediaRouteCreateResult {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_media_route_create_result_t::CEF_MRCR_UNKNOWN_ERROR)
     }
 }
 #[doc = "See [cef_media_route_connection_state_t] for more documentation."]
@@ -51852,7 +51165,7 @@ impl Into<cef_media_route_connection_state_t> for MediaRouteConnectionState {
 }
 impl Default for MediaRouteConnectionState {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_media_route_connection_state_t::CEF_MRCS_UNKNOWN)
     }
 }
 #[doc = "See [cef_media_sink_icon_type_t] for more documentation."]
@@ -51880,7 +51193,7 @@ impl Into<cef_media_sink_icon_type_t> for MediaSinkIconType {
 }
 impl Default for MediaSinkIconType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_media_sink_icon_type_t::CEF_MSIT_CAST)
     }
 }
 #[doc = "See [cef_text_field_commands_t] for more documentation."]
@@ -51908,7 +51221,7 @@ impl Into<cef_text_field_commands_t> for TextFieldCommands {
 }
 impl Default for TextFieldCommands {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_text_field_commands_t::CEF_TFC_CUT)
     }
 }
 #[doc = "See [cef_chrome_toolbar_type_t] for more documentation."]
@@ -51936,7 +51249,7 @@ impl Into<cef_chrome_toolbar_type_t> for ChromeToolbarType {
 }
 impl Default for ChromeToolbarType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_chrome_toolbar_type_t::CEF_CTT_NONE)
     }
 }
 #[doc = "See [cef_chrome_page_action_icon_type_t] for more documentation."]
@@ -51964,7 +51277,7 @@ impl Into<cef_chrome_page_action_icon_type_t> for ChromePageActionIconType {
 }
 impl Default for ChromePageActionIconType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_chrome_page_action_icon_type_t::CEF_CPAIT_BOOKMARK_STAR)
     }
 }
 #[doc = "See [cef_chrome_toolbar_button_type_t] for more documentation."]
@@ -51992,7 +51305,7 @@ impl Into<cef_chrome_toolbar_button_type_t> for ChromeToolbarButtonType {
 }
 impl Default for ChromeToolbarButtonType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_chrome_toolbar_button_type_t::CEF_CTBT_CAST)
     }
 }
 #[doc = "See [cef_docking_mode_t] for more documentation."]
@@ -52020,7 +51333,7 @@ impl Into<cef_docking_mode_t> for DockingMode {
 }
 impl Default for DockingMode {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_docking_mode_t::CEF_DOCKING_MODE_TOP_LEFT)
     }
 }
 #[doc = "See [cef_show_state_t] for more documentation."]
@@ -52048,7 +51361,7 @@ impl Into<cef_show_state_t> for ShowState {
 }
 impl Default for ShowState {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_show_state_t::CEF_SHOW_STATE_NORMAL)
     }
 }
 #[doc = "See [cef_touch_handle_state_flags_t] for more documentation."]
@@ -52076,7 +51389,7 @@ impl Into<cef_touch_handle_state_flags_t> for TouchHandleStateFlags {
 }
 impl Default for TouchHandleStateFlags {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_touch_handle_state_flags_t::CEF_THS_FLAG_NONE)
     }
 }
 #[doc = "See [cef_media_access_permission_types_t] for more documentation."]
@@ -52104,7 +51417,7 @@ impl Into<cef_media_access_permission_types_t> for MediaAccessPermissionTypes {
 }
 impl Default for MediaAccessPermissionTypes {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_media_access_permission_types_t::CEF_MEDIA_PERMISSION_NONE)
     }
 }
 #[doc = "See [cef_permission_request_types_t] for more documentation."]
@@ -52132,7 +51445,7 @@ impl Into<cef_permission_request_types_t> for PermissionRequestTypes {
 }
 impl Default for PermissionRequestTypes {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_permission_request_types_t::CEF_PERMISSION_TYPE_NONE)
     }
 }
 #[doc = "See [cef_permission_request_result_t] for more documentation."]
@@ -52160,7 +51473,7 @@ impl Into<cef_permission_request_result_t> for PermissionRequestResult {
 }
 impl Default for PermissionRequestResult {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_permission_request_result_t::CEF_PERMISSION_RESULT_ACCEPT)
     }
 }
 #[doc = "See [cef_test_cert_type_t] for more documentation."]
@@ -52188,7 +51501,7 @@ impl Into<cef_test_cert_type_t> for TestCertType {
 }
 impl Default for TestCertType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_test_cert_type_t::CEF_TEST_CERT_OK_IP)
     }
 }
 #[doc = "See [cef_preferences_type_t] for more documentation."]
@@ -52216,7 +51529,7 @@ impl Into<cef_preferences_type_t> for PreferencesType {
 }
 impl Default for PreferencesType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_preferences_type_t::CEF_PREFERENCES_TYPE_GLOBAL)
     }
 }
 #[doc = "See [cef_download_interrupt_reason_t] for more documentation."]
@@ -52244,7 +51557,7 @@ impl Into<cef_download_interrupt_reason_t> for DownloadInterruptReason {
 }
 impl Default for DownloadInterruptReason {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_download_interrupt_reason_t::CEF_DOWNLOAD_INTERRUPT_REASON_NONE)
     }
 }
 #[doc = "See [cef_gesture_command_t] for more documentation."]
@@ -52272,7 +51585,7 @@ impl Into<cef_gesture_command_t> for GestureCommand {
 }
 impl Default for GestureCommand {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_gesture_command_t::CEF_GESTURE_COMMAND_BACK)
     }
 }
 #[doc = "See [cef_zoom_command_t] for more documentation."]
@@ -52300,7 +51613,7 @@ impl Into<cef_zoom_command_t> for ZoomCommand {
 }
 impl Default for ZoomCommand {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_zoom_command_t::CEF_ZOOM_COMMAND_OUT)
     }
 }
 #[doc = "See [cef_color_variant_t] for more documentation."]
@@ -52328,7 +51641,7 @@ impl Into<cef_color_variant_t> for ColorVariant {
 }
 impl Default for ColorVariant {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_color_variant_t::CEF_COLOR_VARIANT_SYSTEM)
     }
 }
 #[doc = "See [cef_task_type_t] for more documentation."]
@@ -52356,7 +51669,7 @@ impl Into<cef_task_type_t> for TaskType {
 }
 impl Default for TaskType {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(cef_task_type_t::CEF_TASK_TYPE_UNKNOWN)
     }
 }
 

@@ -217,14 +217,6 @@ impl ImplBrowserViewDelegate for DemoBrowserViewDelegate {
     fn get_raw(&self) -> *mut cef_sys::_cef_browser_view_delegate_t {
         self.0 as *mut cef_sys::_cef_browser_view_delegate_t
     }
-
-    // TODO: make proper Default implementation for enums that cannot be zero-initialized.
-    fn get_chrome_toolbar_type(
-        &self,
-        _browser_view: &mut impl ImplBrowserView,
-    ) -> ChromeToolbarType {
-        cef_sys::cef_chrome_toolbar_type_t::CEF_CTT_NONE.into()
-    }
 }
 
 struct DemoWindow {
@@ -309,11 +301,6 @@ impl ImplWindowDelegate for DemoWindow {
 
     fn get_raw(&self) -> *mut cef_sys::_cef_window_delegate_t {
         self.base as *mut cef_sys::_cef_window_delegate_t
-    }
-
-    // TODO: make proper Default implementation for enums that cannot be zero-initialized.
-    fn get_initial_show_state(&self, _window: &mut impl ImplWindow) -> ShowState {
-        cef_sys::cef_show_state_t::CEF_SHOW_STATE_NORMAL.into()
     }
 }
 
