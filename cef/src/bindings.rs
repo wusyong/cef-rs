@@ -1506,7 +1506,7 @@ mod impl_cef_dev_tools_message_observer_t {
         let (arg_self_, arg_browser, arg_message, arg_message_size) =
             (self_, browser, message, message_size);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_message = (!arg_message.is_null() && arg_message_size > 0).then(|| unsafe {
             std::slice::from_raw_parts(arg_message as *const _, arg_message_size)
         });
@@ -1528,7 +1528,7 @@ mod impl_cef_dev_tools_message_observer_t {
         let (arg_self_, arg_browser, arg_message_id, arg_success, arg_result, arg_result_size) =
             (self_, browser, message_id, success, result, result_size);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_message_id = arg_message_id.as_raw();
         let arg_success = arg_success.as_raw();
         let arg_result = (!arg_result.is_null() && arg_result_size > 0).then(|| unsafe {
@@ -1552,7 +1552,7 @@ mod impl_cef_dev_tools_message_observer_t {
         let (arg_self_, arg_browser, arg_method, arg_params, arg_params_size) =
             (self_, browser, method, params, params_size);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_method = arg_method.into();
         let arg_method = &arg_method;
         let arg_params = (!arg_params.is_null() && arg_params_size > 0).then(|| unsafe {
@@ -1571,7 +1571,7 @@ mod impl_cef_dev_tools_message_observer_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplDevToolsMessageObserver::on_dev_tools_agent_attached(
             &arg_self_.interface,
             arg_browser,
@@ -1583,7 +1583,7 @@ mod impl_cef_dev_tools_message_observer_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplDevToolsMessageObserver::on_dev_tools_agent_detached(
             &arg_self_.interface,
             arg_browser,
@@ -1897,7 +1897,7 @@ mod impl_cef_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut Value(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut Value(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplValue::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -1907,7 +1907,7 @@ mod impl_cef_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut Value(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut Value(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplValue::is_equal(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -2020,7 +2020,7 @@ mod impl_cef_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_value) = (self_, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_value = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut BinaryValue(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplValue::set_binary(&arg_self_.interface, arg_value);
         result.into()
     }
@@ -2030,7 +2030,7 @@ mod impl_cef_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_value) = (self_, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_value = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut DictionaryValue(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplValue::set_dictionary(&arg_self_.interface, arg_value);
         result.into()
     }
@@ -2040,7 +2040,7 @@ mod impl_cef_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_value) = (self_, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_value = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut ListValue(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplValue::set_list(&arg_self_.interface, arg_value);
         result.into()
     }
@@ -2436,7 +2436,7 @@ mod impl_cef_binary_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut BinaryValue(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplBinaryValue::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -2446,7 +2446,7 @@ mod impl_cef_binary_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut BinaryValue(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplBinaryValue::is_equal(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -2827,7 +2827,7 @@ mod impl_cef_dictionary_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut DictionaryValue(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplDictionaryValue::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -2837,7 +2837,7 @@ mod impl_cef_dictionary_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut DictionaryValue(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplDictionaryValue::is_equal(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -3006,7 +3006,7 @@ mod impl_cef_dictionary_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_key = arg_key.into();
         let arg_key = &arg_key;
-        let arg_value = &mut Value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut Value(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplDictionaryValue::set_value(&arg_self_.interface, arg_key, arg_value);
         result.into()
     }
@@ -3083,7 +3083,7 @@ mod impl_cef_dictionary_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_key = arg_key.into();
         let arg_key = &arg_key;
-        let arg_value = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut BinaryValue(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplDictionaryValue::set_binary(&arg_self_.interface, arg_key, arg_value);
         result.into()
     }
@@ -3096,7 +3096,7 @@ mod impl_cef_dictionary_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_key = arg_key.into();
         let arg_key = &arg_key;
-        let arg_value = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut DictionaryValue(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplDictionaryValue::set_dictionary(&arg_self_.interface, arg_key, arg_value);
         result.into()
     }
@@ -3109,7 +3109,7 @@ mod impl_cef_dictionary_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_key = arg_key.into();
         let arg_key = &arg_key;
-        let arg_value = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut ListValue(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplDictionaryValue::set_list(&arg_self_.interface, arg_key, arg_value);
         result.into()
     }
@@ -3735,7 +3735,7 @@ mod impl_cef_list_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut ListValue(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplListValue::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -3745,7 +3745,7 @@ mod impl_cef_list_value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut ListValue(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplListValue::is_equal(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -3882,7 +3882,7 @@ mod impl_cef_list_value_t {
         let (arg_self_, arg_index, arg_value) = (self_, index, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
-        let arg_value = &mut Value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut Value(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplListValue::set_value(&arg_self_.interface, arg_index, arg_value);
         result.into()
     }
@@ -3953,7 +3953,7 @@ mod impl_cef_list_value_t {
         let (arg_self_, arg_index, arg_value) = (self_, index, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
-        let arg_value = &mut BinaryValue(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut BinaryValue(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplListValue::set_binary(&arg_self_.interface, arg_index, arg_value);
         result.into()
     }
@@ -3965,7 +3965,7 @@ mod impl_cef_list_value_t {
         let (arg_self_, arg_index, arg_value) = (self_, index, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
-        let arg_value = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut DictionaryValue(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplListValue::set_dictionary(&arg_self_.interface, arg_index, arg_value);
         result.into()
     }
@@ -3977,7 +3977,7 @@ mod impl_cef_list_value_t {
         let (arg_self_, arg_index, arg_value) = (self_, index, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
-        let arg_value = &mut ListValue(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut ListValue(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplListValue::set_list(&arg_self_.interface, arg_index, arg_value);
         result.into()
     }
@@ -4526,7 +4526,7 @@ mod impl_cef_image_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut Image(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut Image(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplImage::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -6145,7 +6145,7 @@ mod impl_cef_drag_data_t {
     ) -> usize {
         let (arg_self_, arg_writer) = (self_, writer);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_writer = &mut StreamWriter(unsafe { RefGuard::from_raw_add_ref(arg_writer) });
+        let arg_writer = &mut StreamWriter(unsafe { RefGuard::from_raw(arg_writer) });
         let result = ImplDragData::get_file_contents(&arg_self_.interface, arg_writer);
         result.into()
     }
@@ -6685,7 +6685,7 @@ mod impl_cef_domvisitor_t {
     ) {
         let (arg_self_, arg_document) = (self_, document);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_document = &mut Domdocument(unsafe { RefGuard::from_raw_add_ref(arg_document) });
+        let arg_document = &mut Domdocument(unsafe { RefGuard::from_raw(arg_document) });
         let result = ImplDomvisitor::visit(&arg_self_.interface, arg_document);
     }
 }
@@ -7314,7 +7314,7 @@ mod impl_cef_domnode_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut Domnode(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut Domnode(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplDomnode::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -8378,7 +8378,7 @@ mod impl_cef_request_t {
     ) {
         let (arg_self_, arg_post_data) = (self_, post_data);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_post_data = &mut PostData(unsafe { RefGuard::from_raw_add_ref(arg_post_data) });
+        let arg_post_data = &mut PostData(unsafe { RefGuard::from_raw(arg_post_data) });
         let result = ImplRequest::set_post_data(&arg_self_.interface, arg_post_data);
     }
     extern "C" fn get_header_map<I: ImplRequest>(
@@ -8446,7 +8446,7 @@ mod impl_cef_request_t {
         let arg_url = &arg_url;
         let arg_method = arg_method.into();
         let arg_method = &arg_method;
-        let arg_post_data = &mut PostData(unsafe { RefGuard::from_raw_add_ref(arg_post_data) });
+        let arg_post_data = &mut PostData(unsafe { RefGuard::from_raw(arg_post_data) });
         let mut arg_header_map = arg_header_map.into();
         let arg_header_map = &mut arg_header_map;
         let result = ImplRequest::set(
@@ -8950,7 +8950,7 @@ mod impl_cef_post_data_t {
                     if arg.is_null() {
                         None
                     } else {
-                        Some(PostDataElement(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                        Some(PostDataElement(unsafe { RefGuard::from_raw(*arg) }))
                     }
                 })
                 .collect::<Vec<_>>()
@@ -8969,7 +8969,7 @@ mod impl_cef_post_data_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_element) = (self_, element);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_element = &mut PostDataElement(unsafe { RefGuard::from_raw_add_ref(arg_element) });
+        let arg_element = &mut PostDataElement(unsafe { RefGuard::from_raw(arg_element) });
         let result = ImplPostData::remove_element(&arg_self_.interface, arg_element);
         result.into()
     }
@@ -8979,7 +8979,7 @@ mod impl_cef_post_data_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_element) = (self_, element);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_element = &mut PostDataElement(unsafe { RefGuard::from_raw_add_ref(arg_element) });
+        let arg_element = &mut PostDataElement(unsafe { RefGuard::from_raw(arg_element) });
         let result = ImplPostData::add_element(&arg_self_.interface, arg_element);
         result.into()
     }
@@ -9689,7 +9689,7 @@ mod impl_cef_frame_t {
     ) {
         let (arg_self_, arg_visitor) = (self_, visitor);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_visitor = &mut CefStringVisitor(unsafe { RefGuard::from_raw_add_ref(arg_visitor) });
+        let arg_visitor = &mut CefStringVisitor(unsafe { RefGuard::from_raw(arg_visitor) });
         let result = ImplFrame::get_source(&arg_self_.interface, arg_visitor);
     }
     extern "C" fn get_text<I: ImplFrame>(
@@ -9698,7 +9698,7 @@ mod impl_cef_frame_t {
     ) {
         let (arg_self_, arg_visitor) = (self_, visitor);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_visitor = &mut CefStringVisitor(unsafe { RefGuard::from_raw_add_ref(arg_visitor) });
+        let arg_visitor = &mut CefStringVisitor(unsafe { RefGuard::from_raw(arg_visitor) });
         let result = ImplFrame::get_text(&arg_self_.interface, arg_visitor);
     }
     extern "C" fn load_request<I: ImplFrame>(
@@ -9707,7 +9707,7 @@ mod impl_cef_frame_t {
     ) {
         let (arg_self_, arg_request) = (self_, request);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let result = ImplFrame::load_request(&arg_self_.interface, arg_request);
     }
     extern "C" fn load_url<I: ImplFrame>(
@@ -9797,7 +9797,7 @@ mod impl_cef_frame_t {
     ) {
         let (arg_self_, arg_visitor) = (self_, visitor);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_visitor = &mut Domvisitor(unsafe { RefGuard::from_raw_add_ref(arg_visitor) });
+        let arg_visitor = &mut Domvisitor(unsafe { RefGuard::from_raw(arg_visitor) });
         let result = ImplFrame::visit_dom(&arg_self_.interface, arg_visitor);
     }
     extern "C" fn create_urlrequest<I: ImplFrame>(
@@ -9807,8 +9807,8 @@ mod impl_cef_frame_t {
     ) -> *mut _cef_urlrequest_t {
         let (arg_self_, arg_request, arg_client) = (self_, request, client);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
-        let arg_client = &mut UrlrequestClient(unsafe { RefGuard::from_raw_add_ref(arg_client) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
+        let arg_client = &mut UrlrequestClient(unsafe { RefGuard::from_raw(arg_client) });
         let result = ImplFrame::create_urlrequest(&arg_self_.interface, arg_request, arg_client);
         result.into()
     }
@@ -9820,7 +9820,7 @@ mod impl_cef_frame_t {
         let (arg_self_, arg_target_process, arg_message) = (self_, target_process, message);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_target_process = arg_target_process.as_raw();
-        let arg_message = &mut ProcessMessage(unsafe { RefGuard::from_raw_add_ref(arg_message) });
+        let arg_message = &mut ProcessMessage(unsafe { RefGuard::from_raw(arg_message) });
         let result =
             ImplFrame::send_process_message(&arg_self_.interface, arg_target_process, arg_message);
     }
@@ -10583,7 +10583,7 @@ mod impl_cef_x509certificate_t {
                     if arg.is_null() {
                         None
                     } else {
-                        Some(BinaryValue(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                        Some(BinaryValue(unsafe { RefGuard::from_raw(*arg) }))
                     }
                 })
                 .collect::<Vec<_>>()
@@ -10616,7 +10616,7 @@ mod impl_cef_x509certificate_t {
                     if arg.is_null() {
                         None
                     } else {
-                        Some(BinaryValue(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                        Some(BinaryValue(unsafe { RefGuard::from_raw(*arg) }))
                     }
                 })
                 .collect::<Vec<_>>()
@@ -11617,7 +11617,7 @@ mod impl_cef_cookie_manager_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_visitor) = (self_, visitor);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_visitor = &mut CookieVisitor(unsafe { RefGuard::from_raw_add_ref(arg_visitor) });
+        let arg_visitor = &mut CookieVisitor(unsafe { RefGuard::from_raw(arg_visitor) });
         let result = ImplCookieManager::visit_all_cookies(&arg_self_.interface, arg_visitor);
         result.into()
     }
@@ -11633,7 +11633,7 @@ mod impl_cef_cookie_manager_t {
         let arg_url = arg_url.into();
         let arg_url = &arg_url;
         let arg_include_http_only = arg_include_http_only.as_raw();
-        let arg_visitor = &mut CookieVisitor(unsafe { RefGuard::from_raw_add_ref(arg_visitor) });
+        let arg_visitor = &mut CookieVisitor(unsafe { RefGuard::from_raw(arg_visitor) });
         let result = ImplCookieManager::visit_url_cookies(
             &arg_self_.interface,
             arg_url,
@@ -11654,8 +11654,7 @@ mod impl_cef_cookie_manager_t {
         let arg_url = &arg_url;
         let arg_cookie = WrapParamRef::<Cookie>::from(arg_cookie);
         let arg_cookie = arg_cookie.as_ref();
-        let arg_callback =
-            &mut SetCookieCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut SetCookieCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result =
             ImplCookieManager::set_cookie(&arg_self_.interface, arg_url, arg_cookie, arg_callback);
         result.into()
@@ -11673,8 +11672,7 @@ mod impl_cef_cookie_manager_t {
         let arg_url = &arg_url;
         let arg_cookie_name = arg_cookie_name.into();
         let arg_cookie_name = &arg_cookie_name;
-        let arg_callback =
-            &mut DeleteCookiesCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut DeleteCookiesCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplCookieManager::delete_cookies(
             &arg_self_.interface,
             arg_url,
@@ -11689,8 +11687,7 @@ mod impl_cef_cookie_manager_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_callback) = (self_, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_callback =
-            &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut CompletionCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplCookieManager::flush_store(&arg_self_.interface, arg_callback);
         result.into()
     }
@@ -12162,7 +12159,7 @@ mod impl_cef_media_router_t {
     ) -> *mut _cef_registration_t {
         let (arg_self_, arg_observer) = (self_, observer);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_observer = &mut MediaObserver(unsafe { RefGuard::from_raw_add_ref(arg_observer) });
+        let arg_observer = &mut MediaObserver(unsafe { RefGuard::from_raw(arg_observer) });
         let result = ImplMediaRouter::add_observer(&arg_self_.interface, arg_observer);
         result.into()
     }
@@ -12190,10 +12187,10 @@ mod impl_cef_media_router_t {
     ) {
         let (arg_self_, arg_source, arg_sink, arg_callback) = (self_, source, sink, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_source = &mut MediaSource(unsafe { RefGuard::from_raw_add_ref(arg_source) });
-        let arg_sink = &mut MediaSink(unsafe { RefGuard::from_raw_add_ref(arg_sink) });
+        let arg_source = &mut MediaSource(unsafe { RefGuard::from_raw(arg_source) });
+        let arg_sink = &mut MediaSink(unsafe { RefGuard::from_raw(arg_sink) });
         let arg_callback =
-            &mut MediaRouteCreateCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+            &mut MediaRouteCreateCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result =
             ImplMediaRouter::create_route(&arg_self_.interface, arg_source, arg_sink, arg_callback);
     }
@@ -12366,7 +12363,7 @@ mod impl_cef_media_observer_t {
                     if arg.is_null() {
                         None
                     } else {
-                        Some(MediaSink(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                        Some(MediaSink(unsafe { RefGuard::from_raw(*arg) }))
                     }
                 })
                 .collect::<Vec<_>>()
@@ -12389,7 +12386,7 @@ mod impl_cef_media_observer_t {
                     if arg.is_null() {
                         None
                     } else {
-                        Some(MediaRoute(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                        Some(MediaRoute(unsafe { RefGuard::from_raw(*arg) }))
                     }
                 })
                 .collect::<Vec<_>>()
@@ -12404,7 +12401,7 @@ mod impl_cef_media_observer_t {
     ) {
         let (arg_self_, arg_route, arg_state) = (self_, route, state);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_route = &mut MediaRoute(unsafe { RefGuard::from_raw_add_ref(arg_route) });
+        let arg_route = &mut MediaRoute(unsafe { RefGuard::from_raw(arg_route) });
         let arg_state = arg_state.as_raw();
         let result =
             ImplMediaObserver::on_route_state_changed(&arg_self_.interface, arg_route, arg_state);
@@ -12418,7 +12415,7 @@ mod impl_cef_media_observer_t {
         let (arg_self_, arg_route, arg_message, arg_message_size) =
             (self_, route, message, message_size);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_route = &mut MediaRoute(unsafe { RefGuard::from_raw_add_ref(arg_route) });
+        let arg_route = &mut MediaRoute(unsafe { RefGuard::from_raw(arg_route) });
         let arg_message = (!arg_message.is_null() && arg_message_size > 0).then(|| unsafe {
             std::slice::from_raw_parts(arg_message as *const _, arg_message_size)
         });
@@ -12809,7 +12806,7 @@ mod impl_cef_media_route_create_callback_t {
         let arg_result = arg_result.as_raw();
         let arg_error = arg_error.into();
         let arg_error = &arg_error;
-        let arg_route = &mut MediaRoute(unsafe { RefGuard::from_raw_add_ref(arg_route) });
+        let arg_route = &mut MediaRoute(unsafe { RefGuard::from_raw(arg_route) });
         let result = ImplMediaRouteCreateCallback::on_media_route_create_finished(
             &arg_self_.interface,
             arg_result,
@@ -12953,7 +12950,7 @@ mod impl_cef_media_sink_t {
         let (arg_self_, arg_callback) = (self_, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_callback =
-            &mut MediaSinkDeviceInfoCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+            &mut MediaSinkDeviceInfoCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplMediaSink::get_device_info(&arg_self_.interface, arg_callback);
     }
     extern "C" fn is_cast_sink<I: ImplMediaSink>(
@@ -12978,7 +12975,7 @@ mod impl_cef_media_sink_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_source) = (self_, source);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_source = &mut MediaSource(unsafe { RefGuard::from_raw_add_ref(arg_source) });
+        let arg_source = &mut MediaSource(unsafe { RefGuard::from_raw(arg_source) });
         let result = ImplMediaSink::is_compatible_with(&arg_self_.interface, arg_source);
         result.into()
     }
@@ -13465,7 +13462,7 @@ mod impl_cef_preference_manager_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_name = arg_name.into();
         let arg_name = &arg_name;
-        let arg_value = &mut Value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut Value(unsafe { RefGuard::from_raw(arg_value) });
         let mut arg_error = arg_error.into();
         let arg_error = &mut arg_error;
         let result = ImplPreferenceManager::set_preference(
@@ -13818,7 +13815,7 @@ mod impl_cef_request_context_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_other) = (self_, other);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_other = &mut RequestContext(unsafe { RefGuard::from_raw_add_ref(arg_other) });
+        let arg_other = &mut RequestContext(unsafe { RefGuard::from_raw(arg_other) });
         let result = ImplRequestContext::is_same(&arg_self_.interface, arg_other);
         result.into()
     }
@@ -13828,7 +13825,7 @@ mod impl_cef_request_context_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_other) = (self_, other);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_other = &mut RequestContext(unsafe { RefGuard::from_raw_add_ref(arg_other) });
+        let arg_other = &mut RequestContext(unsafe { RefGuard::from_raw(arg_other) });
         let result = ImplRequestContext::is_sharing_with(&arg_self_.interface, arg_other);
         result.into()
     }
@@ -13862,8 +13859,7 @@ mod impl_cef_request_context_t {
     ) -> *mut _cef_cookie_manager_t {
         let (arg_self_, arg_callback) = (self_, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_callback =
-            &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut CompletionCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplRequestContext::get_cookie_manager(&arg_self_.interface, arg_callback);
         result.into()
     }
@@ -13880,8 +13876,7 @@ mod impl_cef_request_context_t {
         let arg_scheme_name = &arg_scheme_name;
         let arg_domain_name = arg_domain_name.into();
         let arg_domain_name = &arg_domain_name;
-        let arg_factory =
-            &mut SchemeHandlerFactory(unsafe { RefGuard::from_raw_add_ref(arg_factory) });
+        let arg_factory = &mut SchemeHandlerFactory(unsafe { RefGuard::from_raw(arg_factory) });
         let result = ImplRequestContext::register_scheme_handler_factory(
             &arg_self_.interface,
             arg_scheme_name,
@@ -13904,8 +13899,7 @@ mod impl_cef_request_context_t {
     ) {
         let (arg_self_, arg_callback) = (self_, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_callback =
-            &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut CompletionCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result =
             ImplRequestContext::clear_certificate_exceptions(&arg_self_.interface, arg_callback);
     }
@@ -13915,8 +13909,7 @@ mod impl_cef_request_context_t {
     ) {
         let (arg_self_, arg_callback) = (self_, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_callback =
-            &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut CompletionCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result =
             ImplRequestContext::clear_http_auth_credentials(&arg_self_.interface, arg_callback);
     }
@@ -13926,8 +13919,7 @@ mod impl_cef_request_context_t {
     ) {
         let (arg_self_, arg_callback) = (self_, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_callback =
-            &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut CompletionCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplRequestContext::close_all_connections(&arg_self_.interface, arg_callback);
     }
     extern "C" fn resolve_host<I: ImplRequestContext>(
@@ -13939,8 +13931,7 @@ mod impl_cef_request_context_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_origin = arg_origin.into();
         let arg_origin = &arg_origin;
-        let arg_callback =
-            &mut ResolveCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut ResolveCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result =
             ImplRequestContext::resolve_host(&arg_self_.interface, arg_origin, arg_callback);
     }
@@ -13950,8 +13941,7 @@ mod impl_cef_request_context_t {
     ) -> *mut _cef_media_router_t {
         let (arg_self_, arg_callback) = (self_, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_callback =
-            &mut CompletionCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut CompletionCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplRequestContext::get_media_router(&arg_self_.interface, arg_callback);
         result.into()
     }
@@ -13992,7 +13982,7 @@ mod impl_cef_request_context_t {
         let arg_top_level_url = arg_top_level_url.into();
         let arg_top_level_url = &arg_top_level_url;
         let arg_content_type = arg_content_type.as_raw();
-        let arg_value = &mut Value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut Value(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplRequestContext::set_website_setting(
             &arg_self_.interface,
             arg_requesting_url,
@@ -14685,7 +14675,7 @@ mod impl_cef_browser_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut Browser(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplBrowser::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -15194,7 +15184,7 @@ mod impl_cef_navigation_entry_visitor_t {
         let (arg_self_, arg_entry, arg_current, arg_index, arg_total) =
             (self_, entry, current, index, total);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_entry = &mut NavigationEntry(unsafe { RefGuard::from_raw_add_ref(arg_entry) });
+        let arg_entry = &mut NavigationEntry(unsafe { RefGuard::from_raw(arg_entry) });
         let arg_current = arg_current.as_raw();
         let arg_index = arg_index.as_raw();
         let arg_total = arg_total.as_raw();
@@ -15396,7 +15386,7 @@ mod impl_cef_download_image_callback_t {
         let arg_image_url = arg_image_url.into();
         let arg_image_url = &arg_image_url;
         let arg_http_status_code = arg_http_status_code.as_raw();
-        let arg_image = &mut Image(unsafe { RefGuard::from_raw_add_ref(arg_image) });
+        let arg_image = &mut Image(unsafe { RefGuard::from_raw(arg_image) });
         let result = ImplDownloadImageCallback::on_download_image_finished(
             &arg_self_.interface,
             arg_image_url,
@@ -16005,8 +15995,7 @@ mod impl_cef_browser_host_t {
         let arg_default_file_path = &arg_default_file_path;
         let mut arg_accept_filters = arg_accept_filters.into();
         let arg_accept_filters = &mut arg_accept_filters;
-        let arg_callback =
-            &mut RunFileDialogCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut RunFileDialogCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplBrowserHost::run_file_dialog(
             &arg_self_.interface,
             arg_mode,
@@ -16055,8 +16044,7 @@ mod impl_cef_browser_host_t {
         let arg_is_favicon = arg_is_favicon.as_raw();
         let arg_max_image_size = arg_max_image_size.as_raw();
         let arg_bypass_cache = arg_bypass_cache.as_raw();
-        let arg_callback =
-            &mut DownloadImageCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut DownloadImageCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplBrowserHost::download_image(
             &arg_self_.interface,
             arg_image_url,
@@ -16083,8 +16071,7 @@ mod impl_cef_browser_host_t {
         let arg_path = &arg_path;
         let arg_settings = WrapParamRef::<PdfPrintSettings>::from(arg_settings);
         let arg_settings = arg_settings.as_ref();
-        let arg_callback =
-            &mut PdfPrintCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut PdfPrintCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplBrowserHost::print_to_pdf(
             &arg_self_.interface,
             arg_path,
@@ -16136,7 +16123,7 @@ mod impl_cef_browser_host_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_window_info = WrapParamRef::<WindowInfo>::from(arg_window_info);
         let arg_window_info = arg_window_info.as_ref();
-        let arg_client = &mut Client(unsafe { RefGuard::from_raw_add_ref(arg_client) });
+        let arg_client = &mut Client(unsafe { RefGuard::from_raw(arg_client) });
         let arg_settings = WrapParamRef::<BrowserSettings>::from(arg_settings);
         let arg_settings = arg_settings.as_ref();
         let arg_inspect_element_at = WrapParamRef::<Point>::from(arg_inspect_element_at);
@@ -16187,7 +16174,7 @@ mod impl_cef_browser_host_t {
         let arg_message_id = arg_message_id.as_raw();
         let arg_method = arg_method.into();
         let arg_method = &arg_method;
-        let arg_params = &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(arg_params) });
+        let arg_params = &mut DictionaryValue(unsafe { RefGuard::from_raw(arg_params) });
         let result = ImplBrowserHost::execute_dev_tools_method(
             &arg_self_.interface,
             arg_message_id,
@@ -16203,7 +16190,7 @@ mod impl_cef_browser_host_t {
         let (arg_self_, arg_observer) = (self_, observer);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_observer =
-            &mut DevToolsMessageObserver(unsafe { RefGuard::from_raw_add_ref(arg_observer) });
+            &mut DevToolsMessageObserver(unsafe { RefGuard::from_raw(arg_observer) });
         let result =
             ImplBrowserHost::add_dev_tools_message_observer(&arg_self_.interface, arg_observer);
         result.into()
@@ -16215,8 +16202,7 @@ mod impl_cef_browser_host_t {
     ) {
         let (arg_self_, arg_visitor, arg_current_only) = (self_, visitor, current_only);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_visitor =
-            &mut NavigationEntryVisitor(unsafe { RefGuard::from_raw_add_ref(arg_visitor) });
+        let arg_visitor = &mut NavigationEntryVisitor(unsafe { RefGuard::from_raw(arg_visitor) });
         let arg_current_only = arg_current_only.as_raw();
         let result = ImplBrowserHost::get_navigation_entries(
             &arg_self_.interface,
@@ -16480,7 +16466,7 @@ mod impl_cef_browser_host_t {
         let (arg_self_, arg_drag_data, arg_event, arg_allowed_ops) =
             (self_, drag_data, event, allowed_ops);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_drag_data = &mut DragData(unsafe { RefGuard::from_raw_add_ref(arg_drag_data) });
+        let arg_drag_data = &mut DragData(unsafe { RefGuard::from_raw(arg_drag_data) });
         let arg_event = WrapParamRef::<MouseEvent>::from(arg_event);
         let arg_event = arg_event.as_ref();
         let arg_allowed_ops = arg_allowed_ops.as_raw();
@@ -17889,7 +17875,7 @@ mod impl_cef_audio_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_params) = (self_, browser, params);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let mut arg_params = WrapParamRef::<AudioParameters>::from(arg_params);
         let arg_params = arg_params.as_mut();
         let result =
@@ -17904,7 +17890,7 @@ mod impl_cef_audio_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_params, arg_channels) = (self_, browser, params, channels);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_params = WrapParamRef::<AudioParameters>::from(arg_params);
         let arg_params = arg_params.as_ref();
         let arg_channels = arg_channels.as_raw();
@@ -17925,7 +17911,7 @@ mod impl_cef_audio_handler_t {
         let (arg_self_, arg_browser, arg_data, arg_frames, arg_pts) =
             (self_, browser, data, frames, pts);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_data = arg_data.as_raw();
         let arg_frames = arg_frames.as_raw();
         let arg_pts = arg_pts.as_raw();
@@ -17943,7 +17929,7 @@ mod impl_cef_audio_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplAudioHandler::on_audio_stream_stopped(&arg_self_.interface, arg_browser);
     }
     extern "C" fn on_audio_stream_error<I: ImplAudioHandler>(
@@ -17953,7 +17939,7 @@ mod impl_cef_audio_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_message) = (self_, browser, message);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_message = arg_message.into();
         let arg_message = &arg_message;
         let result =
@@ -18157,7 +18143,7 @@ mod impl_cef_command_handler_t {
         let (arg_self_, arg_browser, arg_command_id, arg_disposition) =
             (self_, browser, command_id, disposition);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_command_id = arg_command_id.as_raw();
         let arg_disposition = arg_disposition.as_raw();
         let result = ImplCommandHandler::on_chrome_command(
@@ -18175,7 +18161,7 @@ mod impl_cef_command_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_command_id) = (self_, browser, command_id);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_command_id = arg_command_id.as_raw();
         let result = ImplCommandHandler::is_chrome_app_menu_item_visible(
             &arg_self_.interface,
@@ -18191,7 +18177,7 @@ mod impl_cef_command_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_command_id) = (self_, browser, command_id);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_command_id = arg_command_id.as_raw();
         let result = ImplCommandHandler::is_chrome_app_menu_item_enabled(
             &arg_self_.interface,
@@ -18430,7 +18416,7 @@ mod impl_cef_menu_model_delegate_t {
         let (arg_self_, arg_menu_model, arg_command_id, arg_event_flags) =
             (self_, menu_model, command_id, event_flags);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_menu_model) });
         let arg_command_id = arg_command_id.as_raw();
         let arg_event_flags = arg_event_flags.as_raw();
         let result = ImplMenuModelDelegate::execute_command(
@@ -18447,7 +18433,7 @@ mod impl_cef_menu_model_delegate_t {
     ) {
         let (arg_self_, arg_menu_model, arg_screen_point) = (self_, menu_model, screen_point);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_menu_model) });
         let arg_screen_point = WrapParamRef::<Point>::from(arg_screen_point);
         let arg_screen_point = arg_screen_point.as_ref();
         let result = ImplMenuModelDelegate::mouse_outside_menu(
@@ -18463,7 +18449,7 @@ mod impl_cef_menu_model_delegate_t {
     ) {
         let (arg_self_, arg_menu_model, arg_is_rtl) = (self_, menu_model, is_rtl);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_menu_model) });
         let arg_is_rtl = arg_is_rtl.as_raw();
         let result = ImplMenuModelDelegate::unhandled_open_submenu(
             &arg_self_.interface,
@@ -18478,7 +18464,7 @@ mod impl_cef_menu_model_delegate_t {
     ) {
         let (arg_self_, arg_menu_model, arg_is_rtl) = (self_, menu_model, is_rtl);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_menu_model) });
         let arg_is_rtl = arg_is_rtl.as_raw();
         let result = ImplMenuModelDelegate::unhandled_close_submenu(
             &arg_self_.interface,
@@ -18492,7 +18478,7 @@ mod impl_cef_menu_model_delegate_t {
     ) {
         let (arg_self_, arg_menu_model) = (self_, menu_model);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_menu_model) });
         let result = ImplMenuModelDelegate::menu_will_show(&arg_self_.interface, arg_menu_model);
     }
     extern "C" fn menu_closed<I: ImplMenuModelDelegate>(
@@ -18501,7 +18487,7 @@ mod impl_cef_menu_model_delegate_t {
     ) {
         let (arg_self_, arg_menu_model) = (self_, menu_model);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_menu_model) });
         let result = ImplMenuModelDelegate::menu_closed(&arg_self_.interface, arg_menu_model);
     }
     extern "C" fn format_label<I: ImplMenuModelDelegate>(
@@ -18511,7 +18497,7 @@ mod impl_cef_menu_model_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_menu_model, arg_label) = (self_, menu_model, label);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_menu_model) });
         let mut arg_label = arg_label.into();
         let arg_label = &mut arg_label;
         let result =
@@ -21235,10 +21221,10 @@ mod impl_cef_context_menu_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_params, arg_model) =
             (self_, browser, frame, params, model);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_params = &mut ContextMenuParams(unsafe { RefGuard::from_raw_add_ref(arg_params) });
-        let arg_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_model) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_params = &mut ContextMenuParams(unsafe { RefGuard::from_raw(arg_params) });
+        let arg_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_model) });
         let result = ImplContextMenuHandler::on_before_context_menu(
             &arg_self_.interface,
             arg_browser,
@@ -21258,12 +21244,11 @@ mod impl_cef_context_menu_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_params, arg_model, arg_callback) =
             (self_, browser, frame, params, model, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_params = &mut ContextMenuParams(unsafe { RefGuard::from_raw_add_ref(arg_params) });
-        let arg_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_model) });
-        let arg_callback =
-            &mut RunContextMenuCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_params = &mut ContextMenuParams(unsafe { RefGuard::from_raw(arg_params) });
+        let arg_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_model) });
+        let arg_callback = &mut RunContextMenuCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplContextMenuHandler::run_context_menu(
             &arg_self_.interface,
             arg_browser,
@@ -21285,9 +21270,9 @@ mod impl_cef_context_menu_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_params, arg_command_id, arg_event_flags) =
             (self_, browser, frame, params, command_id, event_flags);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_params = &mut ContextMenuParams(unsafe { RefGuard::from_raw_add_ref(arg_params) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_params = &mut ContextMenuParams(unsafe { RefGuard::from_raw(arg_params) });
         let arg_command_id = arg_command_id.as_raw();
         let arg_event_flags = arg_event_flags.as_raw();
         let result = ImplContextMenuHandler::on_context_menu_command(
@@ -21307,8 +21292,8 @@ mod impl_cef_context_menu_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_frame) = (self_, browser, frame);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let result = ImplContextMenuHandler::on_context_menu_dismissed(
             &arg_self_.interface,
             arg_browser,
@@ -21342,15 +21327,14 @@ mod impl_cef_context_menu_handler_t {
             callback,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_location = WrapParamRef::<Point>::from(arg_location);
         let arg_location = arg_location.as_ref();
         let arg_size = WrapParamRef::<Size>::from(arg_size);
         let arg_size = arg_size.as_ref();
         let arg_edit_state_flags = arg_edit_state_flags.as_raw();
-        let arg_callback =
-            &mut RunQuickMenuCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut RunQuickMenuCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplContextMenuHandler::run_quick_menu(
             &arg_self_.interface,
             arg_browser,
@@ -21372,8 +21356,8 @@ mod impl_cef_context_menu_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_command_id, arg_event_flags) =
             (self_, browser, frame, command_id, event_flags);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_command_id = arg_command_id.as_raw();
         let arg_event_flags = arg_event_flags.as_raw();
         let result = ImplContextMenuHandler::on_quick_menu_command(
@@ -21392,8 +21376,8 @@ mod impl_cef_context_menu_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_frame) = (self_, browser, frame);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let result = ImplContextMenuHandler::on_quick_menu_dismissed(
             &arg_self_.interface,
             arg_browser,
@@ -22350,7 +22334,7 @@ mod impl_cef_dialog_handler_t {
             callback,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_mode = arg_mode.as_raw();
         let arg_title = arg_title.into();
         let arg_title = &arg_title;
@@ -22362,8 +22346,7 @@ mod impl_cef_dialog_handler_t {
         let arg_accept_extensions = &mut arg_accept_extensions;
         let mut arg_accept_descriptions = arg_accept_descriptions.into();
         let arg_accept_descriptions = &mut arg_accept_descriptions;
-        let arg_callback =
-            &mut FileDialogCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut FileDialogCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplDialogHandler::on_file_dialog(
             &arg_self_.interface,
             arg_browser,
@@ -22579,8 +22562,8 @@ mod impl_cef_display_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_frame, arg_url) = (self_, browser, frame, url);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_url = arg_url.into();
         let arg_url = &arg_url;
         let result = ImplDisplayHandler::on_address_change(
@@ -22597,7 +22580,7 @@ mod impl_cef_display_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_title) = (self_, browser, title);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_title = arg_title.into();
         let arg_title = &arg_title;
         let result =
@@ -22610,7 +22593,7 @@ mod impl_cef_display_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_icon_urls) = (self_, browser, icon_urls);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let mut arg_icon_urls = arg_icon_urls.into();
         let arg_icon_urls = &mut arg_icon_urls;
         let result = ImplDisplayHandler::on_favicon_urlchange(
@@ -22626,7 +22609,7 @@ mod impl_cef_display_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_fullscreen) = (self_, browser, fullscreen);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_fullscreen = arg_fullscreen.as_raw();
         let result = ImplDisplayHandler::on_fullscreen_mode_change(
             &arg_self_.interface,
@@ -22641,7 +22624,7 @@ mod impl_cef_display_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_text) = (self_, browser, text);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let mut arg_text = arg_text.into();
         let arg_text = &mut arg_text;
         let result = ImplDisplayHandler::on_tooltip(&arg_self_.interface, arg_browser, arg_text);
@@ -22654,7 +22637,7 @@ mod impl_cef_display_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_value) = (self_, browser, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_value = arg_value.into();
         let arg_value = &arg_value;
         let result =
@@ -22671,7 +22654,7 @@ mod impl_cef_display_handler_t {
         let (arg_self_, arg_browser, arg_level, arg_message, arg_source, arg_line) =
             (self_, browser, level, message, source, line);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_level = arg_level.as_raw();
         let arg_message = arg_message.into();
         let arg_message = &arg_message;
@@ -22695,7 +22678,7 @@ mod impl_cef_display_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_new_size) = (self_, browser, new_size);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_new_size = WrapParamRef::<Size>::from(arg_new_size);
         let arg_new_size = arg_new_size.as_ref();
         let result =
@@ -22709,7 +22692,7 @@ mod impl_cef_display_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_progress) = (self_, browser, progress);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_progress = arg_progress.as_raw();
         let result = ImplDisplayHandler::on_loading_progress_change(
             &arg_self_.interface,
@@ -22727,7 +22710,7 @@ mod impl_cef_display_handler_t {
         let (arg_self_, arg_browser, arg_cursor, arg_type_, arg_custom_cursor_info) =
             (self_, browser, cursor, type_, custom_cursor_info);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_cursor = arg_cursor.as_raw();
         let arg_type_ = arg_type_.as_raw();
         let arg_custom_cursor_info = WrapParamRef::<CursorInfo>::from(arg_custom_cursor_info);
@@ -22750,7 +22733,7 @@ mod impl_cef_display_handler_t {
         let (arg_self_, arg_browser, arg_has_video_access, arg_has_audio_access) =
             (self_, browser, has_video_access, has_audio_access);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_has_video_access = arg_has_video_access.as_raw();
         let arg_has_audio_access = arg_has_audio_access.as_raw();
         let result = ImplDisplayHandler::on_media_access_change(
@@ -23800,7 +23783,7 @@ mod impl_cef_download_handler_t {
         let (arg_self_, arg_browser, arg_url, arg_request_method) =
             (self_, browser, url, request_method);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_url = arg_url.into();
         let arg_url = &arg_url;
         let arg_request_method = arg_request_method.into();
@@ -23823,13 +23806,11 @@ mod impl_cef_download_handler_t {
         let (arg_self_, arg_browser, arg_download_item, arg_suggested_name, arg_callback) =
             (self_, browser, download_item, suggested_name, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_download_item =
-            &mut DownloadItem(unsafe { RefGuard::from_raw_add_ref(arg_download_item) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_download_item = &mut DownloadItem(unsafe { RefGuard::from_raw(arg_download_item) });
         let arg_suggested_name = arg_suggested_name.into();
         let arg_suggested_name = &arg_suggested_name;
-        let arg_callback =
-            &mut BeforeDownloadCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut BeforeDownloadCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplDownloadHandler::on_before_download(
             &arg_self_.interface,
             arg_browser,
@@ -23848,11 +23829,9 @@ mod impl_cef_download_handler_t {
         let (arg_self_, arg_browser, arg_download_item, arg_callback) =
             (self_, browser, download_item, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_download_item =
-            &mut DownloadItem(unsafe { RefGuard::from_raw_add_ref(arg_download_item) });
-        let arg_callback =
-            &mut DownloadItemCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_download_item = &mut DownloadItem(unsafe { RefGuard::from_raw(arg_download_item) });
+        let arg_callback = &mut DownloadItemCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplDownloadHandler::on_download_updated(
             &arg_self_.interface,
             arg_browser,
@@ -24016,8 +23995,8 @@ mod impl_cef_drag_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_drag_data, arg_mask) = (self_, browser, drag_data, mask);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_drag_data = &mut DragData(unsafe { RefGuard::from_raw_add_ref(arg_drag_data) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_drag_data = &mut DragData(unsafe { RefGuard::from_raw(arg_drag_data) });
         let arg_mask = arg_mask.as_raw();
         let result = ImplDragHandler::on_drag_enter(
             &arg_self_.interface,
@@ -24037,8 +24016,8 @@ mod impl_cef_drag_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_regions_count, arg_regions) =
             (self_, browser, frame, regions_count, regions);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_regions_count = arg_regions_count.as_raw();
         let arg_regions = WrapParamRef::<DraggableRegion>::from(arg_regions);
         let arg_regions = arg_regions.as_ref();
@@ -24197,7 +24176,7 @@ mod impl_cef_find_handler_t {
             final_update,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_identifier = arg_identifier.as_raw();
         let arg_count = arg_count.as_raw();
         let arg_selection_rect = WrapParamRef::<Rect>::from(arg_selection_rect);
@@ -24343,7 +24322,7 @@ mod impl_cef_focus_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_next) = (self_, browser, next);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_next = arg_next.as_raw();
         let result = ImplFocusHandler::on_take_focus(&arg_self_.interface, arg_browser, arg_next);
     }
@@ -24354,7 +24333,7 @@ mod impl_cef_focus_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_source) = (self_, browser, source);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_source = arg_source.as_raw();
         let result = ImplFocusHandler::on_set_focus(&arg_self_.interface, arg_browser, arg_source);
         result.into()
@@ -24365,7 +24344,7 @@ mod impl_cef_focus_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplFocusHandler::on_got_focus(&arg_self_.interface, arg_browser);
     }
 }
@@ -24509,8 +24488,8 @@ mod impl_cef_frame_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_frame) = (self_, browser, frame);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let result =
             ImplFrameHandler::on_frame_created(&arg_self_.interface, arg_browser, arg_frame);
     }
@@ -24521,8 +24500,8 @@ mod impl_cef_frame_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_frame) = (self_, browser, frame);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let result =
             ImplFrameHandler::on_frame_destroyed(&arg_self_.interface, arg_browser, arg_frame);
     }
@@ -24535,8 +24514,8 @@ mod impl_cef_frame_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_reattached) =
             (self_, browser, frame, reattached);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_reattached = arg_reattached.as_raw();
         let result = ImplFrameHandler::on_frame_attached(
             &arg_self_.interface,
@@ -24552,8 +24531,8 @@ mod impl_cef_frame_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_frame) = (self_, browser, frame);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let result =
             ImplFrameHandler::on_frame_detached(&arg_self_.interface, arg_browser, arg_frame);
     }
@@ -24566,9 +24545,9 @@ mod impl_cef_frame_handler_t {
         let (arg_self_, arg_browser, arg_old_frame, arg_new_frame) =
             (self_, browser, old_frame, new_frame);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_old_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_old_frame) });
-        let arg_new_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_new_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_old_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_old_frame) });
+        let arg_new_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_new_frame) });
         let result = ImplFrameHandler::on_main_frame_changed(
             &arg_self_.interface,
             arg_browser,
@@ -24868,7 +24847,7 @@ mod impl_cef_jsdialog_handler_t {
             suppress_message,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_origin_url = arg_origin_url.into();
         let arg_origin_url = &arg_origin_url;
         let arg_dialog_type = arg_dialog_type.as_raw();
@@ -24876,8 +24855,7 @@ mod impl_cef_jsdialog_handler_t {
         let arg_message_text = &arg_message_text;
         let arg_default_prompt_text = arg_default_prompt_text.into();
         let arg_default_prompt_text = &arg_default_prompt_text;
-        let arg_callback =
-            &mut JsdialogCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut JsdialogCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let mut arg_suppress_message =
             WrapParamRef::<::std::os::raw::c_int>::from(arg_suppress_message);
         let arg_suppress_message = arg_suppress_message.as_mut();
@@ -24903,12 +24881,11 @@ mod impl_cef_jsdialog_handler_t {
         let (arg_self_, arg_browser, arg_message_text, arg_is_reload, arg_callback) =
             (self_, browser, message_text, is_reload, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_message_text = arg_message_text.into();
         let arg_message_text = &arg_message_text;
         let arg_is_reload = arg_is_reload.as_raw();
-        let arg_callback =
-            &mut JsdialogCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut JsdialogCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplJsdialogHandler::on_before_unload_dialog(
             &arg_self_.interface,
             arg_browser,
@@ -24924,7 +24901,7 @@ mod impl_cef_jsdialog_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplJsdialogHandler::on_reset_dialog_state(&arg_self_.interface, arg_browser);
     }
     extern "C" fn on_dialog_closed<I: ImplJsdialogHandler>(
@@ -24933,7 +24910,7 @@ mod impl_cef_jsdialog_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplJsdialogHandler::on_dialog_closed(&arg_self_.interface, arg_browser);
     }
 }
@@ -25133,7 +25110,7 @@ mod impl_cef_keyboard_handler_t {
         let (arg_self_, arg_browser, arg_event, arg_os_event, arg_is_keyboard_shortcut) =
             (self_, browser, event, os_event, is_keyboard_shortcut);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_event = WrapParamRef::<KeyEvent>::from(arg_event);
         let arg_event = arg_event.as_ref();
         let mut arg_os_event = WrapParamRef::<XEvent>::from(arg_os_event);
@@ -25158,7 +25135,7 @@ mod impl_cef_keyboard_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_event, arg_os_event) = (self_, browser, event, os_event);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_event = WrapParamRef::<KeyEvent>::from(arg_event);
         let arg_event = arg_event.as_ref();
         let mut arg_os_event = WrapParamRef::<XEvent>::from(arg_os_event);
@@ -25379,8 +25356,8 @@ mod impl_cef_life_span_handler_t {
             no_javascript_access,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_popup_id = arg_popup_id.as_raw();
         let arg_target_url = arg_target_url.into();
         let arg_target_url = &arg_target_url;
@@ -25396,7 +25373,7 @@ mod impl_cef_life_span_handler_t {
             if ptr.is_null() {
                 None
             } else {
-                Some(Client(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(Client(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_client = arg_client.as_mut();
@@ -25406,7 +25383,7 @@ mod impl_cef_life_span_handler_t {
             if ptr.is_null() {
                 None
             } else {
-                Some(DictionaryValue(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(DictionaryValue(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_extra_info = arg_extra_info.as_mut();
@@ -25438,7 +25415,7 @@ mod impl_cef_life_span_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_popup_id) = (self_, browser, popup_id);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_popup_id = arg_popup_id.as_raw();
         let result = ImplLifeSpanHandler::on_before_popup_aborted(
             &arg_self_.interface,
@@ -25473,14 +25450,14 @@ mod impl_cef_life_span_handler_t {
             use_default_window,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let mut arg_window_info = WrapParamRef::<WindowInfo>::from(arg_window_info);
         let arg_window_info = arg_window_info.as_mut();
         let mut arg_client = unsafe { arg_client.as_mut() }.and_then(|ptr| {
             if ptr.is_null() {
                 None
             } else {
-                Some(Client(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(Client(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_client = arg_client.as_mut();
@@ -25490,7 +25467,7 @@ mod impl_cef_life_span_handler_t {
             if ptr.is_null() {
                 None
             } else {
-                Some(DictionaryValue(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(DictionaryValue(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_extra_info = arg_extra_info.as_mut();
@@ -25513,7 +25490,7 @@ mod impl_cef_life_span_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplLifeSpanHandler::on_after_created(&arg_self_.interface, arg_browser);
     }
     extern "C" fn do_close<I: ImplLifeSpanHandler>(
@@ -25522,7 +25499,7 @@ mod impl_cef_life_span_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplLifeSpanHandler::do_close(&arg_self_.interface, arg_browser);
         result.into()
     }
@@ -25532,7 +25509,7 @@ mod impl_cef_life_span_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplLifeSpanHandler::on_before_close(&arg_self_.interface, arg_browser);
     }
 }
@@ -25856,7 +25833,7 @@ mod impl_cef_load_handler_t {
         let (arg_self_, arg_browser, arg_is_loading, arg_can_go_back, arg_can_go_forward) =
             (self_, browser, is_loading, can_go_back, can_go_forward);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_is_loading = arg_is_loading.as_raw();
         let arg_can_go_back = arg_can_go_back.as_raw();
         let arg_can_go_forward = arg_can_go_forward.as_raw();
@@ -25877,8 +25854,8 @@ mod impl_cef_load_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_transition_type) =
             (self_, browser, frame, transition_type);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_transition_type = arg_transition_type.as_raw();
         let result = ImplLoadHandler::on_load_start(
             &arg_self_.interface,
@@ -25896,8 +25873,8 @@ mod impl_cef_load_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_http_status_code) =
             (self_, browser, frame, http_status_code);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_http_status_code = arg_http_status_code.as_raw();
         let result = ImplLoadHandler::on_load_end(
             &arg_self_.interface,
@@ -25917,8 +25894,8 @@ mod impl_cef_load_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_error_code, arg_error_text, arg_failed_url) =
             (self_, browser, frame, error_code, error_text, failed_url);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_error_code = arg_error_code.as_raw();
         let arg_error_text = arg_error_text.into();
         let arg_error_text = &arg_error_text;
@@ -26340,13 +26317,12 @@ mod impl_cef_permission_handler_t {
             callback,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_requesting_origin = arg_requesting_origin.into();
         let arg_requesting_origin = &arg_requesting_origin;
         let arg_requested_permissions = arg_requested_permissions.as_raw();
-        let arg_callback =
-            &mut MediaAccessCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut MediaAccessCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplPermissionHandler::on_request_media_access_permission(
             &arg_self_.interface,
             arg_browser,
@@ -26381,13 +26357,13 @@ mod impl_cef_permission_handler_t {
             callback,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_prompt_id = arg_prompt_id.as_raw();
         let arg_requesting_origin = arg_requesting_origin.into();
         let arg_requesting_origin = &arg_requesting_origin;
         let arg_requested_permissions = arg_requested_permissions.as_raw();
         let arg_callback =
-            &mut PermissionPromptCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+            &mut PermissionPromptCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplPermissionHandler::on_show_permission_prompt(
             &arg_self_.interface,
             arg_browser,
@@ -26407,7 +26383,7 @@ mod impl_cef_permission_handler_t {
         let (arg_self_, arg_browser, arg_prompt_id, arg_result) =
             (self_, browser, prompt_id, result);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_prompt_id = arg_prompt_id.as_raw();
         let arg_result = arg_result.as_raw();
         let result = ImplPermissionHandler::on_dismiss_permission_prompt(
@@ -27280,7 +27256,7 @@ mod impl_cef_print_dialog_callback_t {
     ) {
         let (arg_self_, arg_settings) = (self_, settings);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_settings = &mut PrintSettings(unsafe { RefGuard::from_raw_add_ref(arg_settings) });
+        let arg_settings = &mut PrintSettings(unsafe { RefGuard::from_raw(arg_settings) });
         let result = ImplPrintDialogCallback::cont(&arg_self_.interface, arg_settings);
     }
     extern "C" fn cancel<I: ImplPrintDialogCallback>(self_: *mut _cef_print_dialog_callback_t) {
@@ -27497,7 +27473,7 @@ mod impl_cef_print_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplPrintHandler::on_print_start(&arg_self_.interface, arg_browser);
     }
     extern "C" fn on_print_settings<I: ImplPrintHandler>(
@@ -27509,8 +27485,8 @@ mod impl_cef_print_handler_t {
         let (arg_self_, arg_browser, arg_settings, arg_get_defaults) =
             (self_, browser, settings, get_defaults);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_settings = &mut PrintSettings(unsafe { RefGuard::from_raw_add_ref(arg_settings) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_settings = &mut PrintSettings(unsafe { RefGuard::from_raw(arg_settings) });
         let arg_get_defaults = arg_get_defaults.as_raw();
         let result = ImplPrintHandler::on_print_settings(
             &arg_self_.interface,
@@ -27528,10 +27504,9 @@ mod impl_cef_print_handler_t {
         let (arg_self_, arg_browser, arg_has_selection, arg_callback) =
             (self_, browser, has_selection, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_has_selection = arg_has_selection.as_raw();
-        let arg_callback =
-            &mut PrintDialogCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut PrintDialogCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplPrintHandler::on_print_dialog(
             &arg_self_.interface,
             arg_browser,
@@ -27550,13 +27525,12 @@ mod impl_cef_print_handler_t {
         let (arg_self_, arg_browser, arg_document_name, arg_pdf_file_path, arg_callback) =
             (self_, browser, document_name, pdf_file_path, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_document_name = arg_document_name.into();
         let arg_document_name = &arg_document_name;
         let arg_pdf_file_path = arg_pdf_file_path.into();
         let arg_pdf_file_path = &arg_pdf_file_path;
-        let arg_callback =
-            &mut PrintJobCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut PrintJobCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplPrintHandler::on_print_job(
             &arg_self_.interface,
             arg_browser,
@@ -27572,7 +27546,7 @@ mod impl_cef_print_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplPrintHandler::on_print_reset(&arg_self_.interface, arg_browser);
     }
     extern "C" fn get_pdf_paper_size<I: ImplPrintHandler>(
@@ -27583,7 +27557,7 @@ mod impl_cef_print_handler_t {
         let (arg_self_, arg_browser, arg_device_units_per_inch) =
             (self_, browser, device_units_per_inch);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_device_units_per_inch = arg_device_units_per_inch.as_raw();
         let result = ImplPrintHandler::get_pdf_paper_size(
             &arg_self_.interface,
@@ -27783,7 +27757,7 @@ mod impl_cef_accessibility_handler_t {
     ) {
         let (arg_self_, arg_value) = (self_, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_value = &mut Value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut Value(unsafe { RefGuard::from_raw(arg_value) });
         let result =
             ImplAccessibilityHandler::on_accessibility_tree_change(&arg_self_.interface, arg_value);
     }
@@ -27793,7 +27767,7 @@ mod impl_cef_accessibility_handler_t {
     ) {
         let (arg_self_, arg_value) = (self_, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_value = &mut Value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut Value(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplAccessibilityHandler::on_accessibility_location_change(
             &arg_self_.interface,
             arg_value,
@@ -28028,7 +28002,7 @@ mod impl_cef_render_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_rect) = (self_, browser, rect);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let mut arg_rect = WrapParamRef::<Rect>::from(arg_rect);
         let arg_rect = arg_rect.as_mut();
         let result =
@@ -28042,7 +28016,7 @@ mod impl_cef_render_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_rect) = (self_, browser, rect);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let mut arg_rect = WrapParamRef::<Rect>::from(arg_rect);
         let arg_rect = arg_rect.as_mut();
         let result = ImplRenderHandler::get_view_rect(&arg_self_.interface, arg_browser, arg_rect);
@@ -28058,7 +28032,7 @@ mod impl_cef_render_handler_t {
         let (arg_self_, arg_browser, arg_view_x, arg_view_y, arg_screen_x, arg_screen_y) =
             (self_, browser, view_x, view_y, screen_x, screen_y);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_view_x = arg_view_x.as_raw();
         let arg_view_y = arg_view_y.as_raw();
         let mut arg_screen_x = WrapParamRef::<::std::os::raw::c_int>::from(arg_screen_x);
@@ -28082,7 +28056,7 @@ mod impl_cef_render_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_screen_info) = (self_, browser, screen_info);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let mut arg_screen_info = WrapParamRef::<ScreenInfo>::from(arg_screen_info);
         let arg_screen_info = arg_screen_info.as_mut();
         let result =
@@ -28096,7 +28070,7 @@ mod impl_cef_render_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_show) = (self_, browser, show);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_show = arg_show.as_raw();
         let result = ImplRenderHandler::on_popup_show(&arg_self_.interface, arg_browser, arg_show);
     }
@@ -28107,7 +28081,7 @@ mod impl_cef_render_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_rect) = (self_, browser, rect);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_rect = WrapParamRef::<Rect>::from(arg_rect);
         let arg_rect = arg_rect.as_ref();
         let result = ImplRenderHandler::on_popup_size(&arg_self_.interface, arg_browser, arg_rect);
@@ -28142,7 +28116,7 @@ mod impl_cef_render_handler_t {
             height,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_type_ = arg_type_.as_raw();
         let arg_dirty_rects_count = arg_dirty_rects_count.as_raw();
         let arg_dirty_rects = WrapParamRef::<Rect>::from(arg_dirty_rects);
@@ -28172,7 +28146,7 @@ mod impl_cef_render_handler_t {
         let (arg_self_, arg_browser, arg_type_, arg_dirty_rects_count, arg_dirty_rects, arg_info) =
             (self_, browser, type_, dirty_rects_count, dirty_rects, info);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_type_ = arg_type_.as_raw();
         let arg_dirty_rects_count = arg_dirty_rects_count.as_raw();
         let arg_dirty_rects = WrapParamRef::<Rect>::from(arg_dirty_rects);
@@ -28197,7 +28171,7 @@ mod impl_cef_render_handler_t {
         let (arg_self_, arg_browser, arg_orientation, arg_size) =
             (self_, browser, orientation, size);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_orientation = arg_orientation.as_raw();
         let mut arg_size = WrapParamRef::<Size>::from(arg_size);
         let arg_size = arg_size.as_mut();
@@ -28215,7 +28189,7 @@ mod impl_cef_render_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_state) = (self_, browser, state);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_state = WrapParamRef::<TouchHandleState>::from(arg_state);
         let arg_state = arg_state.as_ref();
         let result = ImplRenderHandler::on_touch_handle_state_changed(
@@ -28235,8 +28209,8 @@ mod impl_cef_render_handler_t {
         let (arg_self_, arg_browser, arg_drag_data, arg_allowed_ops, arg_x, arg_y) =
             (self_, browser, drag_data, allowed_ops, x, y);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_drag_data = &mut DragData(unsafe { RefGuard::from_raw_add_ref(arg_drag_data) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_drag_data = &mut DragData(unsafe { RefGuard::from_raw(arg_drag_data) });
         let arg_allowed_ops = arg_allowed_ops.as_raw();
         let arg_x = arg_x.as_raw();
         let arg_y = arg_y.as_raw();
@@ -28257,7 +28231,7 @@ mod impl_cef_render_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_operation) = (self_, browser, operation);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_operation = arg_operation.as_raw();
         let result =
             ImplRenderHandler::update_drag_cursor(&arg_self_.interface, arg_browser, arg_operation);
@@ -28270,7 +28244,7 @@ mod impl_cef_render_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_x, arg_y) = (self_, browser, x, y);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_x = arg_x.as_raw();
         let arg_y = arg_y.as_raw();
         let result = ImplRenderHandler::on_scroll_offset_changed(
@@ -28301,7 +28275,7 @@ mod impl_cef_render_handler_t {
             character_bounds,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_selected_range = WrapParamRef::<Range>::from(arg_selected_range);
         let arg_selected_range = arg_selected_range.as_ref();
         let arg_character_bounds_count = arg_character_bounds_count.as_raw();
@@ -28324,7 +28298,7 @@ mod impl_cef_render_handler_t {
         let (arg_self_, arg_browser, arg_selected_text, arg_selected_range) =
             (self_, browser, selected_text, selected_range);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_selected_text = arg_selected_text.into();
         let arg_selected_text = &arg_selected_text;
         let arg_selected_range = WrapParamRef::<Range>::from(arg_selected_range);
@@ -28343,7 +28317,7 @@ mod impl_cef_render_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_input_mode) = (self_, browser, input_mode);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_input_mode = arg_input_mode.as_raw();
         let result = ImplRenderHandler::on_virtual_keyboard_requested(
             &arg_self_.interface,
@@ -29686,11 +29660,11 @@ mod impl_cef_resource_handler_t {
         let (arg_self_, arg_request, arg_handle_request, arg_callback) =
             (self_, request, handle_request, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let mut arg_handle_request =
             WrapParamRef::<::std::os::raw::c_int>::from(arg_handle_request);
         let arg_handle_request = arg_handle_request.as_mut();
-        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplResourceHandler::open(
             &arg_self_.interface,
             arg_request,
@@ -29706,8 +29680,8 @@ mod impl_cef_resource_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_request, arg_callback) = (self_, request, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
-        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
+        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw(arg_callback) });
         let result =
             ImplResourceHandler::process_request(&arg_self_.interface, arg_request, arg_callback);
         result.into()
@@ -29721,7 +29695,7 @@ mod impl_cef_resource_handler_t {
         let (arg_self_, arg_response, arg_response_length, arg_redirect_url) =
             (self_, response, response_length, redirect_url);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_response = &mut Response(unsafe { RefGuard::from_raw_add_ref(arg_response) });
+        let arg_response = &mut Response(unsafe { RefGuard::from_raw(arg_response) });
         let mut arg_response_length = WrapParamRef::<i64>::from(arg_response_length);
         let arg_response_length = arg_response_length.as_mut();
         let mut arg_redirect_url = arg_redirect_url.into();
@@ -29745,8 +29719,7 @@ mod impl_cef_resource_handler_t {
         let arg_bytes_to_skip = arg_bytes_to_skip.as_raw();
         let mut arg_bytes_skipped = WrapParamRef::<i64>::from(arg_bytes_skipped);
         let arg_bytes_skipped = arg_bytes_skipped.as_mut();
-        let arg_callback =
-            &mut ResourceSkipCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut ResourceSkipCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplResourceHandler::skip(
             &arg_self_.interface,
             arg_bytes_to_skip,
@@ -29769,8 +29742,7 @@ mod impl_cef_resource_handler_t {
         let arg_bytes_to_read = arg_bytes_to_read.as_raw();
         let mut arg_bytes_read = WrapParamRef::<::std::os::raw::c_int>::from(arg_bytes_read);
         let arg_bytes_read = arg_bytes_read.as_mut();
-        let arg_callback =
-            &mut ResourceReadCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut ResourceReadCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplResourceHandler::read(
             &arg_self_.interface,
             arg_data_out,
@@ -29794,7 +29766,7 @@ mod impl_cef_resource_handler_t {
         let arg_bytes_to_read = arg_bytes_to_read.as_raw();
         let mut arg_bytes_read = WrapParamRef::<::std::os::raw::c_int>::from(arg_bytes_read);
         let arg_bytes_read = arg_bytes_read.as_mut();
-        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplResourceHandler::read_response(
             &arg_self_.interface,
             arg_data_out,
@@ -30331,9 +30303,9 @@ mod impl_cef_resource_request_handler_t {
     ) -> *mut _cef_cookie_access_filter_t {
         let (arg_self_, arg_browser, arg_frame, arg_request) = (self_, browser, frame, request);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let result = ImplResourceRequestHandler::get_cookie_access_filter(
             &arg_self_.interface,
             arg_browser,
@@ -30352,10 +30324,10 @@ mod impl_cef_resource_request_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_request, arg_callback) =
             (self_, browser, frame, request, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
-        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
+        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplResourceRequestHandler::on_before_resource_load(
             &arg_self_.interface,
             arg_browser,
@@ -30373,9 +30345,9 @@ mod impl_cef_resource_request_handler_t {
     ) -> *mut _cef_resource_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_request) = (self_, browser, frame, request);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let result = ImplResourceRequestHandler::get_resource_handler(
             &arg_self_.interface,
             arg_browser,
@@ -30395,10 +30367,10 @@ mod impl_cef_resource_request_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_request, arg_response, arg_new_url) =
             (self_, browser, frame, request, response, new_url);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
-        let arg_response = &mut Response(unsafe { RefGuard::from_raw_add_ref(arg_response) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
+        let arg_response = &mut Response(unsafe { RefGuard::from_raw(arg_response) });
         let mut arg_new_url = arg_new_url.into();
         let arg_new_url = &mut arg_new_url;
         let result = ImplResourceRequestHandler::on_resource_redirect(
@@ -30420,10 +30392,10 @@ mod impl_cef_resource_request_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_request, arg_response) =
             (self_, browser, frame, request, response);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
-        let arg_response = &mut Response(unsafe { RefGuard::from_raw_add_ref(arg_response) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
+        let arg_response = &mut Response(unsafe { RefGuard::from_raw(arg_response) });
         let result = ImplResourceRequestHandler::on_resource_response(
             &arg_self_.interface,
             arg_browser,
@@ -30443,10 +30415,10 @@ mod impl_cef_resource_request_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_request, arg_response) =
             (self_, browser, frame, request, response);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
-        let arg_response = &mut Response(unsafe { RefGuard::from_raw_add_ref(arg_response) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
+        let arg_response = &mut Response(unsafe { RefGuard::from_raw(arg_response) });
         let result = ImplResourceRequestHandler::get_resource_response_filter(
             &arg_self_.interface,
             arg_browser,
@@ -30483,10 +30455,10 @@ mod impl_cef_resource_request_handler_t {
             received_content_length,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
-        let arg_response = &mut Response(unsafe { RefGuard::from_raw_add_ref(arg_response) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
+        let arg_response = &mut Response(unsafe { RefGuard::from_raw(arg_response) });
         let arg_status = arg_status.as_raw();
         let arg_received_content_length = arg_received_content_length.as_raw();
         let result = ImplResourceRequestHandler::on_resource_load_complete(
@@ -30509,9 +30481,9 @@ mod impl_cef_resource_request_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_request, arg_allow_os_execution) =
             (self_, browser, frame, request, allow_os_execution);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let mut arg_allow_os_execution =
             WrapParamRef::<::std::os::raw::c_int>::from(arg_allow_os_execution);
         let arg_allow_os_execution = arg_allow_os_execution.as_mut();
@@ -30836,9 +30808,9 @@ mod impl_cef_cookie_access_filter_t {
         let (arg_self_, arg_browser, arg_frame, arg_request, arg_cookie) =
             (self_, browser, frame, request, cookie);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let arg_cookie = WrapParamRef::<Cookie>::from(arg_cookie);
         let arg_cookie = arg_cookie.as_ref();
         let result = ImplCookieAccessFilter::can_send_cookie(
@@ -30861,10 +30833,10 @@ mod impl_cef_cookie_access_filter_t {
         let (arg_self_, arg_browser, arg_frame, arg_request, arg_response, arg_cookie) =
             (self_, browser, frame, request, response, cookie);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
-        let arg_response = &mut Response(unsafe { RefGuard::from_raw_add_ref(arg_response) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
+        let arg_response = &mut Response(unsafe { RefGuard::from_raw(arg_response) });
         let arg_cookie = WrapParamRef::<Cookie>::from(arg_cookie);
         let arg_cookie = arg_cookie.as_ref();
         let result = ImplCookieAccessFilter::can_save_cookie(
@@ -31210,7 +31182,7 @@ mod impl_cef_select_client_certificate_callback_t {
     ) {
         let (arg_self_, arg_cert) = (self_, cert);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_cert = &mut X509certificate(unsafe { RefGuard::from_raw_add_ref(arg_cert) });
+        let arg_cert = &mut X509certificate(unsafe { RefGuard::from_raw(arg_cert) });
         let result = ImplSelectClientCertificateCallback::select(&arg_self_.interface, arg_cert);
     }
 }
@@ -31402,9 +31374,9 @@ mod impl_cef_request_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_request, arg_user_gesture, arg_is_redirect) =
             (self_, browser, frame, request, user_gesture, is_redirect);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let arg_user_gesture = arg_user_gesture.as_raw();
         let arg_is_redirect = arg_is_redirect.as_raw();
         let result = ImplRequestHandler::on_before_browse(
@@ -31441,8 +31413,8 @@ mod impl_cef_request_handler_t {
             user_gesture,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_target_url = arg_target_url.into();
         let arg_target_url = &arg_target_url;
         let arg_target_disposition = arg_target_disposition.as_raw();
@@ -31487,9 +31459,9 @@ mod impl_cef_request_handler_t {
             disable_default_handling,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let arg_is_navigation = arg_is_navigation.as_raw();
         let arg_is_download = arg_is_download.as_raw();
         let arg_request_initiator = arg_request_initiator.into();
@@ -31534,7 +31506,7 @@ mod impl_cef_request_handler_t {
             self_, browser, origin_url, is_proxy, host, port, realm, scheme, callback,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_origin_url = arg_origin_url.into();
         let arg_origin_url = &arg_origin_url;
         let arg_is_proxy = arg_is_proxy.as_raw();
@@ -31545,7 +31517,7 @@ mod impl_cef_request_handler_t {
         let arg_realm = &arg_realm;
         let arg_scheme = arg_scheme.into();
         let arg_scheme = &arg_scheme;
-        let arg_callback = &mut AuthCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut AuthCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplRequestHandler::get_auth_credentials(
             &arg_self_.interface,
             arg_browser,
@@ -31570,12 +31542,12 @@ mod impl_cef_request_handler_t {
         let (arg_self_, arg_browser, arg_cert_error, arg_request_url, arg_ssl_info, arg_callback) =
             (self_, browser, cert_error, request_url, ssl_info, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_cert_error = arg_cert_error.as_raw();
         let arg_request_url = arg_request_url.into();
         let arg_request_url = &arg_request_url;
-        let arg_ssl_info = &mut Sslinfo(unsafe { RefGuard::from_raw_add_ref(arg_ssl_info) });
-        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_ssl_info = &mut Sslinfo(unsafe { RefGuard::from_raw(arg_ssl_info) });
+        let arg_callback = &mut Callback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplRequestHandler::on_certificate_error(
             &arg_self_.interface,
             arg_browser,
@@ -31616,7 +31588,7 @@ mod impl_cef_request_handler_t {
             callback,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_is_proxy = arg_is_proxy.as_raw();
         let arg_host = arg_host.into();
         let arg_host = &arg_host;
@@ -31630,15 +31602,14 @@ mod impl_cef_request_handler_t {
                     if arg.is_null() {
                         None
                     } else {
-                        Some(X509certificate(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                        Some(X509certificate(unsafe { RefGuard::from_raw(*arg) }))
                     }
                 })
                 .collect::<Vec<_>>()
         });
         let arg_certificates = vec_certificates.as_ref().map(|arg| arg.as_slice());
-        let arg_callback = &mut SelectClientCertificateCallback(unsafe {
-            RefGuard::from_raw_add_ref(arg_callback)
-        });
+        let arg_callback =
+            &mut SelectClientCertificateCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplRequestHandler::on_select_client_certificate(
             &arg_self_.interface,
             arg_browser,
@@ -31656,7 +31627,7 @@ mod impl_cef_request_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplRequestHandler::on_render_view_ready(&arg_self_.interface, arg_browser);
     }
     extern "C" fn on_render_process_unresponsive<I: ImplRequestHandler>(
@@ -31666,9 +31637,9 @@ mod impl_cef_request_handler_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser, arg_callback) = (self_, browser, callback);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_callback =
-            &mut UnresponsiveProcessCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+            &mut UnresponsiveProcessCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplRequestHandler::on_render_process_unresponsive(
             &arg_self_.interface,
             arg_browser,
@@ -31682,7 +31653,7 @@ mod impl_cef_request_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result =
             ImplRequestHandler::on_render_process_responsive(&arg_self_.interface, arg_browser);
     }
@@ -31696,7 +31667,7 @@ mod impl_cef_request_handler_t {
         let (arg_self_, arg_browser, arg_status, arg_error_code, arg_error_string) =
             (self_, browser, status, error_code, error_string);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let arg_status = arg_status.as_raw();
         let arg_error_code = arg_error_code.as_raw();
         let arg_error_string = arg_error_string.into();
@@ -31715,7 +31686,7 @@ mod impl_cef_request_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplRequestHandler::on_document_available_in_main_frame(
             &arg_self_.interface,
             arg_browser,
@@ -32377,10 +32348,10 @@ mod impl_cef_client_t {
         let (arg_self_, arg_browser, arg_frame, arg_source_process, arg_message) =
             (self_, browser, frame, source_process, message);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_source_process = arg_source_process.as_raw();
-        let arg_message = &mut ProcessMessage(unsafe { RefGuard::from_raw_add_ref(arg_message) });
+        let arg_message = &mut ProcessMessage(unsafe { RefGuard::from_raw(arg_message) });
         let result = ImplClient::on_process_message_received(
             &arg_self_.interface,
             arg_browser,
@@ -33314,7 +33285,7 @@ mod impl_cef_request_context_handler_t {
         let (arg_self_, arg_request_context) = (self_, request_context);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_request_context =
-            &mut RequestContext(unsafe { RefGuard::from_raw_add_ref(arg_request_context) });
+            &mut RequestContext(unsafe { RefGuard::from_raw(arg_request_context) });
         let result = ImplRequestContextHandler::on_request_context_initialized(
             &arg_self_.interface,
             arg_request_context,
@@ -33350,9 +33321,9 @@ mod impl_cef_request_context_handler_t {
             disable_default_handling,
         );
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let arg_is_navigation = arg_is_navigation.as_raw();
         let arg_is_download = arg_is_download.as_raw();
         let arg_request_initiator = arg_request_initiator.into();
@@ -33561,8 +33532,7 @@ mod impl_cef_browser_process_handler_t {
     ) {
         let (arg_self_, arg_command_line) = (self_, command_line);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_command_line =
-            &mut CommandLine(unsafe { RefGuard::from_raw_add_ref(arg_command_line) });
+        let arg_command_line = &mut CommandLine(unsafe { RefGuard::from_raw(arg_command_line) });
         let result = ImplBrowserProcessHandler::on_before_child_process_launch(
             &arg_self_.interface,
             arg_command_line,
@@ -33576,8 +33546,7 @@ mod impl_cef_browser_process_handler_t {
         let (arg_self_, arg_command_line, arg_current_directory) =
             (self_, command_line, current_directory);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_command_line =
-            &mut CommandLine(unsafe { RefGuard::from_raw_add_ref(arg_command_line) });
+        let arg_command_line = &mut CommandLine(unsafe { RefGuard::from_raw(arg_command_line) });
         let arg_current_directory = arg_current_directory.into();
         let arg_current_directory = &arg_current_directory;
         let result = ImplBrowserProcessHandler::on_already_running_app_relaunch(
@@ -33878,7 +33847,7 @@ mod impl_cef_task_runner_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut TaskRunner(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut TaskRunner(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplTaskRunner::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -33906,7 +33875,7 @@ mod impl_cef_task_runner_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_task) = (self_, task);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_task = &mut Task(unsafe { RefGuard::from_raw_add_ref(arg_task) });
+        let arg_task = &mut Task(unsafe { RefGuard::from_raw(arg_task) });
         let result = ImplTaskRunner::post_task(&arg_self_.interface, arg_task);
         result.into()
     }
@@ -33917,7 +33886,7 @@ mod impl_cef_task_runner_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_task, arg_delay_ms) = (self_, task, delay_ms);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_task = &mut Task(unsafe { RefGuard::from_raw_add_ref(arg_task) });
+        let arg_task = &mut Task(unsafe { RefGuard::from_raw(arg_task) });
         let arg_delay_ms = arg_delay_ms.as_raw();
         let result =
             ImplTaskRunner::post_delayed_task(&arg_self_.interface, arg_task, arg_delay_ms);
@@ -34147,7 +34116,7 @@ mod impl_cef_v8context_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut V8context(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut V8context(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplV8context::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -34171,7 +34140,7 @@ mod impl_cef_v8context_t {
             if ptr.is_null() {
                 None
             } else {
-                Some(V8value(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(V8value(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_retval = arg_retval.as_mut();
@@ -34179,7 +34148,7 @@ mod impl_cef_v8context_t {
             if ptr.is_null() {
                 None
             } else {
-                Some(V8exception(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(V8exception(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_exception = arg_exception.as_mut();
@@ -34428,7 +34397,7 @@ mod impl_cef_v8handler_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_name = arg_name.into();
         let arg_name = &arg_name;
-        let arg_object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_object) });
+        let arg_object = &mut V8value(unsafe { RefGuard::from_raw(arg_object) });
         let vec_arguments = unsafe { arg_arguments.as_ref() }.map(|arg| {
             let arg =
                 unsafe { std::slice::from_raw_parts(std::ptr::from_ref(arg), arg_arguments_count) };
@@ -34437,7 +34406,7 @@ mod impl_cef_v8handler_t {
                     if arg.is_null() {
                         None
                     } else {
-                        Some(V8value(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                        Some(V8value(unsafe { RefGuard::from_raw(*arg) }))
                     }
                 })
                 .collect::<Vec<_>>()
@@ -34447,7 +34416,7 @@ mod impl_cef_v8handler_t {
             if ptr.is_null() {
                 None
             } else {
-                Some(V8value(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(V8value(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_retval = arg_retval.as_mut();
@@ -34609,12 +34578,12 @@ mod impl_cef_v8accessor_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_name = arg_name.into();
         let arg_name = &arg_name;
-        let arg_object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_object) });
+        let arg_object = &mut V8value(unsafe { RefGuard::from_raw(arg_object) });
         let mut arg_retval = unsafe { arg_retval.as_mut() }.and_then(|ptr| {
             if ptr.is_null() {
                 None
             } else {
-                Some(V8value(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(V8value(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_retval = arg_retval.as_mut();
@@ -34641,8 +34610,8 @@ mod impl_cef_v8accessor_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_name = arg_name.into();
         let arg_name = &arg_name;
-        let arg_object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_object) });
-        let arg_value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_object = &mut V8value(unsafe { RefGuard::from_raw(arg_object) });
+        let arg_value = &mut V8value(unsafe { RefGuard::from_raw(arg_value) });
         let mut arg_exception = arg_exception.into();
         let arg_exception = &mut arg_exception;
         let result = ImplV8accessor::set(
@@ -34814,12 +34783,12 @@ mod impl_cef_v8interceptor_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_name = arg_name.into();
         let arg_name = &arg_name;
-        let arg_object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_object) });
+        let arg_object = &mut V8value(unsafe { RefGuard::from_raw(arg_object) });
         let mut arg_retval = unsafe { arg_retval.as_mut() }.and_then(|ptr| {
             if ptr.is_null() {
                 None
             } else {
-                Some(V8value(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(V8value(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_retval = arg_retval.as_mut();
@@ -34845,12 +34814,12 @@ mod impl_cef_v8interceptor_t {
             (self_, index, object, retval, exception);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
-        let arg_object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_object) });
+        let arg_object = &mut V8value(unsafe { RefGuard::from_raw(arg_object) });
         let mut arg_retval = unsafe { arg_retval.as_mut() }.and_then(|ptr| {
             if ptr.is_null() {
                 None
             } else {
-                Some(V8value(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                Some(V8value(unsafe { RefGuard::from_raw(*ptr) }))
             }
         });
         let arg_retval = arg_retval.as_mut();
@@ -34877,8 +34846,8 @@ mod impl_cef_v8interceptor_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_name = arg_name.into();
         let arg_name = &arg_name;
-        let arg_object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_object) });
-        let arg_value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_object = &mut V8value(unsafe { RefGuard::from_raw(arg_object) });
+        let arg_value = &mut V8value(unsafe { RefGuard::from_raw(arg_value) });
         let mut arg_exception = arg_exception.into();
         let arg_exception = &mut arg_exception;
         let result = ImplV8interceptor::set_byname(
@@ -34901,8 +34870,8 @@ mod impl_cef_v8interceptor_t {
             (self_, index, object, value, exception);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
-        let arg_object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_object) });
-        let arg_value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_object = &mut V8value(unsafe { RefGuard::from_raw(arg_object) });
+        let arg_value = &mut V8value(unsafe { RefGuard::from_raw(arg_value) });
         let mut arg_exception = arg_exception.into();
         let arg_exception = &mut arg_exception;
         let result = ImplV8interceptor::set_byindex(
@@ -35739,7 +35708,7 @@ mod impl_cef_v8value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut V8value(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplV8value::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -35906,7 +35875,7 @@ mod impl_cef_v8value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_key = arg_key.into();
         let arg_key = &arg_key;
-        let arg_value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut V8value(unsafe { RefGuard::from_raw(arg_value) });
         let arg_attribute = arg_attribute.as_raw();
         let result =
             ImplV8value::set_value_bykey(&arg_self_.interface, arg_key, arg_value, arg_attribute);
@@ -35920,7 +35889,7 @@ mod impl_cef_v8value_t {
         let (arg_self_, arg_index, arg_value) = (self_, index, value);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
-        let arg_value = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_value) });
+        let arg_value = &mut V8value(unsafe { RefGuard::from_raw(arg_value) });
         let result = ImplV8value::set_value_byindex(&arg_self_.interface, arg_index, arg_value);
         result.into()
     }
@@ -35955,8 +35924,7 @@ mod impl_cef_v8value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_user_data) = (self_, user_data);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_user_data =
-            &mut BaseRefCounted(unsafe { RefGuard::from_raw_add_ref(arg_user_data) });
+        let arg_user_data = &mut BaseRefCounted(unsafe { RefGuard::from_raw(arg_user_data) });
         let result = ImplV8value::set_user_data(&arg_self_.interface, arg_user_data);
         result.into()
     }
@@ -36054,7 +36022,7 @@ mod impl_cef_v8value_t {
         let (arg_self_, arg_object, arg_arguments_count, arg_arguments) =
             (self_, object, arguments_count, arguments);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_object) });
+        let arg_object = &mut V8value(unsafe { RefGuard::from_raw(arg_object) });
         let vec_arguments = unsafe { arg_arguments.as_ref() }.map(|arg| {
             let arg =
                 unsafe { std::slice::from_raw_parts(std::ptr::from_ref(arg), arg_arguments_count) };
@@ -36063,7 +36031,7 @@ mod impl_cef_v8value_t {
                     if arg.is_null() {
                         None
                     } else {
-                        Some(V8value(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                        Some(V8value(unsafe { RefGuard::from_raw(*arg) }))
                     }
                 })
                 .collect::<Vec<_>>()
@@ -36082,8 +36050,8 @@ mod impl_cef_v8value_t {
         let (arg_self_, arg_context, arg_object, arg_arguments_count, arg_arguments) =
             (self_, context, object, arguments_count, arguments);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_context = &mut V8context(unsafe { RefGuard::from_raw_add_ref(arg_context) });
-        let arg_object = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_object) });
+        let arg_context = &mut V8context(unsafe { RefGuard::from_raw(arg_context) });
+        let arg_object = &mut V8value(unsafe { RefGuard::from_raw(arg_object) });
         let vec_arguments = unsafe { arg_arguments.as_ref() }.map(|arg| {
             let arg =
                 unsafe { std::slice::from_raw_parts(std::ptr::from_ref(arg), arg_arguments_count) };
@@ -36092,7 +36060,7 @@ mod impl_cef_v8value_t {
                     if arg.is_null() {
                         None
                     } else {
-                        Some(V8value(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                        Some(V8value(unsafe { RefGuard::from_raw(*arg) }))
                     }
                 })
                 .collect::<Vec<_>>()
@@ -36112,7 +36080,7 @@ mod impl_cef_v8value_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_arg) = (self_, arg);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_arg = &mut V8value(unsafe { RefGuard::from_raw_add_ref(arg_arg) });
+        let arg_arg = &mut V8value(unsafe { RefGuard::from_raw(arg_arg) });
         let result = ImplV8value::resolve_promise(&arg_self_.interface, arg_arg);
         result.into()
     }
@@ -37383,9 +37351,8 @@ mod impl_cef_render_process_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_extra_info) = (self_, browser, extra_info);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_extra_info =
-            &mut DictionaryValue(unsafe { RefGuard::from_raw_add_ref(arg_extra_info) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_extra_info = &mut DictionaryValue(unsafe { RefGuard::from_raw(arg_extra_info) });
         let result = ImplRenderProcessHandler::on_browser_created(
             &arg_self_.interface,
             arg_browser,
@@ -37398,7 +37365,7 @@ mod impl_cef_render_process_handler_t {
     ) {
         let (arg_self_, arg_browser) = (self_, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result =
             ImplRenderProcessHandler::on_browser_destroyed(&arg_self_.interface, arg_browser);
     }
@@ -37418,9 +37385,9 @@ mod impl_cef_render_process_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_frame, arg_context) = (self_, browser, frame, context);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_context = &mut V8context(unsafe { RefGuard::from_raw_add_ref(arg_context) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_context = &mut V8context(unsafe { RefGuard::from_raw(arg_context) });
         let result = ImplRenderProcessHandler::on_context_created(
             &arg_self_.interface,
             arg_browser,
@@ -37436,9 +37403,9 @@ mod impl_cef_render_process_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_frame, arg_context) = (self_, browser, frame, context);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_context = &mut V8context(unsafe { RefGuard::from_raw_add_ref(arg_context) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_context = &mut V8context(unsafe { RefGuard::from_raw(arg_context) });
         let result = ImplRenderProcessHandler::on_context_released(
             &arg_self_.interface,
             arg_browser,
@@ -37457,12 +37424,11 @@ mod impl_cef_render_process_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_context, arg_exception, arg_stack_trace) =
             (self_, browser, frame, context, exception, stack_trace);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_context = &mut V8context(unsafe { RefGuard::from_raw_add_ref(arg_context) });
-        let arg_exception = &mut V8exception(unsafe { RefGuard::from_raw_add_ref(arg_exception) });
-        let arg_stack_trace =
-            &mut V8stackTrace(unsafe { RefGuard::from_raw_add_ref(arg_stack_trace) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_context = &mut V8context(unsafe { RefGuard::from_raw(arg_context) });
+        let arg_exception = &mut V8exception(unsafe { RefGuard::from_raw(arg_exception) });
+        let arg_stack_trace = &mut V8stackTrace(unsafe { RefGuard::from_raw(arg_stack_trace) });
         let result = ImplRenderProcessHandler::on_uncaught_exception(
             &arg_self_.interface,
             arg_browser,
@@ -37480,9 +37446,9 @@ mod impl_cef_render_process_handler_t {
     ) {
         let (arg_self_, arg_browser, arg_frame, arg_node) = (self_, browser, frame, node);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
-        let arg_node = &mut Domnode(unsafe { RefGuard::from_raw_add_ref(arg_node) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
+        let arg_node = &mut Domnode(unsafe { RefGuard::from_raw(arg_node) });
         let result = ImplRenderProcessHandler::on_focused_node_changed(
             &arg_self_.interface,
             arg_browser,
@@ -37500,10 +37466,10 @@ mod impl_cef_render_process_handler_t {
         let (arg_self_, arg_browser, arg_frame, arg_source_process, arg_message) =
             (self_, browser, frame, source_process, message);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_source_process = arg_source_process.as_raw();
-        let arg_message = &mut ProcessMessage(unsafe { RefGuard::from_raw_add_ref(arg_message) });
+        let arg_message = &mut ProcessMessage(unsafe { RefGuard::from_raw(arg_message) });
         let result = ImplRenderProcessHandler::on_process_message_received(
             &arg_self_.interface,
             arg_browser,
@@ -38072,11 +38038,11 @@ mod impl_cef_scheme_handler_factory_t {
         let (arg_self_, arg_browser, arg_frame, arg_scheme_name, arg_request) =
             (self_, browser, frame, scheme_name, request);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
-        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw_add_ref(arg_frame) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
+        let arg_frame = &mut Frame(unsafe { RefGuard::from_raw(arg_frame) });
         let arg_scheme_name = arg_scheme_name.into();
         let arg_scheme_name = &arg_scheme_name;
-        let arg_request = &mut Request(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_request = &mut Request(unsafe { RefGuard::from_raw(arg_request) });
         let result = ImplSchemeHandlerFactory::create(
             &arg_self_.interface,
             arg_browser,
@@ -38205,8 +38171,7 @@ mod impl_cef_app_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_process_type = arg_process_type.into();
         let arg_process_type = &arg_process_type;
-        let arg_command_line =
-            &mut CommandLine(unsafe { RefGuard::from_raw_add_ref(arg_command_line) });
+        let arg_command_line = &mut CommandLine(unsafe { RefGuard::from_raw(arg_command_line) });
         let result = ImplApp::on_before_command_line_processing(
             &arg_self_.interface,
             arg_process_type,
@@ -38632,7 +38597,7 @@ mod impl_cef_urlrequest_client_t {
     ) {
         let (arg_self_, arg_request) = (self_, request);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw(arg_request) });
         let result = ImplUrlrequestClient::on_request_complete(&arg_self_.interface, arg_request);
     }
     extern "C" fn on_upload_progress<I: ImplUrlrequestClient>(
@@ -38643,7 +38608,7 @@ mod impl_cef_urlrequest_client_t {
     ) {
         let (arg_self_, arg_request, arg_current, arg_total) = (self_, request, current, total);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw(arg_request) });
         let arg_current = arg_current.as_raw();
         let arg_total = arg_total.as_raw();
         let result = ImplUrlrequestClient::on_upload_progress(
@@ -38661,7 +38626,7 @@ mod impl_cef_urlrequest_client_t {
     ) {
         let (arg_self_, arg_request, arg_current, arg_total) = (self_, request, current, total);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw(arg_request) });
         let arg_current = arg_current.as_raw();
         let arg_total = arg_total.as_raw();
         let result = ImplUrlrequestClient::on_download_progress(
@@ -38680,7 +38645,7 @@ mod impl_cef_urlrequest_client_t {
         let (arg_self_, arg_request, arg_data, arg_data_length) =
             (self_, request, data, data_length);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw_add_ref(arg_request) });
+        let arg_request = &mut Urlrequest(unsafe { RefGuard::from_raw(arg_request) });
         let arg_data = arg_data as *const _;
         let arg_data_length = arg_data_length.as_raw();
         let result = ImplUrlrequestClient::on_download_data(
@@ -38710,7 +38675,7 @@ mod impl_cef_urlrequest_client_t {
         let arg_realm = &arg_realm;
         let arg_scheme = arg_scheme.into();
         let arg_scheme = &arg_scheme;
-        let arg_callback = &mut AuthCallback(unsafe { RefGuard::from_raw_add_ref(arg_callback) });
+        let arg_callback = &mut AuthCallback(unsafe { RefGuard::from_raw(arg_callback) });
         let result = ImplUrlrequestClient::get_auth_credentials(
             &arg_self_.interface,
             arg_is_proxy,
@@ -39023,7 +38988,7 @@ mod impl_cef_box_layout_t {
     ) {
         let (arg_self_, arg_view, arg_flex) = (self_, view, flex);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let arg_flex = arg_flex.as_raw();
         let result = ImplBoxLayout::set_flex_for_view(&arg_self_.interface, arg_view, arg_flex);
     }
@@ -39033,7 +38998,7 @@ mod impl_cef_box_layout_t {
     ) {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplBoxLayout::clear_flex_for_view(&arg_self_.interface, arg_view);
     }
 }
@@ -39275,7 +39240,7 @@ mod impl_cef_view_delegate_t {
     ) -> _cef_size_t {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplViewDelegate::get_preferred_size(&arg_self_.interface, arg_view);
         result.into()
     }
@@ -39285,7 +39250,7 @@ mod impl_cef_view_delegate_t {
     ) -> _cef_size_t {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplViewDelegate::get_minimum_size(&arg_self_.interface, arg_view);
         result.into()
     }
@@ -39295,7 +39260,7 @@ mod impl_cef_view_delegate_t {
     ) -> _cef_size_t {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplViewDelegate::get_maximum_size(&arg_self_.interface, arg_view);
         result.into()
     }
@@ -39306,7 +39271,7 @@ mod impl_cef_view_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_view, arg_width) = (self_, view, width);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let arg_width = arg_width.as_raw();
         let result =
             ImplViewDelegate::get_height_for_width(&arg_self_.interface, arg_view, arg_width);
@@ -39320,9 +39285,9 @@ mod impl_cef_view_delegate_t {
     ) {
         let (arg_self_, arg_view, arg_added, arg_parent) = (self_, view, added, parent);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let arg_added = arg_added.as_raw();
-        let arg_parent = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_parent) });
+        let arg_parent = &mut View(unsafe { RefGuard::from_raw(arg_parent) });
         let result = ImplViewDelegate::on_parent_view_changed(
             &arg_self_.interface,
             arg_view,
@@ -39338,9 +39303,9 @@ mod impl_cef_view_delegate_t {
     ) {
         let (arg_self_, arg_view, arg_added, arg_child) = (self_, view, added, child);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let arg_added = arg_added.as_raw();
-        let arg_child = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_child) });
+        let arg_child = &mut View(unsafe { RefGuard::from_raw(arg_child) });
         let result = ImplViewDelegate::on_child_view_changed(
             &arg_self_.interface,
             arg_view,
@@ -39355,7 +39320,7 @@ mod impl_cef_view_delegate_t {
     ) {
         let (arg_self_, arg_view, arg_added) = (self_, view, added);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let arg_added = arg_added.as_raw();
         let result = ImplViewDelegate::on_window_changed(&arg_self_.interface, arg_view, arg_added);
     }
@@ -39366,7 +39331,7 @@ mod impl_cef_view_delegate_t {
     ) {
         let (arg_self_, arg_view, arg_new_bounds) = (self_, view, new_bounds);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let arg_new_bounds = WrapParamRef::<Rect>::from(arg_new_bounds);
         let arg_new_bounds = arg_new_bounds.as_ref();
         let result =
@@ -39378,7 +39343,7 @@ mod impl_cef_view_delegate_t {
     ) {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplViewDelegate::on_focus(&arg_self_.interface, arg_view);
     }
     extern "C" fn on_blur<I: ImplViewDelegate>(
@@ -39387,7 +39352,7 @@ mod impl_cef_view_delegate_t {
     ) {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplViewDelegate::on_blur(&arg_self_.interface, arg_view);
     }
     extern "C" fn on_theme_changed<I: ImplViewDelegate>(
@@ -39396,7 +39361,7 @@ mod impl_cef_view_delegate_t {
     ) {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplViewDelegate::on_theme_changed(&arg_self_.interface, arg_view);
     }
 }
@@ -39915,7 +39880,7 @@ mod impl_cef_view_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut View(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplView::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -40216,7 +40181,7 @@ mod impl_cef_view_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_view, arg_point) = (self_, view, point);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let mut arg_point = WrapParamRef::<Point>::from(arg_point);
         let arg_point = arg_point.as_mut();
         let result = ImplView::convert_point_to_view(&arg_self_.interface, arg_view, arg_point);
@@ -40229,7 +40194,7 @@ mod impl_cef_view_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_view, arg_point) = (self_, view, point);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let mut arg_point = WrapParamRef::<Point>::from(arg_point);
         let arg_point = arg_point.as_mut();
         let result = ImplView::convert_point_from_view(&arg_self_.interface, arg_view, arg_point);
@@ -41415,7 +41380,7 @@ mod impl_cef_button_delegate_t {
     ) {
         let (arg_self_, arg_button) = (self_, button);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_button = &mut Button(unsafe { RefGuard::from_raw_add_ref(arg_button) });
+        let arg_button = &mut Button(unsafe { RefGuard::from_raw(arg_button) });
         let result = ImplButtonDelegate::on_button_pressed(&arg_self_.interface, arg_button);
     }
     extern "C" fn on_button_state_changed<I: ImplButtonDelegate>(
@@ -41424,7 +41389,7 @@ mod impl_cef_button_delegate_t {
     ) {
         let (arg_self_, arg_button) = (self_, button);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_button = &mut Button(unsafe { RefGuard::from_raw_add_ref(arg_button) });
+        let arg_button = &mut Button(unsafe { RefGuard::from_raw(arg_button) });
         let result = ImplButtonDelegate::on_button_state_changed(&arg_self_.interface, arg_button);
     }
 }
@@ -41654,7 +41619,7 @@ mod impl_cef_label_button_t {
         let (arg_self_, arg_button_state, arg_image) = (self_, button_state, image);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_button_state = arg_button_state.as_raw();
-        let arg_image = &mut Image(unsafe { RefGuard::from_raw_add_ref(arg_image) });
+        let arg_image = &mut Image(unsafe { RefGuard::from_raw(arg_image) });
         let result = ImplLabelButton::set_image(&arg_self_.interface, arg_button_state, arg_image);
     }
     extern "C" fn get_image<I: ImplLabelButton>(
@@ -42257,13 +42222,11 @@ mod impl_cef_menu_button_delegate_t {
         let (arg_self_, arg_menu_button, arg_screen_point, arg_button_pressed_lock) =
             (self_, menu_button, screen_point, button_pressed_lock);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_button =
-            &mut MenuButton(unsafe { RefGuard::from_raw_add_ref(arg_menu_button) });
+        let arg_menu_button = &mut MenuButton(unsafe { RefGuard::from_raw(arg_menu_button) });
         let arg_screen_point = WrapParamRef::<Point>::from(arg_screen_point);
         let arg_screen_point = arg_screen_point.as_ref();
-        let arg_button_pressed_lock = &mut MenuButtonPressedLock(unsafe {
-            RefGuard::from_raw_add_ref(arg_button_pressed_lock)
-        });
+        let arg_button_pressed_lock =
+            &mut MenuButtonPressedLock(unsafe { RefGuard::from_raw(arg_button_pressed_lock) });
         let result = ImplMenuButtonDelegate::on_menu_button_pressed(
             &arg_self_.interface,
             arg_menu_button,
@@ -42457,7 +42420,7 @@ mod impl_cef_menu_button_t {
         let (arg_self_, arg_menu_model, arg_screen_point, arg_anchor_position) =
             (self_, menu_model, screen_point, anchor_position);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_menu_model) });
         let arg_screen_point = WrapParamRef::<Point>::from(arg_screen_point);
         let arg_screen_point = arg_screen_point.as_ref();
         let arg_anchor_position = arg_anchor_position.as_raw();
@@ -42880,7 +42843,7 @@ mod impl_cef_textfield_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_textfield, arg_event) = (self_, textfield, event);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_textfield = &mut Textfield(unsafe { RefGuard::from_raw_add_ref(arg_textfield) });
+        let arg_textfield = &mut Textfield(unsafe { RefGuard::from_raw(arg_textfield) });
         let arg_event = WrapParamRef::<KeyEvent>::from(arg_event);
         let arg_event = arg_event.as_ref();
         let result =
@@ -42893,7 +42856,7 @@ mod impl_cef_textfield_delegate_t {
     ) {
         let (arg_self_, arg_textfield) = (self_, textfield);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_textfield = &mut Textfield(unsafe { RefGuard::from_raw_add_ref(arg_textfield) });
+        let arg_textfield = &mut Textfield(unsafe { RefGuard::from_raw(arg_textfield) });
         let result =
             ImplTextfieldDelegate::on_after_user_action(&arg_self_.interface, arg_textfield);
     }
@@ -44196,9 +44159,8 @@ mod impl_cef_browser_view_delegate_t {
     ) {
         let (arg_self_, arg_browser_view, arg_browser) = (self_, browser_view, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser_view = &mut BrowserView(unsafe { RefGuard::from_raw(arg_browser_view) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplBrowserViewDelegate::on_browser_created(
             &arg_self_.interface,
             arg_browser_view,
@@ -44212,9 +44174,8 @@ mod impl_cef_browser_view_delegate_t {
     ) {
         let (arg_self_, arg_browser_view, arg_browser) = (self_, browser_view, browser);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
-        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw_add_ref(arg_browser) });
+        let arg_browser_view = &mut BrowserView(unsafe { RefGuard::from_raw(arg_browser_view) });
+        let arg_browser = &mut Browser(unsafe { RefGuard::from_raw(arg_browser) });
         let result = ImplBrowserViewDelegate::on_browser_destroyed(
             &arg_self_.interface,
             arg_browser_view,
@@ -44231,11 +44192,10 @@ mod impl_cef_browser_view_delegate_t {
         let (arg_self_, arg_browser_view, arg_settings, arg_client, arg_is_devtools) =
             (self_, browser_view, settings, client, is_devtools);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_browser_view = &mut BrowserView(unsafe { RefGuard::from_raw(arg_browser_view) });
         let arg_settings = WrapParamRef::<BrowserSettings>::from(arg_settings);
         let arg_settings = arg_settings.as_ref();
-        let arg_client = &mut Client(unsafe { RefGuard::from_raw_add_ref(arg_client) });
+        let arg_client = &mut Client(unsafe { RefGuard::from_raw(arg_client) });
         let arg_is_devtools = arg_is_devtools.as_raw();
         let result = ImplBrowserViewDelegate::get_delegate_for_popup_browser_view(
             &arg_self_.interface,
@@ -44255,10 +44215,9 @@ mod impl_cef_browser_view_delegate_t {
         let (arg_self_, arg_browser_view, arg_popup_browser_view, arg_is_devtools) =
             (self_, browser_view, popup_browser_view, is_devtools);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_browser_view = &mut BrowserView(unsafe { RefGuard::from_raw(arg_browser_view) });
         let arg_popup_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_popup_browser_view) });
+            &mut BrowserView(unsafe { RefGuard::from_raw(arg_popup_browser_view) });
         let arg_is_devtools = arg_is_devtools.as_raw();
         let result = ImplBrowserViewDelegate::on_popup_browser_view_created(
             &arg_self_.interface,
@@ -44274,8 +44233,7 @@ mod impl_cef_browser_view_delegate_t {
     ) -> cef_chrome_toolbar_type_t {
         let (arg_self_, arg_browser_view) = (self_, browser_view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_browser_view = &mut BrowserView(unsafe { RefGuard::from_raw(arg_browser_view) });
         let result = ImplBrowserViewDelegate::get_chrome_toolbar_type(
             &arg_self_.interface,
             arg_browser_view,
@@ -44288,8 +44246,7 @@ mod impl_cef_browser_view_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_browser_view) = (self_, browser_view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_browser_view = &mut BrowserView(unsafe { RefGuard::from_raw(arg_browser_view) });
         let result = ImplBrowserViewDelegate::use_frameless_window_for_picture_in_picture(
             &arg_self_.interface,
             arg_browser_view,
@@ -44304,8 +44261,7 @@ mod impl_cef_browser_view_delegate_t {
         let (arg_self_, arg_browser_view, arg_gesture_command) =
             (self_, browser_view, gesture_command);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_browser_view = &mut BrowserView(unsafe { RefGuard::from_raw(arg_browser_view) });
         let arg_gesture_command = arg_gesture_command.as_raw();
         let result = ImplBrowserViewDelegate::on_gesture_command(
             &arg_self_.interface,
@@ -45007,7 +44963,7 @@ mod impl_cef_scroll_view_t {
     ) {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplScrollView::set_content_view(&arg_self_.interface, arg_view);
     }
     extern "C" fn get_content_view<I: ImplScrollView>(
@@ -45729,7 +45685,7 @@ mod impl_cef_overlay_controller_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_that) = (self_, that);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_that = &mut OverlayController(unsafe { RefGuard::from_raw_add_ref(arg_that) });
+        let arg_that = &mut OverlayController(unsafe { RefGuard::from_raw(arg_that) });
         let result = ImplOverlayController::is_same(&arg_self_.interface, arg_that);
         result.into()
     }
@@ -46381,7 +46337,7 @@ mod impl_cef_panel_t {
     extern "C" fn add_child_view<I: ImplPanel>(self_: *mut _cef_panel_t, view: *mut _cef_view_t) {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplPanel::add_child_view(&arg_self_.interface, arg_view);
     }
     extern "C" fn add_child_view_at<I: ImplPanel>(
@@ -46391,7 +46347,7 @@ mod impl_cef_panel_t {
     ) {
         let (arg_self_, arg_view, arg_index) = (self_, view, index);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let arg_index = arg_index.as_raw();
         let result = ImplPanel::add_child_view_at(&arg_self_.interface, arg_view, arg_index);
     }
@@ -46402,7 +46358,7 @@ mod impl_cef_panel_t {
     ) {
         let (arg_self_, arg_view, arg_index) = (self_, view, index);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let arg_index = arg_index.as_raw();
         let result = ImplPanel::reorder_child_view(&arg_self_.interface, arg_view, arg_index);
     }
@@ -46412,7 +46368,7 @@ mod impl_cef_panel_t {
     ) {
         let (arg_self_, arg_view) = (self_, view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let result = ImplPanel::remove_child_view(&arg_self_.interface, arg_view);
     }
     extern "C" fn remove_all_child_views<I: ImplPanel>(self_: *mut _cef_panel_t) {
@@ -46997,7 +46953,7 @@ mod impl_cef_window_delegate_t {
     ) {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::on_window_created(&arg_self_.interface, arg_window);
     }
     extern "C" fn on_window_closing<I: ImplWindowDelegate>(
@@ -47006,7 +46962,7 @@ mod impl_cef_window_delegate_t {
     ) {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::on_window_closing(&arg_self_.interface, arg_window);
     }
     extern "C" fn on_window_destroyed<I: ImplWindowDelegate>(
@@ -47015,7 +46971,7 @@ mod impl_cef_window_delegate_t {
     ) {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::on_window_destroyed(&arg_self_.interface, arg_window);
     }
     extern "C" fn on_window_activation_changed<I: ImplWindowDelegate>(
@@ -47025,7 +46981,7 @@ mod impl_cef_window_delegate_t {
     ) {
         let (arg_self_, arg_window, arg_active) = (self_, window, active);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let arg_active = arg_active.as_raw();
         let result = ImplWindowDelegate::on_window_activation_changed(
             &arg_self_.interface,
@@ -47040,7 +46996,7 @@ mod impl_cef_window_delegate_t {
     ) {
         let (arg_self_, arg_window, arg_new_bounds) = (self_, window, new_bounds);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let arg_new_bounds = WrapParamRef::<Rect>::from(arg_new_bounds);
         let arg_new_bounds = arg_new_bounds.as_ref();
         let result = ImplWindowDelegate::on_window_bounds_changed(
@@ -47056,7 +47012,7 @@ mod impl_cef_window_delegate_t {
     ) {
         let (arg_self_, arg_window, arg_is_completed) = (self_, window, is_completed);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let arg_is_completed = arg_is_completed.as_raw();
         let result = ImplWindowDelegate::on_window_fullscreen_transition(
             &arg_self_.interface,
@@ -47073,7 +47029,7 @@ mod impl_cef_window_delegate_t {
         let (arg_self_, arg_window, arg_is_menu, arg_can_activate_menu) =
             (self_, window, is_menu, can_activate_menu);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let mut arg_is_menu = WrapParamRef::<::std::os::raw::c_int>::from(arg_is_menu);
         let arg_is_menu = arg_is_menu.as_mut();
         let mut arg_can_activate_menu =
@@ -47093,7 +47049,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::is_window_modal_dialog(&arg_self_.interface, arg_window);
         result.into()
     }
@@ -47103,7 +47059,7 @@ mod impl_cef_window_delegate_t {
     ) -> _cef_rect_t {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::get_initial_bounds(&arg_self_.interface, arg_window);
         result.into()
     }
@@ -47113,7 +47069,7 @@ mod impl_cef_window_delegate_t {
     ) -> cef_show_state_t {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::get_initial_show_state(&arg_self_.interface, arg_window);
         result.into()
     }
@@ -47123,7 +47079,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::is_frameless(&arg_self_.interface, arg_window);
         result.into()
     }
@@ -47133,7 +47089,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result =
             ImplWindowDelegate::with_standard_window_buttons(&arg_self_.interface, arg_window);
         result.into()
@@ -47145,7 +47101,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window, arg_titlebar_height) = (self_, window, titlebar_height);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let mut arg_titlebar_height = WrapParamRef::<f32>::from(arg_titlebar_height);
         let arg_titlebar_height = arg_titlebar_height.as_mut();
         let result = ImplWindowDelegate::get_titlebar_height(
@@ -47161,7 +47117,7 @@ mod impl_cef_window_delegate_t {
     ) -> cef_state_t {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::accepts_first_mouse(&arg_self_.interface, arg_window);
         result.into()
     }
@@ -47171,7 +47127,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::can_resize(&arg_self_.interface, arg_window);
         result.into()
     }
@@ -47181,7 +47137,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::can_maximize(&arg_self_.interface, arg_window);
         result.into()
     }
@@ -47191,7 +47147,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::can_minimize(&arg_self_.interface, arg_window);
         result.into()
     }
@@ -47201,7 +47157,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window) = (self_, window);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let result = ImplWindowDelegate::can_close(&arg_self_.interface, arg_window);
         result.into()
     }
@@ -47212,7 +47168,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window, arg_command_id) = (self_, window, command_id);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let arg_command_id = arg_command_id.as_raw();
         let result =
             ImplWindowDelegate::on_accelerator(&arg_self_.interface, arg_window, arg_command_id);
@@ -47225,7 +47181,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window, arg_event) = (self_, window, event);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let arg_event = WrapParamRef::<KeyEvent>::from(arg_event);
         let arg_event = arg_event.as_ref();
         let result = ImplWindowDelegate::on_key_event(&arg_self_.interface, arg_window, arg_event);
@@ -47238,7 +47194,7 @@ mod impl_cef_window_delegate_t {
     ) {
         let (arg_self_, arg_window, arg_chrome_theme) = (self_, window, chrome_theme);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let arg_chrome_theme = arg_chrome_theme.as_raw();
         let result = ImplWindowDelegate::on_theme_colors_changed(
             &arg_self_.interface,
@@ -47261,7 +47217,7 @@ mod impl_cef_window_delegate_t {
     ) -> ::std::os::raw::c_int {
         let (arg_self_, arg_window, arg_properties) = (self_, window, properties);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_window = &mut Window(unsafe { RefGuard::from_raw_add_ref(arg_window) });
+        let arg_window = &mut Window(unsafe { RefGuard::from_raw(arg_window) });
         let mut arg_properties = WrapParamRef::<LinuxWindowProperties>::from(arg_properties);
         let arg_properties = arg_properties.as_mut();
         let result = ImplWindowDelegate::get_linux_window_properties(
@@ -47967,8 +47923,7 @@ mod impl_cef_window_t {
     ) {
         let (arg_self_, arg_browser_view) = (self_, browser_view);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_browser_view =
-            &mut BrowserView(unsafe { RefGuard::from_raw_add_ref(arg_browser_view) });
+        let arg_browser_view = &mut BrowserView(unsafe { RefGuard::from_raw(arg_browser_view) });
         let result =
             ImplWindow::show_as_browser_modal_dialog(&arg_self_.interface, arg_browser_view);
     }
@@ -48106,7 +48061,7 @@ mod impl_cef_window_t {
     ) {
         let (arg_self_, arg_image) = (self_, image);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_image = &mut Image(unsafe { RefGuard::from_raw_add_ref(arg_image) });
+        let arg_image = &mut Image(unsafe { RefGuard::from_raw(arg_image) });
         let result = ImplWindow::set_window_icon(&arg_self_.interface, arg_image);
     }
     extern "C" fn get_window_icon<I: ImplWindow>(self_: *mut _cef_window_t) -> *mut _cef_image_t {
@@ -48121,7 +48076,7 @@ mod impl_cef_window_t {
     ) {
         let (arg_self_, arg_image) = (self_, image);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_image = &mut Image(unsafe { RefGuard::from_raw_add_ref(arg_image) });
+        let arg_image = &mut Image(unsafe { RefGuard::from_raw(arg_image) });
         let result = ImplWindow::set_window_app_icon(&arg_self_.interface, arg_image);
     }
     extern "C" fn get_window_app_icon<I: ImplWindow>(
@@ -48141,7 +48096,7 @@ mod impl_cef_window_t {
         let (arg_self_, arg_view, arg_docking_mode, arg_can_activate) =
             (self_, view, docking_mode, can_activate);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_view = &mut View(unsafe { RefGuard::from_raw_add_ref(arg_view) });
+        let arg_view = &mut View(unsafe { RefGuard::from_raw(arg_view) });
         let arg_docking_mode = arg_docking_mode.as_raw();
         let arg_can_activate = arg_can_activate.as_raw();
         let result = ImplWindow::add_overlay_view(
@@ -48161,7 +48116,7 @@ mod impl_cef_window_t {
         let (arg_self_, arg_menu_model, arg_screen_point, arg_anchor_position) =
             (self_, menu_model, screen_point, anchor_position);
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
-        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw_add_ref(arg_menu_model) });
+        let arg_menu_model = &mut MenuModel(unsafe { RefGuard::from_raw(arg_menu_model) });
         let arg_screen_point = WrapParamRef::<Point>::from(arg_screen_point);
         let arg_screen_point = arg_screen_point.as_ref();
         let arg_anchor_position = arg_anchor_position.as_raw();

@@ -738,17 +738,17 @@ impl SignatureRef<'_> {
 
                                 match modifiers {
                                     [TypeModifier::ConstPtr] => Some(quote! {
-                                        let #arg_name = &#name(unsafe { RefGuard::from_raw_add_ref(#arg_name) });
+                                        let #arg_name = &#name(unsafe { RefGuard::from_raw(#arg_name) });
                                     }),
                                     [TypeModifier::MutPtr] => Some(quote! {
-                                        let #arg_name = &mut #name(unsafe { RefGuard::from_raw_add_ref(#arg_name) });
+                                        let #arg_name = &mut #name(unsafe { RefGuard::from_raw(#arg_name) });
                                     }),
                                     [TypeModifier::MutPtr, TypeModifier::MutPtr] => Some(quote! {
                                         let mut #arg_name = unsafe { #arg_name.as_mut() }.and_then(|ptr| {
                                             if ptr.is_null() {
                                                 None
                                             } else {
-                                                Some(#name(unsafe { RefGuard::from_raw_add_ref(*ptr) }))
+                                                Some(#name(unsafe { RefGuard::from_raw(*ptr) }))
                                             }
                                         });
                                         let #arg_name = #arg_name.as_mut();
@@ -842,7 +842,7 @@ impl SignatureRef<'_> {
                                                         if arg.is_null() {
                                                             None
                                                         } else {
-                                                            Some(#name(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                                                            Some(#name(unsafe { RefGuard::from_raw(*arg) }))
                                                         }
                                                     })
                                                     .collect::<Vec<_>>()
@@ -867,7 +867,7 @@ impl SignatureRef<'_> {
                                                         if arg.is_null() {
                                                             None
                                                         } else {
-                                                            Some(#name(unsafe { RefGuard::from_raw_add_ref(*arg) }))
+                                                            Some(#name(unsafe { RefGuard::from_raw(*arg) }))
                                                         }
                                                     })
                                                     .collect::<Vec<_>>()
