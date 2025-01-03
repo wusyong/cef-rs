@@ -464,7 +464,7 @@ impl SignatureRef<'_> {
                                             quote!{ #ty::get_raw(arg) }
                                         })
                                         .unwrap_or_else(|| quote!{ arg.get_raw() });
-    
+
                                     Some(quote! {
                                         let #name = #name.map(|arg| {
                                             arg.add_ref();
@@ -545,7 +545,7 @@ impl SignatureRef<'_> {
                                 };
                                 Some(quote! {
                                     let #name = #name #cast;
-                                })    
+                                })
                             }
                         }
                     })
@@ -989,7 +989,7 @@ impl SignatureRef<'_> {
                             }),
                             _ => None,
                         };
-    
+
                         Some(quote! {
                             #out_size
                             let #out_name = (!#arg_name.is_null() && #arg_size > 0).then(|| unsafe {
@@ -1028,7 +1028,7 @@ impl SignatureRef<'_> {
                 let vec_name = format_ident!("vec_{slice_name}");
                 Some(quote! {
                     if let (Some(#out_count), Some(#vec_name)) = (#out_count, #vec_name.as_mut()) {
-                        *#out_count = #vec_name.len().min(*#out_count);  
+                        *#out_count = #vec_name.len().min(*#out_count);
                     }
                 })
             }
@@ -1241,8 +1241,12 @@ impl ModifiedType {
                     match self.modifiers.as_slice() {
                         [TypeModifier::ConstPtr] => Some(quote! { Option<&impl #impl_trait> }),
                         [TypeModifier::MutPtr] => Some(quote! { Option<&mut impl #impl_trait> }),
-                        [TypeModifier::MutPtr, TypeModifier::MutPtr] => Some(quote! { Option<&mut impl #impl_trait> }),
-                        [TypeModifier::Slice] => Some(quote! { Option<&[Option<impl #impl_trait>]> }),
+                        [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
+                            Some(quote! { Option<&mut impl #impl_trait> })
+                        }
+                        [TypeModifier::Slice] => {
+                            Some(quote! { Option<&[Option<impl #impl_trait>]> })
+                        }
                         [TypeModifier::MutSlice] => {
                             Some(quote! { Option<&mut Vec<Option<#name>>> })
                         }
@@ -1254,7 +1258,9 @@ impl ModifiedType {
                     match self.modifiers.as_slice() {
                         [TypeModifier::ConstPtr] => Some(quote! { Option<&#name> }),
                         [TypeModifier::MutPtr] => Some(quote! { Option<&mut #name> }),
-                        [TypeModifier::MutPtr, TypeModifier::MutPtr] => Some(quote! { Option<&mut #name> }),
+                        [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
+                            Some(quote! { Option<&mut #name> })
+                        }
                         [TypeModifier::Slice] => Some(quote! { Option<&[Option<#name>]> }),
                         [TypeModifier::MutSlice] => {
                             Some(quote! { Option<&mut Vec<Option<#name>>> })
@@ -1279,14 +1285,19 @@ impl ModifiedType {
             }
             None => {
                 let is_void = elem_string == quote! { ::std::os::raw::c_void }.to_string();
-                let elem = if is_void { quote! { u8 } } else { elem };
+                let elem = if is_void {
+                    quote! { u8 }
+                } else {
+                    elem
+                };
                 match self.modifiers.as_slice() {
                     [TypeModifier::ConstPtr] if !is_void => Some(quote! { Option<&#elem> }),
                     [TypeModifier::MutPtr] if !is_void => Some(quote! { Option<&mut #elem> }),
                     [TypeModifier::Slice] => Some(quote! { Option<&[#elem]> }),
                     [TypeModifier::MutSlice] => Some(quote! { Option<&mut Vec<#elem>> }),
                     modifiers => {
-                        let modifiers = modifiers.iter()
+                        let modifiers = modifiers
+                            .iter()
                             .map(|modifier| match modifier {
                                 TypeModifier::MutPtr => Some(quote! { *mut }),
                                 TypeModifier::ConstPtr => Some(quote! { *const }),
@@ -1302,7 +1313,9 @@ impl ModifiedType {
                 }
             }
             _ => {
-                let modifiers = self.modifiers.iter()
+                let modifiers = self
+                    .modifiers
+                    .iter()
                     .map(|modifier| match modifier {
                         TypeModifier::MutPtr => Some(quote! { *mut }),
                         TypeModifier::ConstPtr => Some(quote! { *const }),
@@ -1314,7 +1327,7 @@ impl ModifiedType {
                 } else {
                     Some(quote! { #(#modifiers)* #elem})
                 }
-            },
+            }
         }
     }
 
@@ -1456,8 +1469,15 @@ impl<'a> ParseTree<'a> {
                 ConvertParam, ConvertReturnValue, Rc, RcImpl, RefGuard, WrapParamRef,
             };
             use cef_sys::*;
+        }
+        .to_string();
+        writeln!(f, "{header}")?;
 
-            /// Perform the conversion between CEF and Rust types in field initializers.
+        writeln!(
+            f,
+            "\n/// Perform the conversion between CEF and Rust types in field initializers."
+        )?;
+        let init_array_field = quote! {
             fn init_array_field<T, U, const N: usize>(mut value: [U; N]) -> [T; N]
             where
                 T: Sized,
@@ -1471,7 +1491,7 @@ impl<'a> ParseTree<'a> {
             }
         }
         .to_string();
-        writeln!(f, "{header}")
+        writeln!(f, "{init_array_field}")
     }
 
     fn resolve_type_aliases(&self, ty: &syn::Type) -> proc_macro2::TokenStream {
@@ -1524,46 +1544,51 @@ impl<'a> ParseTree<'a> {
     }
 
     pub fn write_aliases(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let aliases = self
-            .type_aliases
-            .iter()
-            .filter_map(|TypeAliasRef { name, ty }| {
-                let rust_name = make_rust_type_name(name.as_str())?;
-                let arg_ty = self.resolve_modified_type(ty)?;
-                let ty = arg_ty.ty.to_token_stream().to_string();
-                let ty = make_rust_type_name(&ty).unwrap_or(ty);
-                (rust_name.as_str() != ty.as_str()).then(|| {
-                    let name = format_ident!("{rust_name}");
-                    let ty = format_ident!("{ty}");
-                    let modifiers = arg_ty
-                        .modifiers
-                        .iter()
-                        .filter_map(|modifier| match modifier {
-                            TypeModifier::MutPtr => Some(quote! { *mut }),
-                            TypeModifier::ConstPtr => Some(quote! { *const }),
-                            TypeModifier::MutRef => Some(quote! { &mut }),
-                            TypeModifier::Ref => Some(quote! { & }),
-                            _ => None,
-                        });
-                    let ty = match arg_ty.modifiers.last() {
-                        Some(TypeModifier::MutSlice) => quote! { &mut [#ty] },
-                        Some(TypeModifier::Slice) => quote! { &[#ty] },
-                        Some(TypeModifier::Array { size }) => quote! { [#ty; #size] },
-                        _ => ty.to_token_stream(),
-                    };
-                    quote! {
-                        pub type #name = #(#modifiers)* #ty;
-                    }
-                })
-            });
+        for TypeAliasRef { name, ty } in self.type_aliases.iter() {
+            let comment_ty = syn::parse2::<ModifiedType>(ty.to_token_stream())
+                .map(|ty| ty.ty.to_token_stream())
+                .unwrap_or_else(|_| ty.to_token_stream())
+                .to_string();
+            let comment = format!("See [{comment_ty}] for more documentation.");
+            let (Some(rust_name), Some(arg_ty)) = (
+                make_rust_type_name(name.as_str()),
+                self.resolve_modified_type(ty),
+            ) else {
+                continue;
+            };
+            let ty = arg_ty.ty.to_token_stream().to_string();
+            let ty = make_rust_type_name(&ty).unwrap_or(ty);
+            if rust_name == ty.as_str() {
+                continue;
+            }
+            let name = format_ident!("{rust_name}");
+            let ty = format_ident!("{ty}");
+            let modifiers = arg_ty
+                .modifiers
+                .iter()
+                .filter_map(|modifier| match modifier {
+                    TypeModifier::MutPtr => Some(quote! { *mut }),
+                    TypeModifier::ConstPtr => Some(quote! { *const }),
+                    TypeModifier::MutRef => Some(quote! { &mut }),
+                    TypeModifier::Ref => Some(quote! { & }),
+                    _ => None,
+                });
+            let ty = match arg_ty.modifiers.last() {
+                Some(TypeModifier::MutSlice) => quote! { &mut [#ty] },
+                Some(TypeModifier::Slice) => quote! { &[#ty] },
+                Some(TypeModifier::Array { size }) => quote! { [#ty; #size] },
+                _ => ty.to_token_stream(),
+            };
 
-        let aliases = quote! {
-            #(#aliases)*
+            let alias = quote! {
+                pub type #name = #(#modifiers)* #ty;
+            }
+            .to_string();
+
+            writeln!(f, "\n/// {comment}")?;
+            writeln!(f, "{alias}")?;
         }
-        .to_string();
-
-        writeln!(f, "\n// Type aliases")?;
-        writeln!(f, "{aliases}")
+        Ok(())
     }
 
     fn base(&self, name: &str) -> Option<&str> {
@@ -1575,26 +1600,31 @@ impl<'a> ParseTree<'a> {
     }
 
     pub fn write_structs(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let declarations = self.struct_declarations.iter().filter_map(|s| {
+        for s in self.struct_declarations.iter() {
             let Some(NameMapEntry {
                 name: rust_name,
                 ty: NameMapType::StructDeclaration,
             }) = self.cef_name_map.get(&s.name)
             else {
-                return None;
+                continue;
             };
             let rust_name = format_ident!("{rust_name}");
 
             let name = s.name.as_str();
-            let name_ident = format_ident!("{name}");
-            let comment = format!(r#"See [{name}] for more documentation."#);
-            let root = self.root(&s.name);
+            writeln!(f, "\n/// See [{name}] for more documentation.")?;
 
-            let wrapper = if CUSTOM_STRING_TYPES.contains(&name) {
-                quote! {
+            let name_ident = format_ident!("{name}");
+            let root = self.root(&s.name);
+            if CUSTOM_STRING_TYPES.contains(&name) {
+                let wrapper = quote! {
                     pub use crate::string::#rust_name;
                 }
-            } else if root == BASE_REF_COUNTED && root != s.name {
+                .to_string();
+                writeln!(f, "{wrapper}")?;
+                continue;
+            }
+
+            if root == BASE_REF_COUNTED && root != s.name {
                 let methods = s.methods.iter().map(|m| {
                     let sig = m.get_signature(self);
                     let name = &m.name;
@@ -1610,33 +1640,39 @@ impl<'a> ParseTree<'a> {
                         let ty = self.resolve_type_aliases(ty);
                         syn::parse2::<ModifiedType>(ty.to_token_stream()).ok()
                     });
-                    let wrap_result = output_type.as_ref().and_then(|ModifiedType { modifiers, ty, .. }| {
-                        let ty = ty.to_token_stream().to_string();
-                        match modifiers.as_slice() {
-                            [TypeModifier::ConstPtr | TypeModifier::MutPtr] if ty != quote!{ ::std::os::raw::c_void }.to_string() => {
-                                match self.cef_name_map.get(&ty) {
-                                    Some(NameMapEntry {
-                                        ty: NameMapType::StructDeclaration,
-                                        ..
-                                    }) => {
-                                        Some(quote! { 
+                    let wrap_result = output_type
+                        .as_ref()
+                        .and_then(|ModifiedType { modifiers, ty, .. }| {
+                            let ty = ty.to_token_stream().to_string();
+                            match modifiers.as_slice() {
+                                [TypeModifier::ConstPtr | TypeModifier::MutPtr]
+                                    if ty != quote! { ::std::os::raw::c_void }.to_string() =>
+                                {
+                                    match self.cef_name_map.get(&ty) {
+                                        Some(NameMapEntry {
+                                            ty: NameMapType::StructDeclaration,
+                                            ..
+                                        }) => Some(quote! {
                                             if result.is_null() {
                                                 None
                                             } else {
                                                 Some(result.as_wrapper())
                                             }
-                                        })
+                                        }),
+                                        _ => None,
                                     }
-                                    _ => None,
                                 }
+                                _ => None,
                             }
-                            _ => None,
-                        }
-                    }).unwrap_or(quote! { result.as_wrapper() });
-                    let impl_default = output_type.and_then(|ty| {
-                        (ty.ty.to_token_stream().to_string() != quote!{ ::std::os::raw::c_void }.to_string())
+                        })
+                        .unwrap_or(quote! { result.as_wrapper() });
+                    let impl_default = output_type
+                        .and_then(|ty| {
+                            (ty.ty.to_token_stream().to_string()
+                                != quote! { ::std::os::raw::c_void }.to_string())
                             .then(|| quote! { .unwrap_or_default() })
-                    }).unwrap_or(quote! { .unwrap_or_else(|| std::mem::zeroed()) });
+                        })
+                        .unwrap_or(quote! { .unwrap_or_else(|| std::mem::zeroed()) });
                     quote! {
                         #sig {
                             unsafe {
@@ -1662,19 +1698,25 @@ impl<'a> ParseTree<'a> {
                         let base = format_ident!("Impl{base}");
                         quote! { #base }
                     });
-                let impl_get_raw = impl_base_name.as_ref().map(|impl_base_name| {
-                    quote! {
-                        fn get_raw(&self) -> *mut #name_ident {
-                            <Self as #impl_base_name>::get_raw(self) as *mut _
+                let impl_get_raw = impl_base_name
+                    .as_ref()
+                    .map(|impl_base_name| {
+                        quote! {
+                            fn get_raw(&self) -> *mut #name_ident {
+                                <Self as #impl_base_name>::get_raw(self) as *mut _
+                            }
                         }
-                    }
-                }).unwrap_or(quote! { fn get_raw(&self) -> *mut #name_ident; });
+                    })
+                    .unwrap_or(quote! { fn get_raw(&self) -> *mut #name_ident; });
                 let impl_base_name = impl_base_name.unwrap_or(quote! { Clone + Sized + Rc });
                 let impl_methods = s.methods.iter().map(|m| {
                     let sig = m.get_signature(self);
                     let impl_default = m.output.map(|ty| {
                         match syn::parse2::<ModifiedType>(ty.to_token_stream()) {
-                            Ok(ty) if ty.ty.to_token_stream().to_string() != quote!{ ::std::os::raw::c_void }.to_string() => {
+                            Ok(ty)
+                                if ty.ty.to_token_stream().to_string()
+                                    != quote! { ::std::os::raw::c_void }.to_string() =>
+                            {
                                 quote! {  Default::default() }
                             }
                             _ => quote! { unsafe { std::mem::zeroed() } },
@@ -1838,7 +1880,10 @@ impl<'a> ParseTree<'a> {
 
                 let base_ident = format_ident!("{BASE_REF_COUNTED}");
 
-                quote! {
+                let wrapper = quote! {
+                    #[derive(Clone)]
+                    pub struct #rust_name(RefGuard<#name_ident>);
+
                     pub trait #impl_trait : #impl_base_name {
                         #(#impl_methods)*
 
@@ -1859,10 +1904,6 @@ impl<'a> ParseTree<'a> {
 
                         #(#wrapped_methods)*
                     }
-
-                    #[doc = #comment]
-                    #[derive(Clone)]
-                    pub struct #rust_name(RefGuard<#name_ident>);
 
                     #(#impl_bases)*
 
@@ -1918,9 +1959,13 @@ impl<'a> ParseTree<'a> {
                         }
                     }
                 }
-            } else if BASE_REF_COUNTED == s.name {
-                quote! {
-                    #[doc = #comment]
+                .to_string();
+                writeln!(f, "{wrapper}")?;
+                continue;
+            }
+
+            if BASE_REF_COUNTED == s.name {
+                let wrapper = quote! {
                     #[derive(Clone)]
                     pub struct #rust_name(RefGuard<#name_ident>);
 
@@ -1968,12 +2013,16 @@ impl<'a> ParseTree<'a> {
                         }
                     }
                 }
-            } else if !s.methods.is_empty()
+                .to_string();
+                writeln!(f, "{wrapper}")?;
+                continue;
+            }
+
+            if !s.methods.is_empty()
                 || s.fields.is_empty()
                 || s.fields.iter().map(|f| f.name.as_str()).eq(["_unused"])
             {
-                quote! {
-                    #[doc = #comment]
+                let wrapper = quote! {
                     pub struct #rust_name(#name_ident);
 
                     impl From<#name_ident> for #rust_name {
@@ -2018,120 +2067,115 @@ impl<'a> ParseTree<'a> {
                         }
                     }
                 }
-            } else {
-                let fields = s
-                    .fields
-                    .iter()
-                    .map(|f| {
-                        let name = &f.name;
-                        let rust_name = make_snake_case_value_name(name);
-                        let rust_name = format_ident!("{rust_name}");
-                        let name = format_ident!("{name}");
-                        let ty = self
-                            .resolve_modified_type(f.ty)
-                            .unwrap_or_else(|| ModifiedType {
-                                modifiers: Default::default(),
-                                ty: f.ty.clone(),
-                            });
-                        let rust_ty = ty.ty.to_token_stream();
-                        let ty_string = rust_ty.to_string();
-                        let rust_ty = match self.cef_name_map.get(&ty_string) {
-                            Some(NameMapEntry { name, .. }) => {
-                                let name = format_ident!("{name}");
-                                quote! { #name }
-                            }
-                            _ => rust_ty,
-                        };
-                        let modifiers = ty.modifiers.iter().filter_map(|modifier| match modifier {
-                            TypeModifier::MutPtr => Some(quote! { *mut }),
-                            TypeModifier::ConstPtr => Some(quote! { *const }),
-                            TypeModifier::MutRef => Some(quote! { &mut }),
-                            TypeModifier::Ref => Some(quote! { & }),
-                            _ => None,
+                .to_string();
+                writeln!(f, "{wrapper}")?;
+                continue;
+            }
+
+            let fields = s
+                .fields
+                .iter()
+                .map(|f| {
+                    let name = &f.name;
+                    let rust_name = make_snake_case_value_name(name);
+                    let rust_name = format_ident!("{rust_name}");
+                    let name = format_ident!("{name}");
+                    let ty = self
+                        .resolve_modified_type(f.ty)
+                        .unwrap_or_else(|| ModifiedType {
+                            modifiers: Default::default(),
+                            ty: f.ty.clone(),
                         });
-                        let rust_ty = match ty.modifiers.last() {
-                            Some(TypeModifier::MutSlice) => quote! { &mut [#rust_ty] },
-                            Some(TypeModifier::Slice) => quote! { &[#rust_ty] },
-                            Some(TypeModifier::Array { size }) => quote! { [#rust_ty; #size] },
-                            _ => rust_ty,
-                        };
-                        (rust_name, name.clone(), quote! { #(#modifiers)* #rust_ty })
-                    })
-                    .collect::<Vec<_>>();
-                let fields_decl = fields.iter().map(|(rust_name, _, ty)| {
-                    quote! { pub #rust_name: #ty, }
-                });
-                let from_fields = fields.iter().filter_map(|(rust_name, name, ty)| {
-                    let ty = syn::parse2::<ModifiedType>(ty.clone()).ok()?;
-                    Some(match ty.modifiers.last() {
-                        Some(TypeModifier::Array { .. }) => {
-                            quote! { #rust_name: init_array_field(value.#name), }
+                    let rust_ty = ty.ty.to_token_stream();
+                    let ty_string = rust_ty.to_string();
+                    let rust_ty = match self.cef_name_map.get(&ty_string) {
+                        Some(NameMapEntry { name, .. }) => {
+                            let name = format_ident!("{name}");
+                            quote! { #name }
                         }
-                        _ => quote! { #rust_name: value.#name.into(), },
-                    })
-                });
-                let into_fields = fields.iter().filter_map(|(rust_name, name, ty)| {
-                    let ty = syn::parse2::<ModifiedType>(ty.clone()).ok()?;
-                    Some(match ty.modifiers.last() {
-                        Some(TypeModifier::Array { .. }) => {
-                            quote! { #name: init_array_field(self.#rust_name), }
-                        }
-                        _ => quote! { #name: self.#rust_name.into(), },
-                    })
-                });
-                let impl_default = match s.fields.first() {
-                    Some(f) if f.name.as_str() == "size" => {
-                        quote! {
-                            Self {
-                                size: std::mem::size_of::<#name_ident>(),
-                                ..unsafe { std::mem::zeroed() }
-                            }
-                        }
+                        _ => rust_ty,
+                    };
+                    let modifiers = ty.modifiers.iter().filter_map(|modifier| match modifier {
+                        TypeModifier::MutPtr => Some(quote! { *mut }),
+                        TypeModifier::ConstPtr => Some(quote! { *const }),
+                        TypeModifier::MutRef => Some(quote! { &mut }),
+                        TypeModifier::Ref => Some(quote! { & }),
+                        _ => None,
+                    });
+                    let rust_ty = match ty.modifiers.last() {
+                        Some(TypeModifier::MutSlice) => quote! { &mut [#rust_ty] },
+                        Some(TypeModifier::Slice) => quote! { &[#rust_ty] },
+                        Some(TypeModifier::Array { size }) => quote! { [#rust_ty; #size] },
+                        _ => rust_ty,
+                    };
+                    (rust_name, name.clone(), quote! { #(#modifiers)* #rust_ty })
+                })
+                .collect::<Vec<_>>();
+            let fields_decl = fields.iter().map(|(rust_name, _, ty)| {
+                quote! { pub #rust_name: #ty, }
+            });
+            let from_fields = fields.iter().filter_map(|(rust_name, name, ty)| {
+                let ty = syn::parse2::<ModifiedType>(ty.clone()).ok()?;
+                Some(match ty.modifiers.last() {
+                    Some(TypeModifier::Array { .. }) => {
+                        quote! { #rust_name: init_array_field(value.#name), }
                     }
-                    _ => quote!{ unsafe { std::mem::zeroed() } },
-                };
-
-                quote! {
-                    #[doc = #comment]
-                    #[derive(Clone)]
-                    pub struct #rust_name {
-                        #(#fields_decl)*
+                    _ => quote! { #rust_name: value.#name.into(), },
+                })
+            });
+            let into_fields = fields.iter().filter_map(|(rust_name, name, ty)| {
+                let ty = syn::parse2::<ModifiedType>(ty.clone()).ok()?;
+                Some(match ty.modifiers.last() {
+                    Some(TypeModifier::Array { .. }) => {
+                        quote! { #name: init_array_field(self.#rust_name), }
                     }
-
-                    impl From<#name_ident> for #rust_name {
-                        fn from(value: #name_ident) -> Self {
-                            Self {
-                                #(#from_fields)*
-                            }
-                        }
-                    }
-
-                    impl Into<#name_ident> for #rust_name {
-                        fn into(self) -> #name_ident {
-                            #name_ident {
-                                #(#into_fields)*
-                            }
-                        }
-                    }
-
-                    impl Default for #rust_name {
-                        fn default() -> Self {
-                            #impl_default
+                    _ => quote! { #name: self.#rust_name.into(), },
+                })
+            });
+            let impl_default = match s.fields.first() {
+                Some(f) if f.name.as_str() == "size" => {
+                    quote! {
+                        Self {
+                            size: std::mem::size_of::<#name_ident>(),
+                            ..unsafe { std::mem::zeroed() }
                         }
                     }
                 }
+                _ => quote! { unsafe { std::mem::zeroed() } },
             };
 
-            Some(wrapper)
-        });
+            let wrapper = quote! {
+                #[derive(Clone)]
+                pub struct #rust_name {
+                    #(#fields_decl)*
+                }
 
-        let declarations = quote! {
-            #(#declarations)*
+                impl From<#name_ident> for #rust_name {
+                    fn from(value: #name_ident) -> Self {
+                        Self {
+                            #(#from_fields)*
+                        }
+                    }
+                }
+
+                impl Into<#name_ident> for #rust_name {
+                    fn into(self) -> #name_ident {
+                        #name_ident {
+                            #(#into_fields)*
+                        }
+                    }
+                }
+
+                impl Default for #rust_name {
+                    fn default() -> Self {
+                        #impl_default
+                    }
+                }
+            }
+            .to_string();
+            writeln!(f, "{wrapper}")?;
         }
-        .to_string();
-
-        writeln!(f, "\n// Struct wrappers")?;
-        writeln!(f, "{declarations}")
+        Ok(())
     }
 
     pub fn write_enums(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -2139,19 +2183,19 @@ impl<'a> ParseTree<'a> {
             .enum_names
             .iter()
             .filter_map(|e| make_rust_type_name(&e.name).map(|rust_name| (rust_name, e)));
-        let declarations = enum_names.map(|(rust_name, e)| {
+        for (rust_name, e) in enum_names {
             let name = &e.name;
-            let comment = format!(r#"See [{name}] for more documentation."#);
+            writeln!(f, "\n/// See [{name}] for more documentation.")?;
             let name = format_ident!("{name}");
             let rust_name = format_ident!("{rust_name}");
-            let impl_default = e.ty.and_then(|ty| ty.variants.first())
-                .map(|v| {
-                    let v = &v.ident;
-                    quote!{ Self(#name::#v) }
-                })
-                .unwrap_or(quote! { unsafe { std::mem::zeroed() } });
-            quote! {
-                #[doc = #comment]
+            let impl_default =
+                e.ty.and_then(|ty| ty.variants.first())
+                    .map(|v| {
+                        let v = &v.ident;
+                        quote! { Self(#name::#v) }
+                    })
+                    .unwrap_or(quote! { unsafe { std::mem::zeroed() } });
+            let wrapper = quote! {
                 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
                 pub struct #rust_name(#name);
 
@@ -2185,19 +2229,16 @@ impl<'a> ParseTree<'a> {
                     }
                 }
             }
-        });
-
-        let declarations = quote! {
-            #(#declarations)*
-        };
-
-        writeln!(f, "\n// Enum aliases")?;
-        writeln!(f, "{declarations}")
+            .to_string();
+            writeln!(f, "{wrapper}")?;
+        }
+        Ok(())
     }
 
     pub fn write_globals(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let declarations = self.global_function_declarations.iter().map(|f| {
-            let original_name = f.name.as_str();
+        for global_fn in self.global_function_declarations.iter() {
+            let original_name = global_fn.name.as_str();
+            writeln!(f, "\n/// See [{original_name}] for more documentation.")?;
             static PATTERN: OnceLock<Regex> = OnceLock::new();
             let pattern = PATTERN.get_or_init(|| Regex::new(r"^cef_(\w+)$").unwrap());
             let name = pattern
@@ -2207,9 +2248,9 @@ impl<'a> ParseTree<'a> {
                 .unwrap_or(original_name);
             let name = format_ident!("{name}");
             let original_name = format_ident!("{original_name}");
-            let args = f.get_rust_args(self);
-            let output = f.get_rust_output(self);
-            let inputs = f
+            let args = global_fn.get_rust_args(self);
+            let output = global_fn.get_rust_output(self);
+            let inputs = global_fn
                 .inputs
                 .iter()
                 .map(|arg| {
@@ -2219,34 +2260,41 @@ impl<'a> ParseTree<'a> {
                     (rust_name, ty)
                 })
                 .collect::<Vec<_>>();
-            let unwrap_args = f.unwrap_rust_args(self);
+            let unwrap_args = global_fn.unwrap_rust_args(self);
             let forward_args = inputs.iter().map(|(rust_name, _)| {
                 quote! { #rust_name }
             });
-            let rewrap_args = f.rewrap_rust_args(self);
-            let wrap_result = f.output.and_then(|ty| {
-                let ModifiedType { modifiers, ty, .. } = syn::parse2::<ModifiedType>(self.resolve_type_aliases(ty)).ok()?;
-                let ty = ty.to_token_stream().to_string();
-                match modifiers.as_slice() {
-                    [TypeModifier::ConstPtr | TypeModifier::MutPtr] if ty != quote!{ ::std::os::raw::c_void }.to_string() => {
-                        match self.cef_name_map.get(&ty) {
-                            Some(NameMapEntry { ty: NameMapType::StructDeclaration, .. }) => {
-                                Some(quote! { 
+            let rewrap_args = global_fn.rewrap_rust_args(self);
+            let wrap_result = global_fn
+                .output
+                .and_then(|ty| {
+                    let ModifiedType { modifiers, ty, .. } =
+                        syn::parse2::<ModifiedType>(self.resolve_type_aliases(ty)).ok()?;
+                    let ty = ty.to_token_stream().to_string();
+                    match modifiers.as_slice() {
+                        [TypeModifier::ConstPtr | TypeModifier::MutPtr]
+                            if ty != quote! { ::std::os::raw::c_void }.to_string() =>
+                        {
+                            match self.cef_name_map.get(&ty) {
+                                Some(NameMapEntry {
+                                    ty: NameMapType::StructDeclaration,
+                                    ..
+                                }) => Some(quote! {
                                     if result.is_null() {
                                         None
                                     } else {
                                         Some(result.as_wrapper())
                                     }
-                                })
+                                }),
+                                _ => None,
                             }
-                            _ => None,
                         }
+                        _ => None,
                     }
-                    _ => None,
-                }
-            }).unwrap_or(quote! { result.as_wrapper() });
+                })
+                .unwrap_or(quote! { result.as_wrapper() });
 
-            quote! {
+            let wrapper = quote! {
                 pub fn #name(#args) #output {
                     unsafe {
                         #unwrap_args
@@ -2256,15 +2304,10 @@ impl<'a> ParseTree<'a> {
                     }
                 }
             }
-        });
-
-        let declarations = quote! {
-            #(#declarations)*
+            .to_string();
+            writeln!(f, "{wrapper}")?;
         }
-        .to_string();
-
-        writeln!(f, "\n// Global function wrappers")?;
-        writeln!(f, "{declarations}")
+        Ok(())
     }
 }
 
@@ -2298,11 +2341,15 @@ impl<'a> From<&'a syn::File> for ParseTree<'a> {
             .items
             .iter()
             .filter_map(|item| match item {
-                syn::Item::Enum(e) => Some(EnumRef { name: e.ident.to_string(), ty: Some(e) }),
+                syn::Item::Enum(e) => Some(EnumRef {
+                    name: e.ident.to_string(),
+                    ty: Some(e),
+                }),
                 syn::Item::Struct(item_struct) => match &item_struct.fields {
-                    syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
-                        Some(EnumRef { name: item_struct.ident.to_string(), ty: None })
-                    }
+                    syn::Fields::Unnamed(fields) if fields.unnamed.len() == 1 => Some(EnumRef {
+                        name: item_struct.ident.to_string(),
+                        ty: None,
+                    }),
                     _ => None,
                 },
                 _ => None,
