@@ -189,10 +189,11 @@ fn main() {
             Option::<&mut DictionaryValue>::None,
             Option::<&mut RequestContext>::None,
             Option::<&mut BrowserViewDelegate>::None,
-        );
+        )
+        .expect("Failed to create browser view");
         let mut delegate = DemoWindowDelegate::new(browser_view);
 
-        let x = window_create_top_level(Some(&mut delegate));
+        let x = window_create_top_level(Some(&mut delegate)).expect("Failed to create window");
         // dbg!(cef::create_browser(
         //     window_info,
         //     Some(client),

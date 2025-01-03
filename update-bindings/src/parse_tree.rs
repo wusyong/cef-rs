@@ -1330,13 +1330,14 @@ impl ModifiedType {
                     let name = format_ident!("{name}");
 
                     match self.modifiers.as_slice() {
-                        [] | [TypeModifier::MutPtr] => Some(quote! { #name }),
-                        [TypeModifier::ConstPtr] => Some(quote! { &#name }),
+                        [] => Some(quote! { #name }),
+                        [TypeModifier::MutPtr] => Some(quote! { Option<#name> }),
+                        [TypeModifier::ConstPtr] => Some(quote! { Option<&#name> }),
                         [TypeModifier::ConstPtr, TypeModifier::MutPtr] => {
-                            Some(quote! { &mut [#name>] })
+                            Some(quote! { Option<&mut [#name>]> })
                         }
                         [TypeModifier::ConstPtr, TypeModifier::ConstPtr] => {
-                            Some(quote! { &[#name] })
+                            Some(quote! { Option<&[#name]> })
                         }
                         _ => None,
                     }
@@ -1349,16 +1350,16 @@ impl ModifiedType {
 
                     match self.modifiers.as_slice() {
                         [] => Some(quote! { #name }),
-                        [TypeModifier::ConstPtr] => Some(quote! { &[#name] }),
-                        [TypeModifier::MutPtr] => Some(quote! { &mut [#name] }),
+                        [TypeModifier::ConstPtr] => Some(quote! { Option<&[#name]> }),
+                        [TypeModifier::MutPtr] => Some(quote! { Option<&mut [#name]> }),
                         _ => None,
                     }
                 }
                 _ => match self.modifiers.as_slice() {
-                    [TypeModifier::MutPtr] => Some(quote! { &mut #elem }),
-                    [TypeModifier::ConstPtr] => Some(quote! { &[#elem] }),
+                    [TypeModifier::MutPtr] => Some(quote! { Option<&mut #elem> }),
+                    [TypeModifier::ConstPtr] => Some(quote! { Option<&[#elem]> }),
                     [TypeModifier::MutPtr, TypeModifier::MutPtr] => {
-                        Some(quote! { Option<Vec<#elem>> })
+                        Some(quote! { Option<&mut Vec<#elem>> })
                     }
                     _ => None,
                 },
@@ -1605,8 +1606,34 @@ impl<'a> ParseTree<'a> {
                         quote! { #name }
                     });
                     let post_forward_args = m.rewrap_rust_args(self);
-                    let impl_default = m.output.and_then(|ty| {
-                        let ty = syn::parse2::<ModifiedType>(ty.to_token_stream()).ok()?;
+                    let output_type = m.output.and_then(|ty| {
+                        let ty = self.resolve_type_aliases(ty);
+                        syn::parse2::<ModifiedType>(ty.to_token_stream()).ok()
+                    });
+                    let wrap_result = output_type.as_ref().and_then(|ModifiedType { modifiers, ty, .. }| {
+                        let ty = ty.to_token_stream().to_string();
+                        match modifiers.as_slice() {
+                            [TypeModifier::ConstPtr | TypeModifier::MutPtr] if ty != quote!{ ::std::os::raw::c_void }.to_string() => {
+                                match self.cef_name_map.get(&ty) {
+                                    Some(NameMapEntry {
+                                        ty: NameMapType::StructDeclaration,
+                                        ..
+                                    }) => {
+                                        Some(quote! { 
+                                            if result.is_null() {
+                                                None
+                                            } else {
+                                                Some(result.as_wrapper())
+                                            }
+                                        })
+                                    }
+                                    _ => None,
+                                }
+                            }
+                            _ => None,
+                        }
+                    }).unwrap_or(quote! { result.as_wrapper() });
+                    let impl_default = output_type.and_then(|ty| {
                         (ty.ty.to_token_stream().to_string() != quote!{ ::std::os::raw::c_void }.to_string())
                             .then(|| quote! { .unwrap_or_default() })
                     }).unwrap_or(quote! { .unwrap_or_else(|| std::mem::zeroed()) });
@@ -1617,7 +1644,7 @@ impl<'a> ParseTree<'a> {
                                     #pre_forward_args
                                     let result = f(#(#args),*);
                                     #post_forward_args
-                                    result.as_wrapper()
+                                    #wrap_result
                                 })
                                 #impl_default
                             }
@@ -1774,7 +1801,30 @@ impl<'a> ParseTree<'a> {
                     let output = original_output.as_ref().map(|output| {
                         quote! { -> #output }
                     });
-                    let forward_output = original_output.map(|_output| quote! { result.into() });
+                    let forward_output = original_output.map(|output| {
+                        match syn::parse2::<ModifiedType>(output) {
+                            Ok(ModifiedType { ty, modifiers }) => {
+                                self.cef_name_map
+                                    .get(&ty.to_token_stream().to_string())
+                                    .and_then(|entry| match entry {
+                                        NameMapEntry {
+                                            ty: NameMapType::StructDeclaration,
+                                            ..
+                                        } => match modifiers.as_slice() {
+                                            [TypeModifier::ConstPtr] => {
+                                                Some(quote! { result.map(|result| result.into()).unwrap_or(std::ptr::null()) })
+                                            }
+                                            [TypeModifier::MutPtr] => {
+                                                Some(quote! { result.map(|result| result.into()).unwrap_or(std::ptr::null_mut()) })
+                                            }
+                                            _ => None,
+                                        }
+                                        _ => None,
+                                    })
+                            }
+                            _ => None,
+                        }.unwrap_or(quote! { result.into() })
+                    });
 
                     quote! {
                         extern "C" fn #name<I: #impl_trait>(#(#args),*) #output {
@@ -2174,8 +2224,27 @@ impl<'a> ParseTree<'a> {
                 quote! { #rust_name }
             });
             let rewrap_args = f.rewrap_rust_args(self);
-            let original_output = f.output.map(|ty| self.resolve_type_aliases(ty));
-            let forward_output = original_output.map(|_output| quote! { .as_wrapper() });
+            let wrap_result = f.output.and_then(|ty| {
+                let ModifiedType { modifiers, ty, .. } = syn::parse2::<ModifiedType>(self.resolve_type_aliases(ty)).ok()?;
+                let ty = ty.to_token_stream().to_string();
+                match modifiers.as_slice() {
+                    [TypeModifier::ConstPtr | TypeModifier::MutPtr] if ty != quote!{ ::std::os::raw::c_void }.to_string() => {
+                        match self.cef_name_map.get(&ty) {
+                            Some(NameMapEntry { ty: NameMapType::StructDeclaration, .. }) => {
+                                Some(quote! { 
+                                    if result.is_null() {
+                                        None
+                                    } else {
+                                        Some(result.as_wrapper())
+                                    }
+                                })
+                            }
+                            _ => None,
+                        }
+                    }
+                    _ => None,
+                }
+            }).unwrap_or(quote! { result.as_wrapper() });
 
             quote! {
                 pub fn #name(#args) #output {
@@ -2183,7 +2252,7 @@ impl<'a> ParseTree<'a> {
                         #unwrap_args
                         let result = #original_name(#(#forward_args),*);
                         #rewrap_args
-                        result #forward_output
+                        #wrap_result
                     }
                 }
             }

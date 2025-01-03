@@ -1834,7 +1834,7 @@ pub trait ImplValue: Clone + Sized + Rc {
     fn is_equal(&self, that: Option<&mut impl ImplValue>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn copy(&self) -> Value {
+    fn copy(&self) -> Option<Value> {
         Default::default()
     }
     fn get_type(&self) -> ValueType {
@@ -1849,16 +1849,16 @@ pub trait ImplValue: Clone + Sized + Rc {
     fn get_double(&self) -> f64 {
         Default::default()
     }
-    fn get_string(&self) -> CefStringUtf16 {
+    fn get_string(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_binary(&self) -> BinaryValue {
+    fn get_binary(&self) -> Option<BinaryValue> {
         Default::default()
     }
-    fn get_dictionary(&self) -> DictionaryValue {
+    fn get_dictionary(&self) -> Option<DictionaryValue> {
         Default::default()
     }
-    fn get_list(&self) -> ListValue {
+    fn get_list(&self) -> Option<ListValue> {
         Default::default()
     }
     fn set_null(&self) -> ::std::os::raw::c_int {
@@ -1965,7 +1965,9 @@ mod impl_cef_value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplValue::copy(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_type<I: ImplValue>(self_: *mut _cef_value_t) -> cef_value_type_t {
         let arg_self_ = self_;
@@ -1995,13 +1997,17 @@ mod impl_cef_value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplValue::get_string(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_binary<I: ImplValue>(self_: *mut _cef_value_t) -> *mut _cef_binary_value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplValue::get_binary(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_dictionary<I: ImplValue>(
         self_: *mut _cef_value_t,
@@ -2009,13 +2015,17 @@ mod impl_cef_value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplValue::get_dictionary(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_list<I: ImplValue>(self_: *mut _cef_value_t) -> *mut _cef_list_value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplValue::get_list(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_null<I: ImplValue>(self_: *mut _cef_value_t) -> ::std::os::raw::c_int {
         let arg_self_ = self_;
@@ -2183,14 +2193,18 @@ impl ImplValue for Value {
                 .unwrap_or_default()
         }
     }
-    fn copy(&self) -> Value {
+    fn copy(&self) -> Option<Value> {
         unsafe {
             self.0
                 .copy
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -2243,50 +2257,66 @@ impl ImplValue for Value {
                 .unwrap_or_default()
         }
     }
-    fn get_string(&self) -> CefStringUtf16 {
+    fn get_string(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_string
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_binary(&self) -> BinaryValue {
+    fn get_binary(&self) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .get_binary
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_dictionary(&self) -> DictionaryValue {
+    fn get_dictionary(&self) -> Option<DictionaryValue> {
         unsafe {
             self.0
                 .get_dictionary
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_list(&self) -> ListValue {
+    fn get_list(&self) -> Option<ListValue> {
         unsafe {
             self.0
                 .get_list
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -2475,7 +2505,7 @@ pub trait ImplBinaryValue: Clone + Sized + Rc {
     fn is_equal(&self, that: Option<&mut impl ImplBinaryValue>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn copy(&self) -> BinaryValue {
+    fn copy(&self) -> Option<BinaryValue> {
         Default::default()
     }
     fn get_raw_data(&self) -> *const ::std::os::raw::c_void {
@@ -2550,7 +2580,9 @@ mod impl_cef_binary_value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBinaryValue::copy(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_raw_data<I: ImplBinaryValue>(
         self_: *mut _cef_binary_value_t,
@@ -2655,14 +2687,18 @@ impl ImplBinaryValue for BinaryValue {
                 .unwrap_or_default()
         }
     }
-    fn copy(&self) -> BinaryValue {
+    fn copy(&self) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .copy
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -2775,7 +2811,7 @@ pub trait ImplDictionaryValue: Clone + Sized + Rc {
     fn is_equal(&self, that: Option<&mut impl ImplDictionaryValue>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue {
+    fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> Option<DictionaryValue> {
         Default::default()
     }
     fn get_size(&self) -> usize {
@@ -2796,7 +2832,7 @@ pub trait ImplDictionaryValue: Clone + Sized + Rc {
     fn get_type(&self, key: Option<&CefStringUtf16>) -> ValueType {
         Default::default()
     }
-    fn get_value(&self, key: Option<&CefStringUtf16>) -> Value {
+    fn get_value(&self, key: Option<&CefStringUtf16>) -> Option<Value> {
         Default::default()
     }
     fn get_bool(&self, key: Option<&CefStringUtf16>) -> ::std::os::raw::c_int {
@@ -2808,16 +2844,16 @@ pub trait ImplDictionaryValue: Clone + Sized + Rc {
     fn get_double(&self, key: Option<&CefStringUtf16>) -> f64 {
         Default::default()
     }
-    fn get_string(&self, key: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_string(&self, key: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_binary(&self, key: Option<&CefStringUtf16>) -> BinaryValue {
+    fn get_binary(&self, key: Option<&CefStringUtf16>) -> Option<BinaryValue> {
         Default::default()
     }
-    fn get_dictionary(&self, key: Option<&CefStringUtf16>) -> DictionaryValue {
+    fn get_dictionary(&self, key: Option<&CefStringUtf16>) -> Option<DictionaryValue> {
         Default::default()
     }
-    fn get_list(&self, key: Option<&CefStringUtf16>) -> ListValue {
+    fn get_list(&self, key: Option<&CefStringUtf16>) -> Option<ListValue> {
         Default::default()
     }
     fn set_value(
@@ -2969,7 +3005,9 @@ mod impl_cef_dictionary_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_exclude_empty_children = arg_exclude_empty_children.as_raw();
         let result = ImplDictionaryValue::copy(&arg_self_.interface, arg_exclude_empty_children);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_size<I: ImplDictionaryValue>(self_: *mut _cef_dictionary_value_t) -> usize {
         let arg_self_ = self_;
@@ -3058,7 +3096,9 @@ mod impl_cef_dictionary_value_t {
         };
         let arg_key = arg_key.as_ref();
         let result = ImplDictionaryValue::get_value(&arg_self_.interface, arg_key);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_bool<I: ImplDictionaryValue>(
         self_: *mut _cef_dictionary_value_t,
@@ -3118,7 +3158,9 @@ mod impl_cef_dictionary_value_t {
         };
         let arg_key = arg_key.as_ref();
         let result = ImplDictionaryValue::get_string(&arg_self_.interface, arg_key);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_binary<I: ImplDictionaryValue>(
         self_: *mut _cef_dictionary_value_t,
@@ -3133,7 +3175,9 @@ mod impl_cef_dictionary_value_t {
         };
         let arg_key = arg_key.as_ref();
         let result = ImplDictionaryValue::get_binary(&arg_self_.interface, arg_key);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_dictionary<I: ImplDictionaryValue>(
         self_: *mut _cef_dictionary_value_t,
@@ -3148,7 +3192,9 @@ mod impl_cef_dictionary_value_t {
         };
         let arg_key = arg_key.as_ref();
         let result = ImplDictionaryValue::get_dictionary(&arg_self_.interface, arg_key);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_list<I: ImplDictionaryValue>(
         self_: *mut _cef_dictionary_value_t,
@@ -3163,7 +3209,9 @@ mod impl_cef_dictionary_value_t {
         };
         let arg_key = arg_key.as_ref();
         let result = ImplDictionaryValue::get_list(&arg_self_.interface, arg_key);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_value<I: ImplDictionaryValue>(
         self_: *mut _cef_dictionary_value_t,
@@ -3408,7 +3456,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_default()
         }
     }
-    fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> DictionaryValue {
+    fn copy(&self, exclude_empty_children: ::std::os::raw::c_int) -> Option<DictionaryValue> {
         unsafe {
             self.0
                 .copy
@@ -3417,7 +3465,11 @@ impl ImplDictionaryValue for DictionaryValue {
                     let arg_self_ = self.as_raw();
                     let arg_exclude_empty_children = arg_exclude_empty_children;
                     let result = f(arg_self_, arg_exclude_empty_children);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -3504,7 +3556,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_default()
         }
     }
-    fn get_value(&self, key: Option<&CefStringUtf16>) -> Value {
+    fn get_value(&self, key: Option<&CefStringUtf16>) -> Option<Value> {
         unsafe {
             self.0
                 .get_value
@@ -3513,7 +3565,11 @@ impl ImplDictionaryValue for DictionaryValue {
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_key);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -3560,7 +3616,7 @@ impl ImplDictionaryValue for DictionaryValue {
                 .unwrap_or_default()
         }
     }
-    fn get_string(&self, key: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_string(&self, key: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_string
@@ -3569,12 +3625,16 @@ impl ImplDictionaryValue for DictionaryValue {
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_key);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_binary(&self, key: Option<&CefStringUtf16>) -> BinaryValue {
+    fn get_binary(&self, key: Option<&CefStringUtf16>) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .get_binary
@@ -3583,12 +3643,16 @@ impl ImplDictionaryValue for DictionaryValue {
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_key);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_dictionary(&self, key: Option<&CefStringUtf16>) -> DictionaryValue {
+    fn get_dictionary(&self, key: Option<&CefStringUtf16>) -> Option<DictionaryValue> {
         unsafe {
             self.0
                 .get_dictionary
@@ -3597,12 +3661,16 @@ impl ImplDictionaryValue for DictionaryValue {
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_key);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_list(&self, key: Option<&CefStringUtf16>) -> ListValue {
+    fn get_list(&self, key: Option<&CefStringUtf16>) -> Option<ListValue> {
         unsafe {
             self.0
                 .get_list
@@ -3611,7 +3679,11 @@ impl ImplDictionaryValue for DictionaryValue {
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_key);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -3857,7 +3929,7 @@ pub trait ImplListValue: Clone + Sized + Rc {
     fn is_equal(&self, that: Option<&mut impl ImplListValue>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn copy(&self) -> ListValue {
+    fn copy(&self) -> Option<ListValue> {
         Default::default()
     }
     fn set_size(&self, size: usize) -> ::std::os::raw::c_int {
@@ -3875,7 +3947,7 @@ pub trait ImplListValue: Clone + Sized + Rc {
     fn get_type(&self, index: usize) -> ValueType {
         Default::default()
     }
-    fn get_value(&self, index: usize) -> Value {
+    fn get_value(&self, index: usize) -> Option<Value> {
         Default::default()
     }
     fn get_bool(&self, index: usize) -> ::std::os::raw::c_int {
@@ -3887,16 +3959,16 @@ pub trait ImplListValue: Clone + Sized + Rc {
     fn get_double(&self, index: usize) -> f64 {
         Default::default()
     }
-    fn get_string(&self, index: usize) -> CefStringUtf16 {
+    fn get_string(&self, index: usize) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_binary(&self, index: usize) -> BinaryValue {
+    fn get_binary(&self, index: usize) -> Option<BinaryValue> {
         Default::default()
     }
-    fn get_dictionary(&self, index: usize) -> DictionaryValue {
+    fn get_dictionary(&self, index: usize) -> Option<DictionaryValue> {
         Default::default()
     }
-    fn get_list(&self, index: usize) -> ListValue {
+    fn get_list(&self, index: usize) -> Option<ListValue> {
         Default::default()
     }
     fn set_value(&self, index: usize, value: Option<&mut impl ImplValue>) -> ::std::os::raw::c_int {
@@ -4027,7 +4099,9 @@ mod impl_cef_list_value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplListValue::copy(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_size<I: ImplListValue>(
         self_: *mut _cef_list_value_t,
@@ -4079,7 +4153,9 @@ mod impl_cef_list_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplListValue::get_value(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_bool<I: ImplListValue>(
         self_: *mut _cef_list_value_t,
@@ -4116,7 +4192,9 @@ mod impl_cef_list_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplListValue::get_string(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_binary<I: ImplListValue>(
         self_: *mut _cef_list_value_t,
@@ -4126,7 +4204,9 @@ mod impl_cef_list_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplListValue::get_binary(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_dictionary<I: ImplListValue>(
         self_: *mut _cef_list_value_t,
@@ -4136,7 +4216,9 @@ mod impl_cef_list_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplListValue::get_dictionary(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_list<I: ImplListValue>(
         self_: *mut _cef_list_value_t,
@@ -4146,7 +4228,9 @@ mod impl_cef_list_value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplListValue::get_list(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_value<I: ImplListValue>(
         self_: *mut _cef_list_value_t,
@@ -4346,14 +4430,18 @@ impl ImplListValue for ListValue {
                 .unwrap_or_default()
         }
     }
-    fn copy(&self) -> ListValue {
+    fn copy(&self) -> Option<ListValue> {
         unsafe {
             self.0
                 .copy
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -4424,7 +4512,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_default()
         }
     }
-    fn get_value(&self, index: usize) -> Value {
+    fn get_value(&self, index: usize) -> Option<Value> {
         unsafe {
             self.0
                 .get_value
@@ -4433,7 +4521,11 @@ impl ImplListValue for ListValue {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -4480,7 +4572,7 @@ impl ImplListValue for ListValue {
                 .unwrap_or_default()
         }
     }
-    fn get_string(&self, index: usize) -> CefStringUtf16 {
+    fn get_string(&self, index: usize) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_string
@@ -4489,12 +4581,16 @@ impl ImplListValue for ListValue {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_binary(&self, index: usize) -> BinaryValue {
+    fn get_binary(&self, index: usize) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .get_binary
@@ -4503,12 +4599,16 @@ impl ImplListValue for ListValue {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_dictionary(&self, index: usize) -> DictionaryValue {
+    fn get_dictionary(&self, index: usize) -> Option<DictionaryValue> {
         unsafe {
             self.0
                 .get_dictionary
@@ -4517,12 +4617,16 @@ impl ImplListValue for ListValue {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_list(&self, index: usize) -> ListValue {
+    fn get_list(&self, index: usize) -> Option<ListValue> {
         unsafe {
             self.0
                 .get_list
@@ -4531,7 +4635,11 @@ impl ImplListValue for ListValue {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -4797,7 +4905,7 @@ pub trait ImplImage: Clone + Sized + Rc {
         alpha_type: AlphaType,
         pixel_width: Option<&mut ::std::os::raw::c_int>,
         pixel_height: Option<&mut ::std::os::raw::c_int>,
-    ) -> BinaryValue {
+    ) -> Option<BinaryValue> {
         Default::default()
     }
     fn get_as_png(
@@ -4806,7 +4914,7 @@ pub trait ImplImage: Clone + Sized + Rc {
         with_transparency: ::std::os::raw::c_int,
         pixel_width: Option<&mut ::std::os::raw::c_int>,
         pixel_height: Option<&mut ::std::os::raw::c_int>,
-    ) -> BinaryValue {
+    ) -> Option<BinaryValue> {
         Default::default()
     }
     fn get_as_jpeg(
@@ -4815,7 +4923,7 @@ pub trait ImplImage: Clone + Sized + Rc {
         quality: ::std::os::raw::c_int,
         pixel_width: Option<&mut ::std::os::raw::c_int>,
         pixel_height: Option<&mut ::std::os::raw::c_int>,
-    ) -> BinaryValue {
+    ) -> Option<BinaryValue> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_image_t) {
@@ -5072,7 +5180,9 @@ mod impl_cef_image_t {
             arg_pixel_width,
             arg_pixel_height,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_as_png<I: ImplImage>(
         self_: *mut _cef_image_t,
@@ -5112,7 +5222,9 @@ mod impl_cef_image_t {
             arg_pixel_width,
             arg_pixel_height,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_as_jpeg<I: ImplImage>(
         self_: *mut _cef_image_t,
@@ -5147,7 +5259,9 @@ mod impl_cef_image_t {
             arg_pixel_width,
             arg_pixel_height,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_image_t] for more documentation."]
@@ -5408,7 +5522,7 @@ impl ImplImage for Image {
         alpha_type: AlphaType,
         pixel_width: Option<&mut ::std::os::raw::c_int>,
         pixel_height: Option<&mut ::std::os::raw::c_int>,
-    ) -> BinaryValue {
+    ) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .get_as_bitmap
@@ -5444,7 +5558,11 @@ impl ImplImage for Image {
                         arg_pixel_width,
                         arg_pixel_height,
                     );
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -5455,7 +5573,7 @@ impl ImplImage for Image {
         with_transparency: ::std::os::raw::c_int,
         pixel_width: Option<&mut ::std::os::raw::c_int>,
         pixel_height: Option<&mut ::std::os::raw::c_int>,
-    ) -> BinaryValue {
+    ) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .get_as_png
@@ -5482,7 +5600,11 @@ impl ImplImage for Image {
                         arg_pixel_width,
                         arg_pixel_height,
                     );
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -5493,7 +5615,7 @@ impl ImplImage for Image {
         quality: ::std::os::raw::c_int,
         pixel_width: Option<&mut ::std::os::raw::c_int>,
         pixel_height: Option<&mut ::std::os::raw::c_int>,
-    ) -> BinaryValue {
+    ) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .get_as_jpeg
@@ -5516,7 +5638,11 @@ impl ImplImage for Image {
                         arg_pixel_width,
                         arg_pixel_height,
                     );
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -6327,7 +6453,7 @@ impl Default for StreamWriter {
     }
 }
 pub trait ImplDragData: Clone + Sized + Rc {
-    fn clone(&self) -> DragData {
+    fn clone(&self) -> Option<DragData> {
         Default::default()
     }
     fn is_read_only(&self) -> ::std::os::raw::c_int {
@@ -6342,25 +6468,25 @@ pub trait ImplDragData: Clone + Sized + Rc {
     fn is_file(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_link_url(&self) -> CefStringUtf16 {
+    fn get_link_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_link_title(&self) -> CefStringUtf16 {
+    fn get_link_title(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_link_metadata(&self) -> CefStringUtf16 {
+    fn get_link_metadata(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_fragment_text(&self) -> CefStringUtf16 {
+    fn get_fragment_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_fragment_html(&self) -> CefStringUtf16 {
+    fn get_fragment_html(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_fragment_base_url(&self) -> CefStringUtf16 {
+    fn get_fragment_base_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_file_name(&self) -> CefStringUtf16 {
+    fn get_file_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_file_contents(&self, writer: Option<&mut impl ImplStreamWriter>) -> usize {
@@ -6381,7 +6507,7 @@ pub trait ImplDragData: Clone + Sized + Rc {
     fn reset_file_contents(&self) {}
     fn add_file(&self, path: Option<&CefStringUtf16>, display_name: Option<&CefStringUtf16>) {}
     fn clear_filenames(&self) {}
-    fn get_image(&self) -> Image {
+    fn get_image(&self) -> Option<Image> {
         Default::default()
     }
     fn get_image_hotspot(&self) -> Point {
@@ -6430,7 +6556,9 @@ mod impl_cef_drag_data_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDragData::clone(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn is_read_only<I: ImplDragData>(
         self_: *mut _cef_drag_data_t,
@@ -6466,7 +6594,9 @@ mod impl_cef_drag_data_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDragData::get_link_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_link_title<I: ImplDragData>(
         self_: *mut _cef_drag_data_t,
@@ -6474,7 +6604,9 @@ mod impl_cef_drag_data_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDragData::get_link_title(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_link_metadata<I: ImplDragData>(
         self_: *mut _cef_drag_data_t,
@@ -6482,7 +6614,9 @@ mod impl_cef_drag_data_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDragData::get_link_metadata(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_fragment_text<I: ImplDragData>(
         self_: *mut _cef_drag_data_t,
@@ -6490,7 +6624,9 @@ mod impl_cef_drag_data_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDragData::get_fragment_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_fragment_html<I: ImplDragData>(
         self_: *mut _cef_drag_data_t,
@@ -6498,7 +6634,9 @@ mod impl_cef_drag_data_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDragData::get_fragment_html(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_fragment_base_url<I: ImplDragData>(
         self_: *mut _cef_drag_data_t,
@@ -6506,7 +6644,9 @@ mod impl_cef_drag_data_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDragData::get_fragment_base_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_file_name<I: ImplDragData>(
         self_: *mut _cef_drag_data_t,
@@ -6514,7 +6654,9 @@ mod impl_cef_drag_data_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDragData::get_file_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_file_contents<I: ImplDragData>(
         self_: *mut _cef_drag_data_t,
@@ -6677,7 +6819,9 @@ mod impl_cef_drag_data_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDragData::get_image(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_image_hotspot<I: ImplDragData>(self_: *mut _cef_drag_data_t) -> _cef_point_t {
         let arg_self_ = self_;
@@ -6698,14 +6842,18 @@ mod impl_cef_drag_data_t {
 #[derive(Clone)]
 pub struct DragData(RefGuard<_cef_drag_data_t>);
 impl ImplDragData for DragData {
-    fn clone(&self) -> DragData {
+    fn clone(&self) -> Option<DragData> {
         unsafe {
             self.0
                 .clone
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -6758,86 +6906,114 @@ impl ImplDragData for DragData {
                 .unwrap_or_default()
         }
     }
-    fn get_link_url(&self) -> CefStringUtf16 {
+    fn get_link_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_link_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_link_title(&self) -> CefStringUtf16 {
+    fn get_link_title(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_link_title
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_link_metadata(&self) -> CefStringUtf16 {
+    fn get_link_metadata(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_link_metadata
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_fragment_text(&self) -> CefStringUtf16 {
+    fn get_fragment_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_fragment_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_fragment_html(&self) -> CefStringUtf16 {
+    fn get_fragment_html(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_fragment_html
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_fragment_base_url(&self) -> CefStringUtf16 {
+    fn get_fragment_base_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_fragment_base_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_file_name(&self) -> CefStringUtf16 {
+    fn get_file_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_file_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -7022,14 +7198,18 @@ impl ImplDragData for DragData {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_image(&self) -> Image {
+    fn get_image(&self) -> Option<Image> {
         unsafe {
             self.0
                 .get_image
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -7191,22 +7371,22 @@ pub trait ImplDomdocument: Clone + Sized + Rc {
     fn get_type(&self) -> DomDocumentType {
         Default::default()
     }
-    fn get_document(&self) -> Domnode {
+    fn get_document(&self) -> Option<Domnode> {
         Default::default()
     }
-    fn get_body(&self) -> Domnode {
+    fn get_body(&self) -> Option<Domnode> {
         Default::default()
     }
-    fn get_head(&self) -> Domnode {
+    fn get_head(&self) -> Option<Domnode> {
         Default::default()
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_element_by_id(&self, id: Option<&CefStringUtf16>) -> Domnode {
+    fn get_element_by_id(&self, id: Option<&CefStringUtf16>) -> Option<Domnode> {
         Default::default()
     }
-    fn get_focused_node(&self) -> Domnode {
+    fn get_focused_node(&self) -> Option<Domnode> {
         Default::default()
     }
     fn has_selection(&self) -> ::std::os::raw::c_int {
@@ -7218,16 +7398,16 @@ pub trait ImplDomdocument: Clone + Sized + Rc {
     fn get_selection_end_offset(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_selection_as_markup(&self) -> CefStringUtf16 {
+    fn get_selection_as_markup(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_selection_as_text(&self) -> CefStringUtf16 {
+    fn get_selection_as_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_base_url(&self) -> CefStringUtf16 {
+    fn get_base_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_complete_url(&self, partial_url: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_complete_url(&self, partial_url: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_domdocument_t) {
@@ -7267,7 +7447,9 @@ mod impl_cef_domdocument_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomdocument::get_document(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_body<I: ImplDomdocument>(
         self_: *mut _cef_domdocument_t,
@@ -7275,7 +7457,9 @@ mod impl_cef_domdocument_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomdocument::get_body(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_head<I: ImplDomdocument>(
         self_: *mut _cef_domdocument_t,
@@ -7283,7 +7467,9 @@ mod impl_cef_domdocument_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomdocument::get_head(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_title<I: ImplDomdocument>(
         self_: *mut _cef_domdocument_t,
@@ -7291,7 +7477,9 @@ mod impl_cef_domdocument_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomdocument::get_title(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_element_by_id<I: ImplDomdocument>(
         self_: *mut _cef_domdocument_t,
@@ -7306,7 +7494,9 @@ mod impl_cef_domdocument_t {
         };
         let arg_id = arg_id.as_ref();
         let result = ImplDomdocument::get_element_by_id(&arg_self_.interface, arg_id);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_focused_node<I: ImplDomdocument>(
         self_: *mut _cef_domdocument_t,
@@ -7314,7 +7504,9 @@ mod impl_cef_domdocument_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomdocument::get_focused_node(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn has_selection<I: ImplDomdocument>(
         self_: *mut _cef_domdocument_t,
@@ -7346,7 +7538,9 @@ mod impl_cef_domdocument_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomdocument::get_selection_as_markup(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_selection_as_text<I: ImplDomdocument>(
         self_: *mut _cef_domdocument_t,
@@ -7354,7 +7548,9 @@ mod impl_cef_domdocument_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomdocument::get_selection_as_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_base_url<I: ImplDomdocument>(
         self_: *mut _cef_domdocument_t,
@@ -7362,7 +7558,9 @@ mod impl_cef_domdocument_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomdocument::get_base_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_complete_url<I: ImplDomdocument>(
         self_: *mut _cef_domdocument_t,
@@ -7377,7 +7575,9 @@ mod impl_cef_domdocument_t {
         };
         let arg_partial_url = arg_partial_url.as_ref();
         let result = ImplDomdocument::get_complete_url(&arg_self_.interface, arg_partial_url);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_domdocument_t] for more documentation."]
@@ -7396,55 +7596,71 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_default()
         }
     }
-    fn get_document(&self) -> Domnode {
+    fn get_document(&self) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_document
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_body(&self) -> Domnode {
+    fn get_body(&self) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_body
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_head(&self) -> Domnode {
+    fn get_head(&self) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_head
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_title
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_element_by_id(&self, id: Option<&CefStringUtf16>) -> Domnode {
+    fn get_element_by_id(&self, id: Option<&CefStringUtf16>) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_element_by_id
@@ -7453,19 +7669,27 @@ impl ImplDomdocument for Domdocument {
                     let arg_self_ = self.as_raw();
                     let arg_id = arg_id.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_id);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_focused_node(&self) -> Domnode {
+    fn get_focused_node(&self) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_focused_node
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -7506,43 +7730,55 @@ impl ImplDomdocument for Domdocument {
                 .unwrap_or_default()
         }
     }
-    fn get_selection_as_markup(&self) -> CefStringUtf16 {
+    fn get_selection_as_markup(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_selection_as_markup
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_selection_as_text(&self) -> CefStringUtf16 {
+    fn get_selection_as_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_selection_as_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_base_url(&self) -> CefStringUtf16 {
+    fn get_base_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_base_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_complete_url(&self, partial_url: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_complete_url(&self, partial_url: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_complete_url
@@ -7553,7 +7789,11 @@ impl ImplDomdocument for Domdocument {
                         .map(|arg| arg.as_raw())
                         .unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_partial_url);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -7621,40 +7861,40 @@ pub trait ImplDomnode: Clone + Sized + Rc {
     fn is_same(&self, that: Option<&mut impl ImplDomnode>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_value(&self) -> CefStringUtf16 {
+    fn get_value(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_value(&self, value: Option<&CefStringUtf16>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_as_markup(&self) -> CefStringUtf16 {
+    fn get_as_markup(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_document(&self) -> Domdocument {
+    fn get_document(&self) -> Option<Domdocument> {
         Default::default()
     }
-    fn get_parent(&self) -> Domnode {
+    fn get_parent(&self) -> Option<Domnode> {
         Default::default()
     }
-    fn get_previous_sibling(&self) -> Domnode {
+    fn get_previous_sibling(&self) -> Option<Domnode> {
         Default::default()
     }
-    fn get_next_sibling(&self) -> Domnode {
+    fn get_next_sibling(&self) -> Option<Domnode> {
         Default::default()
     }
     fn has_children(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_first_child(&self) -> Domnode {
+    fn get_first_child(&self) -> Option<Domnode> {
         Default::default()
     }
-    fn get_last_child(&self) -> Domnode {
+    fn get_last_child(&self) -> Option<Domnode> {
         Default::default()
     }
-    fn get_element_tag_name(&self) -> CefStringUtf16 {
+    fn get_element_tag_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn has_element_attributes(&self) -> ::std::os::raw::c_int {
@@ -7663,7 +7903,7 @@ pub trait ImplDomnode: Clone + Sized + Rc {
     fn has_element_attribute(&self, attr_name: Option<&CefStringUtf16>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_element_attribute(&self, attr_name: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_element_attribute(&self, attr_name: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_element_attributes(&self, attr_map: Option<&mut CefStringMap>) {}
@@ -7674,7 +7914,7 @@ pub trait ImplDomnode: Clone + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_element_inner_text(&self) -> CefStringUtf16 {
+    fn get_element_inner_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_element_bounds(&self) -> Rect {
@@ -7771,7 +8011,9 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_value<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7779,7 +8021,9 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_value(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_value<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7802,7 +8046,9 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_as_markup(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_document<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7810,13 +8056,17 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_document(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_parent<I: ImplDomnode>(self_: *mut _cef_domnode_t) -> *mut _cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_parent(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_previous_sibling<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7824,7 +8074,9 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_previous_sibling(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_next_sibling<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7832,7 +8084,9 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_next_sibling(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn has_children<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7848,7 +8102,9 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_first_child(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_last_child<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7856,7 +8112,9 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_last_child(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_element_tag_name<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7864,7 +8122,9 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_element_tag_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn has_element_attributes<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7902,7 +8162,9 @@ mod impl_cef_domnode_t {
         };
         let arg_attr_name = arg_attr_name.as_ref();
         let result = ImplDomnode::get_element_attribute(&arg_self_.interface, arg_attr_name);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_element_attributes<I: ImplDomnode>(
         self_: *mut _cef_domnode_t,
@@ -7947,7 +8209,9 @@ mod impl_cef_domnode_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDomnode::get_element_inner_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_element_bounds<I: ImplDomnode>(self_: *mut _cef_domnode_t) -> _cef_rect_t {
         let arg_self_ = self_;
@@ -8051,26 +8315,34 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_default()
         }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_value(&self) -> CefStringUtf16 {
+    fn get_value(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_value
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -8091,62 +8363,82 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_default()
         }
     }
-    fn get_as_markup(&self) -> CefStringUtf16 {
+    fn get_as_markup(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_as_markup
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_document(&self) -> Domdocument {
+    fn get_document(&self) -> Option<Domdocument> {
         unsafe {
             self.0
                 .get_document
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_parent(&self) -> Domnode {
+    fn get_parent(&self) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_parent
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_previous_sibling(&self) -> Domnode {
+    fn get_previous_sibling(&self) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_previous_sibling
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_next_sibling(&self) -> Domnode {
+    fn get_next_sibling(&self) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_next_sibling
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -8163,38 +8455,50 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_default()
         }
     }
-    fn get_first_child(&self) -> Domnode {
+    fn get_first_child(&self) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_first_child
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_last_child(&self) -> Domnode {
+    fn get_last_child(&self) -> Option<Domnode> {
         unsafe {
             self.0
                 .get_last_child
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_element_tag_name(&self) -> CefStringUtf16 {
+    fn get_element_tag_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_element_tag_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -8227,7 +8531,7 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_default()
         }
     }
-    fn get_element_attribute(&self, attr_name: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_element_attribute(&self, attr_name: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_element_attribute
@@ -8238,7 +8542,11 @@ impl ImplDomnode for Domnode {
                         .map(|arg| arg.as_raw())
                         .unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_attr_name);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -8282,14 +8590,18 @@ impl ImplDomnode for Domnode {
                 .unwrap_or_default()
         }
     }
-    fn get_element_inner_text(&self) -> CefStringUtf16 {
+    fn get_element_inner_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_element_inner_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -8482,16 +8794,16 @@ pub trait ImplProcessMessage: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn copy(&self) -> ProcessMessage {
+    fn copy(&self) -> Option<ProcessMessage> {
         Default::default()
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_argument_list(&self) -> ListValue {
+    fn get_argument_list(&self) -> Option<ListValue> {
         Default::default()
     }
-    fn get_shared_memory_region(&self) -> SharedMemoryRegion {
+    fn get_shared_memory_region(&self) -> Option<SharedMemoryRegion> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_process_message_t) {
@@ -8531,7 +8843,9 @@ mod impl_cef_process_message_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplProcessMessage::copy(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_name<I: ImplProcessMessage>(
         self_: *mut _cef_process_message_t,
@@ -8539,7 +8853,9 @@ mod impl_cef_process_message_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplProcessMessage::get_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_argument_list<I: ImplProcessMessage>(
         self_: *mut _cef_process_message_t,
@@ -8547,7 +8863,9 @@ mod impl_cef_process_message_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplProcessMessage::get_argument_list(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_shared_memory_region<I: ImplProcessMessage>(
         self_: *mut _cef_process_message_t,
@@ -8555,7 +8873,9 @@ mod impl_cef_process_message_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplProcessMessage::get_shared_memory_region(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_process_message_t] for more documentation."]
@@ -8586,50 +8906,66 @@ impl ImplProcessMessage for ProcessMessage {
                 .unwrap_or_default()
         }
     }
-    fn copy(&self) -> ProcessMessage {
+    fn copy(&self) -> Option<ProcessMessage> {
         unsafe {
             self.0
                 .copy
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_argument_list(&self) -> ListValue {
+    fn get_argument_list(&self) -> Option<ListValue> {
         unsafe {
             self.0
                 .get_argument_list
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_shared_memory_region(&self) -> SharedMemoryRegion {
+    fn get_shared_memory_region(&self) -> Option<SharedMemoryRegion> {
         unsafe {
             self.0
                 .get_shared_memory_region
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -8679,28 +9015,28 @@ pub trait ImplRequest: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_url(&self, url: Option<&CefStringUtf16>) {}
-    fn get_method(&self) -> CefStringUtf16 {
+    fn get_method(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_method(&self, method: Option<&CefStringUtf16>) {}
     fn set_referrer(&self, referrer_url: Option<&CefStringUtf16>, policy: ReferrerPolicy) {}
-    fn get_referrer_url(&self) -> CefStringUtf16 {
+    fn get_referrer_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_referrer_policy(&self) -> ReferrerPolicy {
         Default::default()
     }
-    fn get_post_data(&self) -> PostData {
+    fn get_post_data(&self) -> Option<PostData> {
         Default::default()
     }
     fn set_post_data(&self, post_data: Option<&mut impl ImplPostData>) {}
     fn get_header_map(&self, header_map: Option<&mut CefStringMultimap>) {}
     fn set_header_map(&self, header_map: Option<&mut CefStringMultimap>) {}
-    fn get_header_by_name(&self, name: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_header_by_name(&self, name: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_header_by_name(
@@ -8722,7 +9058,7 @@ pub trait ImplRequest: Clone + Sized + Rc {
         Default::default()
     }
     fn set_flags(&self, flags: ::std::os::raw::c_int) {}
-    fn get_first_party_for_cookies(&self) -> CefStringUtf16 {
+    fn get_first_party_for_cookies(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_first_party_for_cookies(&self, url: Option<&CefStringUtf16>) {}
@@ -8778,7 +9114,9 @@ mod impl_cef_request_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplRequest::get_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_url<I: ImplRequest>(
         self_: *mut _cef_request_t,
@@ -8800,7 +9138,9 @@ mod impl_cef_request_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplRequest::get_method(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_method<I: ImplRequest>(
         self_: *mut _cef_request_t,
@@ -8838,7 +9178,9 @@ mod impl_cef_request_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplRequest::get_referrer_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_referrer_policy<I: ImplRequest>(
         self_: *mut _cef_request_t,
@@ -8854,7 +9196,9 @@ mod impl_cef_request_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplRequest::get_post_data(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_post_data<I: ImplRequest>(
         self_: *mut _cef_request_t,
@@ -8908,7 +9252,9 @@ mod impl_cef_request_t {
         };
         let arg_name = arg_name.as_ref();
         let result = ImplRequest::get_header_by_name(&arg_self_.interface, arg_name);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_header_by_name<I: ImplRequest>(
         self_: *mut _cef_request_t,
@@ -8998,7 +9344,9 @@ mod impl_cef_request_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplRequest::get_first_party_for_cookies(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_first_party_for_cookies<I: ImplRequest>(
         self_: *mut _cef_request_t,
@@ -9053,14 +9401,18 @@ impl ImplRequest for Request {
                 .unwrap_or_default()
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -9079,14 +9431,18 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_method(&self) -> CefStringUtf16 {
+    fn get_method(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_method
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -9124,14 +9480,18 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_referrer_url(&self) -> CefStringUtf16 {
+    fn get_referrer_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_referrer_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -9148,14 +9508,18 @@ impl ImplRequest for Request {
                 .unwrap_or_default()
         }
     }
-    fn get_post_data(&self) -> PostData {
+    fn get_post_data(&self) -> Option<PostData> {
         unsafe {
             self.0
                 .get_post_data
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -9211,7 +9575,7 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_header_by_name(&self, name: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_header_by_name(&self, name: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_header_by_name
@@ -9220,7 +9584,11 @@ impl ImplRequest for Request {
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_name);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -9313,14 +9681,18 @@ impl ImplRequest for Request {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_first_party_for_cookies(&self) -> CefStringUtf16 {
+    fn get_first_party_for_cookies(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_first_party_for_cookies
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -9733,7 +10105,7 @@ pub trait ImplPostDataElement: Clone + Sized + Rc {
     fn get_type(&self) -> PostdataelementType {
         Default::default()
     }
-    fn get_file(&self) -> CefStringUtf16 {
+    fn get_file(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_bytes_count(&self) -> usize {
@@ -9811,7 +10183,9 @@ mod impl_cef_post_data_element_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplPostDataElement::get_file(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_bytes_count<I: ImplPostDataElement>(
         self_: *mut _cef_post_data_element_t,
@@ -9905,14 +10279,18 @@ impl ImplPostDataElement for PostDataElement {
                 .unwrap_or_default()
         }
     }
-    fn get_file(&self) -> CefStringUtf16 {
+    fn get_file(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_file
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -10103,22 +10481,22 @@ pub trait ImplFrame: Clone + Sized + Rc {
     fn is_focused(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_identifier(&self) -> CefStringUtf16 {
+    fn get_identifier(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_parent(&self) -> Frame {
+    fn get_parent(&self) -> Option<Frame> {
         Default::default()
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_browser(&self) -> Browser {
+    fn get_browser(&self) -> Option<Browser> {
         Default::default()
     }
-    fn get_v8context(&self) -> V8context {
+    fn get_v8context(&self) -> Option<V8context> {
         Default::default()
     }
     fn visit_dom(&self, visitor: Option<&mut impl ImplDomvisitor>) {}
@@ -10126,7 +10504,7 @@ pub trait ImplFrame: Clone + Sized + Rc {
         &self,
         request: Option<&mut impl ImplRequest>,
         client: Option<&mut impl ImplUrlrequestClient>,
-    ) -> Urlrequest {
+    ) -> Option<Urlrequest> {
         Default::default()
     }
     fn send_process_message(
@@ -10313,7 +10691,9 @@ mod impl_cef_frame_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplFrame::get_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_identifier<I: ImplFrame>(
         self_: *mut _cef_frame_t,
@@ -10321,31 +10701,41 @@ mod impl_cef_frame_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplFrame::get_identifier(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_parent<I: ImplFrame>(self_: *mut _cef_frame_t) -> *mut _cef_frame_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplFrame::get_parent(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_url<I: ImplFrame>(self_: *mut _cef_frame_t) -> *mut _cef_string_utf16_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplFrame::get_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_browser<I: ImplFrame>(self_: *mut _cef_frame_t) -> *mut _cef_browser_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplFrame::get_browser(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_v8context<I: ImplFrame>(self_: *mut _cef_frame_t) -> *mut _cef_v8context_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplFrame::get_v8context(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn visit_dom<I: ImplFrame>(
         self_: *mut _cef_frame_t,
@@ -10372,7 +10762,9 @@ mod impl_cef_frame_t {
             .map(|arg| UrlrequestClient(unsafe { RefGuard::from_raw(arg) }));
         let arg_client = arg_client.as_mut();
         let result = ImplFrame::create_urlrequest(&arg_self_.interface, arg_request, arg_client);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn send_process_message<I: ImplFrame>(
         self_: *mut _cef_frame_t,
@@ -10631,74 +11023,98 @@ impl ImplFrame for Frame {
                 .unwrap_or_default()
         }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_identifier(&self) -> CefStringUtf16 {
+    fn get_identifier(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_identifier
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_parent(&self) -> Frame {
+    fn get_parent(&self) -> Option<Frame> {
         unsafe {
             self.0
                 .get_parent
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_browser(&self) -> Browser {
+    fn get_browser(&self) -> Option<Browser> {
         unsafe {
             self.0
                 .get_browser
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_v8context(&self) -> V8context {
+    fn get_v8context(&self) -> Option<V8context> {
         unsafe {
             self.0
                 .get_v8context
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -10726,7 +11142,7 @@ impl ImplFrame for Frame {
         &self,
         request: Option<&mut impl ImplRequest>,
         client: Option<&mut impl ImplUrlrequestClient>,
-    ) -> Urlrequest {
+    ) -> Option<Urlrequest> {
         unsafe {
             self.0
                 .create_urlrequest
@@ -10746,7 +11162,11 @@ impl ImplFrame for Frame {
                         })
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_request, arg_client);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -10817,19 +11237,19 @@ impl Default for Frame {
     }
 }
 pub trait ImplX509certPrincipal: Clone + Sized + Rc {
-    fn get_display_name(&self) -> CefStringUtf16 {
+    fn get_display_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_common_name(&self) -> CefStringUtf16 {
+    fn get_common_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_locality_name(&self) -> CefStringUtf16 {
+    fn get_locality_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_state_or_province_name(&self) -> CefStringUtf16 {
+    fn get_state_or_province_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_country_name(&self) -> CefStringUtf16 {
+    fn get_country_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_organization_names(&self, names: Option<&mut CefStringList>) {}
@@ -10856,7 +11276,9 @@ mod impl_cef_x509cert_principal_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certPrincipal::get_display_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_common_name<I: ImplX509certPrincipal>(
         self_: *mut _cef_x509cert_principal_t,
@@ -10864,7 +11286,9 @@ mod impl_cef_x509cert_principal_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certPrincipal::get_common_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_locality_name<I: ImplX509certPrincipal>(
         self_: *mut _cef_x509cert_principal_t,
@@ -10872,7 +11296,9 @@ mod impl_cef_x509cert_principal_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certPrincipal::get_locality_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_state_or_province_name<I: ImplX509certPrincipal>(
         self_: *mut _cef_x509cert_principal_t,
@@ -10880,7 +11306,9 @@ mod impl_cef_x509cert_principal_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certPrincipal::get_state_or_province_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_country_name<I: ImplX509certPrincipal>(
         self_: *mut _cef_x509cert_principal_t,
@@ -10888,7 +11316,9 @@ mod impl_cef_x509cert_principal_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certPrincipal::get_country_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_organization_names<I: ImplX509certPrincipal>(
         self_: *mut _cef_x509cert_principal_t,
@@ -10924,62 +11354,82 @@ mod impl_cef_x509cert_principal_t {
 #[derive(Clone)]
 pub struct X509certPrincipal(RefGuard<_cef_x509cert_principal_t>);
 impl ImplX509certPrincipal for X509certPrincipal {
-    fn get_display_name(&self) -> CefStringUtf16 {
+    fn get_display_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_display_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_common_name(&self) -> CefStringUtf16 {
+    fn get_common_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_common_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_locality_name(&self) -> CefStringUtf16 {
+    fn get_locality_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_locality_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_state_or_province_name(&self) -> CefStringUtf16 {
+    fn get_state_or_province_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_state_or_province_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_country_name(&self) -> CefStringUtf16 {
+    fn get_country_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_country_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -11058,13 +11508,13 @@ impl Default for X509certPrincipal {
     }
 }
 pub trait ImplX509certificate: Clone + Sized + Rc {
-    fn get_subject(&self) -> X509certPrincipal {
+    fn get_subject(&self) -> Option<X509certPrincipal> {
         Default::default()
     }
-    fn get_issuer(&self) -> X509certPrincipal {
+    fn get_issuer(&self) -> Option<X509certPrincipal> {
         Default::default()
     }
-    fn get_serial_number(&self) -> BinaryValue {
+    fn get_serial_number(&self) -> Option<BinaryValue> {
         Default::default()
     }
     fn get_valid_start(&self) -> Basetime {
@@ -11073,10 +11523,10 @@ pub trait ImplX509certificate: Clone + Sized + Rc {
     fn get_valid_expiry(&self) -> Basetime {
         Default::default()
     }
-    fn get_derencoded(&self) -> BinaryValue {
+    fn get_derencoded(&self) -> Option<BinaryValue> {
         Default::default()
     }
-    fn get_pemencoded(&self) -> BinaryValue {
+    fn get_pemencoded(&self) -> Option<BinaryValue> {
         Default::default()
     }
     fn get_issuer_chain_size(&self) -> usize {
@@ -11109,7 +11559,9 @@ mod impl_cef_x509certificate_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certificate::get_subject(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_issuer<I: ImplX509certificate>(
         self_: *mut _cef_x509certificate_t,
@@ -11117,7 +11569,9 @@ mod impl_cef_x509certificate_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certificate::get_issuer(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_serial_number<I: ImplX509certificate>(
         self_: *mut _cef_x509certificate_t,
@@ -11125,7 +11579,9 @@ mod impl_cef_x509certificate_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certificate::get_serial_number(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_valid_start<I: ImplX509certificate>(
         self_: *mut _cef_x509certificate_t,
@@ -11149,7 +11605,9 @@ mod impl_cef_x509certificate_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certificate::get_derencoded(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_pemencoded<I: ImplX509certificate>(
         self_: *mut _cef_x509certificate_t,
@@ -11157,7 +11615,9 @@ mod impl_cef_x509certificate_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplX509certificate::get_pemencoded(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_issuer_chain_size<I: ImplX509certificate>(
         self_: *mut _cef_x509certificate_t,
@@ -11238,38 +11698,50 @@ mod impl_cef_x509certificate_t {
 #[derive(Clone)]
 pub struct X509certificate(RefGuard<_cef_x509certificate_t>);
 impl ImplX509certificate for X509certificate {
-    fn get_subject(&self) -> X509certPrincipal {
+    fn get_subject(&self) -> Option<X509certPrincipal> {
         unsafe {
             self.0
                 .get_subject
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_issuer(&self) -> X509certPrincipal {
+    fn get_issuer(&self) -> Option<X509certPrincipal> {
         unsafe {
             self.0
                 .get_issuer
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_serial_number(&self) -> BinaryValue {
+    fn get_serial_number(&self) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .get_serial_number
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -11298,26 +11770,34 @@ impl ImplX509certificate for X509certificate {
                 .unwrap_or_default()
         }
     }
-    fn get_derencoded(&self) -> BinaryValue {
+    fn get_derencoded(&self) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .get_derencoded
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_pemencoded(&self) -> BinaryValue {
+    fn get_pemencoded(&self) -> Option<BinaryValue> {
         unsafe {
             self.0
                 .get_pemencoded
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -11482,7 +11962,7 @@ pub trait ImplSslstatus: Clone + Sized + Rc {
     fn get_content_status(&self) -> SslContentStatus {
         Default::default()
     }
-    fn get_x509certificate(&self) -> X509certificate {
+    fn get_x509certificate(&self) -> Option<X509certificate> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_sslstatus_t) {
@@ -11537,7 +12017,9 @@ mod impl_cef_sslstatus_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplSslstatus::get_x509certificate(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_sslstatus_t] for more documentation."]
@@ -11592,14 +12074,18 @@ impl ImplSslstatus for Sslstatus {
                 .unwrap_or_default()
         }
     }
-    fn get_x509certificate(&self) -> X509certificate {
+    fn get_x509certificate(&self) -> Option<X509certificate> {
         unsafe {
             self.0
                 .get_x509certificate
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -11649,16 +12135,16 @@ pub trait ImplNavigationEntry: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_display_url(&self) -> CefStringUtf16 {
+    fn get_display_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_original_url(&self) -> CefStringUtf16 {
+    fn get_original_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_transition_type(&self) -> TransitionType {
@@ -11673,7 +12159,7 @@ pub trait ImplNavigationEntry: Clone + Sized + Rc {
     fn get_http_status_code(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_sslstatus(&self) -> Sslstatus {
+    fn get_sslstatus(&self) -> Option<Sslstatus> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_navigation_entry_t) {
@@ -11709,7 +12195,9 @@ mod impl_cef_navigation_entry_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplNavigationEntry::get_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_display_url<I: ImplNavigationEntry>(
         self_: *mut _cef_navigation_entry_t,
@@ -11717,7 +12205,9 @@ mod impl_cef_navigation_entry_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplNavigationEntry::get_display_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_original_url<I: ImplNavigationEntry>(
         self_: *mut _cef_navigation_entry_t,
@@ -11725,7 +12215,9 @@ mod impl_cef_navigation_entry_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplNavigationEntry::get_original_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_title<I: ImplNavigationEntry>(
         self_: *mut _cef_navigation_entry_t,
@@ -11733,7 +12225,9 @@ mod impl_cef_navigation_entry_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplNavigationEntry::get_title(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_transition_type<I: ImplNavigationEntry>(
         self_: *mut _cef_navigation_entry_t,
@@ -11773,7 +12267,9 @@ mod impl_cef_navigation_entry_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplNavigationEntry::get_sslstatus(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_navigation_entry_t] for more documentation."]
@@ -11792,50 +12288,66 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_default()
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_display_url(&self) -> CefStringUtf16 {
+    fn get_display_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_display_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_original_url(&self) -> CefStringUtf16 {
+    fn get_original_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_original_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_title
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -11888,14 +12400,18 @@ impl ImplNavigationEntry for NavigationEntry {
                 .unwrap_or_default()
         }
     }
-    fn get_sslstatus(&self) -> Sslstatus {
+    fn get_sslstatus(&self) -> Option<Sslstatus> {
         unsafe {
             self.0
                 .get_sslstatus
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -12801,10 +13317,10 @@ impl Default for DeleteCookiesCallback {
     }
 }
 pub trait ImplMediaRouter: Clone + Sized + Rc {
-    fn add_observer(&self, observer: Option<&mut impl ImplMediaObserver>) -> Registration {
+    fn add_observer(&self, observer: Option<&mut impl ImplMediaObserver>) -> Option<Registration> {
         Default::default()
     }
-    fn get_source(&self, urn: Option<&CefStringUtf16>) -> MediaSource {
+    fn get_source(&self, urn: Option<&CefStringUtf16>) -> Option<MediaSource> {
         Default::default()
     }
     fn notify_current_sinks(&self) {}
@@ -12840,7 +13356,9 @@ mod impl_cef_media_router_t {
             .map(|arg| MediaObserver(unsafe { RefGuard::from_raw(arg) }));
         let arg_observer = arg_observer.as_mut();
         let result = ImplMediaRouter::add_observer(&arg_self_.interface, arg_observer);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_source<I: ImplMediaRouter>(
         self_: *mut _cef_media_router_t,
@@ -12855,7 +13373,9 @@ mod impl_cef_media_router_t {
         };
         let arg_urn = arg_urn.as_ref();
         let result = ImplMediaRouter::get_source(&arg_self_.interface, arg_urn);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn notify_current_sinks<I: ImplMediaRouter>(self_: *mut _cef_media_router_t) {
         let arg_self_ = self_;
@@ -12892,7 +13412,7 @@ mod impl_cef_media_router_t {
 #[derive(Clone)]
 pub struct MediaRouter(RefGuard<_cef_media_router_t>);
 impl ImplMediaRouter for MediaRouter {
-    fn add_observer(&self, observer: Option<&mut impl ImplMediaObserver>) -> Registration {
+    fn add_observer(&self, observer: Option<&mut impl ImplMediaObserver>) -> Option<Registration> {
         unsafe {
             self.0
                 .add_observer
@@ -12906,12 +13426,16 @@ impl ImplMediaRouter for MediaRouter {
                         })
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_observer);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_source(&self, urn: Option<&CefStringUtf16>) -> MediaSource {
+    fn get_source(&self, urn: Option<&CefStringUtf16>) -> Option<MediaSource> {
         unsafe {
             self.0
                 .get_source
@@ -12920,7 +13444,11 @@ impl ImplMediaRouter for MediaRouter {
                     let arg_self_ = self.as_raw();
                     let arg_urn = arg_urn.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_urn);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -13307,13 +13835,13 @@ impl Default for MediaObserver {
     }
 }
 pub trait ImplMediaRoute: Clone + Sized + Rc {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_source(&self) -> MediaSource {
+    fn get_source(&self) -> Option<MediaSource> {
         Default::default()
     }
-    fn get_sink(&self) -> MediaSink {
+    fn get_sink(&self) -> Option<MediaSink> {
         Default::default()
     }
     fn send_route_message(&self, message: Option<&[u8]>) {}
@@ -13338,7 +13866,9 @@ mod impl_cef_media_route_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplMediaRoute::get_id(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_source<I: ImplMediaRoute>(
         self_: *mut _cef_media_route_t,
@@ -13346,7 +13876,9 @@ mod impl_cef_media_route_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplMediaRoute::get_source(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_sink<I: ImplMediaRoute>(
         self_: *mut _cef_media_route_t,
@@ -13354,7 +13886,9 @@ mod impl_cef_media_route_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplMediaRoute::get_sink(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn send_route_message<I: ImplMediaRoute>(
         self_: *mut _cef_media_route_t,
@@ -13378,38 +13912,50 @@ mod impl_cef_media_route_t {
 #[derive(Clone)]
 pub struct MediaRoute(RefGuard<_cef_media_route_t>);
 impl ImplMediaRoute for MediaRoute {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_id
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_source(&self) -> MediaSource {
+    fn get_source(&self) -> Option<MediaSource> {
         unsafe {
             self.0
                 .get_source
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_sink(&self) -> MediaSink {
+    fn get_sink(&self) -> Option<MediaSink> {
         unsafe {
             self.0
                 .get_sink
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -13614,10 +14160,10 @@ impl Default for MediaRouteCreateCallback {
     }
 }
 pub trait ImplMediaSink: Clone + Sized + Rc {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_icon_type(&self) -> MediaSinkIconType {
@@ -13658,7 +14204,9 @@ mod impl_cef_media_sink_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplMediaSink::get_id(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_name<I: ImplMediaSink>(
         self_: *mut _cef_media_sink_t,
@@ -13666,7 +14214,9 @@ mod impl_cef_media_sink_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplMediaSink::get_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_icon_type<I: ImplMediaSink>(
         self_: *mut _cef_media_sink_t,
@@ -13720,26 +14270,34 @@ mod impl_cef_media_sink_t {
 #[derive(Clone)]
 pub struct MediaSink(RefGuard<_cef_media_sink_t>);
 impl ImplMediaSink for MediaSink {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_id
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_name(&self) -> CefStringUtf16 {
+    fn get_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -13962,7 +14520,7 @@ impl Default for MediaSinkDeviceInfoCallback {
     }
 }
 pub trait ImplMediaSource: Clone + Sized + Rc {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn is_cast_source(&self) -> ::std::os::raw::c_int {
@@ -13989,7 +14547,9 @@ mod impl_cef_media_source_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplMediaSource::get_id(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn is_cast_source<I: ImplMediaSource>(
         self_: *mut _cef_media_source_t,
@@ -14012,14 +14572,18 @@ mod impl_cef_media_source_t {
 #[derive(Clone)]
 pub struct MediaSource(RefGuard<_cef_media_source_t>);
 impl ImplMediaSource for MediaSource {
-    fn get_id(&self) -> CefStringUtf16 {
+    fn get_id(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_id
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -14130,10 +14694,13 @@ pub trait ImplPreferenceManager: Clone + Sized + Rc {
     fn has_preference(&self, name: Option<&CefStringUtf16>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_preference(&self, name: Option<&CefStringUtf16>) -> Value {
+    fn get_preference(&self, name: Option<&CefStringUtf16>) -> Option<Value> {
         Default::default()
     }
-    fn get_all_preferences(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
+    fn get_all_preferences(
+        &self,
+        include_defaults: ::std::os::raw::c_int,
+    ) -> Option<DictionaryValue> {
         Default::default()
     }
     fn can_set_preference(&self, name: Option<&CefStringUtf16>) -> ::std::os::raw::c_int {
@@ -14189,7 +14756,9 @@ mod impl_cef_preference_manager_t {
         };
         let arg_name = arg_name.as_ref();
         let result = ImplPreferenceManager::get_preference(&arg_self_.interface, arg_name);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_all_preferences<I: ImplPreferenceManager>(
         self_: *mut _cef_preference_manager_t,
@@ -14200,7 +14769,9 @@ mod impl_cef_preference_manager_t {
         let arg_include_defaults = arg_include_defaults.as_raw();
         let result =
             ImplPreferenceManager::get_all_preferences(&arg_self_.interface, arg_include_defaults);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn can_set_preference<I: ImplPreferenceManager>(
         self_: *mut _cef_preference_manager_t,
@@ -14267,7 +14838,7 @@ impl ImplPreferenceManager for PreferenceManager {
                 .unwrap_or_default()
         }
     }
-    fn get_preference(&self, name: Option<&CefStringUtf16>) -> Value {
+    fn get_preference(&self, name: Option<&CefStringUtf16>) -> Option<Value> {
         unsafe {
             self.0
                 .get_preference
@@ -14276,12 +14847,19 @@ impl ImplPreferenceManager for PreferenceManager {
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_name);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_all_preferences(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
+    fn get_all_preferences(
+        &self,
+        include_defaults: ::std::os::raw::c_int,
+    ) -> Option<DictionaryValue> {
         unsafe {
             self.0
                 .get_all_preferences
@@ -14290,7 +14868,11 @@ impl ImplPreferenceManager for PreferenceManager {
                     let arg_self_ = self.as_raw();
                     let arg_include_defaults = arg_include_defaults;
                     let result = f(arg_self_, arg_include_defaults);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -14486,16 +15068,16 @@ pub trait ImplRequestContext: ImplPreferenceManager {
     fn is_global(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_handler(&self) -> RequestContextHandler {
+    fn get_handler(&self) -> Option<RequestContextHandler> {
         Default::default()
     }
-    fn get_cache_path(&self) -> CefStringUtf16 {
+    fn get_cache_path(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_cookie_manager(
         &self,
         callback: Option<&mut impl ImplCompletionCallback>,
-    ) -> CookieManager {
+    ) -> Option<CookieManager> {
         Default::default()
     }
     fn register_scheme_handler_factory(
@@ -14518,7 +15100,10 @@ pub trait ImplRequestContext: ImplPreferenceManager {
         callback: Option<&mut impl ImplResolveCallback>,
     ) {
     }
-    fn get_media_router(&self, callback: Option<&mut impl ImplCompletionCallback>) -> MediaRouter {
+    fn get_media_router(
+        &self,
+        callback: Option<&mut impl ImplCompletionCallback>,
+    ) -> Option<MediaRouter> {
         Default::default()
     }
     fn get_website_setting(
@@ -14526,7 +15111,7 @@ pub trait ImplRequestContext: ImplPreferenceManager {
         requesting_url: Option<&CefStringUtf16>,
         top_level_url: Option<&CefStringUtf16>,
         content_type: ContentSettingTypes,
-    ) -> Value {
+    ) -> Option<Value> {
         Default::default()
     }
     fn set_website_setting(
@@ -14634,7 +15219,9 @@ mod impl_cef_request_context_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplRequestContext::get_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_cache_path<I: ImplRequestContext>(
         self_: *mut _cef_request_context_t,
@@ -14642,7 +15229,9 @@ mod impl_cef_request_context_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplRequestContext::get_cache_path(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_cookie_manager<I: ImplRequestContext>(
         self_: *mut _cef_request_context_t,
@@ -14654,7 +15243,9 @@ mod impl_cef_request_context_t {
             .map(|arg| CompletionCallback(unsafe { RefGuard::from_raw(arg) }));
         let arg_callback = arg_callback.as_mut();
         let result = ImplRequestContext::get_cookie_manager(&arg_self_.interface, arg_callback);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn register_scheme_handler_factory<I: ImplRequestContext>(
         self_: *mut _cef_request_context_t,
@@ -14760,7 +15351,9 @@ mod impl_cef_request_context_t {
             .map(|arg| CompletionCallback(unsafe { RefGuard::from_raw(arg) }));
         let arg_callback = arg_callback.as_mut();
         let result = ImplRequestContext::get_media_router(&arg_self_.interface, arg_callback);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_website_setting<I: ImplRequestContext>(
         self_: *mut _cef_request_context_t,
@@ -14790,7 +15383,9 @@ mod impl_cef_request_context_t {
             arg_top_level_url,
             arg_content_type,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_website_setting<I: ImplRequestContext>(
         self_: *mut _cef_request_context_t,
@@ -14938,13 +15533,16 @@ impl ImplPreferenceManager for RequestContext {
         })
         .has_preference(name)
     }
-    fn get_preference(&self, name: Option<&CefStringUtf16>) -> Value {
+    fn get_preference(&self, name: Option<&CefStringUtf16>) -> Option<Value> {
         PreferenceManager(unsafe {
             RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _)
         })
         .get_preference(name)
     }
-    fn get_all_preferences(&self, include_defaults: ::std::os::raw::c_int) -> DictionaryValue {
+    fn get_all_preferences(
+        &self,
+        include_defaults: ::std::os::raw::c_int,
+    ) -> Option<DictionaryValue> {
         PreferenceManager(unsafe {
             RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _)
         })
@@ -15025,26 +15623,34 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_default()
         }
     }
-    fn get_handler(&self) -> RequestContextHandler {
+    fn get_handler(&self) -> Option<RequestContextHandler> {
         unsafe {
             self.0
                 .get_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_cache_path(&self) -> CefStringUtf16 {
+    fn get_cache_path(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_cache_path
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -15052,7 +15658,7 @@ impl ImplRequestContext for RequestContext {
     fn get_cookie_manager(
         &self,
         callback: Option<&mut impl ImplCompletionCallback>,
-    ) -> CookieManager {
+    ) -> Option<CookieManager> {
         unsafe {
             self.0
                 .get_cookie_manager
@@ -15066,7 +15672,11 @@ impl ImplRequestContext for RequestContext {
                         })
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_callback);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -15197,7 +15807,10 @@ impl ImplRequestContext for RequestContext {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_media_router(&self, callback: Option<&mut impl ImplCompletionCallback>) -> MediaRouter {
+    fn get_media_router(
+        &self,
+        callback: Option<&mut impl ImplCompletionCallback>,
+    ) -> Option<MediaRouter> {
         unsafe {
             self.0
                 .get_media_router
@@ -15211,7 +15824,11 @@ impl ImplRequestContext for RequestContext {
                         })
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_callback);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -15221,7 +15838,7 @@ impl ImplRequestContext for RequestContext {
         requesting_url: Option<&CefStringUtf16>,
         top_level_url: Option<&CefStringUtf16>,
         content_type: ContentSettingTypes,
-    ) -> Value {
+    ) -> Option<Value> {
         unsafe {
             self.0
                 .get_website_setting
@@ -15242,7 +15859,11 @@ impl ImplRequestContext for RequestContext {
                         arg_top_level_url,
                         arg_content_type,
                     );
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -15447,7 +16068,7 @@ pub trait ImplBrowser: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_host(&self) -> BrowserHost {
+    fn get_host(&self) -> Option<BrowserHost> {
         Default::default()
     }
     fn can_go_back(&self) -> ::std::os::raw::c_int {
@@ -15476,16 +16097,16 @@ pub trait ImplBrowser: Clone + Sized + Rc {
     fn has_document(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_main_frame(&self) -> Frame {
+    fn get_main_frame(&self) -> Option<Frame> {
         Default::default()
     }
-    fn get_focused_frame(&self) -> Frame {
+    fn get_focused_frame(&self) -> Option<Frame> {
         Default::default()
     }
-    fn get_frame_by_identifier(&self, identifier: Option<&CefStringUtf16>) -> Frame {
+    fn get_frame_by_identifier(&self, identifier: Option<&CefStringUtf16>) -> Option<Frame> {
         Default::default()
     }
-    fn get_frame_by_name(&self, name: Option<&CefStringUtf16>) -> Frame {
+    fn get_frame_by_name(&self, name: Option<&CefStringUtf16>) -> Option<Frame> {
         Default::default()
     }
     fn get_frame_count(&self) -> usize {
@@ -15533,7 +16154,9 @@ mod impl_cef_browser_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowser::get_host(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn can_go_back<I: ImplBrowser>(self_: *mut _cef_browser_t) -> ::std::os::raw::c_int {
         let arg_self_ = self_;
@@ -15618,7 +16241,9 @@ mod impl_cef_browser_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowser::get_main_frame(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_focused_frame<I: ImplBrowser>(
         self_: *mut _cef_browser_t,
@@ -15626,7 +16251,9 @@ mod impl_cef_browser_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowser::get_focused_frame(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_frame_by_identifier<I: ImplBrowser>(
         self_: *mut _cef_browser_t,
@@ -15641,7 +16268,9 @@ mod impl_cef_browser_t {
         };
         let arg_identifier = arg_identifier.as_ref();
         let result = ImplBrowser::get_frame_by_identifier(&arg_self_.interface, arg_identifier);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_frame_by_name<I: ImplBrowser>(
         self_: *mut _cef_browser_t,
@@ -15656,7 +16285,9 @@ mod impl_cef_browser_t {
         };
         let arg_name = arg_name.as_ref();
         let result = ImplBrowser::get_frame_by_name(&arg_self_.interface, arg_name);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_frame_count<I: ImplBrowser>(self_: *mut _cef_browser_t) -> usize {
         let arg_self_ = self_;
@@ -15709,14 +16340,18 @@ impl ImplBrowser for Browser {
                 .unwrap_or_default()
         }
     }
-    fn get_host(&self) -> BrowserHost {
+    fn get_host(&self) -> Option<BrowserHost> {
         unsafe {
             self.0
                 .get_host
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -15872,31 +16507,39 @@ impl ImplBrowser for Browser {
                 .unwrap_or_default()
         }
     }
-    fn get_main_frame(&self) -> Frame {
+    fn get_main_frame(&self) -> Option<Frame> {
         unsafe {
             self.0
                 .get_main_frame
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_focused_frame(&self) -> Frame {
+    fn get_focused_frame(&self) -> Option<Frame> {
         unsafe {
             self.0
                 .get_focused_frame
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_frame_by_identifier(&self, identifier: Option<&CefStringUtf16>) -> Frame {
+    fn get_frame_by_identifier(&self, identifier: Option<&CefStringUtf16>) -> Option<Frame> {
         unsafe {
             self.0
                 .get_frame_by_identifier
@@ -15907,12 +16550,16 @@ impl ImplBrowser for Browser {
                         .map(|arg| arg.as_raw())
                         .unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_identifier);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_frame_by_name(&self, name: Option<&CefStringUtf16>) -> Frame {
+    fn get_frame_by_name(&self, name: Option<&CefStringUtf16>) -> Option<Frame> {
         unsafe {
             self.0
                 .get_frame_by_name
@@ -15921,7 +16568,11 @@ impl ImplBrowser for Browser {
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_name);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -16436,7 +17087,7 @@ impl Default for DownloadImageCallback {
     }
 }
 pub trait ImplBrowserHost: Clone + Sized + Rc {
-    fn get_browser(&self) -> Browser {
+    fn get_browser(&self) -> Option<Browser> {
         Default::default()
     }
     fn close_browser(&self, force_close: ::std::os::raw::c_int) {}
@@ -16459,10 +17110,10 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
     fn has_view(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_client(&self) -> Client {
+    fn get_client(&self) -> Option<Client> {
         Default::default()
     }
-    fn get_request_context(&self) -> RequestContext {
+    fn get_request_context(&self) -> Option<RequestContext> {
         Default::default()
     }
     fn can_zoom(&self, command: ZoomCommand) -> ::std::os::raw::c_int {
@@ -16538,7 +17189,7 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
     fn add_dev_tools_message_observer(
         &self,
         observer: Option<&mut impl ImplDevToolsMessageObserver>,
-    ) -> Registration {
+    ) -> Option<Registration> {
         Default::default()
     }
     fn get_navigation_entries(
@@ -16622,7 +17273,7 @@ pub trait ImplBrowserHost: Clone + Sized + Rc {
     ) {
     }
     fn drag_source_system_drag_ended(&self) {}
-    fn get_visible_navigation_entry(&self) -> NavigationEntry {
+    fn get_visible_navigation_entry(&self) -> Option<NavigationEntry> {
         Default::default()
     }
     fn set_accessibility_state(&self, accessibility_state: State) {}
@@ -16742,7 +17393,9 @@ mod impl_cef_browser_host_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowserHost::get_browser(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn close_browser<I: ImplBrowserHost>(
         self_: *mut _cef_browser_host_t,
@@ -16816,7 +17469,9 @@ mod impl_cef_browser_host_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowserHost::get_client(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_request_context<I: ImplBrowserHost>(
         self_: *mut _cef_browser_host_t,
@@ -16824,7 +17479,9 @@ mod impl_cef_browser_host_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowserHost::get_request_context(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn can_zoom<I: ImplBrowserHost>(
         self_: *mut _cef_browser_host_t,
@@ -17156,7 +17813,9 @@ mod impl_cef_browser_host_t {
         let arg_observer = arg_observer.as_mut();
         let result =
             ImplBrowserHost::add_dev_tools_message_observer(&arg_self_.interface, arg_observer);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_navigation_entries<I: ImplBrowserHost>(
         self_: *mut _cef_browser_host_t,
@@ -17566,7 +18225,9 @@ mod impl_cef_browser_host_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowserHost::get_visible_navigation_entry(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_accessibility_state<I: ImplBrowserHost>(
         self_: *mut _cef_browser_host_t,
@@ -17688,14 +18349,18 @@ mod impl_cef_browser_host_t {
 #[derive(Clone)]
 pub struct BrowserHost(RefGuard<_cef_browser_host_t>);
 impl ImplBrowserHost for BrowserHost {
-    fn get_browser(&self) -> Browser {
+    fn get_browser(&self) -> Option<Browser> {
         unsafe {
             self.0
                 .get_browser
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -17800,26 +18465,34 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_default()
         }
     }
-    fn get_client(&self) -> Client {
+    fn get_client(&self) -> Option<Client> {
         unsafe {
             self.0
                 .get_client
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_request_context(&self) -> RequestContext {
+    fn get_request_context(&self) -> Option<RequestContext> {
         unsafe {
             self.0
                 .get_request_context
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -18222,7 +18895,7 @@ impl ImplBrowserHost for BrowserHost {
     fn add_dev_tools_message_observer(
         &self,
         observer: Option<&mut impl ImplDevToolsMessageObserver>,
-    ) -> Registration {
+    ) -> Option<Registration> {
         unsafe {
             self.0
                 .add_dev_tools_message_observer
@@ -18236,7 +18909,11 @@ impl ImplBrowserHost for BrowserHost {
                         })
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_observer);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -18765,14 +19442,18 @@ impl ImplBrowserHost for BrowserHost {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_visible_navigation_entry(&self) -> NavigationEntry {
+    fn get_visible_navigation_entry(&self) -> Option<NavigationEntry> {
         unsafe {
             self.0
                 .get_visible_navigation_entry
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -20003,7 +20684,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         &self,
         command_id: ::std::os::raw::c_int,
         label: Option<&CefStringUtf16>,
-    ) -> MenuModel {
+    ) -> Option<MenuModel> {
         Default::default()
     }
     fn insert_separator_at(&self, index: usize) -> ::std::os::raw::c_int {
@@ -20039,7 +20720,7 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
         index: usize,
         command_id: ::std::os::raw::c_int,
         label: Option<&CefStringUtf16>,
-    ) -> MenuModel {
+    ) -> Option<MenuModel> {
         Default::default()
     }
     fn remove(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20061,10 +20742,10 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_label(&self, command_id: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn get_label(&self, command_id: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_label_at(&self, index: usize) -> CefStringUtf16 {
+    fn get_label_at(&self, index: usize) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_label(
@@ -20103,10 +20784,10 @@ pub trait ImplMenuModel: Clone + Sized + Rc {
     ) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_sub_menu(&self, command_id: ::std::os::raw::c_int) -> MenuModel {
+    fn get_sub_menu(&self, command_id: ::std::os::raw::c_int) -> Option<MenuModel> {
         Default::default()
     }
-    fn get_sub_menu_at(&self, index: usize) -> MenuModel {
+    fn get_sub_menu_at(&self, index: usize) -> Option<MenuModel> {
         Default::default()
     }
     fn is_visible(&self, command_id: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
@@ -20434,7 +21115,9 @@ mod impl_cef_menu_model_t {
         };
         let arg_label = arg_label.as_ref();
         let result = ImplMenuModel::add_sub_menu(&arg_self_.interface, arg_command_id, arg_label);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn insert_separator_at<I: ImplMenuModel>(
         self_: *mut _cef_menu_model_t,
@@ -20544,7 +21227,9 @@ mod impl_cef_menu_model_t {
             arg_command_id,
             arg_label,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn remove<I: ImplMenuModel>(
         self_: *mut _cef_menu_model_t,
@@ -20607,7 +21292,9 @@ mod impl_cef_menu_model_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_command_id = arg_command_id.as_raw();
         let result = ImplMenuModel::get_label(&arg_self_.interface, arg_command_id);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_label_at<I: ImplMenuModel>(
         self_: *mut _cef_menu_model_t,
@@ -20617,7 +21304,9 @@ mod impl_cef_menu_model_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplMenuModel::get_label_at(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_label<I: ImplMenuModel>(
         self_: *mut _cef_menu_model_t,
@@ -20726,7 +21415,9 @@ mod impl_cef_menu_model_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_command_id = arg_command_id.as_raw();
         let result = ImplMenuModel::get_sub_menu(&arg_self_.interface, arg_command_id);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_sub_menu_at<I: ImplMenuModel>(
         self_: *mut _cef_menu_model_t,
@@ -20736,7 +21427,9 @@ mod impl_cef_menu_model_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplMenuModel::get_sub_menu_at(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn is_visible<I: ImplMenuModel>(
         self_: *mut _cef_menu_model_t,
@@ -21352,7 +22045,7 @@ impl ImplMenuModel for MenuModel {
         &self,
         command_id: ::std::os::raw::c_int,
         label: Option<&CefStringUtf16>,
-    ) -> MenuModel {
+    ) -> Option<MenuModel> {
         unsafe {
             self.0
                 .add_sub_menu
@@ -21364,7 +22057,11 @@ impl ImplMenuModel for MenuModel {
                         .map(|arg| arg.as_raw())
                         .unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_command_id, arg_label);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -21466,7 +22163,7 @@ impl ImplMenuModel for MenuModel {
         index: usize,
         command_id: ::std::os::raw::c_int,
         label: Option<&CefStringUtf16>,
-    ) -> MenuModel {
+    ) -> Option<MenuModel> {
         unsafe {
             self.0
                 .insert_sub_menu_at
@@ -21479,7 +22176,11 @@ impl ImplMenuModel for MenuModel {
                         .map(|arg| arg.as_raw())
                         .unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_index, arg_command_id, arg_label);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -21559,7 +22260,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_default()
         }
     }
-    fn get_label(&self, command_id: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn get_label(&self, command_id: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_label
@@ -21568,12 +22269,16 @@ impl ImplMenuModel for MenuModel {
                     let arg_self_ = self.as_raw();
                     let arg_command_id = arg_command_id;
                     let result = f(arg_self_, arg_command_id);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_label_at(&self, index: usize) -> CefStringUtf16 {
+    fn get_label_at(&self, index: usize) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_label_at
@@ -21582,7 +22287,11 @@ impl ImplMenuModel for MenuModel {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -21719,7 +22428,7 @@ impl ImplMenuModel for MenuModel {
                 .unwrap_or_default()
         }
     }
-    fn get_sub_menu(&self, command_id: ::std::os::raw::c_int) -> MenuModel {
+    fn get_sub_menu(&self, command_id: ::std::os::raw::c_int) -> Option<MenuModel> {
         unsafe {
             self.0
                 .get_sub_menu
@@ -21728,12 +22437,16 @@ impl ImplMenuModel for MenuModel {
                     let arg_self_ = self.as_raw();
                     let arg_command_id = arg_command_id;
                     let result = f(arg_self_, arg_command_id);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_sub_menu_at(&self, index: usize) -> MenuModel {
+    fn get_sub_menu_at(&self, index: usize) -> Option<MenuModel> {
         unsafe {
             self.0
                 .get_sub_menu_at
@@ -21742,7 +22455,11 @@ impl ImplMenuModel for MenuModel {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -23235,28 +23952,28 @@ pub trait ImplContextMenuParams: Clone + Sized + Rc {
     fn get_type_flags(&self) -> ContextMenuTypeFlags {
         Default::default()
     }
-    fn get_link_url(&self) -> CefStringUtf16 {
+    fn get_link_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_unfiltered_link_url(&self) -> CefStringUtf16 {
+    fn get_unfiltered_link_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_source_url(&self) -> CefStringUtf16 {
+    fn get_source_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn has_image_contents(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_title_text(&self) -> CefStringUtf16 {
+    fn get_title_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_page_url(&self) -> CefStringUtf16 {
+    fn get_page_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_frame_url(&self) -> CefStringUtf16 {
+    fn get_frame_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_frame_charset(&self) -> CefStringUtf16 {
+    fn get_frame_charset(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_media_type(&self) -> ContextMenuMediaType {
@@ -23265,10 +23982,10 @@ pub trait ImplContextMenuParams: Clone + Sized + Rc {
     fn get_media_state_flags(&self) -> ContextMenuMediaStateFlags {
         Default::default()
     }
-    fn get_selection_text(&self) -> CefStringUtf16 {
+    fn get_selection_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_misspelled_word(&self) -> CefStringUtf16 {
+    fn get_misspelled_word(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_dictionary_suggestions(
@@ -23348,7 +24065,9 @@ mod impl_cef_context_menu_params_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplContextMenuParams::get_link_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_unfiltered_link_url<I: ImplContextMenuParams>(
         self_: *mut _cef_context_menu_params_t,
@@ -23356,7 +24075,9 @@ mod impl_cef_context_menu_params_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplContextMenuParams::get_unfiltered_link_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_source_url<I: ImplContextMenuParams>(
         self_: *mut _cef_context_menu_params_t,
@@ -23364,7 +24085,9 @@ mod impl_cef_context_menu_params_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplContextMenuParams::get_source_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn has_image_contents<I: ImplContextMenuParams>(
         self_: *mut _cef_context_menu_params_t,
@@ -23380,7 +24103,9 @@ mod impl_cef_context_menu_params_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplContextMenuParams::get_title_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_page_url<I: ImplContextMenuParams>(
         self_: *mut _cef_context_menu_params_t,
@@ -23388,7 +24113,9 @@ mod impl_cef_context_menu_params_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplContextMenuParams::get_page_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_frame_url<I: ImplContextMenuParams>(
         self_: *mut _cef_context_menu_params_t,
@@ -23396,7 +24123,9 @@ mod impl_cef_context_menu_params_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplContextMenuParams::get_frame_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_frame_charset<I: ImplContextMenuParams>(
         self_: *mut _cef_context_menu_params_t,
@@ -23404,7 +24133,9 @@ mod impl_cef_context_menu_params_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplContextMenuParams::get_frame_charset(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_media_type<I: ImplContextMenuParams>(
         self_: *mut _cef_context_menu_params_t,
@@ -23428,7 +24159,9 @@ mod impl_cef_context_menu_params_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplContextMenuParams::get_selection_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_misspelled_word<I: ImplContextMenuParams>(
         self_: *mut _cef_context_menu_params_t,
@@ -23436,7 +24169,9 @@ mod impl_cef_context_menu_params_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplContextMenuParams::get_misspelled_word(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_dictionary_suggestions<I: ImplContextMenuParams>(
         self_: *mut _cef_context_menu_params_t,
@@ -23529,38 +24264,50 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_default()
         }
     }
-    fn get_link_url(&self) -> CefStringUtf16 {
+    fn get_link_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_link_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_unfiltered_link_url(&self) -> CefStringUtf16 {
+    fn get_unfiltered_link_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_unfiltered_link_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_source_url(&self) -> CefStringUtf16 {
+    fn get_source_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_source_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -23577,50 +24324,66 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_default()
         }
     }
-    fn get_title_text(&self) -> CefStringUtf16 {
+    fn get_title_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_title_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_page_url(&self) -> CefStringUtf16 {
+    fn get_page_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_page_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_frame_url(&self) -> CefStringUtf16 {
+    fn get_frame_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_frame_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_frame_charset(&self) -> CefStringUtf16 {
+    fn get_frame_charset(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_frame_charset
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -23649,26 +24412,34 @@ impl ImplContextMenuParams for ContextMenuParams {
                 .unwrap_or_default()
         }
     }
-    fn get_selection_text(&self) -> CefStringUtf16 {
+    fn get_selection_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_selection_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_misspelled_word(&self) -> CefStringUtf16 {
+    fn get_misspelled_word(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_misspelled_word
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -24866,25 +25637,25 @@ pub trait ImplDownloadItem: Clone + Sized + Rc {
     fn get_end_time(&self) -> Basetime {
         Default::default()
     }
-    fn get_full_path(&self) -> CefStringUtf16 {
+    fn get_full_path(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_id(&self) -> u32 {
         Default::default()
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_original_url(&self) -> CefStringUtf16 {
+    fn get_original_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_suggested_file_name(&self) -> CefStringUtf16 {
+    fn get_suggested_file_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_content_disposition(&self) -> CefStringUtf16 {
+    fn get_content_disposition(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_mime_type(&self) -> CefStringUtf16 {
+    fn get_mime_type(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_download_item_t) {
@@ -25011,7 +25782,9 @@ mod impl_cef_download_item_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDownloadItem::get_full_path(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_id<I: ImplDownloadItem>(self_: *mut _cef_download_item_t) -> u32 {
         let arg_self_ = self_;
@@ -25025,7 +25798,9 @@ mod impl_cef_download_item_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDownloadItem::get_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_original_url<I: ImplDownloadItem>(
         self_: *mut _cef_download_item_t,
@@ -25033,7 +25808,9 @@ mod impl_cef_download_item_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDownloadItem::get_original_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_suggested_file_name<I: ImplDownloadItem>(
         self_: *mut _cef_download_item_t,
@@ -25041,7 +25818,9 @@ mod impl_cef_download_item_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDownloadItem::get_suggested_file_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_content_disposition<I: ImplDownloadItem>(
         self_: *mut _cef_download_item_t,
@@ -25049,7 +25828,9 @@ mod impl_cef_download_item_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDownloadItem::get_content_disposition(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_mime_type<I: ImplDownloadItem>(
         self_: *mut _cef_download_item_t,
@@ -25057,7 +25838,9 @@ mod impl_cef_download_item_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplDownloadItem::get_mime_type(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_download_item_t] for more documentation."]
@@ -25208,14 +25991,18 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_default()
         }
     }
-    fn get_full_path(&self) -> CefStringUtf16 {
+    fn get_full_path(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_full_path
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -25232,62 +26019,82 @@ impl ImplDownloadItem for DownloadItem {
                 .unwrap_or_default()
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_original_url(&self) -> CefStringUtf16 {
+    fn get_original_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_original_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_suggested_file_name(&self) -> CefStringUtf16 {
+    fn get_suggested_file_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_suggested_file_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_content_disposition(&self) -> CefStringUtf16 {
+    fn get_content_disposition(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_content_disposition
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_mime_type(&self) -> CefStringUtf16 {
+    fn get_mime_type(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_mime_type
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -28936,7 +29743,7 @@ pub trait ImplPrintSettings: Clone + Sized + Rc {
     ) {
     }
     fn set_device_name(&self, name: Option<&CefStringUtf16>) {}
-    fn get_device_name(&self) -> CefStringUtf16 {
+    fn get_device_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_dpi(&self, dpi: ::std::os::raw::c_int) {}
@@ -29094,7 +29901,9 @@ mod impl_cef_print_settings_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplPrintSettings::get_device_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_dpi<I: ImplPrintSettings>(
         self_: *mut _cef_print_settings_t,
@@ -29361,14 +30170,18 @@ impl ImplPrintSettings for PrintSettings {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_device_name(&self) -> CefStringUtf16 {
+    fn get_device_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_device_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -30319,7 +31132,7 @@ impl Default for AccessibilityHandler {
     }
 }
 pub trait ImplRenderHandler: Clone + Sized + Rc {
-    fn get_accessibility_handler(&self) -> AccessibilityHandler {
+    fn get_accessibility_handler(&self) -> Option<AccessibilityHandler> {
         Default::default()
     }
     fn get_root_screen_rect(
@@ -30452,7 +31265,9 @@ mod impl_cef_render_handler_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplRenderHandler::get_accessibility_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_root_screen_rect<I: ImplRenderHandler>(
         self_: *mut _cef_render_handler_t,
@@ -30883,14 +31698,18 @@ mod impl_cef_render_handler_t {
 #[derive(Clone)]
 pub struct RenderHandler(RefGuard<_cef_render_handler_t>);
 impl ImplRenderHandler for RenderHandler {
-    fn get_accessibility_handler(&self) -> AccessibilityHandler {
+    fn get_accessibility_handler(&self) -> Option<AccessibilityHandler> {
         unsafe {
             self.0
                 .get_accessibility_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -31600,19 +32419,19 @@ pub trait ImplResponse: Clone + Sized + Rc {
         Default::default()
     }
     fn set_status(&self, status: ::std::os::raw::c_int) {}
-    fn get_status_text(&self) -> CefStringUtf16 {
+    fn get_status_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_status_text(&self, status_text: Option<&CefStringUtf16>) {}
-    fn get_mime_type(&self) -> CefStringUtf16 {
+    fn get_mime_type(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_mime_type(&self, mime_type: Option<&CefStringUtf16>) {}
-    fn get_charset(&self) -> CefStringUtf16 {
+    fn get_charset(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_charset(&self, charset: Option<&CefStringUtf16>) {}
-    fn get_header_by_name(&self, name: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_header_by_name(&self, name: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_header_by_name(
@@ -31624,7 +32443,7 @@ pub trait ImplResponse: Clone + Sized + Rc {
     }
     fn get_header_map(&self, header_map: Option<&mut CefStringMultimap>) {}
     fn set_header_map(&self, header_map: Option<&mut CefStringMultimap>) {}
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_url(&self, url: Option<&CefStringUtf16>) {}
@@ -31697,7 +32516,9 @@ mod impl_cef_response_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplResponse::get_status_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_status_text<I: ImplResponse>(
         self_: *mut _cef_response_t,
@@ -31719,7 +32540,9 @@ mod impl_cef_response_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplResponse::get_mime_type(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_mime_type<I: ImplResponse>(
         self_: *mut _cef_response_t,
@@ -31741,7 +32564,9 @@ mod impl_cef_response_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplResponse::get_charset(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_charset<I: ImplResponse>(
         self_: *mut _cef_response_t,
@@ -31770,7 +32595,9 @@ mod impl_cef_response_t {
         };
         let arg_name = arg_name.as_ref();
         let result = ImplResponse::get_header_by_name(&arg_self_.interface, arg_name);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_header_by_name<I: ImplResponse>(
         self_: *mut _cef_response_t,
@@ -31834,7 +32661,9 @@ mod impl_cef_response_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplResponse::get_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_url<I: ImplResponse>(
         self_: *mut _cef_response_t,
@@ -31919,14 +32748,18 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_status_text(&self) -> CefStringUtf16 {
+    fn get_status_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_status_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -31947,14 +32780,18 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_mime_type(&self) -> CefStringUtf16 {
+    fn get_mime_type(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_mime_type
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -31975,14 +32812,18 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_charset(&self) -> CefStringUtf16 {
+    fn get_charset(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_charset
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -32003,7 +32844,7 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_header_by_name(&self, name: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_header_by_name(&self, name: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_header_by_name
@@ -32012,7 +32853,11 @@ impl ImplResponse for Response {
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_name);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -32072,14 +32917,18 @@ impl ImplResponse for Response {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_url(&self) -> CefStringUtf16 {
+    fn get_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -33029,7 +33878,7 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         browser: Option<&mut impl ImplBrowser>,
         frame: Option<&mut impl ImplFrame>,
         request: Option<&mut impl ImplRequest>,
-    ) -> CookieAccessFilter {
+    ) -> Option<CookieAccessFilter> {
         Default::default()
     }
     fn on_before_resource_load(
@@ -33046,7 +33895,7 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         browser: Option<&mut impl ImplBrowser>,
         frame: Option<&mut impl ImplFrame>,
         request: Option<&mut impl ImplRequest>,
-    ) -> ResourceHandler {
+    ) -> Option<ResourceHandler> {
         Default::default()
     }
     fn on_resource_redirect(
@@ -33073,7 +33922,7 @@ pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
         frame: Option<&mut impl ImplFrame>,
         request: Option<&mut impl ImplRequest>,
         response: Option<&mut impl ImplResponse>,
-    ) -> ResponseFilter {
+    ) -> Option<ResponseFilter> {
         Default::default()
     }
     fn on_resource_load_complete(
@@ -33136,7 +33985,9 @@ mod impl_cef_resource_request_handler_t {
             arg_frame,
             arg_request,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn on_before_resource_load<I: ImplResourceRequestHandler>(
         self_: *mut _cef_resource_request_handler_t,
@@ -33192,7 +34043,9 @@ mod impl_cef_resource_request_handler_t {
             arg_frame,
             arg_request,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn on_resource_redirect<I: ImplResourceRequestHandler>(
         self_: *mut _cef_resource_request_handler_t,
@@ -33292,7 +34145,9 @@ mod impl_cef_resource_request_handler_t {
             arg_request,
             arg_response,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn on_resource_load_complete<I: ImplResourceRequestHandler>(
         self_: *mut _cef_resource_request_handler_t,
@@ -33390,7 +34245,7 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
         browser: Option<&mut impl ImplBrowser>,
         frame: Option<&mut impl ImplFrame>,
         request: Option<&mut impl ImplRequest>,
-    ) -> CookieAccessFilter {
+    ) -> Option<CookieAccessFilter> {
         unsafe {
             self.0
                 .get_cookie_access_filter
@@ -33416,7 +34271,11 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                         })
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -33470,7 +34329,7 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
         browser: Option<&mut impl ImplBrowser>,
         frame: Option<&mut impl ImplFrame>,
         request: Option<&mut impl ImplRequest>,
-    ) -> ResourceHandler {
+    ) -> Option<ResourceHandler> {
         unsafe {
             self.0
                 .get_resource_handler
@@ -33496,7 +34355,11 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                         })
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -33606,7 +34469,7 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
         frame: Option<&mut impl ImplFrame>,
         request: Option<&mut impl ImplRequest>,
         response: Option<&mut impl ImplResponse>,
-    ) -> ResponseFilter {
+    ) -> Option<ResponseFilter> {
         unsafe {
             self.0
                 .get_resource_response_filter
@@ -33639,7 +34502,11 @@ impl ImplResourceRequestHandler for ResourceRequestHandler {
                         })
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_browser, arg_frame, arg_request, arg_response);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -34055,7 +34922,7 @@ pub trait ImplSslinfo: Clone + Sized + Rc {
     fn get_cert_status(&self) -> CertStatus {
         Default::default()
     }
-    fn get_x509certificate(&self) -> X509certificate {
+    fn get_x509certificate(&self) -> Option<X509certificate> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_sslinfo_t) {
@@ -34081,7 +34948,9 @@ mod impl_cef_sslinfo_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplSslinfo::get_x509certificate(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_sslinfo_t] for more documentation."]
@@ -34100,14 +34969,18 @@ impl ImplSslinfo for Sslinfo {
                 .unwrap_or_default()
         }
     }
-    fn get_x509certificate(&self) -> X509certificate {
+    fn get_x509certificate(&self) -> Option<X509certificate> {
         unsafe {
             self.0
                 .get_x509certificate
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -34379,7 +35252,7 @@ pub trait ImplRequestHandler: Clone + Sized + Rc {
         is_download: ::std::os::raw::c_int,
         request_initiator: Option<&CefStringUtf16>,
         disable_default_handling: Option<&mut ::std::os::raw::c_int>,
-    ) -> ResourceRequestHandler {
+    ) -> Option<ResourceRequestHandler> {
         Default::default()
     }
     fn get_auth_credentials(
@@ -34601,7 +35474,9 @@ mod impl_cef_request_handler_t {
             arg_request_initiator,
             arg_disable_default_handling,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_auth_credentials<I: ImplRequestHandler>(
         self_: *mut _cef_request_handler_t,
@@ -34978,7 +35853,7 @@ impl ImplRequestHandler for RequestHandler {
         is_download: ::std::os::raw::c_int,
         request_initiator: Option<&CefStringUtf16>,
         disable_default_handling: Option<&mut ::std::os::raw::c_int>,
-    ) -> ResourceRequestHandler {
+    ) -> Option<ResourceRequestHandler> {
         unsafe {
             self.0
                 .get_resource_request_handler
@@ -35037,7 +35912,11 @@ impl ImplRequestHandler for RequestHandler {
                         arg_request_initiator,
                         arg_disable_default_handling,
                     );
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -35398,58 +36277,58 @@ impl Default for RequestHandler {
     }
 }
 pub trait ImplClient: Clone + Sized + Rc {
-    fn get_audio_handler(&self) -> AudioHandler {
+    fn get_audio_handler(&self) -> Option<AudioHandler> {
         Default::default()
     }
-    fn get_command_handler(&self) -> CommandHandler {
+    fn get_command_handler(&self) -> Option<CommandHandler> {
         Default::default()
     }
-    fn get_context_menu_handler(&self) -> ContextMenuHandler {
+    fn get_context_menu_handler(&self) -> Option<ContextMenuHandler> {
         Default::default()
     }
-    fn get_dialog_handler(&self) -> DialogHandler {
+    fn get_dialog_handler(&self) -> Option<DialogHandler> {
         Default::default()
     }
-    fn get_display_handler(&self) -> DisplayHandler {
+    fn get_display_handler(&self) -> Option<DisplayHandler> {
         Default::default()
     }
-    fn get_download_handler(&self) -> DownloadHandler {
+    fn get_download_handler(&self) -> Option<DownloadHandler> {
         Default::default()
     }
-    fn get_drag_handler(&self) -> DragHandler {
+    fn get_drag_handler(&self) -> Option<DragHandler> {
         Default::default()
     }
-    fn get_find_handler(&self) -> FindHandler {
+    fn get_find_handler(&self) -> Option<FindHandler> {
         Default::default()
     }
-    fn get_focus_handler(&self) -> FocusHandler {
+    fn get_focus_handler(&self) -> Option<FocusHandler> {
         Default::default()
     }
-    fn get_frame_handler(&self) -> FrameHandler {
+    fn get_frame_handler(&self) -> Option<FrameHandler> {
         Default::default()
     }
-    fn get_permission_handler(&self) -> PermissionHandler {
+    fn get_permission_handler(&self) -> Option<PermissionHandler> {
         Default::default()
     }
-    fn get_jsdialog_handler(&self) -> JsdialogHandler {
+    fn get_jsdialog_handler(&self) -> Option<JsdialogHandler> {
         Default::default()
     }
-    fn get_keyboard_handler(&self) -> KeyboardHandler {
+    fn get_keyboard_handler(&self) -> Option<KeyboardHandler> {
         Default::default()
     }
-    fn get_life_span_handler(&self) -> LifeSpanHandler {
+    fn get_life_span_handler(&self) -> Option<LifeSpanHandler> {
         Default::default()
     }
-    fn get_load_handler(&self) -> LoadHandler {
+    fn get_load_handler(&self) -> Option<LoadHandler> {
         Default::default()
     }
-    fn get_print_handler(&self) -> PrintHandler {
+    fn get_print_handler(&self) -> Option<PrintHandler> {
         Default::default()
     }
-    fn get_render_handler(&self) -> RenderHandler {
+    fn get_render_handler(&self) -> Option<RenderHandler> {
         Default::default()
     }
-    fn get_request_handler(&self) -> RequestHandler {
+    fn get_request_handler(&self) -> Option<RequestHandler> {
         Default::default()
     }
     fn on_process_message_received(
@@ -35495,7 +36374,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_audio_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_command_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35503,7 +36384,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_command_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_context_menu_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35511,7 +36394,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_context_menu_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_dialog_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35519,7 +36404,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_dialog_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_display_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35527,7 +36414,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_display_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_download_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35535,7 +36424,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_download_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_drag_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35543,7 +36434,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_drag_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_find_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35551,7 +36444,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_find_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_focus_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35559,7 +36454,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_focus_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_frame_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35567,7 +36464,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_frame_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_permission_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35575,7 +36474,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_permission_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_jsdialog_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35583,7 +36484,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_jsdialog_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_keyboard_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35591,7 +36494,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_keyboard_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_life_span_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35599,7 +36504,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_life_span_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_load_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35607,7 +36514,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_load_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_print_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35615,7 +36524,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_print_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_render_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35623,7 +36534,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_render_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_request_handler<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35631,7 +36544,9 @@ mod impl_cef_client_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplClient::get_request_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn on_process_message_received<I: ImplClient>(
         self_: *mut _cef_client_t,
@@ -35667,218 +36582,290 @@ mod impl_cef_client_t {
 #[derive(Clone)]
 pub struct Client(RefGuard<_cef_client_t>);
 impl ImplClient for Client {
-    fn get_audio_handler(&self) -> AudioHandler {
+    fn get_audio_handler(&self) -> Option<AudioHandler> {
         unsafe {
             self.0
                 .get_audio_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_command_handler(&self) -> CommandHandler {
+    fn get_command_handler(&self) -> Option<CommandHandler> {
         unsafe {
             self.0
                 .get_command_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_context_menu_handler(&self) -> ContextMenuHandler {
+    fn get_context_menu_handler(&self) -> Option<ContextMenuHandler> {
         unsafe {
             self.0
                 .get_context_menu_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_dialog_handler(&self) -> DialogHandler {
+    fn get_dialog_handler(&self) -> Option<DialogHandler> {
         unsafe {
             self.0
                 .get_dialog_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_display_handler(&self) -> DisplayHandler {
+    fn get_display_handler(&self) -> Option<DisplayHandler> {
         unsafe {
             self.0
                 .get_display_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_download_handler(&self) -> DownloadHandler {
+    fn get_download_handler(&self) -> Option<DownloadHandler> {
         unsafe {
             self.0
                 .get_download_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_drag_handler(&self) -> DragHandler {
+    fn get_drag_handler(&self) -> Option<DragHandler> {
         unsafe {
             self.0
                 .get_drag_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_find_handler(&self) -> FindHandler {
+    fn get_find_handler(&self) -> Option<FindHandler> {
         unsafe {
             self.0
                 .get_find_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_focus_handler(&self) -> FocusHandler {
+    fn get_focus_handler(&self) -> Option<FocusHandler> {
         unsafe {
             self.0
                 .get_focus_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_frame_handler(&self) -> FrameHandler {
+    fn get_frame_handler(&self) -> Option<FrameHandler> {
         unsafe {
             self.0
                 .get_frame_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_permission_handler(&self) -> PermissionHandler {
+    fn get_permission_handler(&self) -> Option<PermissionHandler> {
         unsafe {
             self.0
                 .get_permission_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_jsdialog_handler(&self) -> JsdialogHandler {
+    fn get_jsdialog_handler(&self) -> Option<JsdialogHandler> {
         unsafe {
             self.0
                 .get_jsdialog_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_keyboard_handler(&self) -> KeyboardHandler {
+    fn get_keyboard_handler(&self) -> Option<KeyboardHandler> {
         unsafe {
             self.0
                 .get_keyboard_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_life_span_handler(&self) -> LifeSpanHandler {
+    fn get_life_span_handler(&self) -> Option<LifeSpanHandler> {
         unsafe {
             self.0
                 .get_life_span_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_load_handler(&self) -> LoadHandler {
+    fn get_load_handler(&self) -> Option<LoadHandler> {
         unsafe {
             self.0
                 .get_load_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_print_handler(&self) -> PrintHandler {
+    fn get_print_handler(&self) -> Option<PrintHandler> {
         unsafe {
             self.0
                 .get_print_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_render_handler(&self) -> RenderHandler {
+    fn get_render_handler(&self) -> Option<RenderHandler> {
         unsafe {
             self.0
                 .get_render_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_request_handler(&self) -> RequestHandler {
+    fn get_request_handler(&self) -> Option<RequestHandler> {
         unsafe {
             self.0
                 .get_request_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -35976,7 +36963,7 @@ pub trait ImplCommandLine: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn copy(&self) -> CommandLine {
+    fn copy(&self) -> Option<CommandLine> {
         Default::default()
     }
     fn init_from_argv(
@@ -35988,10 +36975,10 @@ pub trait ImplCommandLine: Clone + Sized + Rc {
     fn init_from_string(&self, command_line: Option<&CefStringUtf16>) {}
     fn reset(&self) {}
     fn get_argv(&self, argv: Option<&mut CefStringList>) {}
-    fn get_command_line_string(&self) -> CefStringUtf16 {
+    fn get_command_line_string(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_program(&self) -> CefStringUtf16 {
+    fn get_program(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_program(&self, program: Option<&CefStringUtf16>) {}
@@ -36001,7 +36988,7 @@ pub trait ImplCommandLine: Clone + Sized + Rc {
     fn has_switch(&self, name: Option<&CefStringUtf16>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_switch_value(&self, name: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_switch_value(&self, name: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_switches(&self, switches: Option<&mut CefStringMap>) {}
@@ -36069,7 +37056,9 @@ mod impl_cef_command_line_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplCommandLine::copy(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn init_from_argv<I: ImplCommandLine>(
         self_: *mut _cef_command_line_t,
@@ -36121,7 +37110,9 @@ mod impl_cef_command_line_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplCommandLine::get_command_line_string(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_program<I: ImplCommandLine>(
         self_: *mut _cef_command_line_t,
@@ -36129,7 +37120,9 @@ mod impl_cef_command_line_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplCommandLine::get_program(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_program<I: ImplCommandLine>(
         self_: *mut _cef_command_line_t,
@@ -36181,7 +37174,9 @@ mod impl_cef_command_line_t {
         };
         let arg_name = arg_name.as_ref();
         let result = ImplCommandLine::get_switch_value(&arg_self_.interface, arg_name);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_switches<I: ImplCommandLine>(
         self_: *mut _cef_command_line_t,
@@ -36312,14 +37307,18 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_default()
         }
     }
-    fn copy(&self) -> CommandLine {
+    fn copy(&self) -> Option<CommandLine> {
         unsafe {
             self.0
                 .copy
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -36387,26 +37386,34 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_command_line_string(&self) -> CefStringUtf16 {
+    fn get_command_line_string(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_command_line_string
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_program(&self) -> CefStringUtf16 {
+    fn get_program(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_program
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -36453,7 +37460,7 @@ impl ImplCommandLine for CommandLine {
                 .unwrap_or_default()
         }
     }
-    fn get_switch_value(&self, name: Option<&CefStringUtf16>) -> CefStringUtf16 {
+    fn get_switch_value(&self, name: Option<&CefStringUtf16>) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_switch_value
@@ -36462,7 +37469,11 @@ impl ImplCommandLine for CommandLine {
                     let arg_self_ = self.as_raw();
                     let arg_name = arg_name.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_name);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -36634,7 +37645,7 @@ pub trait ImplRequestContextHandler: Clone + Sized + Rc {
         is_download: ::std::os::raw::c_int,
         request_initiator: Option<&CefStringUtf16>,
         disable_default_handling: Option<&mut ::std::os::raw::c_int>,
-    ) -> ResourceRequestHandler {
+    ) -> Option<ResourceRequestHandler> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_request_context_handler_t) {
@@ -36729,7 +37740,9 @@ mod impl_cef_request_context_handler_t {
             arg_request_initiator,
             arg_disable_default_handling,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_request_context_handler_t] for more documentation."]
@@ -36767,7 +37780,7 @@ impl ImplRequestContextHandler for RequestContextHandler {
         is_download: ::std::os::raw::c_int,
         request_initiator: Option<&CefStringUtf16>,
         disable_default_handling: Option<&mut ::std::os::raw::c_int>,
-    ) -> ResourceRequestHandler {
+    ) -> Option<ResourceRequestHandler> {
         unsafe {
             self.0
                 .get_resource_request_handler
@@ -36826,7 +37839,11 @@ impl ImplRequestContextHandler for RequestContextHandler {
                         arg_request_initiator,
                         arg_disable_default_handling,
                     );
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -36889,10 +37906,10 @@ pub trait ImplBrowserProcessHandler: Clone + Sized + Rc {
         Default::default()
     }
     fn on_schedule_message_pump_work(&self, delay_ms: i64) {}
-    fn get_default_client(&self) -> Client {
+    fn get_default_client(&self) -> Option<Client> {
         Default::default()
     }
-    fn get_default_request_context_handler(&self) -> RequestContextHandler {
+    fn get_default_request_context_handler(&self) -> Option<RequestContextHandler> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_browser_process_handler_t) {
@@ -36994,7 +38011,9 @@ mod impl_cef_browser_process_handler_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowserProcessHandler::get_default_client(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_default_request_context_handler<I: ImplBrowserProcessHandler>(
         self_: *mut _cef_browser_process_handler_t,
@@ -37003,7 +38022,9 @@ mod impl_cef_browser_process_handler_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result =
             ImplBrowserProcessHandler::get_default_request_context_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_browser_process_handler_t] for more documentation."]
@@ -37103,26 +38124,34 @@ impl ImplBrowserProcessHandler for BrowserProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_default_client(&self) -> Client {
+    fn get_default_client(&self) -> Option<Client> {
         unsafe {
             self.0
                 .get_default_client
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_default_request_context_handler(&self) -> RequestContextHandler {
+    fn get_default_request_context_handler(&self) -> Option<RequestContextHandler> {
         unsafe {
             self.0
                 .get_default_request_context_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -37469,19 +38498,19 @@ impl Default for TaskRunner {
     }
 }
 pub trait ImplV8context: Clone + Sized + Rc {
-    fn get_task_runner(&self) -> TaskRunner {
+    fn get_task_runner(&self) -> Option<TaskRunner> {
         Default::default()
     }
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_browser(&self) -> Browser {
+    fn get_browser(&self) -> Option<Browser> {
         Default::default()
     }
-    fn get_frame(&self) -> Frame {
+    fn get_frame(&self) -> Option<Frame> {
         Default::default()
     }
-    fn get_global(&self) -> V8value {
+    fn get_global(&self) -> Option<V8value> {
         Default::default()
     }
     fn enter(&self) -> ::std::os::raw::c_int {
@@ -37527,7 +38556,9 @@ mod impl_cef_v8context_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8context::get_task_runner(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn is_valid<I: ImplV8context>(
         self_: *mut _cef_v8context_t,
@@ -37543,13 +38574,17 @@ mod impl_cef_v8context_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8context::get_browser(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_frame<I: ImplV8context>(self_: *mut _cef_v8context_t) -> *mut _cef_frame_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8context::get_frame(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_global<I: ImplV8context>(
         self_: *mut _cef_v8context_t,
@@ -37557,7 +38592,9 @@ mod impl_cef_v8context_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8context::get_global(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn enter<I: ImplV8context>(self_: *mut _cef_v8context_t) -> ::std::os::raw::c_int {
         let arg_self_ = self_;
@@ -37638,14 +38675,18 @@ mod impl_cef_v8context_t {
 #[derive(Clone)]
 pub struct V8context(RefGuard<_cef_v8context_t>);
 impl ImplV8context for V8context {
-    fn get_task_runner(&self) -> TaskRunner {
+    fn get_task_runner(&self) -> Option<TaskRunner> {
         unsafe {
             self.0
                 .get_task_runner
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -37662,38 +38703,50 @@ impl ImplV8context for V8context {
                 .unwrap_or_default()
         }
     }
-    fn get_browser(&self) -> Browser {
+    fn get_browser(&self) -> Option<Browser> {
         unsafe {
             self.0
                 .get_browser
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_frame(&self) -> Frame {
+    fn get_frame(&self) -> Option<Frame> {
         unsafe {
             self.0
                 .get_frame
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_global(&self) -> V8value {
+    fn get_global(&self) -> Option<V8value> {
         unsafe {
             self.0
                 .get_global
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -38662,13 +39715,13 @@ impl Default for V8interceptor {
     }
 }
 pub trait ImplV8exception: Clone + Sized + Rc {
-    fn get_message(&self) -> CefStringUtf16 {
+    fn get_message(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_source_line(&self) -> CefStringUtf16 {
+    fn get_source_line(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_script_resource_name(&self) -> CefStringUtf16 {
+    fn get_script_resource_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_line_number(&self) -> ::std::os::raw::c_int {
@@ -38709,7 +39762,9 @@ mod impl_cef_v8exception_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8exception::get_message(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_source_line<I: ImplV8exception>(
         self_: *mut _cef_v8exception_t,
@@ -38717,7 +39772,9 @@ mod impl_cef_v8exception_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8exception::get_source_line(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_script_resource_name<I: ImplV8exception>(
         self_: *mut _cef_v8exception_t,
@@ -38725,7 +39782,9 @@ mod impl_cef_v8exception_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8exception::get_script_resource_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_line_number<I: ImplV8exception>(
         self_: *mut _cef_v8exception_t,
@@ -38772,38 +39831,50 @@ mod impl_cef_v8exception_t {
 #[derive(Clone)]
 pub struct V8exception(RefGuard<_cef_v8exception_t>);
 impl ImplV8exception for V8exception {
-    fn get_message(&self) -> CefStringUtf16 {
+    fn get_message(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_message
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_source_line(&self) -> CefStringUtf16 {
+    fn get_source_line(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_source_line
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_script_resource_name(&self) -> CefStringUtf16 {
+    fn get_script_resource_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_script_resource_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -39058,7 +40129,7 @@ pub trait ImplV8value: Clone + Sized + Rc {
     fn get_date_value(&self) -> Basetime {
         Default::default()
     }
-    fn get_string_value(&self) -> CefStringUtf16 {
+    fn get_string_value(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn is_user_created(&self) -> ::std::os::raw::c_int {
@@ -39067,7 +40138,7 @@ pub trait ImplV8value: Clone + Sized + Rc {
     fn has_exception(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_exception(&self) -> V8exception {
+    fn get_exception(&self) -> Option<V8exception> {
         Default::default()
     }
     fn clear_exception(&self) -> ::std::os::raw::c_int {
@@ -39091,10 +40162,10 @@ pub trait ImplV8value: Clone + Sized + Rc {
     fn delete_value_byindex(&self, index: ::std::os::raw::c_int) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_value_bykey(&self, key: Option<&CefStringUtf16>) -> V8value {
+    fn get_value_bykey(&self, key: Option<&CefStringUtf16>) -> Option<V8value> {
         Default::default()
     }
-    fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> V8value {
+    fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> Option<V8value> {
         Default::default()
     }
     fn set_value_bykey(
@@ -39125,7 +40196,7 @@ pub trait ImplV8value: Clone + Sized + Rc {
     fn set_user_data(&self, user_data: Option<&mut BaseRefCounted>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_user_data(&self) -> BaseRefCounted {
+    fn get_user_data(&self) -> Option<BaseRefCounted> {
         Default::default()
     }
     fn get_externally_allocated_memory(&self) -> ::std::os::raw::c_int {
@@ -39140,7 +40211,7 @@ pub trait ImplV8value: Clone + Sized + Rc {
     fn get_array_length(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_array_buffer_release_callback(&self) -> V8arrayBufferReleaseCallback {
+    fn get_array_buffer_release_callback(&self) -> Option<V8arrayBufferReleaseCallback> {
         Default::default()
     }
     fn neuter_array_buffer(&self) -> ::std::os::raw::c_int {
@@ -39152,17 +40223,17 @@ pub trait ImplV8value: Clone + Sized + Rc {
     fn get_array_buffer_data(&self) -> *mut ::std::os::raw::c_void {
         unsafe { std::mem::zeroed() }
     }
-    fn get_function_name(&self) -> CefStringUtf16 {
+    fn get_function_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_function_handler(&self) -> V8handler {
+    fn get_function_handler(&self) -> Option<V8handler> {
         Default::default()
     }
     fn execute_function(
         &self,
         object: Option<&mut impl ImplV8value>,
         arguments: Option<&[Option<impl ImplV8value>]>,
-    ) -> V8value {
+    ) -> Option<V8value> {
         Default::default()
     }
     fn execute_function_with_context(
@@ -39170,7 +40241,7 @@ pub trait ImplV8value: Clone + Sized + Rc {
         context: Option<&mut impl ImplV8context>,
         object: Option<&mut impl ImplV8value>,
         arguments: Option<&[Option<impl ImplV8value>]>,
-    ) -> V8value {
+    ) -> Option<V8value> {
         Default::default()
     }
     fn resolve_promise(&self, arg: Option<&mut impl ImplV8value>) -> ::std::os::raw::c_int {
@@ -39378,7 +40449,9 @@ mod impl_cef_v8value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8value::get_string_value(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn is_user_created<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -39402,7 +40475,9 @@ mod impl_cef_v8value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8value::get_exception(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn clear_exception<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -39493,7 +40568,9 @@ mod impl_cef_v8value_t {
         };
         let arg_key = arg_key.as_ref();
         let result = ImplV8value::get_value_bykey(&arg_self_.interface, arg_key);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_value_byindex<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -39503,7 +40580,9 @@ mod impl_cef_v8value_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplV8value::get_value_byindex(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_value_bykey<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -39592,7 +40671,9 @@ mod impl_cef_v8value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8value::get_user_data(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_externally_allocated_memory<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -39629,7 +40710,9 @@ mod impl_cef_v8value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8value::get_array_buffer_release_callback(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn neuter_array_buffer<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -39661,7 +40744,9 @@ mod impl_cef_v8value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8value::get_function_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_function_handler<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -39669,7 +40754,9 @@ mod impl_cef_v8value_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8value::get_function_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn execute_function<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -39698,7 +40785,9 @@ mod impl_cef_v8value_t {
         });
         let arg_arguments = vec_arguments.as_ref().map(|arg| arg.as_slice());
         let result = ImplV8value::execute_function(&arg_self_.interface, arg_object, arg_arguments);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn execute_function_with_context<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -39736,7 +40825,9 @@ mod impl_cef_v8value_t {
             arg_object,
             arg_arguments,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn resolve_promise<I: ImplV8value>(
         self_: *mut _cef_v8value_t,
@@ -40017,14 +41108,18 @@ impl ImplV8value for V8value {
                 .unwrap_or_default()
         }
     }
-    fn get_string_value(&self) -> CefStringUtf16 {
+    fn get_string_value(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_string_value
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40053,14 +41148,18 @@ impl ImplV8value for V8value {
                 .unwrap_or_default()
         }
     }
-    fn get_exception(&self) -> V8exception {
+    fn get_exception(&self) -> Option<V8exception> {
         unsafe {
             self.0
                 .get_exception
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40159,7 +41258,7 @@ impl ImplV8value for V8value {
                 .unwrap_or_default()
         }
     }
-    fn get_value_bykey(&self, key: Option<&CefStringUtf16>) -> V8value {
+    fn get_value_bykey(&self, key: Option<&CefStringUtf16>) -> Option<V8value> {
         unsafe {
             self.0
                 .get_value_bykey
@@ -40168,12 +41267,16 @@ impl ImplV8value for V8value {
                     let arg_self_ = self.as_raw();
                     let arg_key = arg_key.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_key);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> V8value {
+    fn get_value_byindex(&self, index: ::std::os::raw::c_int) -> Option<V8value> {
         unsafe {
             self.0
                 .get_value_byindex
@@ -40182,7 +41285,11 @@ impl ImplV8value for V8value {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40291,14 +41398,18 @@ impl ImplV8value for V8value {
                 .unwrap_or_default()
         }
     }
-    fn get_user_data(&self) -> BaseRefCounted {
+    fn get_user_data(&self) -> Option<BaseRefCounted> {
         unsafe {
             self.0
                 .get_user_data
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40344,14 +41455,18 @@ impl ImplV8value for V8value {
                 .unwrap_or_default()
         }
     }
-    fn get_array_buffer_release_callback(&self) -> V8arrayBufferReleaseCallback {
+    fn get_array_buffer_release_callback(&self) -> Option<V8arrayBufferReleaseCallback> {
         unsafe {
             self.0
                 .get_array_buffer_release_callback
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40392,26 +41507,34 @@ impl ImplV8value for V8value {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_function_name(&self) -> CefStringUtf16 {
+    fn get_function_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_function_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_function_handler(&self) -> V8handler {
+    fn get_function_handler(&self) -> Option<V8handler> {
         unsafe {
             self.0
                 .get_function_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40420,7 +41543,7 @@ impl ImplV8value for V8value {
         &self,
         object: Option<&mut impl ImplV8value>,
         arguments: Option<&[Option<impl ImplV8value>]>,
-    ) -> V8value {
+    ) -> Option<V8value> {
         unsafe {
             self.0
                 .execute_function
@@ -40455,7 +41578,11 @@ impl ImplV8value for V8value {
                         vec_arguments.as_ptr()
                     };
                     let result = f(arg_self_, arg_object, arg_arguments_count, arg_arguments);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40465,7 +41592,7 @@ impl ImplV8value for V8value {
         context: Option<&mut impl ImplV8context>,
         object: Option<&mut impl ImplV8value>,
         arguments: Option<&[Option<impl ImplV8value>]>,
-    ) -> V8value {
+    ) -> Option<V8value> {
         unsafe {
             self.0
                 .execute_function_with_context
@@ -40512,7 +41639,11 @@ impl ImplV8value for V8value {
                         arg_arguments_count,
                         arg_arguments,
                     );
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40600,7 +41731,7 @@ pub trait ImplV8stackTrace: Clone + Sized + Rc {
     fn get_frame_count(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_frame(&self, index: ::std::os::raw::c_int) -> V8stackFrame {
+    fn get_frame(&self, index: ::std::os::raw::c_int) -> Option<V8stackFrame> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_v8stack_trace_t) {
@@ -40639,7 +41770,9 @@ mod impl_cef_v8stack_trace_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplV8stackTrace::get_frame(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_v8stack_trace_t] for more documentation."]
@@ -40670,7 +41803,7 @@ impl ImplV8stackTrace for V8stackTrace {
                 .unwrap_or_default()
         }
     }
-    fn get_frame(&self, index: ::std::os::raw::c_int) -> V8stackFrame {
+    fn get_frame(&self, index: ::std::os::raw::c_int) -> Option<V8stackFrame> {
         unsafe {
             self.0
                 .get_frame
@@ -40679,7 +41812,11 @@ impl ImplV8stackTrace for V8stackTrace {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40729,13 +41866,13 @@ pub trait ImplV8stackFrame: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_script_name(&self) -> CefStringUtf16 {
+    fn get_script_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_script_name_or_source_url(&self) -> CefStringUtf16 {
+    fn get_script_name_or_source_url(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn get_function_name(&self) -> CefStringUtf16 {
+    fn get_function_name(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn get_line_number(&self) -> ::std::os::raw::c_int {
@@ -40781,7 +41918,9 @@ mod impl_cef_v8stack_frame_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8stackFrame::get_script_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_script_name_or_source_url<I: ImplV8stackFrame>(
         self_: *mut _cef_v8stack_frame_t,
@@ -40789,7 +41928,9 @@ mod impl_cef_v8stack_frame_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8stackFrame::get_script_name_or_source_url(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_function_name<I: ImplV8stackFrame>(
         self_: *mut _cef_v8stack_frame_t,
@@ -40797,7 +41938,9 @@ mod impl_cef_v8stack_frame_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplV8stackFrame::get_function_name(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_line_number<I: ImplV8stackFrame>(
         self_: *mut _cef_v8stack_frame_t,
@@ -40848,38 +41991,50 @@ impl ImplV8stackFrame for V8stackFrame {
                 .unwrap_or_default()
         }
     }
-    fn get_script_name(&self) -> CefStringUtf16 {
+    fn get_script_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_script_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_script_name_or_source_url(&self) -> CefStringUtf16 {
+    fn get_script_name_or_source_url(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_script_name_or_source_url
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_function_name(&self) -> CefStringUtf16 {
+    fn get_function_name(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_function_name
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -40982,7 +42137,7 @@ pub trait ImplRenderProcessHandler: Clone + Sized + Rc {
     ) {
     }
     fn on_browser_destroyed(&self, browser: Option<&mut impl ImplBrowser>) {}
-    fn get_load_handler(&self) -> LoadHandler {
+    fn get_load_handler(&self) -> Option<LoadHandler> {
         Default::default()
     }
     fn on_context_created(
@@ -41086,7 +42241,9 @@ mod impl_cef_render_process_handler_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplRenderProcessHandler::get_load_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn on_context_created<I: ImplRenderProcessHandler>(
         self_: *mut _cef_render_process_handler_t,
@@ -41289,14 +42446,18 @@ impl ImplRenderProcessHandler for RenderProcessHandler {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_load_handler(&self) -> LoadHandler {
+    fn get_load_handler(&self) -> Option<LoadHandler> {
         unsafe {
             self.0
                 .get_load_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -41866,7 +43027,7 @@ pub trait ImplSchemeHandlerFactory: Clone + Sized + Rc {
         frame: Option<&mut impl ImplFrame>,
         scheme_name: Option<&CefStringUtf16>,
         request: Option<&mut impl ImplRequest>,
-    ) -> ResourceHandler {
+    ) -> Option<ResourceHandler> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_scheme_handler_factory_t) {
@@ -41911,7 +43072,9 @@ mod impl_cef_scheme_handler_factory_t {
             arg_scheme_name,
             arg_request,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_scheme_handler_factory_t] for more documentation."]
@@ -41924,7 +43087,7 @@ impl ImplSchemeHandlerFactory for SchemeHandlerFactory {
         frame: Option<&mut impl ImplFrame>,
         scheme_name: Option<&CefStringUtf16>,
         request: Option<&mut impl ImplRequest>,
-    ) -> ResourceHandler {
+    ) -> Option<ResourceHandler> {
         unsafe {
             self.0
                 .create
@@ -41960,7 +43123,11 @@ impl ImplSchemeHandlerFactory for SchemeHandlerFactory {
                         arg_scheme_name,
                         arg_request,
                     );
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -42014,13 +43181,13 @@ pub trait ImplApp: Clone + Sized + Rc {
     ) {
     }
     fn on_register_custom_schemes(&self, registrar: Option<&mut SchemeRegistrar>) {}
-    fn get_resource_bundle_handler(&self) -> ResourceBundleHandler {
+    fn get_resource_bundle_handler(&self) -> Option<ResourceBundleHandler> {
         Default::default()
     }
-    fn get_browser_process_handler(&self) -> BrowserProcessHandler {
+    fn get_browser_process_handler(&self) -> Option<BrowserProcessHandler> {
         Default::default()
     }
-    fn get_render_process_handler(&self) -> RenderProcessHandler {
+    fn get_render_process_handler(&self) -> Option<RenderProcessHandler> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_app_t) {
@@ -42079,7 +43246,9 @@ mod impl_cef_app_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplApp::get_resource_bundle_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_browser_process_handler<I: ImplApp>(
         self_: *mut _cef_app_t,
@@ -42087,7 +43256,9 @@ mod impl_cef_app_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplApp::get_browser_process_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_render_process_handler<I: ImplApp>(
         self_: *mut _cef_app_t,
@@ -42095,7 +43266,9 @@ mod impl_cef_app_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplApp::get_render_process_handler(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_app_t] for more documentation."]
@@ -42144,38 +43317,50 @@ impl ImplApp for App {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_resource_bundle_handler(&self) -> ResourceBundleHandler {
+    fn get_resource_bundle_handler(&self) -> Option<ResourceBundleHandler> {
         unsafe {
             self.0
                 .get_resource_bundle_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_browser_process_handler(&self) -> BrowserProcessHandler {
+    fn get_browser_process_handler(&self) -> Option<BrowserProcessHandler> {
         unsafe {
             self.0
                 .get_browser_process_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_render_process_handler(&self) -> RenderProcessHandler {
+    fn get_render_process_handler(&self) -> Option<RenderProcessHandler> {
         unsafe {
             self.0
                 .get_render_process_handler
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -42222,10 +43407,10 @@ impl Default for App {
     }
 }
 pub trait ImplUrlrequest: Clone + Sized + Rc {
-    fn get_request(&self) -> Request {
+    fn get_request(&self) -> Option<Request> {
         Default::default()
     }
-    fn get_client(&self) -> UrlrequestClient {
+    fn get_client(&self) -> Option<UrlrequestClient> {
         Default::default()
     }
     fn get_request_status(&self) -> UrlrequestStatus {
@@ -42234,7 +43419,7 @@ pub trait ImplUrlrequest: Clone + Sized + Rc {
     fn get_request_error(&self) -> Errorcode {
         Default::default()
     }
-    fn get_response(&self) -> Response {
+    fn get_response(&self) -> Option<Response> {
         Default::default()
     }
     fn response_was_cached(&self) -> ::std::os::raw::c_int {
@@ -42263,7 +43448,9 @@ mod impl_cef_urlrequest_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplUrlrequest::get_request(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_client<I: ImplUrlrequest>(
         self_: *mut _cef_urlrequest_t,
@@ -42271,7 +43458,9 @@ mod impl_cef_urlrequest_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplUrlrequest::get_client(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_request_status<I: ImplUrlrequest>(
         self_: *mut _cef_urlrequest_t,
@@ -42295,7 +43484,9 @@ mod impl_cef_urlrequest_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplUrlrequest::get_response(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn response_was_cached<I: ImplUrlrequest>(
         self_: *mut _cef_urlrequest_t,
@@ -42315,26 +43506,34 @@ mod impl_cef_urlrequest_t {
 #[derive(Clone)]
 pub struct Urlrequest(RefGuard<_cef_urlrequest_t>);
 impl ImplUrlrequest for Urlrequest {
-    fn get_request(&self) -> Request {
+    fn get_request(&self) -> Option<Request> {
         unsafe {
             self.0
                 .get_request
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_client(&self) -> UrlrequestClient {
+    fn get_client(&self) -> Option<UrlrequestClient> {
         unsafe {
             self.0
                 .get_client
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -42363,14 +43562,18 @@ impl ImplUrlrequest for Urlrequest {
                 .unwrap_or_default()
         }
     }
-    fn get_response(&self) -> Response {
+    fn get_response(&self) -> Option<Response> {
         unsafe {
             self.0
                 .get_response
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -42795,10 +43998,10 @@ impl Default for UrlrequestClient {
     }
 }
 pub trait ImplLayout: Clone + Sized + Rc {
-    fn as_box_layout(&self) -> BoxLayout {
+    fn as_box_layout(&self) -> Option<BoxLayout> {
         Default::default()
     }
-    fn as_fill_layout(&self) -> FillLayout {
+    fn as_fill_layout(&self) -> Option<FillLayout> {
         Default::default()
     }
     fn is_valid(&self) -> ::std::os::raw::c_int {
@@ -42822,7 +44025,9 @@ mod impl_cef_layout_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplLayout::as_box_layout(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn as_fill_layout<I: ImplLayout>(
         self_: *mut _cef_layout_t,
@@ -42830,7 +44035,9 @@ mod impl_cef_layout_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplLayout::as_fill_layout(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn is_valid<I: ImplLayout>(self_: *mut _cef_layout_t) -> ::std::os::raw::c_int {
         let arg_self_ = self_;
@@ -42843,26 +44050,34 @@ mod impl_cef_layout_t {
 #[derive(Clone)]
 pub struct Layout(RefGuard<_cef_layout_t>);
 impl ImplLayout for Layout {
-    fn as_box_layout(&self) -> BoxLayout {
+    fn as_box_layout(&self) -> Option<BoxLayout> {
         unsafe {
             self.0
                 .as_box_layout
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn as_fill_layout(&self) -> FillLayout {
+    fn as_fill_layout(&self) -> Option<FillLayout> {
         unsafe {
             self.0
                 .as_fill_layout
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -42966,11 +44181,11 @@ mod impl_cef_box_layout_t {
 #[derive(Clone)]
 pub struct BoxLayout(RefGuard<_cef_box_layout_t>);
 impl ImplLayout for BoxLayout {
-    fn as_box_layout(&self) -> BoxLayout {
+    fn as_box_layout(&self) -> Option<BoxLayout> {
         Layout(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_box_layout()
     }
-    fn as_fill_layout(&self) -> FillLayout {
+    fn as_fill_layout(&self) -> Option<FillLayout> {
         Layout(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_fill_layout()
     }
@@ -43080,11 +44295,11 @@ mod impl_cef_fill_layout_t {
 #[derive(Clone)]
 pub struct FillLayout(RefGuard<_cef_fill_layout_t>);
 impl ImplLayout for FillLayout {
-    fn as_box_layout(&self) -> BoxLayout {
+    fn as_box_layout(&self) -> Option<BoxLayout> {
         Layout(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_box_layout()
     }
-    fn as_fill_layout(&self) -> FillLayout {
+    fn as_fill_layout(&self) -> Option<FillLayout> {
         Layout(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_fill_layout()
     }
@@ -43645,25 +44860,25 @@ impl Default for ViewDelegate {
     }
 }
 pub trait ImplView: Clone + Sized + Rc {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         Default::default()
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         Default::default()
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         Default::default()
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         Default::default()
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         Default::default()
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn is_valid(&self) -> ::std::os::raw::c_int {
@@ -43675,10 +44890,10 @@ pub trait ImplView: Clone + Sized + Rc {
     fn is_same(&self, that: Option<&mut impl ImplView>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         Default::default()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         Default::default()
     }
     fn get_id(&self) -> ::std::os::raw::c_int {
@@ -43689,10 +44904,10 @@ pub trait ImplView: Clone + Sized + Rc {
         Default::default()
     }
     fn set_group_id(&self, group_id: ::std::os::raw::c_int) {}
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         Default::default()
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         Default::default()
     }
     fn set_bounds(&self, bounds: Option<&Rect>) {}
@@ -43850,31 +45065,41 @@ mod impl_cef_view_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplView::as_browser_view(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn as_button<I: ImplView>(self_: *mut _cef_view_t) -> *mut _cef_button_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplView::as_button(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn as_panel<I: ImplView>(self_: *mut _cef_view_t) -> *mut _cef_panel_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplView::as_panel(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn as_scroll_view<I: ImplView>(self_: *mut _cef_view_t) -> *mut _cef_scroll_view_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplView::as_scroll_view(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn as_textfield<I: ImplView>(self_: *mut _cef_view_t) -> *mut _cef_textfield_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplView::as_textfield(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_type_string<I: ImplView>(
         self_: *mut _cef_view_t,
@@ -43882,7 +45107,9 @@ mod impl_cef_view_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplView::get_type_string(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn to_string<I: ImplView>(
         self_: *mut _cef_view_t,
@@ -43892,7 +45119,9 @@ mod impl_cef_view_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_include_children = arg_include_children.as_raw();
         let result = ImplView::to_string(&arg_self_.interface, arg_include_children);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn is_valid<I: ImplView>(self_: *mut _cef_view_t) -> ::std::os::raw::c_int {
         let arg_self_ = self_;
@@ -43922,13 +45151,17 @@ mod impl_cef_view_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplView::get_delegate(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_window<I: ImplView>(self_: *mut _cef_view_t) -> *mut _cef_window_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplView::get_window(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_id<I: ImplView>(self_: *mut _cef_view_t) -> ::std::os::raw::c_int {
         let arg_self_ = self_;
@@ -43961,7 +45194,9 @@ mod impl_cef_view_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplView::get_parent_view(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_view_for_id<I: ImplView>(
         self_: *mut _cef_view_t,
@@ -43971,7 +45206,9 @@ mod impl_cef_view_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_id = arg_id.as_raw();
         let result = ImplView::get_view_for_id(&arg_self_.interface, arg_id);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_bounds<I: ImplView>(self_: *mut _cef_view_t, bounds: *const _cef_rect_t) {
         let (arg_self_, arg_bounds) = (self_, bounds);
@@ -44283,79 +45520,103 @@ mod impl_cef_view_t {
 #[derive(Clone)]
 pub struct View(RefGuard<_cef_view_t>);
 impl ImplView for View {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         unsafe {
             self.0
                 .as_browser_view
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         unsafe {
             self.0
                 .as_button
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         unsafe {
             self.0
                 .as_panel
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         unsafe {
             self.0
                 .as_scroll_view
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         unsafe {
             self.0
                 .as_textfield
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_type_string
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .to_string
@@ -44364,7 +45625,11 @@ impl ImplView for View {
                     let arg_self_ = self.as_raw();
                     let arg_include_children = arg_include_children;
                     let result = f(arg_self_, arg_include_children);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -44412,26 +45677,34 @@ impl ImplView for View {
                 .unwrap_or_default()
         }
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         unsafe {
             self.0
                 .get_delegate
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         unsafe {
             self.0
                 .get_window
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -44488,19 +45761,23 @@ impl ImplView for View {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         unsafe {
             self.0
                 .get_parent_view
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         unsafe {
             self.0
                 .get_view_for_id
@@ -44509,7 +45786,11 @@ impl ImplView for View {
                     let arg_self_ = self.as_raw();
                     let arg_id = arg_id;
                     let result = f(arg_self_, arg_id);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -45056,7 +46337,7 @@ impl Default for View {
     }
 }
 pub trait ImplButton: ImplView {
-    fn as_label_button(&self) -> LabelButton {
+    fn as_label_button(&self) -> Option<LabelButton> {
         Default::default()
     }
     fn set_state(&self, state: ButtonState) {}
@@ -45090,7 +46371,9 @@ mod impl_cef_button_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplButton::as_label_button(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_state<I: ImplButton>(self_: *mut _cef_button_t, state: cef_button_state_t) {
         let (arg_self_, arg_state) = (self_, state);
@@ -45146,29 +46429,29 @@ mod impl_cef_button_t {
 #[derive(Clone)]
 pub struct Button(RefGuard<_cef_button_t>);
 impl ImplView for Button {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_browser_view()
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_button()
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_panel()
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_scroll_view()
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_textfield()
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_type_string()
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .to_string(include_children)
     }
@@ -45183,11 +46466,11 @@ impl ImplView for Button {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_same(that)
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_delegate()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_window()
     }
@@ -45205,11 +46488,11 @@ impl ImplView for Button {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_group_id(group_id)
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_parent_view()
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_view_for_id(id)
     }
@@ -45359,14 +46642,18 @@ impl ImplView for Button {
     }
 }
 impl ImplButton for Button {
-    fn as_label_button(&self) -> LabelButton {
+    fn as_label_button(&self) -> Option<LabelButton> {
         unsafe {
             self.0
                 .as_label_button
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -45669,15 +46956,15 @@ impl Default for ButtonDelegate {
     }
 }
 pub trait ImplLabelButton: ImplButton {
-    fn as_menu_button(&self) -> MenuButton {
+    fn as_menu_button(&self) -> Option<MenuButton> {
         Default::default()
     }
     fn set_text(&self, text: Option<&CefStringUtf16>) {}
-    fn get_text(&self) -> CefStringUtf16 {
+    fn get_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_image(&self, button_state: ButtonState, image: Option<&mut impl ImplImage>) {}
-    fn get_image(&self, button_state: ButtonState) -> Image {
+    fn get_image(&self, button_state: ButtonState) -> Option<Image> {
         Default::default()
     }
     fn set_text_color(&self, for_state: ButtonState, color: u32) {}
@@ -45716,7 +47003,9 @@ mod impl_cef_label_button_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplLabelButton::as_menu_button(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_text<I: ImplLabelButton>(
         self_: *mut _cef_label_button_t,
@@ -45738,7 +47027,9 @@ mod impl_cef_label_button_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplLabelButton::get_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_image<I: ImplLabelButton>(
         self_: *mut _cef_label_button_t,
@@ -45761,7 +47052,9 @@ mod impl_cef_label_button_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_button_state = arg_button_state.as_raw();
         let result = ImplLabelButton::get_image(&arg_self_.interface, arg_button_state);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_text_color<I: ImplLabelButton>(
         self_: *mut _cef_label_button_t,
@@ -45840,29 +47133,29 @@ mod impl_cef_label_button_t {
 #[derive(Clone)]
 pub struct LabelButton(RefGuard<_cef_label_button_t>);
 impl ImplView for LabelButton {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_browser_view()
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_button()
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_panel()
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_scroll_view()
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_textfield()
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_type_string()
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .to_string(include_children)
     }
@@ -45877,11 +47170,11 @@ impl ImplView for LabelButton {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_same(that)
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_delegate()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_window()
     }
@@ -45899,11 +47192,11 @@ impl ImplView for LabelButton {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_group_id(group_id)
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_parent_view()
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_view_for_id(id)
     }
@@ -46053,7 +47346,7 @@ impl ImplView for LabelButton {
     }
 }
 impl ImplButton for LabelButton {
-    fn as_label_button(&self) -> LabelButton {
+    fn as_label_button(&self) -> Option<LabelButton> {
         Button(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_label_button()
     }
@@ -46082,14 +47375,18 @@ impl ImplButton for LabelButton {
     }
 }
 impl ImplLabelButton for LabelButton {
-    fn as_menu_button(&self) -> MenuButton {
+    fn as_menu_button(&self) -> Option<MenuButton> {
         unsafe {
             self.0
                 .as_menu_button
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -46108,14 +47405,18 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_text(&self) -> CefStringUtf16 {
+    fn get_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -46140,7 +47441,7 @@ impl ImplLabelButton for LabelButton {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_image(&self, button_state: ButtonState) -> Image {
+    fn get_image(&self, button_state: ButtonState) -> Option<Image> {
         unsafe {
             self.0
                 .get_image
@@ -46149,7 +47450,11 @@ impl ImplLabelButton for LabelButton {
                     let arg_self_ = self.as_raw();
                     let arg_button_state = arg_button_state.as_raw();
                     let result = f(arg_self_, arg_button_state);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -46622,29 +47927,29 @@ mod impl_cef_menu_button_t {
 #[derive(Clone)]
 pub struct MenuButton(RefGuard<_cef_menu_button_t>);
 impl ImplView for MenuButton {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_browser_view()
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_button()
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_panel()
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_scroll_view()
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_textfield()
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_type_string()
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .to_string(include_children)
     }
@@ -46659,11 +47964,11 @@ impl ImplView for MenuButton {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_same(that)
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_delegate()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_window()
     }
@@ -46681,11 +47986,11 @@ impl ImplView for MenuButton {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_group_id(group_id)
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_parent_view()
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_view_for_id(id)
     }
@@ -46835,7 +48140,7 @@ impl ImplView for MenuButton {
     }
 }
 impl ImplButton for MenuButton {
-    fn as_label_button(&self) -> LabelButton {
+    fn as_label_button(&self) -> Option<LabelButton> {
         Button(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_label_button()
     }
@@ -46864,7 +48169,7 @@ impl ImplButton for MenuButton {
     }
 }
 impl ImplLabelButton for MenuButton {
-    fn as_menu_button(&self) -> MenuButton {
+    fn as_menu_button(&self) -> Option<MenuButton> {
         LabelButton(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_menu_button()
     }
@@ -46872,7 +48177,7 @@ impl ImplLabelButton for MenuButton {
         LabelButton(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_text(text)
     }
-    fn get_text(&self) -> CefStringUtf16 {
+    fn get_text(&self) -> Option<CefStringUtf16> {
         LabelButton(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_text()
     }
@@ -46880,7 +48185,7 @@ impl ImplLabelButton for MenuButton {
         LabelButton(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_image(button_state, image)
     }
-    fn get_image(&self, button_state: ButtonState) -> Image {
+    fn get_image(&self, button_state: ButtonState) -> Option<Image> {
         LabelButton(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_image(button_state)
     }
@@ -47222,7 +48527,7 @@ pub trait ImplTextfield: ImplView {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_text(&self) -> CefStringUtf16 {
+    fn get_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_text(&self, text: Option<&CefStringUtf16>) {}
@@ -47231,7 +48536,7 @@ pub trait ImplTextfield: ImplView {
     fn has_selection(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_selected_text(&self) -> CefStringUtf16 {
+    fn get_selected_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn select_all(&self, reversed: ::std::os::raw::c_int) {}
@@ -47270,7 +48575,7 @@ pub trait ImplTextfield: ImplView {
     fn execute_command(&self, command_id: TextFieldCommands) {}
     fn clear_edit_history(&self) {}
     fn set_placeholder_text(&self, text: Option<&CefStringUtf16>) {}
-    fn get_placeholder_text(&self) -> CefStringUtf16 {
+    fn get_placeholder_text(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_placeholder_text_color(&self, color: u32) {}
@@ -47358,7 +48663,9 @@ mod impl_cef_textfield_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplTextfield::get_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_text<I: ImplTextfield>(
         self_: *mut _cef_textfield_t,
@@ -47416,7 +48723,9 @@ mod impl_cef_textfield_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplTextfield::get_selected_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn select_all<I: ImplTextfield>(
         self_: *mut _cef_textfield_t,
@@ -47597,7 +48906,9 @@ mod impl_cef_textfield_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplTextfield::get_placeholder_text(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_placeholder_text_color<I: ImplTextfield>(
         self_: *mut _cef_textfield_t,
@@ -47627,29 +48938,29 @@ mod impl_cef_textfield_t {
 #[derive(Clone)]
 pub struct Textfield(RefGuard<_cef_textfield_t>);
 impl ImplView for Textfield {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_browser_view()
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_button()
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_panel()
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_scroll_view()
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_textfield()
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_type_string()
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .to_string(include_children)
     }
@@ -47664,11 +48975,11 @@ impl ImplView for Textfield {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_same(that)
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_delegate()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_window()
     }
@@ -47686,11 +48997,11 @@ impl ImplView for Textfield {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_group_id(group_id)
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_parent_view()
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_view_for_id(id)
     }
@@ -47892,14 +49203,18 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_default()
         }
     }
-    fn get_text(&self) -> CefStringUtf16 {
+    fn get_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -47958,14 +49273,18 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_default()
         }
     }
-    fn get_selected_text(&self) -> CefStringUtf16 {
+    fn get_selected_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_selected_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -48230,14 +49549,18 @@ impl ImplTextfield for Textfield {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_placeholder_text(&self) -> CefStringUtf16 {
+    fn get_placeholder_text(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_placeholder_text
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -48330,7 +49653,7 @@ pub trait ImplBrowserViewDelegate: ImplViewDelegate {
         settings: Option<&BrowserSettings>,
         client: Option<&mut impl ImplClient>,
         is_devtools: ::std::os::raw::c_int,
-    ) -> BrowserViewDelegate {
+    ) -> Option<BrowserViewDelegate> {
         Default::default()
     }
     fn on_popup_browser_view_created(
@@ -48452,7 +49775,9 @@ mod impl_cef_browser_view_delegate_t {
             arg_client,
             arg_is_devtools,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn on_popup_browser_view_created<I: ImplBrowserViewDelegate>(
         self_: *mut _cef_browser_view_delegate_t,
@@ -48667,7 +49992,7 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
         settings: Option<&BrowserSettings>,
         client: Option<&mut impl ImplClient>,
         is_devtools: ::std::os::raw::c_int,
-    ) -> BrowserViewDelegate {
+    ) -> Option<BrowserViewDelegate> {
         unsafe {
             self.0
                 .get_delegate_for_popup_browser_view
@@ -48700,7 +50025,11 @@ impl ImplBrowserViewDelegate for BrowserViewDelegate {
                         arg_client,
                         arg_is_devtools,
                     );
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -48864,10 +50193,10 @@ impl Default for BrowserViewDelegate {
     }
 }
 pub trait ImplBrowserView: ImplView {
-    fn get_browser(&self) -> Browser {
+    fn get_browser(&self) -> Option<Browser> {
         Default::default()
     }
-    fn get_chrome_toolbar(&self) -> View {
+    fn get_chrome_toolbar(&self) -> Option<View> {
         Default::default()
     }
     fn set_prefer_accelerators(&self, prefer_accelerators: ::std::os::raw::c_int) {}
@@ -48896,7 +50225,9 @@ mod impl_cef_browser_view_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowserView::get_browser(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_chrome_toolbar<I: ImplBrowserView>(
         self_: *mut _cef_browser_view_t,
@@ -48904,7 +50235,9 @@ mod impl_cef_browser_view_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplBrowserView::get_chrome_toolbar(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_prefer_accelerators<I: ImplBrowserView>(
         self_: *mut _cef_browser_view_t,
@@ -48929,29 +50262,29 @@ mod impl_cef_browser_view_t {
 #[derive(Clone)]
 pub struct BrowserView(RefGuard<_cef_browser_view_t>);
 impl ImplView for BrowserView {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_browser_view()
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_button()
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_panel()
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_scroll_view()
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_textfield()
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_type_string()
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .to_string(include_children)
     }
@@ -48966,11 +50299,11 @@ impl ImplView for BrowserView {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_same(that)
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_delegate()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_window()
     }
@@ -48988,11 +50321,11 @@ impl ImplView for BrowserView {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_group_id(group_id)
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_parent_view()
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_view_for_id(id)
     }
@@ -49142,26 +50475,34 @@ impl ImplView for BrowserView {
     }
 }
 impl ImplBrowserView for BrowserView {
-    fn get_browser(&self) -> Browser {
+    fn get_browser(&self) -> Option<Browser> {
         unsafe {
             self.0
                 .get_browser
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_chrome_toolbar(&self) -> View {
+    fn get_chrome_toolbar(&self) -> Option<View> {
         unsafe {
             self.0
                 .get_chrome_toolbar
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -49235,7 +50576,7 @@ impl Default for BrowserView {
 }
 pub trait ImplScrollView: ImplView {
     fn set_content_view(&self, view: Option<&mut impl ImplView>) {}
-    fn get_content_view(&self) -> View {
+    fn get_content_view(&self) -> Option<View> {
         Default::default()
     }
     fn get_visible_content_rect(&self) -> Rect {
@@ -49289,7 +50630,9 @@ mod impl_cef_scroll_view_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplScrollView::get_content_view(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_visible_content_rect<I: ImplScrollView>(
         self_: *mut _cef_scroll_view_t,
@@ -49336,29 +50679,29 @@ mod impl_cef_scroll_view_t {
 #[derive(Clone)]
 pub struct ScrollView(RefGuard<_cef_scroll_view_t>);
 impl ImplView for ScrollView {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_browser_view()
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_button()
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_panel()
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_scroll_view()
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_textfield()
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_type_string()
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .to_string(include_children)
     }
@@ -49373,11 +50716,11 @@ impl ImplView for ScrollView {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_same(that)
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_delegate()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_window()
     }
@@ -49395,11 +50738,11 @@ impl ImplView for ScrollView {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_group_id(group_id)
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_parent_view()
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_view_for_id(id)
     }
@@ -49568,14 +50911,18 @@ impl ImplScrollView for ScrollView {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_content_view(&self) -> View {
+    fn get_content_view(&self) -> Option<View> {
         unsafe {
             self.0
                 .get_content_view
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -49924,10 +51271,10 @@ pub trait ImplOverlayController: Clone + Sized + Rc {
     fn is_same(&self, that: Option<&mut impl ImplOverlayController>) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_contents_view(&self) -> View {
+    fn get_contents_view(&self) -> Option<View> {
         Default::default()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         Default::default()
     }
     fn get_docking_mode(&self) -> DockingMode {
@@ -50015,7 +51362,9 @@ mod impl_cef_overlay_controller_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplOverlayController::get_contents_view(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_window<I: ImplOverlayController>(
         self_: *mut _cef_overlay_controller_t,
@@ -50023,7 +51372,9 @@ mod impl_cef_overlay_controller_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplOverlayController::get_window(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_docking_mode<I: ImplOverlayController>(
         self_: *mut _cef_overlay_controller_t,
@@ -50202,26 +51553,34 @@ impl ImplOverlayController for OverlayController {
                 .unwrap_or_default()
         }
     }
-    fn get_contents_view(&self) -> View {
+    fn get_contents_view(&self) -> Option<View> {
         unsafe {
             self.0
                 .get_contents_view
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         unsafe {
             self.0
                 .get_window
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -50595,16 +51954,16 @@ impl Default for PanelDelegate {
     }
 }
 pub trait ImplPanel: ImplView {
-    fn as_window(&self) -> Window {
+    fn as_window(&self) -> Option<Window> {
         Default::default()
     }
-    fn set_to_fill_layout(&self) -> FillLayout {
+    fn set_to_fill_layout(&self) -> Option<FillLayout> {
         Default::default()
     }
-    fn set_to_box_layout(&self, settings: Option<&BoxLayoutSettings>) -> BoxLayout {
+    fn set_to_box_layout(&self, settings: Option<&BoxLayoutSettings>) -> Option<BoxLayout> {
         Default::default()
     }
-    fn get_layout(&self) -> Layout {
+    fn get_layout(&self) -> Option<Layout> {
         Default::default()
     }
     fn layout(&self) {}
@@ -50616,7 +51975,7 @@ pub trait ImplPanel: ImplView {
     fn get_child_view_count(&self) -> usize {
         Default::default()
     }
-    fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> View {
+    fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> Option<View> {
         Default::default()
     }
     fn init_methods(object: &mut _cef_panel_t) {
@@ -50647,7 +52006,9 @@ mod impl_cef_panel_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplPanel::as_window(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_to_fill_layout<I: ImplPanel>(
         self_: *mut _cef_panel_t,
@@ -50655,7 +52016,9 @@ mod impl_cef_panel_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplPanel::set_to_fill_layout(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_to_box_layout<I: ImplPanel>(
         self_: *mut _cef_panel_t,
@@ -50670,13 +52033,17 @@ mod impl_cef_panel_t {
         };
         let arg_settings = arg_settings.as_ref().map(|arg| arg.as_ref());
         let result = ImplPanel::set_to_box_layout(&arg_self_.interface, arg_settings);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_layout<I: ImplPanel>(self_: *mut _cef_panel_t) -> *mut _cef_layout_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplPanel::get_layout(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn layout<I: ImplPanel>(self_: *mut _cef_panel_t) {
         let arg_self_ = self_;
@@ -50747,36 +52114,38 @@ mod impl_cef_panel_t {
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let arg_index = arg_index.as_raw();
         let result = ImplPanel::get_child_view_at(&arg_self_.interface, arg_index);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
 }
 #[doc = "See [_cef_panel_t] for more documentation."]
 #[derive(Clone)]
 pub struct Panel(RefGuard<_cef_panel_t>);
 impl ImplView for Panel {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_browser_view()
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_button()
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_panel()
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_scroll_view()
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_textfield()
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_type_string()
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .to_string(include_children)
     }
@@ -50791,11 +52160,11 @@ impl ImplView for Panel {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_same(that)
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_delegate()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_window()
     }
@@ -50813,11 +52182,11 @@ impl ImplView for Panel {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_group_id(group_id)
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_parent_view()
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_view_for_id(id)
     }
@@ -50967,31 +52336,39 @@ impl ImplView for Panel {
     }
 }
 impl ImplPanel for Panel {
-    fn as_window(&self) -> Window {
+    fn as_window(&self) -> Option<Window> {
         unsafe {
             self.0
                 .as_window
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn set_to_fill_layout(&self) -> FillLayout {
+    fn set_to_fill_layout(&self) -> Option<FillLayout> {
         unsafe {
             self.0
                 .set_to_fill_layout
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn set_to_box_layout(&self, settings: Option<&BoxLayoutSettings>) -> BoxLayout {
+    fn set_to_box_layout(&self, settings: Option<&BoxLayoutSettings>) -> Option<BoxLayout> {
         unsafe {
             self.0
                 .set_to_box_layout
@@ -51004,19 +52381,27 @@ impl ImplPanel for Panel {
                         .map(std::ptr::from_ref)
                         .unwrap_or(std::ptr::null());
                     let result = f(arg_self_, arg_settings);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
     }
-    fn get_layout(&self) -> Layout {
+    fn get_layout(&self) -> Option<Layout> {
         unsafe {
             self.0
                 .get_layout
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -51135,7 +52520,7 @@ impl ImplPanel for Panel {
                 .unwrap_or_default()
         }
     }
-    fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> View {
+    fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> Option<View> {
         unsafe {
             self.0
                 .get_child_view_at
@@ -51144,7 +52529,11 @@ impl ImplPanel for Panel {
                     let arg_self_ = self.as_raw();
                     let arg_index = arg_index;
                     let result = f(arg_self_, arg_index);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -51217,7 +52606,7 @@ pub trait ImplWindowDelegate: ImplPanelDelegate {
         window: Option<&mut impl ImplWindow>,
         is_menu: Option<&mut ::std::os::raw::c_int>,
         can_activate_menu: Option<&mut ::std::os::raw::c_int>,
-    ) -> Window {
+    ) -> Option<Window> {
         Default::default()
     }
     fn is_window_modal_dialog(
@@ -51450,7 +52839,9 @@ mod impl_cef_window_delegate_t {
             arg_is_menu,
             arg_can_activate_menu,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn is_window_modal_dialog<I: ImplWindowDelegate>(
         self_: *mut _cef_window_delegate_t,
@@ -51889,7 +53280,7 @@ impl ImplWindowDelegate for WindowDelegate {
         window: Option<&mut impl ImplWindow>,
         is_menu: Option<&mut ::std::os::raw::c_int>,
         can_activate_menu: Option<&mut ::std::os::raw::c_int>,
-    ) -> Window {
+    ) -> Option<Window> {
         unsafe {
             self.0
                 .get_parent_window
@@ -51910,7 +53301,11 @@ impl ImplWindowDelegate for WindowDelegate {
                         .map(std::ptr::from_mut)
                         .unwrap_or(std::ptr::null_mut());
                     let result = f(arg_self_, arg_window, arg_is_menu, arg_can_activate_menu);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -52326,19 +53721,19 @@ pub trait ImplWindow: ImplPanel {
     fn is_fullscreen(&self) -> ::std::os::raw::c_int {
         Default::default()
     }
-    fn get_focused_view(&self) -> View {
+    fn get_focused_view(&self) -> Option<View> {
         Default::default()
     }
     fn set_title(&self, title: Option<&CefStringUtf16>) {}
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title(&self) -> Option<CefStringUtf16> {
         Default::default()
     }
     fn set_window_icon(&self, image: Option<&mut impl ImplImage>) {}
-    fn get_window_icon(&self) -> Image {
+    fn get_window_icon(&self) -> Option<Image> {
         Default::default()
     }
     fn set_window_app_icon(&self, image: Option<&mut impl ImplImage>) {}
-    fn get_window_app_icon(&self) -> Image {
+    fn get_window_app_icon(&self) -> Option<Image> {
         Default::default()
     }
     fn add_overlay_view(
@@ -52346,7 +53741,7 @@ pub trait ImplWindow: ImplPanel {
         view: Option<&mut impl ImplView>,
         docking_mode: DockingMode,
         can_activate: ::std::os::raw::c_int,
-    ) -> OverlayController {
+    ) -> Option<OverlayController> {
         Default::default()
     }
     fn show_menu(
@@ -52357,7 +53752,7 @@ pub trait ImplWindow: ImplPanel {
     ) {
     }
     fn cancel_menu(&self) {}
-    fn get_display(&self) -> Display {
+    fn get_display(&self) -> Option<Display> {
         Default::default()
     }
     fn get_client_area_bounds_in_screen(&self) -> Rect {
@@ -52579,7 +53974,9 @@ mod impl_cef_window_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplWindow::get_focused_view(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_title<I: ImplWindow>(
         self_: *mut _cef_window_t,
@@ -52599,7 +53996,9 @@ mod impl_cef_window_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplWindow::get_title(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_window_icon<I: ImplWindow>(
         self_: *mut _cef_window_t,
@@ -52616,7 +54015,9 @@ mod impl_cef_window_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplWindow::get_window_icon(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn set_window_app_icon<I: ImplWindow>(
         self_: *mut _cef_window_t,
@@ -52635,7 +54036,9 @@ mod impl_cef_window_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplWindow::get_window_app_icon(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn add_overlay_view<I: ImplWindow>(
         self_: *mut _cef_window_t,
@@ -52657,7 +54060,9 @@ mod impl_cef_window_t {
             arg_docking_mode,
             arg_can_activate,
         );
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn show_menu<I: ImplWindow>(
         self_: *mut _cef_window_t,
@@ -52694,7 +54099,9 @@ mod impl_cef_window_t {
         let arg_self_ = self_;
         let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
         let result = ImplWindow::get_display(&arg_self_.interface);
-        result.into()
+        result
+            .map(|result| result.into())
+            .unwrap_or(std::ptr::null_mut())
     }
     extern "C" fn get_client_area_bounds_in_screen<I: ImplWindow>(
         self_: *mut _cef_window_t,
@@ -52857,29 +54264,29 @@ mod impl_cef_window_t {
 #[derive(Clone)]
 pub struct Window(RefGuard<_cef_window_t>);
 impl ImplView for Window {
-    fn as_browser_view(&self) -> BrowserView {
+    fn as_browser_view(&self) -> Option<BrowserView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_browser_view()
     }
-    fn as_button(&self) -> Button {
+    fn as_button(&self) -> Option<Button> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_button()
     }
-    fn as_panel(&self) -> Panel {
+    fn as_panel(&self) -> Option<Panel> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) }).as_panel()
     }
-    fn as_scroll_view(&self) -> ScrollView {
+    fn as_scroll_view(&self) -> Option<ScrollView> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_scroll_view()
     }
-    fn as_textfield(&self) -> Textfield {
+    fn as_textfield(&self) -> Option<Textfield> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_textfield()
     }
-    fn get_type_string(&self) -> CefStringUtf16 {
+    fn get_type_string(&self) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_type_string()
     }
-    fn to_string(&self, include_children: ::std::os::raw::c_int) -> CefStringUtf16 {
+    fn to_string(&self, include_children: ::std::os::raw::c_int) -> Option<CefStringUtf16> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .to_string(include_children)
     }
@@ -52894,11 +54301,11 @@ impl ImplView for Window {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .is_same(that)
     }
-    fn get_delegate(&self) -> ViewDelegate {
+    fn get_delegate(&self) -> Option<ViewDelegate> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_delegate()
     }
-    fn get_window(&self) -> Window {
+    fn get_window(&self) -> Option<Window> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_window()
     }
@@ -52916,11 +54323,11 @@ impl ImplView for Window {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_group_id(group_id)
     }
-    fn get_parent_view(&self) -> View {
+    fn get_parent_view(&self) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_parent_view()
     }
-    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> View {
+    fn get_view_for_id(&self, id: ::std::os::raw::c_int) -> Option<View> {
         View(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_view_for_id(id)
     }
@@ -53070,19 +54477,19 @@ impl ImplView for Window {
     }
 }
 impl ImplPanel for Window {
-    fn as_window(&self) -> Window {
+    fn as_window(&self) -> Option<Window> {
         Panel(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .as_window()
     }
-    fn set_to_fill_layout(&self) -> FillLayout {
+    fn set_to_fill_layout(&self) -> Option<FillLayout> {
         Panel(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_to_fill_layout()
     }
-    fn set_to_box_layout(&self, settings: Option<&BoxLayoutSettings>) -> BoxLayout {
+    fn set_to_box_layout(&self, settings: Option<&BoxLayoutSettings>) -> Option<BoxLayout> {
         Panel(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .set_to_box_layout(settings)
     }
-    fn get_layout(&self) -> Layout {
+    fn get_layout(&self) -> Option<Layout> {
         Panel(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_layout()
     }
@@ -53113,7 +54520,7 @@ impl ImplPanel for Window {
         Panel(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_child_view_count()
     }
-    fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> View {
+    fn get_child_view_at(&self, index: ::std::os::raw::c_int) -> Option<View> {
         Panel(unsafe { RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _) })
             .get_child_view_at(index)
     }
@@ -53367,14 +54774,18 @@ impl ImplWindow for Window {
                 .unwrap_or_default()
         }
     }
-    fn get_focused_view(&self) -> View {
+    fn get_focused_view(&self) -> Option<View> {
         unsafe {
             self.0
                 .get_focused_view
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -53395,14 +54806,18 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_title(&self) -> CefStringUtf16 {
+    fn get_title(&self) -> Option<CefStringUtf16> {
         unsafe {
             self.0
                 .get_title
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -53426,14 +54841,18 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_window_icon(&self) -> Image {
+    fn get_window_icon(&self) -> Option<Image> {
         unsafe {
             self.0
                 .get_window_icon
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -53457,14 +54876,18 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_window_app_icon(&self) -> Image {
+    fn get_window_app_icon(&self) -> Option<Image> {
         unsafe {
             self.0
                 .get_window_app_icon
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -53474,7 +54897,7 @@ impl ImplWindow for Window {
         view: Option<&mut impl ImplView>,
         docking_mode: DockingMode,
         can_activate: ::std::os::raw::c_int,
-    ) -> OverlayController {
+    ) -> Option<OverlayController> {
         unsafe {
             self.0
                 .add_overlay_view
@@ -53491,7 +54914,11 @@ impl ImplWindow for Window {
                     let arg_docking_mode = arg_docking_mode.as_raw();
                     let arg_can_activate = arg_can_activate;
                     let result = f(arg_self_, arg_view, arg_docking_mode, arg_can_activate);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -53544,14 +54971,18 @@ impl ImplWindow for Window {
                 .unwrap_or_else(|| std::mem::zeroed())
         }
     }
-    fn get_display(&self) -> Display {
+    fn get_display(&self) -> Option<Display> {
         unsafe {
             self.0
                 .get_display
                 .map(|f| {
                     let arg_self_ = self.as_raw();
                     let result = f(arg_self_);
-                    result.as_wrapper()
+                    if result.is_null() {
+                        None
+                    } else {
+                        Some(result.as_wrapper())
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -56610,7 +58041,7 @@ pub fn string_wide_clear(str_: Option<&mut CefStringWide>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_wide_clear(arg_str_);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_utf8_clear(str_: Option<&mut CefStringUtf8>) {
@@ -56620,7 +58051,7 @@ pub fn string_utf8_clear(str_: Option<&mut CefStringUtf8>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_utf8_clear(arg_str_);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_utf16_clear(str_: Option<&mut CefStringUtf16>) {
@@ -56630,7 +58061,7 @@ pub fn string_utf16_clear(str_: Option<&mut CefStringUtf16>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_utf16_clear(arg_str_);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_wide_cmp(
@@ -56873,22 +58304,34 @@ pub fn string_ascii_to_utf16(
         result.as_wrapper()
     }
 }
-pub fn string_userfree_wide_alloc() -> CefStringWide {
+pub fn string_userfree_wide_alloc() -> Option<CefStringWide> {
     unsafe {
         let result = cef_string_userfree_wide_alloc();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn string_userfree_utf8_alloc() -> CefStringUtf8 {
+pub fn string_userfree_utf8_alloc() -> Option<CefStringUtf8> {
     unsafe {
         let result = cef_string_userfree_utf8_alloc();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn string_userfree_utf16_alloc() -> CefStringUtf16 {
+pub fn string_userfree_utf16_alloc() -> Option<CefStringUtf16> {
     unsafe {
         let result = cef_string_userfree_utf16_alloc();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn string_userfree_wide_free(str_: Option<&mut CefStringWide>) {
@@ -56898,7 +58341,7 @@ pub fn string_userfree_wide_free(str_: Option<&mut CefStringWide>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_userfree_wide_free(arg_str_);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_userfree_utf8_free(str_: Option<&mut CefStringUtf8>) {
@@ -56908,7 +58351,7 @@ pub fn string_userfree_utf8_free(str_: Option<&mut CefStringUtf8>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_userfree_utf8_free(arg_str_);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_userfree_utf16_free(str_: Option<&mut CefStringUtf16>) {
@@ -56918,7 +58361,7 @@ pub fn string_userfree_utf16_free(str_: Option<&mut CefStringUtf16>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_userfree_utf16_free(arg_str_);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_utf16_to_lower(
@@ -56969,10 +58412,14 @@ pub fn string_utf16_to_upper(
         result.as_wrapper()
     }
 }
-pub fn string_list_alloc() -> CefStringList {
+pub fn string_list_alloc() -> Option<CefStringList> {
     unsafe {
         let result = cef_string_list_alloc();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn string_list_size(list: Option<&mut CefStringList>) -> usize {
@@ -57013,7 +58460,7 @@ pub fn string_list_append(list: Option<&mut CefStringList>, value: Option<&CefSt
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null());
         let result = cef_string_list_append(arg_list, arg_value);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_list_clear(list: Option<&mut CefStringList>) {
@@ -57023,7 +58470,7 @@ pub fn string_list_clear(list: Option<&mut CefStringList>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_list_clear(arg_list);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_list_free(list: Option<&mut CefStringList>) {
@@ -57033,23 +58480,31 @@ pub fn string_list_free(list: Option<&mut CefStringList>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_list_free(arg_list);
-        result
+        result.as_wrapper()
     }
 }
-pub fn string_list_copy(list: Option<&mut CefStringList>) -> CefStringList {
+pub fn string_list_copy(list: Option<&mut CefStringList>) -> Option<CefStringList> {
     unsafe {
         let arg_list = list;
         let arg_list = arg_list
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_list_copy(arg_list);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn string_map_alloc() -> CefStringMap {
+pub fn string_map_alloc() -> Option<CefStringMap> {
     unsafe {
         let result = cef_string_map_alloc();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn string_map_size(map: Option<&mut CefStringMap>) -> usize {
@@ -57141,7 +58596,7 @@ pub fn string_map_clear(map: Option<&mut CefStringMap>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_map_clear(arg_map);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_map_free(map: Option<&mut CefStringMap>) {
@@ -57151,13 +58606,17 @@ pub fn string_map_free(map: Option<&mut CefStringMap>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_map_free(arg_map);
-        result
+        result.as_wrapper()
     }
 }
-pub fn string_multimap_alloc() -> CefStringMultimap {
+pub fn string_multimap_alloc() -> Option<CefStringMultimap> {
     unsafe {
         let result = cef_string_multimap_alloc();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn string_multimap_size(map: Option<&mut CefStringMultimap>) -> usize {
@@ -57265,7 +58724,7 @@ pub fn string_multimap_clear(map: Option<&mut CefStringMultimap>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_multimap_clear(arg_map);
-        result
+        result.as_wrapper()
     }
 }
 pub fn string_multimap_free(map: Option<&mut CefStringMultimap>) {
@@ -57275,7 +58734,7 @@ pub fn string_multimap_free(map: Option<&mut CefStringMultimap>) {
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null_mut());
         let result = cef_string_multimap_free(arg_map);
-        result
+        result.as_wrapper()
     }
 }
 pub fn time_to_timet(cef_time: Option<&Time>, time: Option<&mut time_t>) -> ::std::os::raw::c_int {
@@ -57411,13 +58870,17 @@ pub fn get_xdisplay() -> *mut XDisplay {
         result.as_wrapper()
     }
 }
-pub fn value_create() -> Value {
+pub fn value_create() -> Option<Value> {
     unsafe {
         let result = cef_value_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn binary_value_create(data: Option<&[u8]>) -> BinaryValue {
+pub fn binary_value_create(data: Option<&[u8]>) -> Option<BinaryValue> {
     unsafe {
         let arg_data = data;
         let arg_data_size = arg_data.as_ref().map(|arg| arg.len()).unwrap_or_default();
@@ -57432,49 +58895,73 @@ pub fn binary_value_create(data: Option<&[u8]>) -> BinaryValue {
             })
             .unwrap_or(std::ptr::null());
         let result = cef_binary_value_create(arg_data, arg_data_size);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn dictionary_value_create() -> DictionaryValue {
+pub fn dictionary_value_create() -> Option<DictionaryValue> {
     unsafe {
         let result = cef_dictionary_value_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn list_value_create() -> ListValue {
+pub fn list_value_create() -> Option<ListValue> {
     unsafe {
         let result = cef_list_value_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn image_create() -> Image {
+pub fn image_create() -> Option<Image> {
     unsafe {
         let result = cef_image_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn stream_reader_create_for_file(file_name: Option<&CefStringUtf16>) -> StreamReader {
+pub fn stream_reader_create_for_file(file_name: Option<&CefStringUtf16>) -> Option<StreamReader> {
     unsafe {
         let arg_file_name = file_name;
         let arg_file_name = arg_file_name
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null());
         let result = cef_stream_reader_create_for_file(arg_file_name);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn stream_reader_create_for_data(data: *mut u8, size: usize) -> StreamReader {
+pub fn stream_reader_create_for_data(data: *mut u8, size: usize) -> Option<StreamReader> {
     unsafe {
         let (arg_data, arg_size) = (data, size);
         let arg_data = arg_data as *mut _;
         let arg_size = arg_size;
         let result = cef_stream_reader_create_for_data(arg_data, arg_size);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn stream_reader_create_for_handler(
     handler: Option<&mut impl ImplReadHandler>,
-) -> StreamReader {
+) -> Option<StreamReader> {
     unsafe {
         let arg_handler = handler;
         let arg_handler = arg_handler
@@ -57484,22 +58971,30 @@ pub fn stream_reader_create_for_handler(
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_stream_reader_create_for_handler(arg_handler);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn stream_writer_create_for_file(file_name: Option<&CefStringUtf16>) -> StreamWriter {
+pub fn stream_writer_create_for_file(file_name: Option<&CefStringUtf16>) -> Option<StreamWriter> {
     unsafe {
         let arg_file_name = file_name;
         let arg_file_name = arg_file_name
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null());
         let result = cef_stream_writer_create_for_file(arg_file_name);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn stream_writer_create_for_handler(
     handler: Option<&mut impl ImplWriteHandler>,
-) -> StreamWriter {
+) -> Option<StreamWriter> {
     unsafe {
         let arg_handler = handler;
         let arg_handler = arg_handler
@@ -57509,44 +59004,68 @@ pub fn stream_writer_create_for_handler(
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_stream_writer_create_for_handler(arg_handler);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn drag_data_create() -> DragData {
+pub fn drag_data_create() -> Option<DragData> {
     unsafe {
         let result = cef_drag_data_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn process_message_create(name: Option<&CefStringUtf16>) -> ProcessMessage {
+pub fn process_message_create(name: Option<&CefStringUtf16>) -> Option<ProcessMessage> {
     unsafe {
         let arg_name = name;
         let arg_name = arg_name.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
         let result = cef_process_message_create(arg_name);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn request_create() -> Request {
+pub fn request_create() -> Option<Request> {
     unsafe {
         let result = cef_request_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn post_data_create() -> PostData {
+pub fn post_data_create() -> Option<PostData> {
     unsafe {
         let result = cef_post_data_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn post_data_element_create() -> PostDataElement {
+pub fn post_data_element_create() -> Option<PostDataElement> {
     unsafe {
         let result = cef_post_data_element_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn cookie_manager_get_global_manager(
     callback: Option<&mut impl ImplCompletionCallback>,
-) -> CookieManager {
+) -> Option<CookieManager> {
     unsafe {
         let arg_callback = callback;
         let arg_callback = arg_callback
@@ -57556,10 +59075,16 @@ pub fn cookie_manager_get_global_manager(
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_cookie_manager_get_global_manager(arg_callback);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn media_router_get_global(callback: Option<&mut impl ImplCompletionCallback>) -> MediaRouter {
+pub fn media_router_get_global(
+    callback: Option<&mut impl ImplCompletionCallback>,
+) -> Option<MediaRouter> {
     unsafe {
         let arg_callback = callback;
         let arg_callback = arg_callback
@@ -57569,25 +59094,37 @@ pub fn media_router_get_global(callback: Option<&mut impl ImplCompletionCallback
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_media_router_get_global(arg_callback);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn preference_manager_get_global() -> PreferenceManager {
+pub fn preference_manager_get_global() -> Option<PreferenceManager> {
     unsafe {
         let result = cef_preference_manager_get_global();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn request_context_get_global_context() -> RequestContext {
+pub fn request_context_get_global_context() -> Option<RequestContext> {
     unsafe {
         let result = cef_request_context_get_global_context();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn request_context_create_context(
     settings: Option<&RequestContextSettings>,
     handler: Option<&mut impl ImplRequestContextHandler>,
-) -> RequestContext {
+) -> Option<RequestContext> {
     unsafe {
         let (arg_settings, arg_handler) = (settings, handler);
         let arg_settings = arg_settings.cloned().map(|arg| arg.into());
@@ -57602,13 +59139,17 @@ pub fn request_context_create_context(
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_request_context_create_context(arg_settings, arg_handler);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn create_context_shared(
     other: Option<&mut impl ImplRequestContext>,
     handler: Option<&mut impl ImplRequestContextHandler>,
-) -> RequestContext {
+) -> Option<RequestContext> {
     unsafe {
         let (arg_other, arg_handler) = (other, handler);
         let arg_other = arg_other
@@ -57624,7 +59165,11 @@ pub fn create_context_shared(
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_create_context_shared(arg_other, arg_handler);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn browser_host_create_browser(
@@ -57698,7 +59243,7 @@ pub fn browser_host_create_browser_sync(
     settings: Option<&BrowserSettings>,
     extra_info: Option<&mut impl ImplDictionaryValue>,
     request_context: Option<&mut impl ImplRequestContext>,
-) -> Browser {
+) -> Option<Browser> {
     unsafe {
         let (
             arg_window_info,
@@ -57752,18 +59297,28 @@ pub fn browser_host_create_browser_sync(
             arg_extra_info,
             arg_request_context,
         );
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn browser_host_get_browser_by_identifier(browser_id: ::std::os::raw::c_int) -> Browser {
+pub fn browser_host_get_browser_by_identifier(
+    browser_id: ::std::os::raw::c_int,
+) -> Option<Browser> {
     unsafe {
         let arg_browser_id = browser_id;
         let arg_browser_id = arg_browser_id;
         let result = cef_browser_host_get_browser_by_identifier(arg_browser_id);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn menu_model_create(delegate: Option<&mut impl ImplMenuModelDelegate>) -> MenuModel {
+pub fn menu_model_create(delegate: Option<&mut impl ImplMenuModelDelegate>) -> Option<MenuModel> {
     unsafe {
         let arg_delegate = delegate;
         let arg_delegate = arg_delegate
@@ -57773,19 +59328,31 @@ pub fn menu_model_create(delegate: Option<&mut impl ImplMenuModelDelegate>) -> M
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_menu_model_create(arg_delegate);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn print_settings_create() -> PrintSettings {
+pub fn print_settings_create() -> Option<PrintSettings> {
     unsafe {
         let result = cef_print_settings_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn response_create() -> Response {
+pub fn response_create() -> Option<Response> {
     unsafe {
         let result = cef_response_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn is_cert_status_error(status: CertStatus) -> ::std::os::raw::c_int {
@@ -57796,30 +59363,46 @@ pub fn is_cert_status_error(status: CertStatus) -> ::std::os::raw::c_int {
         result.as_wrapper()
     }
 }
-pub fn command_line_create() -> CommandLine {
+pub fn command_line_create() -> Option<CommandLine> {
     unsafe {
         let result = cef_command_line_create();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn command_line_get_global() -> CommandLine {
+pub fn command_line_get_global() -> Option<CommandLine> {
     unsafe {
         let result = cef_command_line_get_global();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn task_runner_get_for_current_thread() -> TaskRunner {
+pub fn task_runner_get_for_current_thread() -> Option<TaskRunner> {
     unsafe {
         let result = cef_task_runner_get_for_current_thread();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn task_runner_get_for_thread(thread_id: ThreadId) -> TaskRunner {
+pub fn task_runner_get_for_thread(thread_id: ThreadId) -> Option<TaskRunner> {
     unsafe {
         let arg_thread_id = thread_id;
         let arg_thread_id = arg_thread_id.as_raw();
         let result = cef_task_runner_get_for_thread(arg_thread_id);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn currently_on(thread_id: ThreadId) -> ::std::os::raw::c_int {
@@ -57863,16 +59446,24 @@ pub fn post_delayed_task(
         result.as_wrapper()
     }
 }
-pub fn v8context_get_current_context() -> V8context {
+pub fn v8context_get_current_context() -> Option<V8context> {
     unsafe {
         let result = cef_v8context_get_current_context();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8context_get_entered_context() -> V8context {
+pub fn v8context_get_entered_context() -> Option<V8context> {
     unsafe {
         let result = cef_v8context_get_entered_context();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn v8context_in_context() -> ::std::os::raw::c_int {
@@ -57881,71 +59472,103 @@ pub fn v8context_in_context() -> ::std::os::raw::c_int {
         result.as_wrapper()
     }
 }
-pub fn v8value_create_undefined() -> V8value {
+pub fn v8value_create_undefined() -> Option<V8value> {
     unsafe {
         let result = cef_v8value_create_undefined();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_null() -> V8value {
+pub fn v8value_create_null() -> Option<V8value> {
     unsafe {
         let result = cef_v8value_create_null();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_bool(value: ::std::os::raw::c_int) -> V8value {
+pub fn v8value_create_bool(value: ::std::os::raw::c_int) -> Option<V8value> {
     unsafe {
         let arg_value = value;
         let arg_value = arg_value;
         let result = cef_v8value_create_bool(arg_value);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_int(value: i32) -> V8value {
+pub fn v8value_create_int(value: i32) -> Option<V8value> {
     unsafe {
         let arg_value = value;
         let arg_value = arg_value;
         let result = cef_v8value_create_int(arg_value);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_uint(value: u32) -> V8value {
+pub fn v8value_create_uint(value: u32) -> Option<V8value> {
     unsafe {
         let arg_value = value;
         let arg_value = arg_value;
         let result = cef_v8value_create_uint(arg_value);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_double(value: f64) -> V8value {
+pub fn v8value_create_double(value: f64) -> Option<V8value> {
     unsafe {
         let arg_value = value;
         let arg_value = arg_value;
         let result = cef_v8value_create_double(arg_value);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_date(date: _cef_basetime_t) -> V8value {
+pub fn v8value_create_date(date: _cef_basetime_t) -> Option<V8value> {
     unsafe {
         let arg_date = date;
         let result = cef_v8value_create_date(arg_date);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_string(value: Option<&CefStringUtf16>) -> V8value {
+pub fn v8value_create_string(value: Option<&CefStringUtf16>) -> Option<V8value> {
     unsafe {
         let arg_value = value;
         let arg_value = arg_value
             .map(|arg| arg.as_raw())
             .unwrap_or(std::ptr::null());
         let result = cef_v8value_create_string(arg_value);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn v8value_create_object(
     accessor: Option<&mut impl ImplV8accessor>,
     interceptor: Option<&mut impl ImplV8interceptor>,
-) -> V8value {
+) -> Option<V8value> {
     unsafe {
         let (arg_accessor, arg_interceptor) = (accessor, interceptor);
         let arg_accessor = arg_accessor
@@ -57961,22 +59584,30 @@ pub fn v8value_create_object(
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_v8value_create_object(arg_accessor, arg_interceptor);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_array(length: ::std::os::raw::c_int) -> V8value {
+pub fn v8value_create_array(length: ::std::os::raw::c_int) -> Option<V8value> {
     unsafe {
         let arg_length = length;
         let arg_length = arg_length;
         let result = cef_v8value_create_array(arg_length);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn v8value_create_array_buffer(
     buffer: *mut u8,
     length: usize,
     release_callback: Option<&mut impl ImplV8arrayBufferReleaseCallback>,
-) -> V8value {
+) -> Option<V8value> {
     unsafe {
         let (arg_buffer, arg_length, arg_release_callback) = (buffer, length, release_callback);
         let arg_buffer = arg_buffer as *mut _;
@@ -57988,22 +59619,30 @@ pub fn v8value_create_array_buffer(
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_v8value_create_array_buffer(arg_buffer, arg_length, arg_release_callback);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_array_buffer_with_copy(buffer: *mut u8, length: usize) -> V8value {
+pub fn v8value_create_array_buffer_with_copy(buffer: *mut u8, length: usize) -> Option<V8value> {
     unsafe {
         let (arg_buffer, arg_length) = (buffer, length);
         let arg_buffer = arg_buffer as *mut _;
         let arg_length = arg_length;
         let result = cef_v8value_create_array_buffer_with_copy(arg_buffer, arg_length);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn v8value_create_function(
     name: Option<&CefStringUtf16>,
     handler: Option<&mut impl ImplV8handler>,
-) -> V8value {
+) -> Option<V8value> {
     unsafe {
         let (arg_name, arg_handler) = (name, handler);
         let arg_name = arg_name.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
@@ -58014,21 +59653,33 @@ pub fn v8value_create_function(
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_v8value_create_function(arg_name, arg_handler);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8value_create_promise() -> V8value {
+pub fn v8value_create_promise() -> Option<V8value> {
     unsafe {
         let result = cef_v8value_create_promise();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn v8stack_trace_get_current(frame_limit: ::std::os::raw::c_int) -> V8stackTrace {
+pub fn v8stack_trace_get_current(frame_limit: ::std::os::raw::c_int) -> Option<V8stackTrace> {
     unsafe {
         let arg_frame_limit = frame_limit;
         let arg_frame_limit = arg_frame_limit;
         let result = cef_v8stack_trace_get_current(arg_frame_limit);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn register_extension(
@@ -58153,32 +59804,32 @@ pub fn get_exit_code() -> ::std::os::raw::c_int {
 pub fn shutdown() {
     unsafe {
         let result = cef_shutdown();
-        result
+        result.as_wrapper()
     }
 }
 pub fn do_message_loop_work() {
     unsafe {
         let result = cef_do_message_loop_work();
-        result
+        result.as_wrapper()
     }
 }
 pub fn run_message_loop() {
     unsafe {
         let result = cef_run_message_loop();
-        result
+        result.as_wrapper()
     }
 }
 pub fn quit_message_loop() {
     unsafe {
         let result = cef_quit_message_loop();
-        result
+        result.as_wrapper()
     }
 }
 pub fn urlrequest_create(
     request: Option<&mut impl ImplRequest>,
     client: Option<&mut impl ImplUrlrequestClient>,
     request_context: Option<&mut impl ImplRequestContext>,
-) -> Urlrequest {
+) -> Option<Urlrequest> {
     unsafe {
         let (arg_request, arg_client, arg_request_context) = (request, client, request_context);
         let arg_request = arg_request
@@ -58200,13 +59851,17 @@ pub fn urlrequest_create(
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_urlrequest_create(arg_request, arg_client, arg_request_context);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn label_button_create(
     delegate: Option<&mut impl ImplButtonDelegate>,
     text: Option<&CefStringUtf16>,
-) -> LabelButton {
+) -> Option<LabelButton> {
     unsafe {
         let (arg_delegate, arg_text) = (delegate, text);
         let arg_delegate = arg_delegate
@@ -58217,13 +59872,17 @@ pub fn label_button_create(
             .unwrap_or(std::ptr::null_mut());
         let arg_text = arg_text.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
         let result = cef_label_button_create(arg_delegate, arg_text);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn menu_button_create(
     delegate: Option<&mut impl ImplMenuButtonDelegate>,
     text: Option<&CefStringUtf16>,
-) -> MenuButton {
+) -> Option<MenuButton> {
     unsafe {
         let (arg_delegate, arg_text) = (delegate, text);
         let arg_delegate = arg_delegate
@@ -58234,10 +59893,14 @@ pub fn menu_button_create(
             .unwrap_or(std::ptr::null_mut());
         let arg_text = arg_text.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
         let result = cef_menu_button_create(arg_delegate, arg_text);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn textfield_create(delegate: Option<&mut impl ImplTextfieldDelegate>) -> Textfield {
+pub fn textfield_create(delegate: Option<&mut impl ImplTextfieldDelegate>) -> Option<Textfield> {
     unsafe {
         let arg_delegate = delegate;
         let arg_delegate = arg_delegate
@@ -58247,7 +59910,11 @@ pub fn textfield_create(delegate: Option<&mut impl ImplTextfieldDelegate>) -> Te
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_textfield_create(arg_delegate);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn browser_view_create(
@@ -58257,7 +59924,7 @@ pub fn browser_view_create(
     extra_info: Option<&mut impl ImplDictionaryValue>,
     request_context: Option<&mut impl ImplRequestContext>,
     delegate: Option<&mut impl ImplBrowserViewDelegate>,
-) -> BrowserView {
+) -> Option<BrowserView> {
     unsafe {
         let (arg_client, arg_url, arg_settings, arg_extra_info, arg_request_context, arg_delegate) =
             (client, url, settings, extra_info, request_context, delegate);
@@ -58299,10 +59966,14 @@ pub fn browser_view_create(
             arg_request_context,
             arg_delegate,
         );
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn browser_view_get_for_browser(browser: Option<&mut impl ImplBrowser>) -> BrowserView {
+pub fn browser_view_get_for_browser(browser: Option<&mut impl ImplBrowser>) -> Option<BrowserView> {
     unsafe {
         let arg_browser = browser;
         let arg_browser = arg_browser
@@ -58312,10 +59983,14 @@ pub fn browser_view_get_for_browser(browser: Option<&mut impl ImplBrowser>) -> B
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_browser_view_get_for_browser(arg_browser);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn scroll_view_create(delegate: Option<&mut impl ImplViewDelegate>) -> ScrollView {
+pub fn scroll_view_create(delegate: Option<&mut impl ImplViewDelegate>) -> Option<ScrollView> {
     unsafe {
         let arg_delegate = delegate;
         let arg_delegate = arg_delegate
@@ -58325,19 +60000,27 @@ pub fn scroll_view_create(delegate: Option<&mut impl ImplViewDelegate>) -> Scrol
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_scroll_view_create(arg_delegate);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn display_get_primary() -> Display {
+pub fn display_get_primary() -> Option<Display> {
     unsafe {
         let result = cef_display_get_primary();
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn display_get_nearest_point(
     point: Option<&Point>,
     input_pixel_coords: ::std::os::raw::c_int,
-) -> Display {
+) -> Option<Display> {
     unsafe {
         let (arg_point, arg_input_pixel_coords) = (point, input_pixel_coords);
         let arg_point = arg_point.cloned().map(|arg| arg.into());
@@ -58347,13 +60030,17 @@ pub fn display_get_nearest_point(
             .unwrap_or(std::ptr::null());
         let arg_input_pixel_coords = arg_input_pixel_coords;
         let result = cef_display_get_nearest_point(arg_point, arg_input_pixel_coords);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn display_get_matching_bounds(
     bounds: Option<&Rect>,
     input_pixel_coords: ::std::os::raw::c_int,
-) -> Display {
+) -> Option<Display> {
     unsafe {
         let (arg_bounds, arg_input_pixel_coords) = (bounds, input_pixel_coords);
         let arg_bounds = arg_bounds.cloned().map(|arg| arg.into());
@@ -58363,7 +60050,11 @@ pub fn display_get_matching_bounds(
             .unwrap_or(std::ptr::null());
         let arg_input_pixel_coords = arg_input_pixel_coords;
         let result = cef_display_get_matching_bounds(arg_bounds, arg_input_pixel_coords);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
 pub fn display_get_count() -> usize {
@@ -58412,7 +60103,7 @@ pub fn display_get_alls(displays: Option<&mut Vec<Option<Display>>>) {
                 })
                 .collect();
         }
-        result
+        result.as_wrapper()
     }
 }
 pub fn display_convert_screen_point_to_pixels(point: Option<&Point>) -> Point {
@@ -58463,7 +60154,7 @@ pub fn display_convert_screen_rect_from_pixels(rect: Option<&Rect>) -> Rect {
         result.as_wrapper()
     }
 }
-pub fn panel_create(delegate: Option<&mut impl ImplPanelDelegate>) -> Panel {
+pub fn panel_create(delegate: Option<&mut impl ImplPanelDelegate>) -> Option<Panel> {
     unsafe {
         let arg_delegate = delegate;
         let arg_delegate = arg_delegate
@@ -58473,10 +60164,14 @@ pub fn panel_create(delegate: Option<&mut impl ImplPanelDelegate>) -> Panel {
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_panel_create(arg_delegate);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
-pub fn window_create_top_level(delegate: Option<&mut impl ImplWindowDelegate>) -> Window {
+pub fn window_create_top_level(delegate: Option<&mut impl ImplWindowDelegate>) -> Option<Window> {
     unsafe {
         let arg_delegate = delegate;
         let arg_delegate = arg_delegate
@@ -58486,6 +60181,10 @@ pub fn window_create_top_level(delegate: Option<&mut impl ImplWindowDelegate>) -
             })
             .unwrap_or(std::ptr::null_mut());
         let result = cef_window_create_top_level(arg_delegate);
-        result.as_wrapper()
+        if result.is_null() {
+            None
+        } else {
+            Some(result.as_wrapper())
+        }
     }
 }
