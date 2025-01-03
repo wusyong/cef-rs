@@ -449,8 +449,10 @@ impl SignatureRef<'_> {
                             _ => {
                                 if ty_string.as_str() == BASE_REF_COUNTED {
                                     Some(quote!{
-                                        #name.add_ref();
-                                        let #name = #name.as_raw();
+                                        let #name = #name.map(|arg| {
+                                            arg.add_ref();
+                                            arg.as_raw()
+                                        }).unwrap_or(std::ptr::null_mut());
                                     })
                                 } else {
                                     let cast = entry.and_then(|entry| {
@@ -459,13 +461,15 @@ impl SignatureRef<'_> {
                                         .map(|ty| {
                                             let ty = ty.to_token_stream().to_string();
                                             let ty = format_ident!("Impl{ty}");
-                                            quote!{ #ty::get_raw(#name) }
+                                            quote!{ #ty::get_raw(arg) }
                                         })
-                                        .unwrap_or_else(|| quote!{ #name.get_raw() });
+                                        .unwrap_or_else(|| quote!{ arg.get_raw() });
     
                                     Some(quote! {
-                                        #name.add_ref();
-                                        let #name = #cast;
+                                        let #name = #name.map(|arg| {
+                                            arg.add_ref();
+                                            #cast
+                                        }).unwrap_or(std::ptr::null_mut());
                                     })
                                 }
                             },
@@ -488,18 +492,36 @@ impl SignatureRef<'_> {
                                 match modifiers {
                                     [TypeModifier::ConstPtr] => {
                                         Some(quote! {
-                                            let #name: #ty_tokens = #name.clone().into();
-                                            let #name = &#name;
+                                            let #name = #name.cloned().map(|arg| arg.into());
+                                            let #name = #name.as_ref().map(std::ptr::from_ref).unwrap_or(std::ptr::null());;
                                         })
                                     }
                                     [TypeModifier::MutPtr] => {
                                         Some(quote! {
-                                            let mut #name: #ty_tokens = #name.clone().into();
-                                            let #name = &mut #name;
+                                            let mut #name = #name.cloned().map(|arg| arg.into());
+                                            let #name = #name.as_mut().map(std::ptr::from_mut).unwrap_or(std::ptr::null_mut());;
                                         })
                                     }
                                     _ => None,
                                 }
+                            }
+                            Some(NameMapEntry {
+                                ty: NameMapType::StructDeclaration,
+                                ..
+                            }) => {
+                                let impl_default = match modifiers {
+                                    [TypeModifier::ConstPtr] => {
+                                        quote! { unwrap_or(std::ptr::null()) }
+                                    }
+                                    [TypeModifier::MutPtr] => {
+                                        quote! { unwrap_or(std::ptr::null_mut()) }
+                                    }
+                                    _ => quote! { unwrap_or_default() },
+                                };
+
+                                Some(quote! {
+                                    let #name = #name.map(|arg| arg.as_raw()).#impl_default;
+                                })
                             }
                             Some(_) => {
                                 Some(quote! {
@@ -507,11 +529,20 @@ impl SignatureRef<'_> {
                                 })
                             }
                             None => {
-                                let cast = modifiers.first().and_then(|modifier| match modifier {
-                                    TypeModifier::MutPtr => Some(quote! { as *mut _ }),
-                                    TypeModifier::ConstPtr => Some(quote! { as *const _ }),
+                                let is_void = ty_string == quote!{ ::std::os::raw::c_void }.to_string();
+                                let cast = match modifiers {
+                                    [TypeModifier::MutPtr] if !is_void => Some(quote! {
+                                        .map(std::ptr::from_mut)
+                                        .unwrap_or(std::ptr::null_mut())
+                                    }),
+                                    [TypeModifier::ConstPtr] if !is_void  => Some(quote! {
+                                        .map(std::ptr::from_ref)
+                                        .unwrap_or(std::ptr::null())
+                                    }),
+                                    [TypeModifier::MutPtr, ..] => Some(quote! { as *mut _ }),
+                                    [TypeModifier::ConstPtr, ..] => Some(quote! { as *const _ }),
                                     _ => None,
-                                });
+                                };
                                 Some(quote! {
                                     let #name = #name #cast;
                                 })    
@@ -748,10 +779,16 @@ impl SignatureRef<'_> {
 
                                 match modifiers {
                                     [TypeModifier::ConstPtr] => Some(quote! {
-                                        let #arg_name = &#name(unsafe { RefGuard::from_raw(#arg_name) });
+                                        let #arg_name = unsafe { #arg_name.as_ref() }.map(|arg| {
+                                            #name(unsafe { RefGuard::from_raw(arg) })
+                                        });
+                                        let #arg_name = #arg_name.as_ref();
                                     }),
                                     [TypeModifier::MutPtr] => Some(quote! {
-                                        let #arg_name = &mut #name(unsafe { RefGuard::from_raw(#arg_name) });
+                                        let mut #arg_name = unsafe { #arg_name.as_mut() }.map(|arg| {
+                                            #name(unsafe { RefGuard::from_raw(arg) })
+                                        });
+                                        let #arg_name = #arg_name.as_mut();
                                     }),
                                     [TypeModifier::MutPtr, TypeModifier::MutPtr] => Some(quote! {
                                         let mut #arg_name = unsafe { #arg_name.as_mut() }.and_then(|ptr| {
@@ -790,24 +827,32 @@ impl SignatureRef<'_> {
                             match modifiers {
                                 [TypeModifier::MutPtr] => Some(if CUSTOM_STRING_TYPES.contains(&ty_string.as_str()) {
                                     quote! {
-                                        let mut #arg_name = #arg_name.into();
-                                        let #arg_name = &mut #arg_name;
+                                        let mut #arg_name = if #arg_name.is_null() { None } else { Some(#arg_name.into()) };
+                                        let #arg_name = #arg_name.as_mut();
                                     }
                                 } else {
                                     quote! {
-                                        let mut #arg_name = WrapParamRef::<#ty>::from(#arg_name);
-                                        let #arg_name = #arg_name.as_mut();
+                                        let mut #arg_name = if #arg_name.is_null() {
+                                            None
+                                        } else {
+                                            Some(WrapParamRef::<#ty>::from(#arg_name))
+                                        };
+                                        let #arg_name = #arg_name.as_mut().map(|arg| arg.as_mut());
                                     }
                                 }),
                                 [TypeModifier::ConstPtr] => Some(if CUSTOM_STRING_TYPES.contains(&ty_string.as_str()) {
                                     quote! {
-                                        let #arg_name = #arg_name.into();
-                                        let #arg_name = &#arg_name;
+                                        let #arg_name = if #arg_name.is_null() { None } else { Some(#arg_name.into()) };
+                                        let #arg_name = #arg_name.as_ref();
                                     }
                                 } else {
                                     quote! {
-                                        let #arg_name = WrapParamRef::<#ty>::from(#arg_name);
-                                        let #arg_name = #arg_name.as_ref();
+                                        let #arg_name = if #arg_name.is_null() {
+                                            None
+                                        } else {
+                                            Some(WrapParamRef::<#ty>::from(#arg_name))
+                                        };
+                                        let #arg_name = #arg_name.as_ref().map(|arg| arg.as_ref());
                                     }
                                 }),
                                 _ => None,
@@ -1194,8 +1239,8 @@ impl ModifiedType {
                     let name = format_ident!("{name}");
 
                     match self.modifiers.as_slice() {
-                        [TypeModifier::ConstPtr] => Some(quote! { &impl #impl_trait }),
-                        [TypeModifier::MutPtr] => Some(quote! { &mut impl #impl_trait }),
+                        [TypeModifier::ConstPtr] => Some(quote! { Option<&impl #impl_trait> }),
+                        [TypeModifier::MutPtr] => Some(quote! { Option<&mut impl #impl_trait> }),
                         [TypeModifier::MutPtr, TypeModifier::MutPtr] => Some(quote! { Option<&mut impl #impl_trait> }),
                         [TypeModifier::Slice] => Some(quote! { Option<&[Option<impl #impl_trait>]> }),
                         [TypeModifier::MutSlice] => {
@@ -1207,8 +1252,8 @@ impl ModifiedType {
                     let name = format_ident!("{name}");
 
                     match self.modifiers.as_slice() {
-                        [TypeModifier::ConstPtr] => Some(quote! { &#name }),
-                        [TypeModifier::MutPtr] => Some(quote! { &mut #name }),
+                        [TypeModifier::ConstPtr] => Some(quote! { Option<&#name> }),
+                        [TypeModifier::MutPtr] => Some(quote! { Option<&mut #name> }),
                         [TypeModifier::MutPtr, TypeModifier::MutPtr] => Some(quote! { Option<&mut #name> }),
                         [TypeModifier::Slice] => Some(quote! { Option<&[Option<#name>]> }),
                         [TypeModifier::MutSlice] => {
@@ -1233,12 +1278,11 @@ impl ModifiedType {
                 }
             }
             None => {
-                let elem = if elem_string == quote! { ::std::os::raw::c_void }.to_string() {
-                    quote! { u8 }
-                } else {
-                    elem
-                };
+                let is_void = elem_string == quote! { ::std::os::raw::c_void }.to_string();
+                let elem = if is_void { quote! { u8 } } else { elem };
                 match self.modifiers.as_slice() {
+                    [TypeModifier::ConstPtr] if !is_void => Some(quote! { Option<&#elem> }),
+                    [TypeModifier::MutPtr] if !is_void => Some(quote! { Option<&mut #elem> }),
                     [TypeModifier::Slice] => Some(quote! { Option<&[#elem]> }),
                     [TypeModifier::MutSlice] => Some(quote! { Option<&mut Vec<#elem>> }),
                     modifiers => {
