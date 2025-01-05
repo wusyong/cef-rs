@@ -1022,15 +1022,45 @@ impl SignatureRef<'_> {
                         ..
                     },
                 slice_name,
-                ..
-            } if matches!(count_modifiers.as_slice(), [TypeModifier::MutPtr]) => {
+                slice_ty: ModifiedType {
+                        ty: slice_ty,
+                        modifiers: slice_modifiers,
+                    },
+            } => {
                 let out_count = format_ident!("out_{count_name}");
                 let vec_name = format_ident!("vec_{slice_name}");
-                Some(quote! {
-                    if let (Some(#out_count), Some(#vec_name)) = (#out_count, #vec_name.as_mut()) {
-                        *#out_count = #vec_name.len().min(*#out_count);
+                let update_count = match count_modifiers.as_slice() {
+                    [TypeModifier::MutPtr] => {
+                        Some(quote! {
+                            *#out_count = size;
+                        })
                     }
-                })
+                    _ => None,
+                };
+                let add_refs = match (slice_modifiers.as_slice(), tree.root(&slice_ty.to_token_stream().to_string())) {
+                    ([TypeModifier::MutSlice], BASE_REF_COUNTED) => {
+                        Some(quote! {
+                            for elem in &mut #vec_name[..size] {
+                                if let Some(elem) = elem.as_mut() {
+                                    unsafe { elem.add_ref() };
+                                }
+                            }
+                        })
+                    }
+                    _ => None,
+                };
+                match (add_refs, update_count) {
+                    (None, None) => None,
+                    (add_refs, update_count) => {
+                        Some(quote! {
+                            if let (Some(#out_count), Some(#vec_name)) = (#out_count, #vec_name.as_mut()) {
+                                let size = #vec_name.len().min(*#out_count);
+                                #add_refs;
+                                #update_count;
+                            }
+                        })
+                    },
+                }
             }
             MergedParam::Buffer {
                 slice_name,

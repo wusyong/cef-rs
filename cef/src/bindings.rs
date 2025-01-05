@@ -9958,7 +9958,13 @@ mod impl_cef_post_data_t {
         if let (Some(out_elements_count), Some(vec_elements)) =
             (out_elements_count, vec_elements.as_mut())
         {
-            *out_elements_count = vec_elements.len().min(*out_elements_count);
+            let size = vec_elements.len().min(*out_elements_count);
+            for elem in &mut vec_elements[..size] {
+                if let Some(elem) = elem.as_mut() {
+                    unsafe { elem.add_ref() };
+                }
+            }
+            *out_elements_count = size;
         }
     }
     extern "C" fn remove_element<I: ImplPostData>(
@@ -11741,7 +11747,13 @@ mod impl_cef_x509certificate_t {
         let result =
             ImplX509certificate::get_derencoded_issuer_chain(&arg_self_.interface, arg_chain);
         if let (Some(out_chain_count), Some(vec_chain)) = (out_chain_count, vec_chain.as_mut()) {
-            *out_chain_count = vec_chain.len().min(*out_chain_count);
+            let size = vec_chain.len().min(*out_chain_count);
+            for elem in &mut vec_chain[..size] {
+                if let Some(elem) = elem.as_mut() {
+                    unsafe { elem.add_ref() };
+                }
+            }
+            *out_chain_count = size;
         }
     }
     extern "C" fn get_pemencoded_issuer_chain<I: ImplX509certificate>(
@@ -11774,7 +11786,13 @@ mod impl_cef_x509certificate_t {
         let result =
             ImplX509certificate::get_pemencoded_issuer_chain(&arg_self_.interface, arg_chain);
         if let (Some(out_chain_count), Some(vec_chain)) = (out_chain_count, vec_chain.as_mut()) {
-            *out_chain_count = vec_chain.len().min(*out_chain_count);
+            let size = vec_chain.len().min(*out_chain_count);
+            for elem in &mut vec_chain[..size] {
+                if let Some(elem) = elem.as_mut() {
+                    unsafe { elem.add_ref() };
+                }
+            }
+            *out_chain_count = size;
         }
     }
 }
