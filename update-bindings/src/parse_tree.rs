@@ -558,13 +558,22 @@ impl SignatureRef<'_> {
                         ..
                     },
                 slice_name,
-                ..
+                slice_ty:
+                    ModifiedType {
+                        ty: slice_ty,
+                        ..
+                    }
             } => {
                 let out_count = format_ident!("out_{count_name}");
                 let arg_count = format_ident!("arg_{count_name}");
                 let arg_name = format_ident!("arg_{slice_name}");
                 let out_name = format_ident!("out_{slice_name}");
                 let vec_name = format_ident!("vec_{slice_name}");
+                let add_refs = if tree.root(&slice_ty.to_token_stream().to_string()) == BASE_REF_COUNTED {
+                    Some(quote! { elem.add_ref(); })
+                } else {
+                    None
+                };
                 match count_modifiers.as_slice() {
                     [] => Some(quote! {
                         let #arg_count = #arg_name
@@ -577,7 +586,10 @@ impl SignatureRef<'_> {
                                 .iter()
                                 .map(|elem| elem
                                     .as_ref()
-                                    .map(|elem| elem.get_raw())
+                                    .map(|elem| {
+                                        #add_refs
+                                        elem.get_raw()
+                                    })
                                     .unwrap_or(std::ptr::null_mut()))
                                 .collect::<Vec<_>>())
                             .unwrap_or_default();
@@ -593,14 +605,17 @@ impl SignatureRef<'_> {
                             .map(|arg| arg.len())
                             .unwrap_or_default();
                         let #arg_count = &mut #out_count;
-                        let mut #out_name = #arg_name;
+                        let #out_name = #arg_name;
                         let mut #vec_name = #out_name
-                            .as_mut()
+                            .as_ref()
                             .map(|arg| arg
-                                .iter_mut()
+                                .iter()
                                 .map(|elem| elem
-                                    .as_mut()
-                                    .map(|elem| elem.get_raw())
+                                    .as_ref()
+                                    .map(|elem| {
+                                        #add_refs
+                                        elem.get_raw()
+                                    })
                                     .unwrap_or(std::ptr::null_mut()))
                                 .collect::<Vec<_>>())
                             .unwrap_or_default();
@@ -1041,7 +1056,7 @@ impl SignatureRef<'_> {
                     ([TypeModifier::MutSlice], BASE_REF_COUNTED) => {
                         Some(quote! {
                             for elem in &mut #vec_name[..size] {
-                                if let Some(elem) = elem.as_mut() {
+                                if let Some(elem) = elem.as_ref() {
                                     unsafe { elem.add_ref() };
                                 }
                             }

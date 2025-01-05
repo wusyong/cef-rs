@@ -9960,7 +9960,7 @@ mod impl_cef_post_data_t {
         {
             let size = vec_elements.len().min(*out_elements_count);
             for elem in &mut vec_elements[..size] {
-                if let Some(elem) = elem.as_mut() {
+                if let Some(elem) = elem.as_ref() {
                     unsafe { elem.add_ref() };
                 }
             }
@@ -10046,14 +10046,17 @@ impl ImplPostData for PostData {
                         .map(|arg| arg.len())
                         .unwrap_or_default();
                     let arg_elements_count = &mut out_elements_count;
-                    let mut out_elements = arg_elements;
+                    let out_elements = arg_elements;
                     let mut vec_elements = out_elements
-                        .as_mut()
+                        .as_ref()
                         .map(|arg| {
-                            arg.iter_mut()
+                            arg.iter()
                                 .map(|elem| {
-                                    elem.as_mut()
-                                        .map(|elem| elem.get_raw())
+                                    elem.as_ref()
+                                        .map(|elem| {
+                                            elem.add_ref();
+                                            elem.get_raw()
+                                        })
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -11749,7 +11752,7 @@ mod impl_cef_x509certificate_t {
         if let (Some(out_chain_count), Some(vec_chain)) = (out_chain_count, vec_chain.as_mut()) {
             let size = vec_chain.len().min(*out_chain_count);
             for elem in &mut vec_chain[..size] {
-                if let Some(elem) = elem.as_mut() {
+                if let Some(elem) = elem.as_ref() {
                     unsafe { elem.add_ref() };
                 }
             }
@@ -11788,7 +11791,7 @@ mod impl_cef_x509certificate_t {
         if let (Some(out_chain_count), Some(vec_chain)) = (out_chain_count, vec_chain.as_mut()) {
             let size = vec_chain.len().min(*out_chain_count);
             for elem in &mut vec_chain[..size] {
-                if let Some(elem) = elem.as_mut() {
+                if let Some(elem) = elem.as_ref() {
                     unsafe { elem.add_ref() };
                 }
             }
@@ -11923,14 +11926,17 @@ impl ImplX509certificate for X509certificate {
                     let mut out_chain_count =
                         arg_chain.as_ref().map(|arg| arg.len()).unwrap_or_default();
                     let arg_chain_count = &mut out_chain_count;
-                    let mut out_chain = arg_chain;
+                    let out_chain = arg_chain;
                     let mut vec_chain = out_chain
-                        .as_mut()
+                        .as_ref()
                         .map(|arg| {
-                            arg.iter_mut()
+                            arg.iter()
                                 .map(|elem| {
-                                    elem.as_mut()
-                                        .map(|elem| elem.get_raw())
+                                    elem.as_ref()
+                                        .map(|elem| {
+                                            elem.add_ref();
+                                            elem.get_raw()
+                                        })
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -11970,14 +11976,17 @@ impl ImplX509certificate for X509certificate {
                     let mut out_chain_count =
                         arg_chain.as_ref().map(|arg| arg.len()).unwrap_or_default();
                     let arg_chain_count = &mut out_chain_count;
-                    let mut out_chain = arg_chain;
+                    let out_chain = arg_chain;
                     let mut vec_chain = out_chain
-                        .as_mut()
+                        .as_ref()
                         .map(|arg| {
-                            arg.iter_mut()
+                            arg.iter()
                                 .map(|elem| {
-                                    elem.as_mut()
-                                        .map(|elem| elem.get_raw())
+                                    elem.as_ref()
+                                        .map(|elem| {
+                                            elem.add_ref();
+                                            elem.get_raw()
+                                        })
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -13793,7 +13802,10 @@ impl ImplMediaObserver for MediaObserver {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| elem.get_raw())
+                                        .map(|elem| {
+                                            elem.add_ref();
+                                            elem.get_raw()
+                                        })
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -13825,7 +13837,10 @@ impl ImplMediaObserver for MediaObserver {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| elem.get_raw())
+                                        .map(|elem| {
+                                            elem.add_ref();
+                                            elem.get_raw()
+                                        })
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -36250,7 +36265,10 @@ impl ImplRequestHandler for RequestHandler {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| elem.get_raw())
+                                        .map(|elem| {
+                                            elem.add_ref();
+                                            elem.get_raw()
+                                        })
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -39194,7 +39212,10 @@ impl ImplV8handler for V8handler {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| elem.get_raw())
+                                        .map(|elem| {
+                                            elem.add_ref();
+                                            elem.get_raw()
+                                        })
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -41749,7 +41770,10 @@ impl ImplV8value for V8value {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| elem.get_raw())
+                                        .map(|elem| {
+                                            elem.add_ref();
+                                            elem.get_raw()
+                                        })
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -41804,7 +41828,10 @@ impl ImplV8value for V8value {
                             arg.iter()
                                 .map(|elem| {
                                     elem.as_ref()
-                                        .map(|elem| elem.get_raw())
+                                        .map(|elem| {
+                                            elem.add_ref();
+                                            elem.get_raw()
+                                        })
                                         .unwrap_or(std::ptr::null_mut())
                                 })
                                 .collect::<Vec<_>>()
@@ -60646,14 +60673,17 @@ pub fn display_get_alls(displays: Option<&mut Vec<Option<Display>>>) {
             .map(|arg| arg.len())
             .unwrap_or_default();
         let arg_displays_count = &mut out_displays_count;
-        let mut out_displays = arg_displays;
+        let out_displays = arg_displays;
         let mut vec_displays = out_displays
-            .as_mut()
+            .as_ref()
             .map(|arg| {
-                arg.iter_mut()
+                arg.iter()
                     .map(|elem| {
-                        elem.as_mut()
-                            .map(|elem| elem.get_raw())
+                        elem.as_ref()
+                            .map(|elem| {
+                                elem.add_ref();
+                                elem.get_raw()
+                            })
                             .unwrap_or(std::ptr::null_mut())
                     })
                     .collect::<Vec<_>>()
