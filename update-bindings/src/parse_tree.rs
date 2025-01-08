@@ -2219,22 +2219,8 @@ impl<'a> ParseTree<'a> {
         let impl_base_name = impl_base_name.unwrap_or(quote! { Sized });
         let impl_methods = s.methods.iter().map(|m| {
             let sig = m.get_signature(self);
-            let impl_default =
-                m.output.map(
-                    |ty| match syn::parse2::<ModifiedType>(ty.to_token_stream()) {
-                        Ok(ty)
-                            if ty.ty.to_token_stream().to_string()
-                                != quote! { ::std::os::raw::c_void }.to_string() =>
-                        {
-                            quote! {  Default::default() }
-                        }
-                        _ => quote! { unsafe { std::mem::zeroed() } },
-                    },
-                );
             quote! {
-                #sig {
-                    #impl_default
-                }
+                #sig;
             }
         });
 

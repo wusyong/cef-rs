@@ -14788,9 +14788,7 @@ pub trait ImplPreferenceRegistrar: Sized {
         &self,
         name: Option<&CefStringUtf16>,
         default_value: Option<&mut impl ImplValue>,
-    ) -> ::std::os::raw::c_int {
-        Default::default()
-    }
+    ) -> ::std::os::raw::c_int;
     fn init_methods(object: &mut _cef_preference_registrar_t) {
         impl_cef_preference_registrar_t::init_methods::<Self>(object);
     }
@@ -43265,9 +43263,7 @@ pub trait ImplSchemeRegistrar: Sized {
         &self,
         scheme_name: Option<&CefStringUtf16>,
         options: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int {
-        Default::default()
-    }
+    ) -> ::std::os::raw::c_int;
     fn init_methods(object: &mut _cef_scheme_registrar_t) {
         impl_cef_scheme_registrar_t::init_methods::<Self>(object);
     }
