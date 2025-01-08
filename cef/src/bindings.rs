@@ -1453,12 +1453,12 @@ impl Rc for BaseRefCounted {
 }
 impl ConvertParam<*mut _cef_base_ref_counted_t> for &BaseRefCounted {
     fn as_raw(self) -> *mut _cef_base_ref_counted_t {
-        unsafe { (&self.0).as_raw() }
+        self.get_raw()
     }
 }
 impl ConvertParam<*mut _cef_base_ref_counted_t> for &mut BaseRefCounted {
     fn as_raw(self) -> *mut _cef_base_ref_counted_t {
-        unsafe { (&self.0).as_raw() }
+        self.get_raw()
     }
 }
 impl ConvertReturnValue<BaseRefCounted> for *mut _cef_base_ref_counted_t {
@@ -1475,45 +1475,41 @@ impl Into<*mut _cef_base_ref_counted_t> for BaseRefCounted {
 }
 impl Default for BaseRefCounted {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(unsafe { RefGuard::from_raw(std::ptr::null_mut()) })
     }
 }
 
 /// See [_cef_base_scoped_t] for more documentation.
-pub struct BaseScoped(_cef_base_scoped_t);
-impl From<_cef_base_scoped_t> for BaseScoped {
-    fn from(value: _cef_base_scoped_t) -> Self {
-        Self(value)
-    }
-}
-impl Into<*const _cef_base_scoped_t> for &BaseScoped {
-    fn into(self) -> *const _cef_base_scoped_t {
-        self.as_ref() as *const _cef_base_scoped_t
-    }
-}
-impl Into<*mut _cef_base_scoped_t> for &mut BaseScoped {
-    fn into(self) -> *mut _cef_base_scoped_t {
-        self.as_mut() as *mut _cef_base_scoped_t
-    }
-}
-impl Into<_cef_base_scoped_t> for BaseScoped {
-    fn into(self) -> _cef_base_scoped_t {
+#[derive(Clone, Copy)]
+pub struct BaseScoped(*mut _cef_base_scoped_t);
+impl BaseScoped {
+    fn get_raw(&self) -> *mut _cef_base_scoped_t {
         self.0
     }
 }
-impl AsRef<_cef_base_scoped_t> for BaseScoped {
-    fn as_ref(&self) -> &_cef_base_scoped_t {
-        &self.0
+impl ConvertParam<*mut _cef_base_scoped_t> for &BaseScoped {
+    fn as_raw(self) -> *mut _cef_base_scoped_t {
+        self.get_raw()
     }
 }
-impl AsMut<_cef_base_scoped_t> for BaseScoped {
-    fn as_mut(&mut self) -> &mut _cef_base_scoped_t {
-        &mut self.0
+impl ConvertParam<*mut _cef_base_scoped_t> for &mut BaseScoped {
+    fn as_raw(self) -> *mut _cef_base_scoped_t {
+        self.get_raw()
+    }
+}
+impl ConvertReturnValue<BaseScoped> for *mut _cef_base_scoped_t {
+    fn as_wrapper(self) -> BaseScoped {
+        BaseScoped(self)
+    }
+}
+impl Into<*mut _cef_base_scoped_t> for BaseScoped {
+    fn into(self) -> *mut _cef_base_scoped_t {
+        self.get_raw()
     }
 }
 impl Default for BaseScoped {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(std::ptr::null_mut())
     }
 }
 
@@ -1852,12 +1848,12 @@ impl Rc for DevToolsMessageObserver {
 }
 impl ConvertParam<*mut _cef_dev_tools_message_observer_t> for &DevToolsMessageObserver {
     fn as_raw(self) -> *mut _cef_dev_tools_message_observer_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDevToolsMessageObserver::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_dev_tools_message_observer_t> for &mut DevToolsMessageObserver {
     fn as_raw(self) -> *mut _cef_dev_tools_message_observer_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDevToolsMessageObserver::get_raw(self)
     }
 }
 impl ConvertReturnValue<DevToolsMessageObserver> for *mut _cef_dev_tools_message_observer_t {
@@ -2527,12 +2523,12 @@ impl Rc for Value {
 }
 impl ConvertParam<*mut _cef_value_t> for &Value {
     fn as_raw(self) -> *mut _cef_value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplValue::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_value_t> for &mut Value {
     fn as_raw(self) -> *mut _cef_value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplValue::get_raw(self)
     }
 }
 impl ConvertReturnValue<Value> for *mut _cef_value_t {
@@ -2831,12 +2827,12 @@ impl Rc for BinaryValue {
 }
 impl ConvertParam<*mut _cef_binary_value_t> for &BinaryValue {
     fn as_raw(self) -> *mut _cef_binary_value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBinaryValue::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_binary_value_t> for &mut BinaryValue {
     fn as_raw(self) -> *mut _cef_binary_value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBinaryValue::get_raw(self)
     }
 }
 impl ConvertReturnValue<BinaryValue> for *mut _cef_binary_value_t {
@@ -3950,12 +3946,12 @@ impl Rc for DictionaryValue {
 }
 impl ConvertParam<*mut _cef_dictionary_value_t> for &DictionaryValue {
     fn as_raw(self) -> *mut _cef_dictionary_value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDictionaryValue::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_dictionary_value_t> for &mut DictionaryValue {
     fn as_raw(self) -> *mut _cef_dictionary_value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDictionaryValue::get_raw(self)
     }
 }
 impl ConvertReturnValue<DictionaryValue> for *mut _cef_dictionary_value_t {
@@ -4891,12 +4887,12 @@ impl Rc for ListValue {
 }
 impl ConvertParam<*mut _cef_list_value_t> for &ListValue {
     fn as_raw(self) -> *mut _cef_list_value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplListValue::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_list_value_t> for &mut ListValue {
     fn as_raw(self) -> *mut _cef_list_value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplListValue::get_raw(self)
     }
 }
 impl ConvertReturnValue<ListValue> for *mut _cef_list_value_t {
@@ -5727,12 +5723,12 @@ impl Rc for Image {
 }
 impl ConvertParam<*mut _cef_image_t> for &Image {
     fn as_raw(self) -> *mut _cef_image_t {
-        unsafe { (&self.0).as_raw() }
+        ImplImage::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_image_t> for &mut Image {
     fn as_raw(self) -> *mut _cef_image_t {
-        unsafe { (&self.0).as_raw() }
+        ImplImage::get_raw(self)
     }
 }
 impl ConvertReturnValue<Image> for *mut _cef_image_t {
@@ -5919,12 +5915,12 @@ impl Rc for ReadHandler {
 }
 impl ConvertParam<*mut _cef_read_handler_t> for &ReadHandler {
     fn as_raw(self) -> *mut _cef_read_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplReadHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_read_handler_t> for &mut ReadHandler {
     fn as_raw(self) -> *mut _cef_read_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplReadHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<ReadHandler> for *mut _cef_read_handler_t {
@@ -6111,12 +6107,12 @@ impl Rc for StreamReader {
 }
 impl ConvertParam<*mut _cef_stream_reader_t> for &StreamReader {
     fn as_raw(self) -> *mut _cef_stream_reader_t {
-        unsafe { (&self.0).as_raw() }
+        ImplStreamReader::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_stream_reader_t> for &mut StreamReader {
     fn as_raw(self) -> *mut _cef_stream_reader_t {
-        unsafe { (&self.0).as_raw() }
+        ImplStreamReader::get_raw(self)
     }
 }
 impl ConvertReturnValue<StreamReader> for *mut _cef_stream_reader_t {
@@ -6303,12 +6299,12 @@ impl Rc for WriteHandler {
 }
 impl ConvertParam<*mut _cef_write_handler_t> for &WriteHandler {
     fn as_raw(self) -> *mut _cef_write_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplWriteHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_write_handler_t> for &mut WriteHandler {
     fn as_raw(self) -> *mut _cef_write_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplWriteHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<WriteHandler> for *mut _cef_write_handler_t {
@@ -6495,12 +6491,12 @@ impl Rc for StreamWriter {
 }
 impl ConvertParam<*mut _cef_stream_writer_t> for &StreamWriter {
     fn as_raw(self) -> *mut _cef_stream_writer_t {
-        unsafe { (&self.0).as_raw() }
+        ImplStreamWriter::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_stream_writer_t> for &mut StreamWriter {
     fn as_raw(self) -> *mut _cef_stream_writer_t {
-        unsafe { (&self.0).as_raw() }
+        ImplStreamWriter::get_raw(self)
     }
 }
 impl ConvertReturnValue<StreamWriter> for *mut _cef_stream_writer_t {
@@ -7323,12 +7319,12 @@ impl Rc for DragData {
 }
 impl ConvertParam<*mut _cef_drag_data_t> for &DragData {
     fn as_raw(self) -> *mut _cef_drag_data_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDragData::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_drag_data_t> for &mut DragData {
     fn as_raw(self) -> *mut _cef_drag_data_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDragData::get_raw(self)
     }
 }
 impl ConvertReturnValue<DragData> for *mut _cef_drag_data_t {
@@ -7412,12 +7408,12 @@ impl Rc for Domvisitor {
 }
 impl ConvertParam<*mut _cef_domvisitor_t> for &Domvisitor {
     fn as_raw(self) -> *mut _cef_domvisitor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDomvisitor::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_domvisitor_t> for &mut Domvisitor {
     fn as_raw(self) -> *mut _cef_domvisitor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDomvisitor::get_raw(self)
     }
 }
 impl ConvertReturnValue<Domvisitor> for *mut _cef_domvisitor_t {
@@ -7885,12 +7881,12 @@ impl Rc for Domdocument {
 }
 impl ConvertParam<*mut _cef_domdocument_t> for &Domdocument {
     fn as_raw(self) -> *mut _cef_domdocument_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDomdocument::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_domdocument_t> for &mut Domdocument {
     fn as_raw(self) -> *mut _cef_domdocument_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDomdocument::get_raw(self)
     }
 }
 impl ConvertReturnValue<Domdocument> for *mut _cef_domdocument_t {
@@ -8706,12 +8702,12 @@ impl Rc for Domnode {
 }
 impl ConvertParam<*mut _cef_domnode_t> for &Domnode {
     fn as_raw(self) -> *mut _cef_domnode_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDomnode::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_domnode_t> for &mut Domnode {
     fn as_raw(self) -> *mut _cef_domnode_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDomnode::get_raw(self)
     }
 }
 impl ConvertReturnValue<Domnode> for *mut _cef_domnode_t {
@@ -8835,12 +8831,12 @@ impl Rc for SharedMemoryRegion {
 }
 impl ConvertParam<*mut _cef_shared_memory_region_t> for &SharedMemoryRegion {
     fn as_raw(self) -> *mut _cef_shared_memory_region_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSharedMemoryRegion::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_shared_memory_region_t> for &mut SharedMemoryRegion {
     fn as_raw(self) -> *mut _cef_shared_memory_region_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSharedMemoryRegion::get_raw(self)
     }
 }
 impl ConvertReturnValue<SharedMemoryRegion> for *mut _cef_shared_memory_region_t {
@@ -9060,12 +9056,12 @@ impl Rc for ProcessMessage {
 }
 impl ConvertParam<*mut _cef_process_message_t> for &ProcessMessage {
     fn as_raw(self) -> *mut _cef_process_message_t {
-        unsafe { (&self.0).as_raw() }
+        ImplProcessMessage::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_process_message_t> for &mut ProcessMessage {
     fn as_raw(self) -> *mut _cef_process_message_t {
-        unsafe { (&self.0).as_raw() }
+        ImplProcessMessage::get_raw(self)
     }
 }
 impl ConvertReturnValue<ProcessMessage> for *mut _cef_process_message_t {
@@ -9838,12 +9834,12 @@ impl Rc for Request {
 }
 impl ConvertParam<*mut _cef_request_t> for &Request {
     fn as_raw(self) -> *mut _cef_request_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRequest::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_request_t> for &mut Request {
     fn as_raw(self) -> *mut _cef_request_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRequest::get_raw(self)
     }
 }
 impl ConvertReturnValue<Request> for *mut _cef_request_t {
@@ -10155,12 +10151,12 @@ impl Rc for PostData {
 }
 impl ConvertParam<*mut _cef_post_data_t> for &PostData {
     fn as_raw(self) -> *mut _cef_post_data_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPostData::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_post_data_t> for &mut PostData {
     fn as_raw(self) -> *mut _cef_post_data_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPostData::get_raw(self)
     }
 }
 impl ConvertReturnValue<PostData> for *mut _cef_post_data_t {
@@ -10424,12 +10420,12 @@ impl Rc for PostDataElement {
 }
 impl ConvertParam<*mut _cef_post_data_element_t> for &PostDataElement {
     fn as_raw(self) -> *mut _cef_post_data_element_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPostDataElement::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_post_data_element_t> for &mut PostDataElement {
     fn as_raw(self) -> *mut _cef_post_data_element_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPostDataElement::get_raw(self)
     }
 }
 impl ConvertReturnValue<PostDataElement> for *mut _cef_post_data_element_t {
@@ -10513,12 +10509,12 @@ impl Rc for CefStringVisitor {
 }
 impl ConvertParam<*mut _cef_string_visitor_t> for &CefStringVisitor {
     fn as_raw(self) -> *mut _cef_string_visitor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCefStringVisitor::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_string_visitor_t> for &mut CefStringVisitor {
     fn as_raw(self) -> *mut _cef_string_visitor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCefStringVisitor::get_raw(self)
     }
 }
 impl ConvertReturnValue<CefStringVisitor> for *mut _cef_string_visitor_t {
@@ -11299,12 +11295,12 @@ impl Rc for Frame {
 }
 impl ConvertParam<*mut _cef_frame_t> for &Frame {
     fn as_raw(self) -> *mut _cef_frame_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFrame::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_frame_t> for &mut Frame {
     fn as_raw(self) -> *mut _cef_frame_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFrame::get_raw(self)
     }
 }
 impl ConvertReturnValue<Frame> for *mut _cef_frame_t {
@@ -11571,12 +11567,12 @@ impl Rc for X509certPrincipal {
 }
 impl ConvertParam<*mut _cef_x509cert_principal_t> for &X509certPrincipal {
     fn as_raw(self) -> *mut _cef_x509cert_principal_t {
-        unsafe { (&self.0).as_raw() }
+        ImplX509certPrincipal::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_x509cert_principal_t> for &mut X509certPrincipal {
     fn as_raw(self) -> *mut _cef_x509cert_principal_t {
-        unsafe { (&self.0).as_raw() }
+        ImplX509certPrincipal::get_raw(self)
     }
 }
 impl ConvertReturnValue<X509certPrincipal> for *mut _cef_x509cert_principal_t {
@@ -12032,12 +12028,12 @@ impl Rc for X509certificate {
 }
 impl ConvertParam<*mut _cef_x509certificate_t> for &X509certificate {
     fn as_raw(self) -> *mut _cef_x509certificate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplX509certificate::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_x509certificate_t> for &mut X509certificate {
     fn as_raw(self) -> *mut _cef_x509certificate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplX509certificate::get_raw(self)
     }
 }
 impl ConvertReturnValue<X509certificate> for *mut _cef_x509certificate_t {
@@ -12215,12 +12211,12 @@ impl Rc for Sslstatus {
 }
 impl ConvertParam<*mut _cef_sslstatus_t> for &Sslstatus {
     fn as_raw(self) -> *mut _cef_sslstatus_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSslstatus::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_sslstatus_t> for &mut Sslstatus {
     fn as_raw(self) -> *mut _cef_sslstatus_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSslstatus::get_raw(self)
     }
 }
 impl ConvertReturnValue<Sslstatus> for *mut _cef_sslstatus_t {
@@ -12542,12 +12538,12 @@ impl Rc for NavigationEntry {
 }
 impl ConvertParam<*mut _cef_navigation_entry_t> for &NavigationEntry {
     fn as_raw(self) -> *mut _cef_navigation_entry_t {
-        unsafe { (&self.0).as_raw() }
+        ImplNavigationEntry::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_navigation_entry_t> for &mut NavigationEntry {
     fn as_raw(self) -> *mut _cef_navigation_entry_t {
-        unsafe { (&self.0).as_raw() }
+        ImplNavigationEntry::get_raw(self)
     }
 }
 impl ConvertReturnValue<NavigationEntry> for *mut _cef_navigation_entry_t {
@@ -12598,12 +12594,12 @@ impl Rc for Registration {
 }
 impl ConvertParam<*mut _cef_registration_t> for &Registration {
     fn as_raw(self) -> *mut _cef_registration_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRegistration::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_registration_t> for &mut Registration {
     fn as_raw(self) -> *mut _cef_registration_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRegistration::get_raw(self)
     }
 }
 impl ConvertReturnValue<Registration> for *mut _cef_registration_t {
@@ -12693,12 +12689,12 @@ impl Rc for Callback {
 }
 impl ConvertParam<*mut _cef_callback_t> for &Callback {
     fn as_raw(self) -> *mut _cef_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_callback_t> for &mut Callback {
     fn as_raw(self) -> *mut _cef_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<Callback> for *mut _cef_callback_t {
@@ -12769,12 +12765,12 @@ impl Rc for CompletionCallback {
 }
 impl ConvertParam<*mut _cef_completion_callback_t> for &CompletionCallback {
     fn as_raw(self) -> *mut _cef_completion_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCompletionCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_completion_callback_t> for &mut CompletionCallback {
     fn as_raw(self) -> *mut _cef_completion_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCompletionCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<CompletionCallback> for *mut _cef_completion_callback_t {
@@ -13106,12 +13102,12 @@ impl Rc for CookieManager {
 }
 impl ConvertParam<*mut _cef_cookie_manager_t> for &CookieManager {
     fn as_raw(self) -> *mut _cef_cookie_manager_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCookieManager::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_cookie_manager_t> for &mut CookieManager {
     fn as_raw(self) -> *mut _cef_cookie_manager_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCookieManager::get_raw(self)
     }
 }
 impl ConvertReturnValue<CookieManager> for *mut _cef_cookie_manager_t {
@@ -13244,12 +13240,12 @@ impl Rc for CookieVisitor {
 }
 impl ConvertParam<*mut _cef_cookie_visitor_t> for &CookieVisitor {
     fn as_raw(self) -> *mut _cef_cookie_visitor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCookieVisitor::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_cookie_visitor_t> for &mut CookieVisitor {
     fn as_raw(self) -> *mut _cef_cookie_visitor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCookieVisitor::get_raw(self)
     }
 }
 impl ConvertReturnValue<CookieVisitor> for *mut _cef_cookie_visitor_t {
@@ -13326,12 +13322,12 @@ impl Rc for SetCookieCallback {
 }
 impl ConvertParam<*mut _cef_set_cookie_callback_t> for &SetCookieCallback {
     fn as_raw(self) -> *mut _cef_set_cookie_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSetCookieCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_set_cookie_callback_t> for &mut SetCookieCallback {
     fn as_raw(self) -> *mut _cef_set_cookie_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSetCookieCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<SetCookieCallback> for *mut _cef_set_cookie_callback_t {
@@ -13408,12 +13404,12 @@ impl Rc for DeleteCookiesCallback {
 }
 impl ConvertParam<*mut _cef_delete_cookies_callback_t> for &DeleteCookiesCallback {
     fn as_raw(self) -> *mut _cef_delete_cookies_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDeleteCookiesCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_delete_cookies_callback_t> for &mut DeleteCookiesCallback {
     fn as_raw(self) -> *mut _cef_delete_cookies_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDeleteCookiesCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<DeleteCookiesCallback> for *mut _cef_delete_cookies_callback_t {
@@ -13647,12 +13643,12 @@ impl Rc for MediaRouter {
 }
 impl ConvertParam<*mut _cef_media_router_t> for &MediaRouter {
     fn as_raw(self) -> *mut _cef_media_router_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaRouter::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_media_router_t> for &mut MediaRouter {
     fn as_raw(self) -> *mut _cef_media_router_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaRouter::get_raw(self)
     }
 }
 impl ConvertReturnValue<MediaRouter> for *mut _cef_media_router_t {
@@ -13934,12 +13930,12 @@ impl Rc for MediaObserver {
 }
 impl ConvertParam<*mut _cef_media_observer_t> for &MediaObserver {
     fn as_raw(self) -> *mut _cef_media_observer_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaObserver::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_media_observer_t> for &mut MediaObserver {
     fn as_raw(self) -> *mut _cef_media_observer_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaObserver::get_raw(self)
     }
 }
 impl ConvertReturnValue<MediaObserver> for *mut _cef_media_observer_t {
@@ -14141,12 +14137,12 @@ impl Rc for MediaRoute {
 }
 impl ConvertParam<*mut _cef_media_route_t> for &MediaRoute {
     fn as_raw(self) -> *mut _cef_media_route_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaRoute::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_media_route_t> for &mut MediaRoute {
     fn as_raw(self) -> *mut _cef_media_route_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaRoute::get_raw(self)
     }
 }
 impl ConvertReturnValue<MediaRoute> for *mut _cef_media_route_t {
@@ -14261,12 +14257,12 @@ impl Rc for MediaRouteCreateCallback {
 }
 impl ConvertParam<*mut _cef_media_route_create_callback_t> for &MediaRouteCreateCallback {
     fn as_raw(self) -> *mut _cef_media_route_create_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaRouteCreateCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_media_route_create_callback_t> for &mut MediaRouteCreateCallback {
     fn as_raw(self) -> *mut _cef_media_route_create_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaRouteCreateCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<MediaRouteCreateCallback> for *mut _cef_media_route_create_callback_t {
@@ -14523,12 +14519,12 @@ impl Rc for MediaSink {
 }
 impl ConvertParam<*mut _cef_media_sink_t> for &MediaSink {
     fn as_raw(self) -> *mut _cef_media_sink_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaSink::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_media_sink_t> for &mut MediaSink {
     fn as_raw(self) -> *mut _cef_media_sink_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaSink::get_raw(self)
     }
 }
 impl ConvertReturnValue<MediaSink> for *mut _cef_media_sink_t {
@@ -14619,14 +14615,14 @@ impl Rc for MediaSinkDeviceInfoCallback {
 }
 impl ConvertParam<*mut _cef_media_sink_device_info_callback_t> for &MediaSinkDeviceInfoCallback {
     fn as_raw(self) -> *mut _cef_media_sink_device_info_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaSinkDeviceInfoCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_media_sink_device_info_callback_t>
     for &mut MediaSinkDeviceInfoCallback
 {
     fn as_raw(self) -> *mut _cef_media_sink_device_info_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaSinkDeviceInfoCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<MediaSinkDeviceInfoCallback>
@@ -14758,12 +14754,12 @@ impl Rc for MediaSource {
 }
 impl ConvertParam<*mut _cef_media_source_t> for &MediaSource {
     fn as_raw(self) -> *mut _cef_media_source_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaSource::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_media_source_t> for &mut MediaSource {
     fn as_raw(self) -> *mut _cef_media_source_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaSource::get_raw(self)
     }
 }
 impl ConvertReturnValue<MediaSource> for *mut _cef_media_source_t {
@@ -14785,40 +14781,103 @@ impl Default for MediaSource {
 }
 
 /// See [_cef_preference_registrar_t] for more documentation.
-pub struct PreferenceRegistrar(_cef_preference_registrar_t);
-impl From<_cef_preference_registrar_t> for PreferenceRegistrar {
-    fn from(value: _cef_preference_registrar_t) -> Self {
-        Self(value)
+#[derive(Clone, Copy)]
+pub struct PreferenceRegistrar(*mut _cef_preference_registrar_t);
+pub trait ImplPreferenceRegistrar: Sized {
+    fn add_preference(
+        &self,
+        name: Option<&CefStringUtf16>,
+        default_value: Option<&mut impl ImplValue>,
+    ) -> ::std::os::raw::c_int {
+        Default::default()
+    }
+    fn init_methods(object: &mut _cef_preference_registrar_t) {
+        impl_cef_preference_registrar_t::init_methods::<Self>(object);
+    }
+    fn get_raw(&self) -> *mut _cef_preference_registrar_t;
+}
+mod impl_cef_preference_registrar_t {
+    use super::*;
+    pub fn init_methods<I: ImplPreferenceRegistrar>(object: &mut _cef_preference_registrar_t) {
+        object.add_preference = Some(add_preference::<I>);
+    }
+    extern "C" fn add_preference<I: ImplPreferenceRegistrar>(
+        self_: *mut _cef_preference_registrar_t,
+        name: *const _cef_string_utf16_t,
+        default_value: *mut _cef_value_t,
+    ) -> ::std::os::raw::c_int {
+        let (arg_self_, arg_name, arg_default_value) = (self_, name, default_value);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_name = if arg_name.is_null() {
+            None
+        } else {
+            Some(arg_name.into())
+        };
+        let arg_name = arg_name.as_ref();
+        let mut arg_default_value = unsafe { arg_default_value.as_mut() }
+            .map(|arg| Value(unsafe { RefGuard::from_raw(arg) }));
+        let arg_default_value = arg_default_value.as_mut();
+        let result = ImplPreferenceRegistrar::add_preference(
+            &arg_self_.interface,
+            arg_name,
+            arg_default_value,
+        );
+        result.into()
     }
 }
-impl Into<*const _cef_preference_registrar_t> for &PreferenceRegistrar {
-    fn into(self) -> *const _cef_preference_registrar_t {
-        self.as_ref() as *const _cef_preference_registrar_t
+impl ImplPreferenceRegistrar for PreferenceRegistrar {
+    fn add_preference(
+        &self,
+        name: Option<&CefStringUtf16>,
+        default_value: Option<&mut impl ImplValue>,
+    ) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .as_ref()
+                .and_then(|this| this.add_preference)
+                .map(|f| {
+                    let (arg_name, arg_default_value) = (name, default_value);
+                    let arg_self_ = self.as_raw();
+                    let arg_name = arg_name.map(|arg| arg.as_raw()).unwrap_or(std::ptr::null());
+                    let arg_default_value = arg_default_value
+                        .map(|arg| {
+                            arg.add_ref();
+                            ImplValue::get_raw(arg)
+                        })
+                        .unwrap_or(std::ptr::null_mut());
+                    let result = f(arg_self_, arg_name, arg_default_value);
+                    result.as_wrapper()
+                })
+                .unwrap_or_default()
+        }
     }
-}
-impl Into<*mut _cef_preference_registrar_t> for &mut PreferenceRegistrar {
-    fn into(self) -> *mut _cef_preference_registrar_t {
-        self.as_mut() as *mut _cef_preference_registrar_t
-    }
-}
-impl Into<_cef_preference_registrar_t> for PreferenceRegistrar {
-    fn into(self) -> _cef_preference_registrar_t {
+    fn get_raw(&self) -> *mut _cef_preference_registrar_t {
         self.0
     }
 }
-impl AsRef<_cef_preference_registrar_t> for PreferenceRegistrar {
-    fn as_ref(&self) -> &_cef_preference_registrar_t {
-        &self.0
+impl ConvertParam<*mut _cef_preference_registrar_t> for &PreferenceRegistrar {
+    fn as_raw(self) -> *mut _cef_preference_registrar_t {
+        ImplPreferenceRegistrar::get_raw(self)
     }
 }
-impl AsMut<_cef_preference_registrar_t> for PreferenceRegistrar {
-    fn as_mut(&mut self) -> &mut _cef_preference_registrar_t {
-        &mut self.0
+impl ConvertParam<*mut _cef_preference_registrar_t> for &mut PreferenceRegistrar {
+    fn as_raw(self) -> *mut _cef_preference_registrar_t {
+        ImplPreferenceRegistrar::get_raw(self)
+    }
+}
+impl ConvertReturnValue<PreferenceRegistrar> for *mut _cef_preference_registrar_t {
+    fn as_wrapper(self) -> PreferenceRegistrar {
+        PreferenceRegistrar(self)
+    }
+}
+impl Into<*mut _cef_preference_registrar_t> for PreferenceRegistrar {
+    fn into(self) -> *mut _cef_preference_registrar_t {
+        ImplPreferenceRegistrar::get_raw(&self)
     }
 }
 impl Default for PreferenceRegistrar {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(std::ptr::null_mut())
     }
 }
 
@@ -15067,12 +15126,12 @@ impl Rc for PreferenceManager {
 }
 impl ConvertParam<*mut _cef_preference_manager_t> for &PreferenceManager {
     fn as_raw(self) -> *mut _cef_preference_manager_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPreferenceManager::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_preference_manager_t> for &mut PreferenceManager {
     fn as_raw(self) -> *mut _cef_preference_manager_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPreferenceManager::get_raw(self)
     }
 }
 impl ConvertReturnValue<PreferenceManager> for *mut _cef_preference_manager_t {
@@ -15163,12 +15222,12 @@ impl Rc for ResolveCallback {
 }
 impl ConvertParam<*mut _cef_resolve_callback_t> for &ResolveCallback {
     fn as_raw(self) -> *mut _cef_resolve_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResolveCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_resolve_callback_t> for &mut ResolveCallback {
     fn as_raw(self) -> *mut _cef_resolve_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResolveCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<ResolveCallback> for *mut _cef_resolve_callback_t {
@@ -16173,12 +16232,12 @@ impl Rc for RequestContext {
 }
 impl ConvertParam<*mut _cef_request_context_t> for &RequestContext {
     fn as_raw(self) -> *mut _cef_request_context_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRequestContext::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_request_context_t> for &mut RequestContext {
     fn as_raw(self) -> *mut _cef_request_context_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRequestContext::get_raw(self)
     }
 }
 impl ConvertReturnValue<RequestContext> for *mut _cef_request_context_t {
@@ -16772,12 +16831,12 @@ impl Rc for Browser {
 }
 impl ConvertParam<*mut _cef_browser_t> for &Browser {
     fn as_raw(self) -> *mut _cef_browser_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowser::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_browser_t> for &mut Browser {
     fn as_raw(self) -> *mut _cef_browser_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowser::get_raw(self)
     }
 }
 impl ConvertReturnValue<Browser> for *mut _cef_browser_t {
@@ -16866,12 +16925,12 @@ impl Rc for RunFileDialogCallback {
 }
 impl ConvertParam<*mut _cef_run_file_dialog_callback_t> for &RunFileDialogCallback {
     fn as_raw(self) -> *mut _cef_run_file_dialog_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRunFileDialogCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_run_file_dialog_callback_t> for &mut RunFileDialogCallback {
     fn as_raw(self) -> *mut _cef_run_file_dialog_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRunFileDialogCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<RunFileDialogCallback> for *mut _cef_run_file_dialog_callback_t {
@@ -16989,12 +17048,12 @@ impl Rc for NavigationEntryVisitor {
 }
 impl ConvertParam<*mut _cef_navigation_entry_visitor_t> for &NavigationEntryVisitor {
     fn as_raw(self) -> *mut _cef_navigation_entry_visitor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplNavigationEntryVisitor::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_navigation_entry_visitor_t> for &mut NavigationEntryVisitor {
     fn as_raw(self) -> *mut _cef_navigation_entry_visitor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplNavigationEntryVisitor::get_raw(self)
     }
 }
 impl ConvertReturnValue<NavigationEntryVisitor> for *mut _cef_navigation_entry_visitor_t {
@@ -17080,12 +17139,12 @@ impl Rc for PdfPrintCallback {
 }
 impl ConvertParam<*mut _cef_pdf_print_callback_t> for &PdfPrintCallback {
     fn as_raw(self) -> *mut _cef_pdf_print_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPdfPrintCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_pdf_print_callback_t> for &mut PdfPrintCallback {
     fn as_raw(self) -> *mut _cef_pdf_print_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPdfPrintCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<PdfPrintCallback> for *mut _cef_pdf_print_callback_t {
@@ -17200,12 +17259,12 @@ impl Rc for DownloadImageCallback {
 }
 impl ConvertParam<*mut _cef_download_image_callback_t> for &DownloadImageCallback {
     fn as_raw(self) -> *mut _cef_download_image_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDownloadImageCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_download_image_callback_t> for &mut DownloadImageCallback {
     fn as_raw(self) -> *mut _cef_download_image_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDownloadImageCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<DownloadImageCallback> for *mut _cef_download_image_callback_t {
@@ -19769,12 +19828,12 @@ impl Rc for BrowserHost {
 }
 impl ConvertParam<*mut _cef_browser_host_t> for &BrowserHost {
     fn as_raw(self) -> *mut _cef_browser_host_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowserHost::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_browser_host_t> for &mut BrowserHost {
     fn as_raw(self) -> *mut _cef_browser_host_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowserHost::get_raw(self)
     }
 }
 impl ConvertReturnValue<BrowserHost> for *mut _cef_browser_host_t {
@@ -20090,12 +20149,12 @@ impl Rc for AudioHandler {
 }
 impl ConvertParam<*mut _cef_audio_handler_t> for &AudioHandler {
     fn as_raw(self) -> *mut _cef_audio_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplAudioHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_audio_handler_t> for &mut AudioHandler {
     fn as_raw(self) -> *mut _cef_audio_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplAudioHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<AudioHandler> for *mut _cef_audio_handler_t {
@@ -20379,12 +20438,12 @@ impl Rc for CommandHandler {
 }
 impl ConvertParam<*mut _cef_command_handler_t> for &CommandHandler {
     fn as_raw(self) -> *mut _cef_command_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCommandHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_command_handler_t> for &mut CommandHandler {
     fn as_raw(self) -> *mut _cef_command_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCommandHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<CommandHandler> for *mut _cef_command_handler_t {
@@ -20763,12 +20822,12 @@ impl Rc for MenuModelDelegate {
 }
 impl ConvertParam<*mut _cef_menu_model_delegate_t> for &MenuModelDelegate {
     fn as_raw(self) -> *mut _cef_menu_model_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuModelDelegate::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_menu_model_delegate_t> for &mut MenuModelDelegate {
     fn as_raw(self) -> *mut _cef_menu_model_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuModelDelegate::get_raw(self)
     }
 }
 impl ConvertReturnValue<MenuModelDelegate> for *mut _cef_menu_model_delegate_t {
@@ -23190,12 +23249,12 @@ impl Rc for MenuModel {
 }
 impl ConvertParam<*mut _cef_menu_model_t> for &MenuModel {
     fn as_raw(self) -> *mut _cef_menu_model_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuModel::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_menu_model_t> for &mut MenuModel {
     fn as_raw(self) -> *mut _cef_menu_model_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuModel::get_raw(self)
     }
 }
 impl ConvertReturnValue<MenuModel> for *mut _cef_menu_model_t {
@@ -23299,12 +23358,12 @@ impl Rc for RunContextMenuCallback {
 }
 impl ConvertParam<*mut _cef_run_context_menu_callback_t> for &RunContextMenuCallback {
     fn as_raw(self) -> *mut _cef_run_context_menu_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRunContextMenuCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_run_context_menu_callback_t> for &mut RunContextMenuCallback {
     fn as_raw(self) -> *mut _cef_run_context_menu_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRunContextMenuCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<RunContextMenuCallback> for *mut _cef_run_context_menu_callback_t {
@@ -23404,12 +23463,12 @@ impl Rc for RunQuickMenuCallback {
 }
 impl ConvertParam<*mut _cef_run_quick_menu_callback_t> for &RunQuickMenuCallback {
     fn as_raw(self) -> *mut _cef_run_quick_menu_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRunQuickMenuCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_run_quick_menu_callback_t> for &mut RunQuickMenuCallback {
     fn as_raw(self) -> *mut _cef_run_quick_menu_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRunQuickMenuCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<RunQuickMenuCallback> for *mut _cef_run_quick_menu_callback_t {
@@ -24064,12 +24123,12 @@ impl Rc for ContextMenuHandler {
 }
 impl ConvertParam<*mut _cef_context_menu_handler_t> for &ContextMenuHandler {
     fn as_raw(self) -> *mut _cef_context_menu_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplContextMenuHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_context_menu_handler_t> for &mut ContextMenuHandler {
     fn as_raw(self) -> *mut _cef_context_menu_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplContextMenuHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<ContextMenuHandler> for *mut _cef_context_menu_handler_t {
@@ -24675,12 +24734,12 @@ impl Rc for ContextMenuParams {
 }
 impl ConvertParam<*mut _cef_context_menu_params_t> for &ContextMenuParams {
     fn as_raw(self) -> *mut _cef_context_menu_params_t {
-        unsafe { (&self.0).as_raw() }
+        ImplContextMenuParams::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_context_menu_params_t> for &mut ContextMenuParams {
     fn as_raw(self) -> *mut _cef_context_menu_params_t {
-        unsafe { (&self.0).as_raw() }
+        ImplContextMenuParams::get_raw(self)
     }
 }
 impl ConvertReturnValue<ContextMenuParams> for *mut _cef_context_menu_params_t {
@@ -24783,12 +24842,12 @@ impl Rc for FileDialogCallback {
 }
 impl ConvertParam<*mut _cef_file_dialog_callback_t> for &FileDialogCallback {
     fn as_raw(self) -> *mut _cef_file_dialog_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFileDialogCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_file_dialog_callback_t> for &mut FileDialogCallback {
     fn as_raw(self) -> *mut _cef_file_dialog_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFileDialogCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<FileDialogCallback> for *mut _cef_file_dialog_callback_t {
@@ -25016,12 +25075,12 @@ impl Rc for DialogHandler {
 }
 impl ConvertParam<*mut _cef_dialog_handler_t> for &DialogHandler {
     fn as_raw(self) -> *mut _cef_dialog_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDialogHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_dialog_handler_t> for &mut DialogHandler {
     fn as_raw(self) -> *mut _cef_dialog_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDialogHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<DialogHandler> for *mut _cef_dialog_handler_t {
@@ -25726,12 +25785,12 @@ impl Rc for DisplayHandler {
 }
 impl ConvertParam<*mut _cef_display_handler_t> for &DisplayHandler {
     fn as_raw(self) -> *mut _cef_display_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDisplayHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_display_handler_t> for &mut DisplayHandler {
     fn as_raw(self) -> *mut _cef_display_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDisplayHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<DisplayHandler> for *mut _cef_display_handler_t {
@@ -26267,12 +26326,12 @@ impl Rc for DownloadItem {
 }
 impl ConvertParam<*mut _cef_download_item_t> for &DownloadItem {
     fn as_raw(self) -> *mut _cef_download_item_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDownloadItem::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_download_item_t> for &mut DownloadItem {
     fn as_raw(self) -> *mut _cef_download_item_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDownloadItem::get_raw(self)
     }
 }
 impl ConvertReturnValue<DownloadItem> for *mut _cef_download_item_t {
@@ -26365,12 +26424,12 @@ impl Rc for BeforeDownloadCallback {
 }
 impl ConvertParam<*mut _cef_before_download_callback_t> for &BeforeDownloadCallback {
     fn as_raw(self) -> *mut _cef_before_download_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBeforeDownloadCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_before_download_callback_t> for &mut BeforeDownloadCallback {
     fn as_raw(self) -> *mut _cef_before_download_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBeforeDownloadCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<BeforeDownloadCallback> for *mut _cef_before_download_callback_t {
@@ -26479,12 +26538,12 @@ impl Rc for DownloadItemCallback {
 }
 impl ConvertParam<*mut _cef_download_item_callback_t> for &DownloadItemCallback {
     fn as_raw(self) -> *mut _cef_download_item_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDownloadItemCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_download_item_callback_t> for &mut DownloadItemCallback {
     fn as_raw(self) -> *mut _cef_download_item_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDownloadItemCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<DownloadItemCallback> for *mut _cef_download_item_callback_t {
@@ -26766,12 +26825,12 @@ impl Rc for DownloadHandler {
 }
 impl ConvertParam<*mut _cef_download_handler_t> for &DownloadHandler {
     fn as_raw(self) -> *mut _cef_download_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDownloadHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_download_handler_t> for &mut DownloadHandler {
     fn as_raw(self) -> *mut _cef_download_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDownloadHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<DownloadHandler> for *mut _cef_download_handler_t {
@@ -26970,12 +27029,12 @@ impl Rc for DragHandler {
 }
 impl ConvertParam<*mut _cef_drag_handler_t> for &DragHandler {
     fn as_raw(self) -> *mut _cef_drag_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDragHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_drag_handler_t> for &mut DragHandler {
     fn as_raw(self) -> *mut _cef_drag_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDragHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<DragHandler> for *mut _cef_drag_handler_t {
@@ -27146,12 +27205,12 @@ impl Rc for FindHandler {
 }
 impl ConvertParam<*mut _cef_find_handler_t> for &FindHandler {
     fn as_raw(self) -> *mut _cef_find_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFindHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_find_handler_t> for &mut FindHandler {
     fn as_raw(self) -> *mut _cef_find_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFindHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<FindHandler> for *mut _cef_find_handler_t {
@@ -27316,12 +27375,12 @@ impl Rc for FocusHandler {
 }
 impl ConvertParam<*mut _cef_focus_handler_t> for &FocusHandler {
     fn as_raw(self) -> *mut _cef_focus_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFocusHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_focus_handler_t> for &mut FocusHandler {
     fn as_raw(self) -> *mut _cef_focus_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFocusHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<FocusHandler> for *mut _cef_focus_handler_t {
@@ -27661,12 +27720,12 @@ impl Rc for FrameHandler {
 }
 impl ConvertParam<*mut _cef_frame_handler_t> for &FrameHandler {
     fn as_raw(self) -> *mut _cef_frame_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFrameHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_frame_handler_t> for &mut FrameHandler {
     fn as_raw(self) -> *mut _cef_frame_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFrameHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<FrameHandler> for *mut _cef_frame_handler_t {
@@ -27753,12 +27812,12 @@ impl Rc for JsdialogCallback {
 }
 impl ConvertParam<*mut _cef_jsdialog_callback_t> for &JsdialogCallback {
     fn as_raw(self) -> *mut _cef_jsdialog_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplJsdialogCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_jsdialog_callback_t> for &mut JsdialogCallback {
     fn as_raw(self) -> *mut _cef_jsdialog_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplJsdialogCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<JsdialogCallback> for *mut _cef_jsdialog_callback_t {
@@ -28118,12 +28177,12 @@ impl Rc for JsdialogHandler {
 }
 impl ConvertParam<*mut _cef_jsdialog_handler_t> for &JsdialogHandler {
     fn as_raw(self) -> *mut _cef_jsdialog_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplJsdialogHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_jsdialog_handler_t> for &mut JsdialogHandler {
     fn as_raw(self) -> *mut _cef_jsdialog_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplJsdialogHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<JsdialogHandler> for *mut _cef_jsdialog_handler_t {
@@ -28342,12 +28401,12 @@ impl Rc for KeyboardHandler {
 }
 impl ConvertParam<*mut _cef_keyboard_handler_t> for &KeyboardHandler {
     fn as_raw(self) -> *mut _cef_keyboard_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplKeyboardHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_keyboard_handler_t> for &mut KeyboardHandler {
     fn as_raw(self) -> *mut _cef_keyboard_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplKeyboardHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<KeyboardHandler> for *mut _cef_keyboard_handler_t {
@@ -28985,12 +29044,12 @@ impl Rc for LifeSpanHandler {
 }
 impl ConvertParam<*mut _cef_life_span_handler_t> for &LifeSpanHandler {
     fn as_raw(self) -> *mut _cef_life_span_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplLifeSpanHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_life_span_handler_t> for &mut LifeSpanHandler {
     fn as_raw(self) -> *mut _cef_life_span_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplLifeSpanHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<LifeSpanHandler> for *mut _cef_life_span_handler_t {
@@ -29332,12 +29391,12 @@ impl Rc for LoadHandler {
 }
 impl ConvertParam<*mut _cef_load_handler_t> for &LoadHandler {
     fn as_raw(self) -> *mut _cef_load_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplLoadHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_load_handler_t> for &mut LoadHandler {
     fn as_raw(self) -> *mut _cef_load_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplLoadHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<LoadHandler> for *mut _cef_load_handler_t {
@@ -29433,12 +29492,12 @@ impl Rc for MediaAccessCallback {
 }
 impl ConvertParam<*mut _cef_media_access_callback_t> for &MediaAccessCallback {
     fn as_raw(self) -> *mut _cef_media_access_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaAccessCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_media_access_callback_t> for &mut MediaAccessCallback {
     fn as_raw(self) -> *mut _cef_media_access_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMediaAccessCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<MediaAccessCallback> for *mut _cef_media_access_callback_t {
@@ -29517,12 +29576,12 @@ impl Rc for PermissionPromptCallback {
 }
 impl ConvertParam<*mut _cef_permission_prompt_callback_t> for &PermissionPromptCallback {
     fn as_raw(self) -> *mut _cef_permission_prompt_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPermissionPromptCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_permission_prompt_callback_t> for &mut PermissionPromptCallback {
     fn as_raw(self) -> *mut _cef_permission_prompt_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPermissionPromptCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<PermissionPromptCallback> for *mut _cef_permission_prompt_callback_t {
@@ -29866,12 +29925,12 @@ impl Rc for PermissionHandler {
 }
 impl ConvertParam<*mut _cef_permission_handler_t> for &PermissionHandler {
     fn as_raw(self) -> *mut _cef_permission_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPermissionHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_permission_handler_t> for &mut PermissionHandler {
     fn as_raw(self) -> *mut _cef_permission_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPermissionHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<PermissionHandler> for *mut _cef_permission_handler_t {
@@ -30578,12 +30637,12 @@ impl Rc for PrintSettings {
 }
 impl ConvertParam<*mut _cef_print_settings_t> for &PrintSettings {
     fn as_raw(self) -> *mut _cef_print_settings_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPrintSettings::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_print_settings_t> for &mut PrintSettings {
     fn as_raw(self) -> *mut _cef_print_settings_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPrintSettings::get_raw(self)
     }
 }
 impl ConvertReturnValue<PrintSettings> for *mut _cef_print_settings_t {
@@ -30686,12 +30745,12 @@ impl Rc for PrintDialogCallback {
 }
 impl ConvertParam<*mut _cef_print_dialog_callback_t> for &PrintDialogCallback {
     fn as_raw(self) -> *mut _cef_print_dialog_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPrintDialogCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_print_dialog_callback_t> for &mut PrintDialogCallback {
     fn as_raw(self) -> *mut _cef_print_dialog_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPrintDialogCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<PrintDialogCallback> for *mut _cef_print_dialog_callback_t {
@@ -30762,12 +30821,12 @@ impl Rc for PrintJobCallback {
 }
 impl ConvertParam<*mut _cef_print_job_callback_t> for &PrintJobCallback {
     fn as_raw(self) -> *mut _cef_print_job_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPrintJobCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_print_job_callback_t> for &mut PrintJobCallback {
     fn as_raw(self) -> *mut _cef_print_job_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPrintJobCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<PrintJobCallback> for *mut _cef_print_job_callback_t {
@@ -31153,12 +31212,12 @@ impl Rc for PrintHandler {
 }
 impl ConvertParam<*mut _cef_print_handler_t> for &PrintHandler {
     fn as_raw(self) -> *mut _cef_print_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPrintHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_print_handler_t> for &mut PrintHandler {
     fn as_raw(self) -> *mut _cef_print_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPrintHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<PrintHandler> for *mut _cef_print_handler_t {
@@ -31278,12 +31337,12 @@ impl Rc for AccessibilityHandler {
 }
 impl ConvertParam<*mut _cef_accessibility_handler_t> for &AccessibilityHandler {
     fn as_raw(self) -> *mut _cef_accessibility_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplAccessibilityHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_accessibility_handler_t> for &mut AccessibilityHandler {
     fn as_raw(self) -> *mut _cef_accessibility_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplAccessibilityHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<AccessibilityHandler> for *mut _cef_accessibility_handler_t {
@@ -32438,12 +32497,12 @@ impl Rc for RenderHandler {
 }
 impl ConvertParam<*mut _cef_render_handler_t> for &RenderHandler {
     fn as_raw(self) -> *mut _cef_render_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRenderHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_render_handler_t> for &mut RenderHandler {
     fn as_raw(self) -> *mut _cef_render_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRenderHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<RenderHandler> for *mut _cef_render_handler_t {
@@ -32556,12 +32615,12 @@ impl Rc for AuthCallback {
 }
 impl ConvertParam<*mut _cef_auth_callback_t> for &AuthCallback {
     fn as_raw(self) -> *mut _cef_auth_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplAuthCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_auth_callback_t> for &mut AuthCallback {
     fn as_raw(self) -> *mut _cef_auth_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplAuthCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<AuthCallback> for *mut _cef_auth_callback_t {
@@ -33138,12 +33197,12 @@ impl Rc for Response {
 }
 impl ConvertParam<*mut _cef_response_t> for &Response {
     fn as_raw(self) -> *mut _cef_response_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResponse::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_response_t> for &mut Response {
     fn as_raw(self) -> *mut _cef_response_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResponse::get_raw(self)
     }
 }
 impl ConvertReturnValue<Response> for *mut _cef_response_t {
@@ -33220,12 +33279,12 @@ impl Rc for ResourceSkipCallback {
 }
 impl ConvertParam<*mut _cef_resource_skip_callback_t> for &ResourceSkipCallback {
     fn as_raw(self) -> *mut _cef_resource_skip_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceSkipCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_resource_skip_callback_t> for &mut ResourceSkipCallback {
     fn as_raw(self) -> *mut _cef_resource_skip_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceSkipCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<ResourceSkipCallback> for *mut _cef_resource_skip_callback_t {
@@ -33302,12 +33361,12 @@ impl Rc for ResourceReadCallback {
 }
 impl ConvertParam<*mut _cef_resource_read_callback_t> for &ResourceReadCallback {
     fn as_raw(self) -> *mut _cef_resource_read_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceReadCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_resource_read_callback_t> for &mut ResourceReadCallback {
     fn as_raw(self) -> *mut _cef_resource_read_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceReadCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<ResourceReadCallback> for *mut _cef_resource_read_callback_t {
@@ -33805,12 +33864,12 @@ impl Rc for ResourceHandler {
 }
 impl ConvertParam<*mut _cef_resource_handler_t> for &ResourceHandler {
     fn as_raw(self) -> *mut _cef_resource_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_resource_handler_t> for &mut ResourceHandler {
     fn as_raw(self) -> *mut _cef_resource_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<ResourceHandler> for *mut _cef_resource_handler_t {
@@ -34026,12 +34085,12 @@ impl Rc for ResponseFilter {
 }
 impl ConvertParam<*mut _cef_response_filter_t> for &ResponseFilter {
     fn as_raw(self) -> *mut _cef_response_filter_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResponseFilter::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_response_filter_t> for &mut ResponseFilter {
     fn as_raw(self) -> *mut _cef_response_filter_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResponseFilter::get_raw(self)
     }
 }
 impl ConvertReturnValue<ResponseFilter> for *mut _cef_response_filter_t {
@@ -34823,12 +34882,12 @@ impl Rc for ResourceRequestHandler {
 }
 impl ConvertParam<*mut _cef_resource_request_handler_t> for &ResourceRequestHandler {
     fn as_raw(self) -> *mut _cef_resource_request_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceRequestHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_resource_request_handler_t> for &mut ResourceRequestHandler {
     fn as_raw(self) -> *mut _cef_resource_request_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceRequestHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<ResourceRequestHandler> for *mut _cef_resource_request_handler_t {
@@ -35074,12 +35133,12 @@ impl Rc for CookieAccessFilter {
 }
 impl ConvertParam<*mut _cef_cookie_access_filter_t> for &CookieAccessFilter {
     fn as_raw(self) -> *mut _cef_cookie_access_filter_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCookieAccessFilter::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_cookie_access_filter_t> for &mut CookieAccessFilter {
     fn as_raw(self) -> *mut _cef_cookie_access_filter_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCookieAccessFilter::get_raw(self)
     }
 }
 impl ConvertReturnValue<CookieAccessFilter> for *mut _cef_cookie_access_filter_t {
@@ -35183,12 +35242,12 @@ impl Rc for Sslinfo {
 }
 impl ConvertParam<*mut _cef_sslinfo_t> for &Sslinfo {
     fn as_raw(self) -> *mut _cef_sslinfo_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSslinfo::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_sslinfo_t> for &mut Sslinfo {
     fn as_raw(self) -> *mut _cef_sslinfo_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSslinfo::get_raw(self)
     }
 }
 impl ConvertReturnValue<Sslinfo> for *mut _cef_sslinfo_t {
@@ -35284,12 +35343,12 @@ impl Rc for UnresponsiveProcessCallback {
 }
 impl ConvertParam<*mut _cef_unresponsive_process_callback_t> for &UnresponsiveProcessCallback {
     fn as_raw(self) -> *mut _cef_unresponsive_process_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplUnresponsiveProcessCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_unresponsive_process_callback_t> for &mut UnresponsiveProcessCallback {
     fn as_raw(self) -> *mut _cef_unresponsive_process_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplUnresponsiveProcessCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<UnresponsiveProcessCallback> for *mut _cef_unresponsive_process_callback_t {
@@ -35377,14 +35436,14 @@ impl ConvertParam<*mut _cef_select_client_certificate_callback_t>
     for &SelectClientCertificateCallback
 {
     fn as_raw(self) -> *mut _cef_select_client_certificate_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSelectClientCertificateCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_select_client_certificate_callback_t>
     for &mut SelectClientCertificateCallback
 {
     fn as_raw(self) -> *mut _cef_select_client_certificate_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSelectClientCertificateCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<SelectClientCertificateCallback>
@@ -36439,12 +36498,12 @@ impl Rc for RequestHandler {
 }
 impl ConvertParam<*mut _cef_request_handler_t> for &RequestHandler {
     fn as_raw(self) -> *mut _cef_request_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRequestHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_request_handler_t> for &mut RequestHandler {
     fn as_raw(self) -> *mut _cef_request_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRequestHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<RequestHandler> for *mut _cef_request_handler_t {
@@ -37120,12 +37179,12 @@ impl Rc for Client {
 }
 impl ConvertParam<*mut _cef_client_t> for &Client {
     fn as_raw(self) -> *mut _cef_client_t {
-        unsafe { (&self.0).as_raw() }
+        ImplClient::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_client_t> for &mut Client {
     fn as_raw(self) -> *mut _cef_client_t {
-        unsafe { (&self.0).as_raw() }
+        ImplClient::get_raw(self)
     }
 }
 impl ConvertReturnValue<Client> for *mut _cef_client_t {
@@ -37795,12 +37854,12 @@ impl Rc for CommandLine {
 }
 impl ConvertParam<*mut _cef_command_line_t> for &CommandLine {
     fn as_raw(self) -> *mut _cef_command_line_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCommandLine::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_command_line_t> for &mut CommandLine {
     fn as_raw(self) -> *mut _cef_command_line_t {
-        unsafe { (&self.0).as_raw() }
+        ImplCommandLine::get_raw(self)
     }
 }
 impl ConvertReturnValue<CommandLine> for *mut _cef_command_line_t {
@@ -38055,12 +38114,12 @@ impl Rc for RequestContextHandler {
 }
 impl ConvertParam<*mut _cef_request_context_handler_t> for &RequestContextHandler {
     fn as_raw(self) -> *mut _cef_request_context_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRequestContextHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_request_context_handler_t> for &mut RequestContextHandler {
     fn as_raw(self) -> *mut _cef_request_context_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRequestContextHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<RequestContextHandler> for *mut _cef_request_context_handler_t {
@@ -38134,9 +38193,9 @@ mod impl_cef_browser_process_handler_t {
         let mut arg_registrar = if arg_registrar.is_null() {
             None
         } else {
-            Some(WrapParamRef::<PreferenceRegistrar>::from(arg_registrar))
+            Some(PreferenceRegistrar(arg_registrar))
         };
-        let arg_registrar = arg_registrar.as_mut().map(|arg| arg.as_mut());
+        let arg_registrar = arg_registrar.as_mut();
         let result = ImplBrowserProcessHandler::on_register_custom_preferences(
             &arg_self_.interface,
             arg_type_,
@@ -38364,12 +38423,12 @@ impl Rc for BrowserProcessHandler {
 }
 impl ConvertParam<*mut _cef_browser_process_handler_t> for &BrowserProcessHandler {
     fn as_raw(self) -> *mut _cef_browser_process_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowserProcessHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_browser_process_handler_t> for &mut BrowserProcessHandler {
     fn as_raw(self) -> *mut _cef_browser_process_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowserProcessHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<BrowserProcessHandler> for *mut _cef_browser_process_handler_t {
@@ -38440,12 +38499,12 @@ impl Rc for Task {
 }
 impl ConvertParam<*mut _cef_task_t> for &Task {
     fn as_raw(self) -> *mut _cef_task_t {
-        unsafe { (&self.0).as_raw() }
+        ImplTask::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_task_t> for &mut Task {
     fn as_raw(self) -> *mut _cef_task_t {
-        unsafe { (&self.0).as_raw() }
+        ImplTask::get_raw(self)
     }
 }
 impl ConvertReturnValue<Task> for *mut _cef_task_t {
@@ -38666,12 +38725,12 @@ impl Rc for TaskRunner {
 }
 impl ConvertParam<*mut _cef_task_runner_t> for &TaskRunner {
     fn as_raw(self) -> *mut _cef_task_runner_t {
-        unsafe { (&self.0).as_raw() }
+        ImplTaskRunner::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_task_runner_t> for &mut TaskRunner {
     fn as_raw(self) -> *mut _cef_task_runner_t {
-        unsafe { (&self.0).as_raw() }
+        ImplTaskRunner::get_raw(self)
     }
 }
 impl ConvertReturnValue<TaskRunner> for *mut _cef_task_runner_t {
@@ -39054,12 +39113,12 @@ impl Rc for V8context {
 }
 impl ConvertParam<*mut _cef_v8context_t> for &V8context {
     fn as_raw(self) -> *mut _cef_v8context_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8context::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_v8context_t> for &mut V8context {
     fn as_raw(self) -> *mut _cef_v8context_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8context::get_raw(self)
     }
 }
 impl ConvertReturnValue<V8context> for *mut _cef_v8context_t {
@@ -39267,12 +39326,12 @@ impl Rc for V8handler {
 }
 impl ConvertParam<*mut _cef_v8handler_t> for &V8handler {
     fn as_raw(self) -> *mut _cef_v8handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8handler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_v8handler_t> for &mut V8handler {
     fn as_raw(self) -> *mut _cef_v8handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8handler::get_raw(self)
     }
 }
 impl ConvertReturnValue<V8handler> for *mut _cef_v8handler_t {
@@ -39497,12 +39556,12 @@ impl Rc for V8accessor {
 }
 impl ConvertParam<*mut _cef_v8accessor_t> for &V8accessor {
     fn as_raw(self) -> *mut _cef_v8accessor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8accessor::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_v8accessor_t> for &mut V8accessor {
     fn as_raw(self) -> *mut _cef_v8accessor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8accessor::get_raw(self)
     }
 }
 impl ConvertReturnValue<V8accessor> for *mut _cef_v8accessor_t {
@@ -39890,12 +39949,12 @@ impl Rc for V8interceptor {
 }
 impl ConvertParam<*mut _cef_v8interceptor_t> for &V8interceptor {
     fn as_raw(self) -> *mut _cef_v8interceptor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8interceptor::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_v8interceptor_t> for &mut V8interceptor {
     fn as_raw(self) -> *mut _cef_v8interceptor_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8interceptor::get_raw(self)
     }
 }
 impl ConvertReturnValue<V8interceptor> for *mut _cef_v8interceptor_t {
@@ -40157,12 +40216,12 @@ impl Rc for V8exception {
 }
 impl ConvertParam<*mut _cef_v8exception_t> for &V8exception {
     fn as_raw(self) -> *mut _cef_v8exception_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8exception::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_v8exception_t> for &mut V8exception {
     fn as_raw(self) -> *mut _cef_v8exception_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8exception::get_raw(self)
     }
 }
 impl ConvertReturnValue<V8exception> for *mut _cef_v8exception_t {
@@ -40242,14 +40301,14 @@ impl Rc for V8arrayBufferReleaseCallback {
 }
 impl ConvertParam<*mut _cef_v8array_buffer_release_callback_t> for &V8arrayBufferReleaseCallback {
     fn as_raw(self) -> *mut _cef_v8array_buffer_release_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8arrayBufferReleaseCallback::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_v8array_buffer_release_callback_t>
     for &mut V8arrayBufferReleaseCallback
 {
     fn as_raw(self) -> *mut _cef_v8array_buffer_release_callback_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8arrayBufferReleaseCallback::get_raw(self)
     }
 }
 impl ConvertReturnValue<V8arrayBufferReleaseCallback>
@@ -41909,12 +41968,12 @@ impl Rc for V8value {
 }
 impl ConvertParam<*mut _cef_v8value_t> for &V8value {
     fn as_raw(self) -> *mut _cef_v8value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8value::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_v8value_t> for &mut V8value {
     fn as_raw(self) -> *mut _cef_v8value_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8value::get_raw(self)
     }
 }
 impl ConvertReturnValue<V8value> for *mut _cef_v8value_t {
@@ -42048,12 +42107,12 @@ impl Rc for V8stackTrace {
 }
 impl ConvertParam<*mut _cef_v8stack_trace_t> for &V8stackTrace {
     fn as_raw(self) -> *mut _cef_v8stack_trace_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8stackTrace::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_v8stack_trace_t> for &mut V8stackTrace {
     fn as_raw(self) -> *mut _cef_v8stack_trace_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8stackTrace::get_raw(self)
     }
 }
 impl ConvertReturnValue<V8stackTrace> for *mut _cef_v8stack_trace_t {
@@ -42315,12 +42374,12 @@ impl Rc for V8stackFrame {
 }
 impl ConvertParam<*mut _cef_v8stack_frame_t> for &V8stackFrame {
     fn as_raw(self) -> *mut _cef_v8stack_frame_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8stackFrame::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_v8stack_frame_t> for &mut V8stackFrame {
     fn as_raw(self) -> *mut _cef_v8stack_frame_t {
-        unsafe { (&self.0).as_raw() }
+        ImplV8stackFrame::get_raw(self)
     }
 }
 impl ConvertReturnValue<V8stackFrame> for *mut _cef_v8stack_frame_t {
@@ -42902,12 +42961,12 @@ impl Rc for RenderProcessHandler {
 }
 impl ConvertParam<*mut _cef_render_process_handler_t> for &RenderProcessHandler {
     fn as_raw(self) -> *mut _cef_render_process_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRenderProcessHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_render_process_handler_t> for &mut RenderProcessHandler {
     fn as_raw(self) -> *mut _cef_render_process_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplRenderProcessHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<RenderProcessHandler> for *mut _cef_render_process_handler_t {
@@ -43172,12 +43231,12 @@ impl Rc for ResourceBundleHandler {
 }
 impl ConvertParam<*mut _cef_resource_bundle_handler_t> for &ResourceBundleHandler {
     fn as_raw(self) -> *mut _cef_resource_bundle_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceBundleHandler::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_resource_bundle_handler_t> for &mut ResourceBundleHandler {
     fn as_raw(self) -> *mut _cef_resource_bundle_handler_t {
-        unsafe { (&self.0).as_raw() }
+        ImplResourceBundleHandler::get_raw(self)
     }
 }
 impl ConvertReturnValue<ResourceBundleHandler> for *mut _cef_resource_bundle_handler_t {
@@ -43199,40 +43258,98 @@ impl Default for ResourceBundleHandler {
 }
 
 /// See [_cef_scheme_registrar_t] for more documentation.
-pub struct SchemeRegistrar(_cef_scheme_registrar_t);
-impl From<_cef_scheme_registrar_t> for SchemeRegistrar {
-    fn from(value: _cef_scheme_registrar_t) -> Self {
-        Self(value)
+#[derive(Clone, Copy)]
+pub struct SchemeRegistrar(*mut _cef_scheme_registrar_t);
+pub trait ImplSchemeRegistrar: Sized {
+    fn add_custom_scheme(
+        &self,
+        scheme_name: Option<&CefStringUtf16>,
+        options: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        Default::default()
+    }
+    fn init_methods(object: &mut _cef_scheme_registrar_t) {
+        impl_cef_scheme_registrar_t::init_methods::<Self>(object);
+    }
+    fn get_raw(&self) -> *mut _cef_scheme_registrar_t;
+}
+mod impl_cef_scheme_registrar_t {
+    use super::*;
+    pub fn init_methods<I: ImplSchemeRegistrar>(object: &mut _cef_scheme_registrar_t) {
+        object.add_custom_scheme = Some(add_custom_scheme::<I>);
+    }
+    extern "C" fn add_custom_scheme<I: ImplSchemeRegistrar>(
+        self_: *mut _cef_scheme_registrar_t,
+        scheme_name: *const _cef_string_utf16_t,
+        options: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        let (arg_self_, arg_scheme_name, arg_options) = (self_, scheme_name, options);
+        let arg_self_: &RcImpl<_, I> = RcImpl::get(arg_self_);
+        let arg_scheme_name = if arg_scheme_name.is_null() {
+            None
+        } else {
+            Some(arg_scheme_name.into())
+        };
+        let arg_scheme_name = arg_scheme_name.as_ref();
+        let arg_options = arg_options.as_raw();
+        let result = ImplSchemeRegistrar::add_custom_scheme(
+            &arg_self_.interface,
+            arg_scheme_name,
+            arg_options,
+        );
+        result.into()
     }
 }
-impl Into<*const _cef_scheme_registrar_t> for &SchemeRegistrar {
-    fn into(self) -> *const _cef_scheme_registrar_t {
-        self.as_ref() as *const _cef_scheme_registrar_t
+impl ImplSchemeRegistrar for SchemeRegistrar {
+    fn add_custom_scheme(
+        &self,
+        scheme_name: Option<&CefStringUtf16>,
+        options: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        unsafe {
+            self.0
+                .as_ref()
+                .and_then(|this| this.add_custom_scheme)
+                .map(|f| {
+                    let (arg_scheme_name, arg_options) = (scheme_name, options);
+                    let arg_self_ = self.as_raw();
+                    let arg_scheme_name = arg_scheme_name
+                        .map(|arg| arg.as_raw())
+                        .unwrap_or(std::ptr::null());
+                    let arg_options = arg_options;
+                    let result = f(arg_self_, arg_scheme_name, arg_options);
+                    result.as_wrapper()
+                })
+                .unwrap_or_default()
+        }
     }
-}
-impl Into<*mut _cef_scheme_registrar_t> for &mut SchemeRegistrar {
-    fn into(self) -> *mut _cef_scheme_registrar_t {
-        self.as_mut() as *mut _cef_scheme_registrar_t
-    }
-}
-impl Into<_cef_scheme_registrar_t> for SchemeRegistrar {
-    fn into(self) -> _cef_scheme_registrar_t {
+    fn get_raw(&self) -> *mut _cef_scheme_registrar_t {
         self.0
     }
 }
-impl AsRef<_cef_scheme_registrar_t> for SchemeRegistrar {
-    fn as_ref(&self) -> &_cef_scheme_registrar_t {
-        &self.0
+impl ConvertParam<*mut _cef_scheme_registrar_t> for &SchemeRegistrar {
+    fn as_raw(self) -> *mut _cef_scheme_registrar_t {
+        ImplSchemeRegistrar::get_raw(self)
     }
 }
-impl AsMut<_cef_scheme_registrar_t> for SchemeRegistrar {
-    fn as_mut(&mut self) -> &mut _cef_scheme_registrar_t {
-        &mut self.0
+impl ConvertParam<*mut _cef_scheme_registrar_t> for &mut SchemeRegistrar {
+    fn as_raw(self) -> *mut _cef_scheme_registrar_t {
+        ImplSchemeRegistrar::get_raw(self)
+    }
+}
+impl ConvertReturnValue<SchemeRegistrar> for *mut _cef_scheme_registrar_t {
+    fn as_wrapper(self) -> SchemeRegistrar {
+        SchemeRegistrar(self)
+    }
+}
+impl Into<*mut _cef_scheme_registrar_t> for SchemeRegistrar {
+    fn into(self) -> *mut _cef_scheme_registrar_t {
+        ImplSchemeRegistrar::get_raw(&self)
     }
 }
 impl Default for SchemeRegistrar {
     fn default() -> Self {
-        unsafe { std::mem::zeroed() }
+        Self(std::ptr::null_mut())
     }
 }
 
@@ -43364,12 +43481,12 @@ impl Rc for SchemeHandlerFactory {
 }
 impl ConvertParam<*mut _cef_scheme_handler_factory_t> for &SchemeHandlerFactory {
     fn as_raw(self) -> *mut _cef_scheme_handler_factory_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSchemeHandlerFactory::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_scheme_handler_factory_t> for &mut SchemeHandlerFactory {
     fn as_raw(self) -> *mut _cef_scheme_handler_factory_t {
-        unsafe { (&self.0).as_raw() }
+        ImplSchemeHandlerFactory::get_raw(self)
     }
 }
 impl ConvertReturnValue<SchemeHandlerFactory> for *mut _cef_scheme_handler_factory_t {
@@ -43455,9 +43572,9 @@ mod impl_cef_app_t {
         let mut arg_registrar = if arg_registrar.is_null() {
             None
         } else {
-            Some(WrapParamRef::<SchemeRegistrar>::from(arg_registrar))
+            Some(SchemeRegistrar(arg_registrar))
         };
-        let arg_registrar = arg_registrar.as_mut().map(|arg| arg.as_mut());
+        let arg_registrar = arg_registrar.as_mut();
         let result = ImplApp::on_register_custom_schemes(&arg_self_.interface, arg_registrar);
     }
     extern "C" fn get_resource_bundle_handler<I: ImplApp>(
@@ -43598,12 +43715,12 @@ impl Rc for App {
 }
 impl ConvertParam<*mut _cef_app_t> for &App {
     fn as_raw(self) -> *mut _cef_app_t {
-        unsafe { (&self.0).as_raw() }
+        ImplApp::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_app_t> for &mut App {
     fn as_raw(self) -> *mut _cef_app_t {
-        unsafe { (&self.0).as_raw() }
+        ImplApp::get_raw(self)
     }
 }
 impl ConvertReturnValue<App> for *mut _cef_app_t {
@@ -43836,12 +43953,12 @@ impl Rc for Urlrequest {
 }
 impl ConvertParam<*mut _cef_urlrequest_t> for &Urlrequest {
     fn as_raw(self) -> *mut _cef_urlrequest_t {
-        unsafe { (&self.0).as_raw() }
+        ImplUrlrequest::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_urlrequest_t> for &mut Urlrequest {
     fn as_raw(self) -> *mut _cef_urlrequest_t {
-        unsafe { (&self.0).as_raw() }
+        ImplUrlrequest::get_raw(self)
     }
 }
 impl ConvertReturnValue<Urlrequest> for *mut _cef_urlrequest_t {
@@ -44191,12 +44308,12 @@ impl Rc for UrlrequestClient {
 }
 impl ConvertParam<*mut _cef_urlrequest_client_t> for &UrlrequestClient {
     fn as_raw(self) -> *mut _cef_urlrequest_client_t {
-        unsafe { (&self.0).as_raw() }
+        ImplUrlrequestClient::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_urlrequest_client_t> for &mut UrlrequestClient {
     fn as_raw(self) -> *mut _cef_urlrequest_client_t {
-        unsafe { (&self.0).as_raw() }
+        ImplUrlrequestClient::get_raw(self)
     }
 }
 impl ConvertReturnValue<UrlrequestClient> for *mut _cef_urlrequest_client_t {
@@ -44330,12 +44447,12 @@ impl Rc for Layout {
 }
 impl ConvertParam<*mut _cef_layout_t> for &Layout {
     fn as_raw(self) -> *mut _cef_layout_t {
-        unsafe { (&self.0).as_raw() }
+        ImplLayout::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_layout_t> for &mut Layout {
     fn as_raw(self) -> *mut _cef_layout_t {
-        unsafe { (&self.0).as_raw() }
+        ImplLayout::get_raw(self)
     }
 }
 impl ConvertReturnValue<Layout> for *mut _cef_layout_t {
@@ -44474,12 +44591,12 @@ impl Rc for BoxLayout {
 }
 impl ConvertParam<*mut _cef_box_layout_t> for &BoxLayout {
     fn as_raw(self) -> *mut _cef_box_layout_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBoxLayout::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_box_layout_t> for &mut BoxLayout {
     fn as_raw(self) -> *mut _cef_box_layout_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBoxLayout::get_raw(self)
     }
 }
 impl ConvertReturnValue<BoxLayout> for *mut _cef_box_layout_t {
@@ -44550,12 +44667,12 @@ impl Rc for FillLayout {
 }
 impl ConvertParam<*mut _cef_fill_layout_t> for &FillLayout {
     fn as_raw(self) -> *mut _cef_fill_layout_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFillLayout::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_fill_layout_t> for &mut FillLayout {
     fn as_raw(self) -> *mut _cef_fill_layout_t {
-        unsafe { (&self.0).as_raw() }
+        ImplFillLayout::get_raw(self)
     }
 }
 impl ConvertReturnValue<FillLayout> for *mut _cef_fill_layout_t {
@@ -45057,12 +45174,12 @@ impl Rc for ViewDelegate {
 }
 impl ConvertParam<*mut _cef_view_delegate_t> for &ViewDelegate {
     fn as_raw(self) -> *mut _cef_view_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplViewDelegate::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_view_delegate_t> for &mut ViewDelegate {
     fn as_raw(self) -> *mut _cef_view_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplViewDelegate::get_raw(self)
     }
 }
 impl ConvertReturnValue<ViewDelegate> for *mut _cef_view_delegate_t {
@@ -46535,12 +46652,12 @@ impl Rc for View {
 }
 impl ConvertParam<*mut _cef_view_t> for &View {
     fn as_raw(self) -> *mut _cef_view_t {
-        unsafe { (&self.0).as_raw() }
+        ImplView::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_view_t> for &mut View {
     fn as_raw(self) -> *mut _cef_view_t {
-        unsafe { (&self.0).as_raw() }
+        ImplView::get_raw(self)
     }
 }
 impl ConvertReturnValue<View> for *mut _cef_view_t {
@@ -46969,12 +47086,12 @@ impl Rc for Button {
 }
 impl ConvertParam<*mut _cef_button_t> for &Button {
     fn as_raw(self) -> *mut _cef_button_t {
-        unsafe { (&self.0).as_raw() }
+        ImplButton::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_button_t> for &mut Button {
     fn as_raw(self) -> *mut _cef_button_t {
-        unsafe { (&self.0).as_raw() }
+        ImplButton::get_raw(self)
     }
 }
 impl ConvertReturnValue<Button> for *mut _cef_button_t {
@@ -47156,12 +47273,12 @@ impl Rc for ButtonDelegate {
 }
 impl ConvertParam<*mut _cef_button_delegate_t> for &ButtonDelegate {
     fn as_raw(self) -> *mut _cef_button_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplButtonDelegate::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_button_delegate_t> for &mut ButtonDelegate {
     fn as_raw(self) -> *mut _cef_button_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplButtonDelegate::get_raw(self)
     }
 }
 impl ConvertReturnValue<ButtonDelegate> for *mut _cef_button_delegate_t {
@@ -47797,12 +47914,12 @@ impl Rc for LabelButton {
 }
 impl ConvertParam<*mut _cef_label_button_t> for &LabelButton {
     fn as_raw(self) -> *mut _cef_label_button_t {
-        unsafe { (&self.0).as_raw() }
+        ImplLabelButton::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_label_button_t> for &mut LabelButton {
     fn as_raw(self) -> *mut _cef_label_button_t {
-        unsafe { (&self.0).as_raw() }
+        ImplLabelButton::get_raw(self)
     }
 }
 impl ConvertReturnValue<LabelButton> for *mut _cef_label_button_t {
@@ -47856,12 +47973,12 @@ impl Rc for MenuButtonPressedLock {
 }
 impl ConvertParam<*mut _cef_menu_button_pressed_lock_t> for &MenuButtonPressedLock {
     fn as_raw(self) -> *mut _cef_menu_button_pressed_lock_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuButtonPressedLock::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_menu_button_pressed_lock_t> for &mut MenuButtonPressedLock {
     fn as_raw(self) -> *mut _cef_menu_button_pressed_lock_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuButtonPressedLock::get_raw(self)
     }
 }
 impl ConvertReturnValue<MenuButtonPressedLock> for *mut _cef_menu_button_pressed_lock_t {
@@ -48070,12 +48187,12 @@ impl Rc for MenuButtonDelegate {
 }
 impl ConvertParam<*mut _cef_menu_button_delegate_t> for &MenuButtonDelegate {
     fn as_raw(self) -> *mut _cef_menu_button_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuButtonDelegate::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_menu_button_delegate_t> for &mut MenuButtonDelegate {
     fn as_raw(self) -> *mut _cef_menu_button_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuButtonDelegate::get_raw(self)
     }
 }
 impl ConvertReturnValue<MenuButtonDelegate> for *mut _cef_menu_button_delegate_t {
@@ -48512,12 +48629,12 @@ impl Rc for MenuButton {
 }
 impl ConvertParam<*mut _cef_menu_button_t> for &MenuButton {
     fn as_raw(self) -> *mut _cef_menu_button_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuButton::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_menu_button_t> for &mut MenuButton {
     fn as_raw(self) -> *mut _cef_menu_button_t {
-        unsafe { (&self.0).as_raw() }
+        ImplMenuButton::get_raw(self)
     }
 }
 impl ConvertReturnValue<MenuButton> for *mut _cef_menu_button_t {
@@ -48724,12 +48841,12 @@ impl Rc for TextfieldDelegate {
 }
 impl ConvertParam<*mut _cef_textfield_delegate_t> for &TextfieldDelegate {
     fn as_raw(self) -> *mut _cef_textfield_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplTextfieldDelegate::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_textfield_delegate_t> for &mut TextfieldDelegate {
     fn as_raw(self) -> *mut _cef_textfield_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplTextfieldDelegate::get_raw(self)
     }
 }
 impl ConvertReturnValue<TextfieldDelegate> for *mut _cef_textfield_delegate_t {
@@ -49841,12 +49958,12 @@ impl Rc for Textfield {
 }
 impl ConvertParam<*mut _cef_textfield_t> for &Textfield {
     fn as_raw(self) -> *mut _cef_textfield_t {
-        unsafe { (&self.0).as_raw() }
+        ImplTextfield::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_textfield_t> for &mut Textfield {
     fn as_raw(self) -> *mut _cef_textfield_t {
-        unsafe { (&self.0).as_raw() }
+        ImplTextfield::get_raw(self)
     }
 }
 impl ConvertReturnValue<Textfield> for *mut _cef_textfield_t {
@@ -50400,12 +50517,12 @@ impl Rc for BrowserViewDelegate {
 }
 impl ConvertParam<*mut _cef_browser_view_delegate_t> for &BrowserViewDelegate {
     fn as_raw(self) -> *mut _cef_browser_view_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowserViewDelegate::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_browser_view_delegate_t> for &mut BrowserViewDelegate {
     fn as_raw(self) -> *mut _cef_browser_view_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowserViewDelegate::get_raw(self)
     }
 }
 impl ConvertReturnValue<BrowserViewDelegate> for *mut _cef_browser_view_delegate_t {
@@ -50783,12 +50900,12 @@ impl Rc for BrowserView {
 }
 impl ConvertParam<*mut _cef_browser_view_t> for &BrowserView {
     fn as_raw(self) -> *mut _cef_browser_view_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowserView::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_browser_view_t> for &mut BrowserView {
     fn as_raw(self) -> *mut _cef_browser_view_t {
-        unsafe { (&self.0).as_raw() }
+        ImplBrowserView::get_raw(self)
     }
 }
 impl ConvertReturnValue<BrowserView> for *mut _cef_browser_view_t {
@@ -51238,12 +51355,12 @@ impl Rc for ScrollView {
 }
 impl ConvertParam<*mut _cef_scroll_view_t> for &ScrollView {
     fn as_raw(self) -> *mut _cef_scroll_view_t {
-        unsafe { (&self.0).as_raw() }
+        ImplScrollView::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_scroll_view_t> for &mut ScrollView {
     fn as_raw(self) -> *mut _cef_scroll_view_t {
-        unsafe { (&self.0).as_raw() }
+        ImplScrollView::get_raw(self)
     }
 }
 impl ConvertReturnValue<ScrollView> for *mut _cef_scroll_view_t {
@@ -51475,12 +51592,12 @@ impl Rc for Display {
 }
 impl ConvertParam<*mut _cef_display_t> for &Display {
     fn as_raw(self) -> *mut _cef_display_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDisplay::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_display_t> for &mut Display {
     fn as_raw(self) -> *mut _cef_display_t {
-        unsafe { (&self.0).as_raw() }
+        ImplDisplay::get_raw(self)
     }
 }
 impl ConvertReturnValue<Display> for *mut _cef_display_t {
@@ -52044,12 +52161,12 @@ impl Rc for OverlayController {
 }
 impl ConvertParam<*mut _cef_overlay_controller_t> for &OverlayController {
     fn as_raw(self) -> *mut _cef_overlay_controller_t {
-        unsafe { (&self.0).as_raw() }
+        ImplOverlayController::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_overlay_controller_t> for &mut OverlayController {
     fn as_raw(self) -> *mut _cef_overlay_controller_t {
-        unsafe { (&self.0).as_raw() }
+        ImplOverlayController::get_raw(self)
     }
 }
 impl ConvertReturnValue<OverlayController> for *mut _cef_overlay_controller_t {
@@ -52166,12 +52283,12 @@ impl Rc for PanelDelegate {
 }
 impl ConvertParam<*mut _cef_panel_delegate_t> for &PanelDelegate {
     fn as_raw(self) -> *mut _cef_panel_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPanelDelegate::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_panel_delegate_t> for &mut PanelDelegate {
     fn as_raw(self) -> *mut _cef_panel_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPanelDelegate::get_raw(self)
     }
 }
 impl ConvertReturnValue<PanelDelegate> for *mut _cef_panel_delegate_t {
@@ -52793,12 +52910,12 @@ impl Rc for Panel {
 }
 impl ConvertParam<*mut _cef_panel_t> for &Panel {
     fn as_raw(self) -> *mut _cef_panel_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPanel::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_panel_t> for &mut Panel {
     fn as_raw(self) -> *mut _cef_panel_t {
-        unsafe { (&self.0).as_raw() }
+        ImplPanel::get_raw(self)
     }
 }
 impl ConvertReturnValue<Panel> for *mut _cef_panel_t {
@@ -53904,12 +54021,12 @@ impl Rc for WindowDelegate {
 }
 impl ConvertParam<*mut _cef_window_delegate_t> for &WindowDelegate {
     fn as_raw(self) -> *mut _cef_window_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplWindowDelegate::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_window_delegate_t> for &mut WindowDelegate {
     fn as_raw(self) -> *mut _cef_window_delegate_t {
-        unsafe { (&self.0).as_raw() }
+        ImplWindowDelegate::get_raw(self)
     }
 }
 impl ConvertReturnValue<WindowDelegate> for *mut _cef_window_delegate_t {
@@ -55452,12 +55569,12 @@ impl Rc for Window {
 }
 impl ConvertParam<*mut _cef_window_t> for &Window {
     fn as_raw(self) -> *mut _cef_window_t {
-        unsafe { (&self.0).as_raw() }
+        ImplWindow::get_raw(self)
     }
 }
 impl ConvertParam<*mut _cef_window_t> for &mut Window {
     fn as_raw(self) -> *mut _cef_window_t {
-        unsafe { (&self.0).as_raw() }
+        ImplWindow::get_raw(self)
     }
 }
 impl ConvertReturnValue<Window> for *mut _cef_window_t {

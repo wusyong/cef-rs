@@ -782,8 +782,9 @@ impl SignatureRef<'_> {
                 let ty_tokens = arg_ty.to_token_stream();
                 let ty_string = ty_tokens.to_string();
                 let entry = tree.cef_name_map.get(ty_string.as_str());
+                let root = tree.root(&ty_string);
 
-                (tree.root(&ty_string) == BASE_REF_COUNTED)
+                (root == BASE_REF_COUNTED)
                     .then(|| {
                         match entry? {
                             NameMapEntry {
@@ -823,54 +824,70 @@ impl SignatureRef<'_> {
                     })
                     .flatten()
                     .or_else(|| {
-                        let ty =
-                            entry.and_then(|entry| syn::parse_str::<syn::Type>(&entry.name).ok());
-                        let ty = ty.as_ref().unwrap_or(arg_ty).to_token_stream();
-                        if ty.to_string() == quote!{ ::std::os::raw::c_void }.to_string() {
+                        if root == BASE_SCOPED {
+                            let Some(NameMapEntry { name, ty: NameMapType::StructDeclaration }) = entry else {
+                                return None;
+                            };
+                            let name = format_ident!("{name}");
                             match modifiers {
                                 [TypeModifier::MutPtr] => Some(quote! {
-                                    let #arg_name = #arg_name as *mut _;
+                                    let mut #arg_name = if #arg_name.is_null() { None } else { Some(#name(#arg_name)) };
+                                    let #arg_name = #arg_name.as_mut();
                                 }),
                                 [TypeModifier::ConstPtr] => Some(quote! {
-                                    let #arg_name = #arg_name as *const _;
+                                    let #arg_name = if #arg_name.is_null() { None } else { Some(#name(#arg_name)) };
+                                    let #arg_name = #arg_name.as_ref();
                                 }),
-                                _ => {
-                                    Some(quote! {})
-                                }
+                                _ => None,
+                            }
+                        } else if CUSTOM_STRING_TYPES.contains(&ty_string.as_str()) {
+                            match modifiers {
+                                [TypeModifier::MutPtr] => Some(quote! {
+                                    let mut #arg_name = if #arg_name.is_null() { None } else { Some(#arg_name.into()) };
+                                    let #arg_name = #arg_name.as_mut();
+                                }),
+                                [TypeModifier::ConstPtr] => Some(quote! {
+                                    let #arg_name = if #arg_name.is_null() { None } else { Some(#arg_name.into()) };
+                                    let #arg_name = #arg_name.as_ref();
+                                }),
+                                _ => None,
                             }
                         } else {
-                            match modifiers {
-                                [TypeModifier::MutPtr] => Some(if CUSTOM_STRING_TYPES.contains(&ty_string.as_str()) {
-                                    quote! {
-                                        let mut #arg_name = if #arg_name.is_null() { None } else { Some(#arg_name.into()) };
-                                        let #arg_name = #arg_name.as_mut();
+                            let ty =
+                            entry.and_then(|entry| syn::parse_str::<syn::Type>(&entry.name).ok());
+                            let ty = ty.as_ref().unwrap_or(arg_ty).to_token_stream();
+                            if ty.to_string() == quote!{ ::std::os::raw::c_void }.to_string() {
+                                match modifiers {
+                                    [TypeModifier::MutPtr] => Some(quote! {
+                                        let #arg_name = #arg_name as *mut _;
+                                    }),
+                                    [TypeModifier::ConstPtr] => Some(quote! {
+                                        let #arg_name = #arg_name as *const _;
+                                    }),
+                                    _ => {
+                                        Some(quote! {})
                                     }
-                                } else {
-                                    quote! {
+                                }
+                            } else {
+                                match modifiers {
+                                    [TypeModifier::MutPtr] => Some(quote! {
                                         let mut #arg_name = if #arg_name.is_null() {
                                             None
                                         } else {
                                             Some(WrapParamRef::<#ty>::from(#arg_name))
                                         };
                                         let #arg_name = #arg_name.as_mut().map(|arg| arg.as_mut());
-                                    }
-                                }),
-                                [TypeModifier::ConstPtr] => Some(if CUSTOM_STRING_TYPES.contains(&ty_string.as_str()) {
-                                    quote! {
-                                        let #arg_name = if #arg_name.is_null() { None } else { Some(#arg_name.into()) };
-                                        let #arg_name = #arg_name.as_ref();
-                                    }
-                                } else {
-                                    quote! {
+                                    }),
+                                    [TypeModifier::ConstPtr] => Some(quote! {
                                         let #arg_name = if #arg_name.is_null() {
                                             None
                                         } else {
                                             Some(WrapParamRef::<#ty>::from(#arg_name))
                                         };
                                         let #arg_name = #arg_name.as_ref().map(|arg| arg.as_ref());
-                                    }
-                                }),
-                                _ => None,
+                                    }),
+                                    _ => None,
+                                }
                             }
                         }
                     })
@@ -1224,6 +1241,8 @@ impl<'a> TryFrom<&'a syn::Field> for SignatureRef<'a> {
 }
 
 const BASE_REF_COUNTED: &str = "_cef_base_ref_counted_t";
+
+const BASE_SCOPED: &str = "_cef_base_scoped_t";
 
 const CUSTOM_STRING_TYPES: &[&str] = &[
     "_cef_string_utf8_t",
@@ -1644,6 +1663,797 @@ impl<'a> ParseTree<'a> {
         self.base(name).map(|base| self.root(base)).unwrap_or(name)
     }
 
+    fn write_custom_string_type(
+        &self,
+        f: &mut Formatter<'_>,
+        rust_name: &syn::Ident,
+    ) -> fmt::Result {
+        let wrapper = quote! {
+            pub use crate::string::#rust_name;
+        }
+        .to_string();
+        writeln!(f, "{wrapper}")
+    }
+
+    fn write_ref_counted_struct(
+        &self,
+        f: &mut Formatter<'_>,
+        s: &StructDeclarationRef<'_>,
+        root: &str,
+        name_ident: &syn::Ident,
+        rust_name: &syn::Ident,
+    ) -> fmt::Result {
+        if BASE_REF_COUNTED == s.name {
+            let wrapper = quote! {
+                #[derive(Clone)]
+                pub struct #rust_name(RefGuard<#name_ident>);
+
+                impl #rust_name {
+                    fn get_raw(&self) -> *mut #name_ident {
+                        unsafe { RefGuard::as_raw(&self.0) }
+                    }
+                }
+
+                impl Rc for #rust_name {
+                    fn as_base(&self) -> &#name_ident {
+                        self.0.as_base()
+                    }
+                }
+
+                impl ConvertParam<*mut #name_ident> for &#rust_name {
+                    fn as_raw(self) -> *mut #name_ident {
+                        self.get_raw()
+                    }
+                }
+
+                impl ConvertParam<*mut #name_ident> for &mut #rust_name {
+                    fn as_raw(self) -> *mut #name_ident {
+                        self.get_raw()
+                    }
+                }
+
+                impl ConvertReturnValue<#rust_name> for *mut #name_ident {
+                    fn as_wrapper(self) -> #rust_name {
+                        #rust_name(unsafe { RefGuard::from_raw(self) })
+                    }
+                }
+
+                impl Into<*mut #name_ident> for #rust_name {
+                    fn into(self) -> *mut #name_ident {
+                        let object = self.get_raw();
+                        std::mem::forget(self);
+                        object
+                    }
+                }
+
+                impl Default for #rust_name {
+                    fn default() -> Self {
+                        Self(unsafe { RefGuard::from_raw(std::ptr::null_mut()) })
+                    }
+                }
+            }
+            .to_string();
+
+            return writeln!(f, "{wrapper}");
+        }
+
+        let name = s.name.as_str();
+        let methods = s.methods.iter().map(|m| {
+            let sig = m.get_signature(self);
+            let name = &m.name;
+            let name = format_ident!("{name}");
+            let pre_forward_args = m.unwrap_rust_args(self);
+            let args = m.inputs.iter().map(|arg| {
+                let name = make_snake_case_value_name(&arg.name);
+                let name = format_ident!("arg_{name}");
+                quote! { #name }
+            });
+            let post_forward_args = m.rewrap_rust_args(self);
+            let output_type = m.output.and_then(|ty| {
+                let ty = self.resolve_type_aliases(ty);
+                syn::parse2::<ModifiedType>(ty.to_token_stream()).ok()
+            });
+            let wrap_result = output_type
+                .as_ref()
+                .and_then(|ModifiedType { modifiers, ty, .. }| {
+                    let ty = ty.to_token_stream().to_string();
+                    match modifiers.as_slice() {
+                        [TypeModifier::ConstPtr | TypeModifier::MutPtr]
+                            if ty != quote! { ::std::os::raw::c_void }.to_string() =>
+                        {
+                            match self.cef_name_map.get(&ty) {
+                                Some(NameMapEntry {
+                                    ty: NameMapType::StructDeclaration,
+                                    ..
+                                }) => Some(quote! {
+                                    if result.is_null() {
+                                        None
+                                    } else {
+                                        Some(result.as_wrapper())
+                                    }
+                                }),
+                                _ => None,
+                            }
+                        }
+                        _ => None,
+                    }
+                })
+                .unwrap_or(quote! { result.as_wrapper() });
+            let impl_default = output_type
+                .and_then(|ty| {
+                    (ty.ty.to_token_stream().to_string()
+                        != quote! { ::std::os::raw::c_void }.to_string())
+                    .then(|| quote! { .unwrap_or_default() })
+                })
+                .unwrap_or(quote! { .unwrap_or_else(|| std::mem::zeroed()) });
+            quote! {
+                #sig {
+                    unsafe {
+                        self.0.#name.map(|f| {
+                            #pre_forward_args
+                            let result = f(#(#args),*);
+                            #post_forward_args
+                            #wrap_result
+                        })
+                        #impl_default
+                    }
+                }
+            }
+        });
+
+        let base_name = self.base(name);
+        let impl_trait = format_ident!("Impl{rust_name}");
+        let impl_base_name = base_name
+            .filter(|base| *base != BASE_REF_COUNTED)
+            .and_then(|base| self.cef_name_map.get(base))
+            .map(|entry| {
+                let base = &entry.name;
+                let base = format_ident!("Impl{base}");
+                quote! { #base }
+            });
+        let impl_get_raw = impl_base_name
+            .as_ref()
+            .map(|impl_base_name| {
+                quote! {
+                    fn get_raw(&self) -> *mut #name_ident {
+                        <Self as #impl_base_name>::get_raw(self) as *mut _
+                    }
+                }
+            })
+            .unwrap_or(quote! { fn get_raw(&self) -> *mut #name_ident; });
+        let impl_base_name = impl_base_name.unwrap_or(quote! { Clone + Sized + Rc });
+        let impl_methods = s.methods.iter().map(|m| {
+            let sig = m.get_signature(self);
+            let impl_default =
+                m.output.map(
+                    |ty| match syn::parse2::<ModifiedType>(ty.to_token_stream()) {
+                        Ok(ty)
+                            if ty.ty.to_token_stream().to_string()
+                                != quote! { ::std::os::raw::c_void }.to_string() =>
+                        {
+                            quote! {  Default::default() }
+                        }
+                        _ => quote! { unsafe { std::mem::zeroed() } },
+                    },
+                );
+            quote! {
+                #sig {
+                    #impl_default
+                }
+            }
+        });
+
+        let mut base_name = base_name;
+        let mut base_structs = vec![];
+        while let Some(next_base) = base_name
+            .filter(|base| *base != root)
+            .and_then(|base| self.lookup_struct_declaration.get(base))
+            .and_then(|&i| self.struct_declarations.get(i))
+        {
+            base_name = self.base(&next_base.name);
+            base_structs.push(next_base);
+        }
+
+        let init_bases = base_structs
+            .iter()
+            .enumerate()
+            .map(|(i, base_struct)| {
+                let name = &base_struct.name;
+                let name = format_ident!("{name}");
+                let impl_mod = format_ident!("impl{name}");
+                let bases = iter::repeat_n(format_ident!("base"), i + 1);
+                quote! {
+                    #impl_mod::init_methods::<Self>(&mut object.#(#bases).*);
+                }
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev();
+
+        let impl_bases = base_structs
+            .into_iter()
+            .filter_map(|base_struct| {
+                self.cef_name_map.get(&base_struct.name).map(|entry| {
+                    let name = &base_struct.name;
+                    let name_ident = format_ident!("{name}");
+                    let base = &entry.name;
+                    let base_trait = format_ident!("Impl{base}");
+                    let base = format_ident!("{base}");
+                    let base_methods = base_struct.methods.iter().map(|m| {
+                        let sig = m.get_signature(self);
+                        let name = &m.name;
+                        let name = format_ident!("{name}");
+                        let args = m.merge_params(self).filter_map(|arg| match arg {
+                            MergedParam::Single { name, .. } => {
+                                let name = format_ident!("{name}");
+                                Some(quote! { #name })
+                            }
+                            MergedParam::Bounded { slice_name, .. }
+                            | MergedParam::Buffer { slice_name, .. } => {
+                                let name = format_ident!("{slice_name}");
+                                Some(quote! { #name })
+                            }
+                            _ => None,
+                        });
+                        quote! {
+                            #sig {
+                                #base(unsafe {
+                                    RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _)
+                                })
+                                .#name(#(#args),*)
+                            }
+                        }
+                    });
+
+                    quote! {
+                        impl #base_trait for #rust_name {
+                            #(#base_methods)*
+
+                            fn get_raw(&self) -> *mut #name_ident {
+                                unsafe { RefGuard::as_raw(&self.0) as *mut _ }
+                            }
+                        }
+                    }
+                })
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev();
+
+        let name = &s.name;
+        let impl_mod = format_ident!("impl{name}");
+        let init_methods = s.methods.iter().map(|m| {
+            let name = &m.name;
+            let name = format_ident!("{name}");
+            quote! {
+                object.#name = Some(#name::<I>);
+            }
+        });
+
+        let wrapped_methods = s.methods.iter().map(|m| {
+                let name = &m.name;
+                let name = format_ident!("{name}");
+                let args = m.inputs.iter().map(|arg| {
+                    let name = make_snake_case_value_name(&arg.name);
+                    let name = format_ident!("{name}");
+                    let ty = self.resolve_type_aliases(arg.ty);
+                    quote! { #name: #ty }
+                });
+                let wrapped_args = m.wrap_cef_args(self);
+                let unwrapped_args = m.unwrap_cef_args(self);
+                let forward_args = m.merge_params(self).filter_map(|arg| match arg {
+                    MergedParam::Single { name, .. } => {
+                        let name = format_ident!("arg_{name}");
+                        Some(quote! { #name })
+                    }
+                    MergedParam::Bounded { slice_name, .. }
+                    | MergedParam::Buffer { slice_name, .. } => {
+                        let name = format_ident!("arg_{slice_name}");
+                        Some(quote! { #name })
+                    }
+                    _ => None,
+                });
+                let original_output = m.output.map(|ty| self.resolve_type_aliases(ty));
+                let output = original_output.as_ref().map(|output| {
+                    quote! { -> #output }
+                });
+                let forward_output = original_output.map(|output| {
+                    match syn::parse2::<ModifiedType>(output) {
+                        Ok(ModifiedType { ty, modifiers }) => {
+                            self.cef_name_map
+                                .get(&ty.to_token_stream().to_string())
+                                .and_then(|entry| match entry {
+                                    NameMapEntry {
+                                        ty: NameMapType::StructDeclaration,
+                                        ..
+                                    } => match modifiers.as_slice() {
+                                        [TypeModifier::ConstPtr] => {
+                                            Some(quote! { result.map(|result| result.into()).unwrap_or(std::ptr::null()) })
+                                        }
+                                        [TypeModifier::MutPtr] => {
+                                            Some(quote! { result.map(|result| result.into()).unwrap_or(std::ptr::null_mut()) })
+                                        }
+                                        _ => None,
+                                    }
+                                    _ => None,
+                                })
+                        }
+                        _ => None,
+                    }.unwrap_or(quote! { result.into() })
+                });
+
+                quote! {
+                    extern "C" fn #name<I: #impl_trait>(#(#args),*) #output {
+                        #wrapped_args
+                        let result = #impl_trait::#name(&arg_self_.interface, #(#forward_args),*);
+                        #unwrapped_args
+                        #forward_output
+                    }
+                }
+            });
+
+        let base_ident = format_ident!("{BASE_REF_COUNTED}");
+
+        let wrapper = quote! {
+            #[derive(Clone)]
+            pub struct #rust_name(RefGuard<#name_ident>);
+
+            pub trait #impl_trait : #impl_base_name {
+                #(#impl_methods)*
+
+                fn init_methods(object: &mut #name_ident) {
+                    #(#init_bases)*
+                    #impl_mod::init_methods::<Self>(object);
+                }
+
+                #impl_get_raw
+            }
+
+            mod #impl_mod {
+                use super::*;
+
+                pub fn init_methods<I: #impl_trait>(object: &mut #name_ident) {
+                    #(#init_methods)*
+                }
+
+                #(#wrapped_methods)*
+            }
+
+            #(#impl_bases)*
+
+            impl #impl_trait for #rust_name {
+                #(#methods)*
+
+                fn get_raw(&self) -> *mut #name_ident {
+                    unsafe { RefGuard::as_raw(&self.0) }
+                }
+            }
+
+            impl Rc for #name_ident {
+                fn as_base(&self) -> &#base_ident {
+                    self.base.as_base()
+                }
+            }
+
+            impl Rc for #rust_name {
+                fn as_base(&self) -> &#base_ident {
+                    self.0.as_base()
+                }
+            }
+
+            impl ConvertParam<*mut #name_ident> for &#rust_name {
+                fn as_raw(self) -> *mut #name_ident {
+                    #impl_trait::get_raw(self)
+                }
+            }
+
+            impl ConvertParam<*mut #name_ident> for &mut #rust_name {
+                fn as_raw(self) -> *mut #name_ident {
+                    #impl_trait::get_raw(self)
+                }
+            }
+
+            impl ConvertReturnValue<#rust_name> for *mut #name_ident {
+                fn as_wrapper(self) -> #rust_name {
+                    #rust_name(unsafe { RefGuard::from_raw(self) })
+                }
+            }
+
+            impl Into<*mut #name_ident> for #rust_name {
+                fn into(self) -> *mut #name_ident {
+                    let object = #impl_trait::get_raw(&self);
+                    std::mem::forget(self);
+                    object
+                }
+            }
+
+            impl Default for #rust_name {
+                fn default() -> Self {
+                    unsafe { std::mem::zeroed() }
+                }
+            }
+        }
+        .to_string();
+
+        writeln!(f, "{wrapper}")
+    }
+
+    fn write_scoped_struct(
+        &self,
+        f: &mut Formatter<'_>,
+        s: &StructDeclarationRef<'_>,
+        root: &str,
+        name_ident: &syn::Ident,
+        rust_name: &syn::Ident,
+    ) -> fmt::Result {
+        if BASE_SCOPED == s.name {
+            let wrapper = quote! {
+                #[derive(Clone, Copy)]
+                pub struct #rust_name(*mut #name_ident);
+
+                impl #rust_name {
+                    fn get_raw(&self) -> *mut #name_ident {
+                        self.0
+                    }
+                }
+
+                impl ConvertParam<*mut #name_ident> for &#rust_name {
+                    fn as_raw(self) -> *mut #name_ident {
+                        self.get_raw()
+                    }
+                }
+
+                impl ConvertParam<*mut #name_ident> for &mut #rust_name {
+                    fn as_raw(self) -> *mut #name_ident {
+                        self.get_raw()
+                    }
+                }
+
+                impl ConvertReturnValue<#rust_name> for *mut #name_ident {
+                    fn as_wrapper(self) -> #rust_name {
+                        #rust_name(self)
+                    }
+                }
+
+                impl Into<*mut #name_ident> for #rust_name {
+                    fn into(self) -> *mut #name_ident {
+                        self.get_raw()
+                    }
+                }
+
+                impl Default for #rust_name {
+                    fn default() -> Self {
+                        Self(std::ptr::null_mut())
+                    }
+                }
+            }
+            .to_string();
+
+            return writeln!(f, "{wrapper}");
+        }
+
+        let name = s.name.as_str();
+        let methods = s.methods.iter().map(|m| {
+            let sig = m.get_signature(self);
+            let name = &m.name;
+            let name = format_ident!("{name}");
+            let pre_forward_args = m.unwrap_rust_args(self);
+            let args = m.inputs.iter().map(|arg| {
+                let name = make_snake_case_value_name(&arg.name);
+                let name = format_ident!("arg_{name}");
+                quote! { #name }
+            });
+            let post_forward_args = m.rewrap_rust_args(self);
+            let output_type = m.output.and_then(|ty| {
+                let ty = self.resolve_type_aliases(ty);
+                syn::parse2::<ModifiedType>(ty.to_token_stream()).ok()
+            });
+            let wrap_result = output_type
+                .as_ref()
+                .and_then(|ModifiedType { modifiers, ty, .. }| {
+                    let ty = ty.to_token_stream().to_string();
+                    match modifiers.as_slice() {
+                        [TypeModifier::ConstPtr | TypeModifier::MutPtr]
+                            if ty != quote! { ::std::os::raw::c_void }.to_string() =>
+                        {
+                            match self.cef_name_map.get(&ty) {
+                                Some(NameMapEntry {
+                                    ty: NameMapType::StructDeclaration,
+                                    ..
+                                }) => Some(quote! {
+                                    if result.is_null() {
+                                        None
+                                    } else {
+                                        Some(result.as_wrapper())
+                                    }
+                                }),
+                                _ => None,
+                            }
+                        }
+                        _ => None,
+                    }
+                })
+                .unwrap_or(quote! { result.as_wrapper() });
+            let impl_default = output_type
+                .and_then(|ty| {
+                    (ty.ty.to_token_stream().to_string()
+                        != quote! { ::std::os::raw::c_void }.to_string())
+                    .then(|| quote! { .unwrap_or_default() })
+                })
+                .unwrap_or(quote! { .unwrap_or_else(|| std::mem::zeroed()) });
+            quote! {
+                #sig {
+                    unsafe {
+                        self.0.as_ref().and_then(|this| this.#name).map(|f| {
+                            #pre_forward_args
+                            let result = f(#(#args),*);
+                            #post_forward_args
+                            #wrap_result
+                        })
+                        #impl_default
+                    }
+                }
+            }
+        });
+
+        let base_name = self.base(name);
+        let impl_trait = format_ident!("Impl{rust_name}");
+        let impl_base_name = base_name
+            .filter(|base| *base != BASE_SCOPED)
+            .and_then(|base| self.cef_name_map.get(base))
+            .map(|entry| {
+                let base = &entry.name;
+                let base = format_ident!("Impl{base}");
+                quote! { #base }
+            });
+        let impl_get_raw = impl_base_name
+            .as_ref()
+            .map(|impl_base_name| {
+                quote! {
+                    fn get_raw(&self) -> *mut #name_ident {
+                        <Self as #impl_base_name>::get_raw(self) as *mut _
+                    }
+                }
+            })
+            .unwrap_or(quote! { fn get_raw(&self) -> *mut #name_ident; });
+        let impl_base_name = impl_base_name.unwrap_or(quote! { Sized });
+        let impl_methods = s.methods.iter().map(|m| {
+            let sig = m.get_signature(self);
+            let impl_default =
+                m.output.map(
+                    |ty| match syn::parse2::<ModifiedType>(ty.to_token_stream()) {
+                        Ok(ty)
+                            if ty.ty.to_token_stream().to_string()
+                                != quote! { ::std::os::raw::c_void }.to_string() =>
+                        {
+                            quote! {  Default::default() }
+                        }
+                        _ => quote! { unsafe { std::mem::zeroed() } },
+                    },
+                );
+            quote! {
+                #sig {
+                    #impl_default
+                }
+            }
+        });
+
+        let mut base_name = base_name;
+        let mut base_structs = vec![];
+        while let Some(next_base) = base_name
+            .filter(|base| *base != root)
+            .and_then(|base| self.lookup_struct_declaration.get(base))
+            .and_then(|&i| self.struct_declarations.get(i))
+        {
+            base_name = self.base(&next_base.name);
+            base_structs.push(next_base);
+        }
+
+        let init_bases = base_structs
+            .iter()
+            .enumerate()
+            .map(|(i, base_struct)| {
+                let name = &base_struct.name;
+                let name = format_ident!("{name}");
+                let impl_mod = format_ident!("impl{name}");
+                let bases = iter::repeat_n(format_ident!("base"), i + 1);
+                quote! {
+                    #impl_mod::init_methods::<Self>(&mut object.#(#bases).*);
+                }
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev();
+
+        let impl_bases = base_structs
+            .into_iter()
+            .filter_map(|base_struct| {
+                self.cef_name_map.get(&base_struct.name).map(|entry| {
+                    let name = &base_struct.name;
+                    let name_ident = format_ident!("{name}");
+                    let base = &entry.name;
+                    let base_trait = format_ident!("Impl{base}");
+                    let base = format_ident!("{base}");
+                    let base_methods = base_struct.methods.iter().map(|m| {
+                        let sig = m.get_signature(self);
+                        let name = &m.name;
+                        let name = format_ident!("{name}");
+                        let args = m.merge_params(self).filter_map(|arg| match arg {
+                            MergedParam::Single { name, .. } => {
+                                let name = format_ident!("{name}");
+                                Some(quote! { #name })
+                            }
+                            MergedParam::Bounded { slice_name, .. }
+                            | MergedParam::Buffer { slice_name, .. } => {
+                                let name = format_ident!("{slice_name}");
+                                Some(quote! { #name })
+                            }
+                            _ => None,
+                        });
+                        quote! {
+                            #sig {
+                                #base(self.0 as *mut _).#name(#(#args),*)
+                            }
+                        }
+                    });
+
+                    quote! {
+                        impl #base_trait for #rust_name {
+                            #(#base_methods)*
+
+                            fn get_raw(&self) -> *mut #name_ident {
+                                self.0 as *mut _
+                            }
+                        }
+                    }
+                })
+            })
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev();
+
+        let name = &s.name;
+        let impl_mod = format_ident!("impl{name}");
+        let init_methods = s.methods.iter().map(|m| {
+            let name = &m.name;
+            let name = format_ident!("{name}");
+            quote! {
+                object.#name = Some(#name::<I>);
+            }
+        });
+
+        let wrapped_methods = s.methods.iter().map(|m| {
+                let name = &m.name;
+                let name = format_ident!("{name}");
+                let args = m.inputs.iter().map(|arg| {
+                    let name = make_snake_case_value_name(&arg.name);
+                    let name = format_ident!("{name}");
+                    let ty = self.resolve_type_aliases(arg.ty);
+                    quote! { #name: #ty }
+                });
+                let wrapped_args = m.wrap_cef_args(self);
+                let unwrapped_args = m.unwrap_cef_args(self);
+                let forward_args = m.merge_params(self).filter_map(|arg| match arg {
+                    MergedParam::Single { name, .. } => {
+                        let name = format_ident!("arg_{name}");
+                        Some(quote! { #name })
+                    }
+                    MergedParam::Bounded { slice_name, .. }
+                    | MergedParam::Buffer { slice_name, .. } => {
+                        let name = format_ident!("arg_{slice_name}");
+                        Some(quote! { #name })
+                    }
+                    _ => None,
+                });
+                let original_output = m.output.map(|ty| self.resolve_type_aliases(ty));
+                let output = original_output.as_ref().map(|output| {
+                    quote! { -> #output }
+                });
+                let forward_output = original_output.map(|output| {
+                    match syn::parse2::<ModifiedType>(output) {
+                        Ok(ModifiedType { ty, modifiers }) => {
+                            self.cef_name_map
+                                .get(&ty.to_token_stream().to_string())
+                                .and_then(|entry| match entry {
+                                    NameMapEntry {
+                                        ty: NameMapType::StructDeclaration,
+                                        ..
+                                    } => match modifiers.as_slice() {
+                                        [TypeModifier::ConstPtr] => {
+                                            Some(quote! { result.map(|result| result.into()).unwrap_or(std::ptr::null()) })
+                                        }
+                                        [TypeModifier::MutPtr] => {
+                                            Some(quote! { result.map(|result| result.into()).unwrap_or(std::ptr::null_mut()) })
+                                        }
+                                        _ => None,
+                                    }
+                                    _ => None,
+                                })
+                        }
+                        _ => None,
+                    }.unwrap_or(quote! { result.into() })
+                });
+
+                quote! {
+                    extern "C" fn #name<I: #impl_trait>(#(#args),*) #output {
+                        #wrapped_args
+                        let result = #impl_trait::#name(&arg_self_.interface, #(#forward_args),*);
+                        #unwrapped_args
+                        #forward_output
+                    }
+                }
+            });
+
+        let wrapper = quote! {
+            #[derive(Clone, Copy)]
+            pub struct #rust_name(*mut #name_ident);
+
+            pub trait #impl_trait : #impl_base_name {
+                #(#impl_methods)*
+
+                fn init_methods(object: &mut #name_ident) {
+                    #(#init_bases)*
+                    #impl_mod::init_methods::<Self>(object);
+                }
+
+                #impl_get_raw
+            }
+
+            mod #impl_mod {
+                use super::*;
+
+                pub fn init_methods<I: #impl_trait>(object: &mut #name_ident) {
+                    #(#init_methods)*
+                }
+
+                #(#wrapped_methods)*
+            }
+
+            #(#impl_bases)*
+
+            impl #impl_trait for #rust_name {
+                #(#methods)*
+
+                fn get_raw(&self) -> *mut #name_ident {
+                    self.0
+                }
+            }
+
+            impl ConvertParam<*mut #name_ident> for &#rust_name {
+                fn as_raw(self) -> *mut #name_ident {
+                    #impl_trait::get_raw(self)
+                }
+            }
+
+            impl ConvertParam<*mut #name_ident> for &mut #rust_name {
+                fn as_raw(self) -> *mut #name_ident {
+                    #impl_trait::get_raw(self)
+                }
+            }
+
+            impl ConvertReturnValue<#rust_name> for *mut #name_ident {
+                fn as_wrapper(self) -> #rust_name {
+                    #rust_name(self)
+                }
+            }
+
+            impl Into<*mut #name_ident> for #rust_name {
+                fn into(self) -> *mut #name_ident {
+                    #impl_trait::get_raw(&self)
+                }
+            }
+
+            impl Default for #rust_name {
+                fn default() -> Self {
+                    Self(std::ptr::null_mut())
+                }
+            }
+        }
+        .to_string();
+
+        writeln!(f, "{wrapper}")
+    }
+
     pub fn write_structs(&self, f: &mut Formatter<'_>) -> fmt::Result {
         for s in self.struct_declarations.iter() {
             let Some(NameMapEntry {
@@ -1658,408 +2468,20 @@ impl<'a> ParseTree<'a> {
             let name = s.name.as_str();
             writeln!(f, "\n/// See [{name}] for more documentation.")?;
 
-            let name_ident = format_ident!("{name}");
-            let root = self.root(&s.name);
             if CUSTOM_STRING_TYPES.contains(&name) {
-                let wrapper = quote! {
-                    pub use crate::string::#rust_name;
-                }
-                .to_string();
-                writeln!(f, "{wrapper}")?;
+                self.write_custom_string_type(f, &rust_name)?;
                 continue;
             }
 
-            if root == BASE_REF_COUNTED && root != s.name {
-                let methods = s.methods.iter().map(|m| {
-                    let sig = m.get_signature(self);
-                    let name = &m.name;
-                    let name = format_ident!("{name}");
-                    let pre_forward_args = m.unwrap_rust_args(self);
-                    let args = m.inputs.iter().map(|arg| {
-                        let name = make_snake_case_value_name(&arg.name);
-                        let name = format_ident!("arg_{name}");
-                        quote! { #name }
-                    });
-                    let post_forward_args = m.rewrap_rust_args(self);
-                    let output_type = m.output.and_then(|ty| {
-                        let ty = self.resolve_type_aliases(ty);
-                        syn::parse2::<ModifiedType>(ty.to_token_stream()).ok()
-                    });
-                    let wrap_result = output_type
-                        .as_ref()
-                        .and_then(|ModifiedType { modifiers, ty, .. }| {
-                            let ty = ty.to_token_stream().to_string();
-                            match modifiers.as_slice() {
-                                [TypeModifier::ConstPtr | TypeModifier::MutPtr]
-                                    if ty != quote! { ::std::os::raw::c_void }.to_string() =>
-                                {
-                                    match self.cef_name_map.get(&ty) {
-                                        Some(NameMapEntry {
-                                            ty: NameMapType::StructDeclaration,
-                                            ..
-                                        }) => Some(quote! {
-                                            if result.is_null() {
-                                                None
-                                            } else {
-                                                Some(result.as_wrapper())
-                                            }
-                                        }),
-                                        _ => None,
-                                    }
-                                }
-                                _ => None,
-                            }
-                        })
-                        .unwrap_or(quote! { result.as_wrapper() });
-                    let impl_default = output_type
-                        .and_then(|ty| {
-                            (ty.ty.to_token_stream().to_string()
-                                != quote! { ::std::os::raw::c_void }.to_string())
-                            .then(|| quote! { .unwrap_or_default() })
-                        })
-                        .unwrap_or(quote! { .unwrap_or_else(|| std::mem::zeroed()) });
-                    quote! {
-                        #sig {
-                            unsafe {
-                                self.0.#name.map(|f| {
-                                    #pre_forward_args
-                                    let result = f(#(#args),*);
-                                    #post_forward_args
-                                    #wrap_result
-                                })
-                                #impl_default
-                            }
-                        }
-                    }
-                });
-
-                let base_name = self.base(name);
-                let impl_trait = format_ident!("Impl{rust_name}");
-                let impl_base_name = base_name
-                    .filter(|base| *base != BASE_REF_COUNTED)
-                    .and_then(|base| self.cef_name_map.get(base))
-                    .map(|entry| {
-                        let base = &entry.name;
-                        let base = format_ident!("Impl{base}");
-                        quote! { #base }
-                    });
-                let impl_get_raw = impl_base_name
-                    .as_ref()
-                    .map(|impl_base_name| {
-                        quote! {
-                            fn get_raw(&self) -> *mut #name_ident {
-                                <Self as #impl_base_name>::get_raw(self) as *mut _
-                            }
-                        }
-                    })
-                    .unwrap_or(quote! { fn get_raw(&self) -> *mut #name_ident; });
-                let impl_base_name = impl_base_name.unwrap_or(quote! { Clone + Sized + Rc });
-                let impl_methods = s.methods.iter().map(|m| {
-                    let sig = m.get_signature(self);
-                    let impl_default = m.output.map(|ty| {
-                        match syn::parse2::<ModifiedType>(ty.to_token_stream()) {
-                            Ok(ty)
-                                if ty.ty.to_token_stream().to_string()
-                                    != quote! { ::std::os::raw::c_void }.to_string() =>
-                            {
-                                quote! {  Default::default() }
-                            }
-                            _ => quote! { unsafe { std::mem::zeroed() } },
-                        }
-                    });
-                    quote! {
-                        #sig {
-                            #impl_default
-                        }
-                    }
-                });
-
-                let mut base_name = base_name;
-                let mut base_structs = vec![];
-                while let Some(next_base) = base_name
-                    .filter(|base| *base != root)
-                    .and_then(|base| self.lookup_struct_declaration.get(base))
-                    .and_then(|&i| self.struct_declarations.get(i))
-                {
-                    base_name = self.base(&next_base.name);
-                    base_structs.push(next_base);
-                }
-
-                let init_bases = base_structs
-                    .iter()
-                    .enumerate()
-                    .map(|(i, base_struct)| {
-                        let name = &base_struct.name;
-                        let name = format_ident!("{name}");
-                        let impl_mod = format_ident!("impl{name}");
-                        let bases = iter::repeat_n(format_ident!("base"), i + 1);
-                        quote! {
-                            #impl_mod::init_methods::<Self>(&mut object.#(#bases).*);
-                        }
-                    })
-                    .collect::<Vec<_>>()
-                    .into_iter()
-                    .rev();
-
-                let impl_bases = base_structs
-                    .into_iter()
-                    .filter_map(|base_struct| {
-                        self.cef_name_map.get(&base_struct.name).map(|entry| {
-                            let name = &base_struct.name;
-                            let name_ident = format_ident!("{name}");
-                            let base = &entry.name;
-                            let base_trait = format_ident!("Impl{base}");
-                            let base = format_ident!("{base}");
-                            let base_methods = base_struct.methods.iter().map(|m| {
-                                let sig = m.get_signature(self);
-                                let name = &m.name;
-                                let name = format_ident!("{name}");
-                                let args = m.merge_params(self).filter_map(|arg| match arg {
-                                    MergedParam::Single { name, .. } => {
-                                        let name = format_ident!("{name}");
-                                        Some(quote! { #name })
-                                    }
-                                    MergedParam::Bounded { slice_name, .. }
-                                    | MergedParam::Buffer { slice_name, .. } => {
-                                        let name = format_ident!("{slice_name}");
-                                        Some(quote! { #name })
-                                    }
-                                    _ => None,
-                                });
-                                quote! {
-                                    #sig {
-                                        #base(unsafe {
-                                            RefGuard::from_raw_add_ref(RefGuard::as_raw(&self.0) as *mut _)
-                                        })
-                                        .#name(#(#args),*)
-                                    }
-                                }
-                            });
-
-                            quote! {
-                                impl #base_trait for #rust_name {
-                                    #(#base_methods)*
-
-                                    fn get_raw(&self) -> *mut #name_ident {
-                                        unsafe { RefGuard::as_raw(&self.0) as *mut _ }
-                                    }
-                                }
-                            }
-                        })
-                    })
-                    .collect::<Vec<_>>()
-                    .into_iter()
-                    .rev();
-
-                let name = &s.name;
-                let impl_mod = format_ident!("impl{name}");
-                let init_methods = s.methods.iter().map(|m| {
-                    let name = &m.name;
-                    let name = format_ident!("{name}");
-                    quote! {
-                        object.#name = Some(#name::<I>);
-                    }
-                });
-
-                let wrapped_methods = s.methods.iter().map(|m| {
-                    let name = &m.name;
-                    let name = format_ident!("{name}");
-                    let args = m.inputs.iter().map(|arg| {
-                        let name = make_snake_case_value_name(&arg.name);
-                        let name = format_ident!("{name}");
-                        let ty = self.resolve_type_aliases(arg.ty);
-                        quote! { #name: #ty }
-                    });
-                    let wrapped_args = m.wrap_cef_args(self);
-                    let unwrapped_args = m.unwrap_cef_args(self);
-                    let forward_args = m.merge_params(self).filter_map(|arg| match arg {
-                        MergedParam::Single { name, .. } => {
-                            let name = format_ident!("arg_{name}");
-                            Some(quote! { #name })
-                        }
-                        MergedParam::Bounded { slice_name, .. }
-                        | MergedParam::Buffer { slice_name, .. } => {
-                            let name = format_ident!("arg_{slice_name}");
-                            Some(quote! { #name })
-                        }
-                        _ => None,
-                    });
-                    let original_output = m.output.map(|ty| self.resolve_type_aliases(ty));
-                    let output = original_output.as_ref().map(|output| {
-                        quote! { -> #output }
-                    });
-                    let forward_output = original_output.map(|output| {
-                        match syn::parse2::<ModifiedType>(output) {
-                            Ok(ModifiedType { ty, modifiers }) => {
-                                self.cef_name_map
-                                    .get(&ty.to_token_stream().to_string())
-                                    .and_then(|entry| match entry {
-                                        NameMapEntry {
-                                            ty: NameMapType::StructDeclaration,
-                                            ..
-                                        } => match modifiers.as_slice() {
-                                            [TypeModifier::ConstPtr] => {
-                                                Some(quote! { result.map(|result| result.into()).unwrap_or(std::ptr::null()) })
-                                            }
-                                            [TypeModifier::MutPtr] => {
-                                                Some(quote! { result.map(|result| result.into()).unwrap_or(std::ptr::null_mut()) })
-                                            }
-                                            _ => None,
-                                        }
-                                        _ => None,
-                                    })
-                            }
-                            _ => None,
-                        }.unwrap_or(quote! { result.into() })
-                    });
-
-                    quote! {
-                        extern "C" fn #name<I: #impl_trait>(#(#args),*) #output {
-                            #wrapped_args
-                            let result = #impl_trait::#name(&arg_self_.interface, #(#forward_args),*);
-                            #unwrapped_args
-                            #forward_output
-                        }
-                    }
-                });
-
-                let base_ident = format_ident!("{BASE_REF_COUNTED}");
-
-                let wrapper = quote! {
-                    #[derive(Clone)]
-                    pub struct #rust_name(RefGuard<#name_ident>);
-
-                    pub trait #impl_trait : #impl_base_name {
-                        #(#impl_methods)*
-
-                        fn init_methods(object: &mut #name_ident) {
-                            #(#init_bases)*
-                            #impl_mod::init_methods::<Self>(object);
-                        }
-
-                        #impl_get_raw
-                    }
-
-                    mod #impl_mod {
-                        use super::*;
-
-                        pub fn init_methods<I: #impl_trait>(object: &mut #name_ident) {
-                            #(#init_methods)*
-                        }
-
-                        #(#wrapped_methods)*
-                    }
-
-                    #(#impl_bases)*
-
-                    impl #impl_trait for #rust_name {
-                        #(#methods)*
-
-                        fn get_raw(&self) -> *mut #name_ident {
-                            unsafe { RefGuard::as_raw(&self.0) }
-                        }
-                    }
-
-                    impl Rc for #name_ident {
-                        fn as_base(&self) -> &#base_ident {
-                            self.base.as_base()
-                        }
-                    }
-
-                    impl Rc for #rust_name {
-                        fn as_base(&self) -> &#base_ident {
-                            self.0.as_base()
-                        }
-                    }
-
-                    impl ConvertParam<*mut #name_ident> for &#rust_name {
-                        fn as_raw(self) -> *mut #name_ident {
-                            unsafe { (&self.0).as_raw() }
-                        }
-                    }
-
-                    impl ConvertParam<*mut #name_ident> for &mut #rust_name {
-                        fn as_raw(self) -> *mut #name_ident {
-                            unsafe { (&self.0).as_raw() }
-                        }
-                    }
-
-                    impl ConvertReturnValue<#rust_name> for *mut #name_ident {
-                        fn as_wrapper(self) -> #rust_name {
-                            #rust_name(unsafe { RefGuard::from_raw(self) })
-                        }
-                    }
-
-                    impl Into<*mut #name_ident> for #rust_name {
-                        fn into(self) -> *mut #name_ident {
-                            let object = #impl_trait::get_raw(&self);
-                            std::mem::forget(self);
-                            object
-                        }
-                    }
-
-                    impl Default for #rust_name {
-                        fn default() -> Self {
-                            unsafe { std::mem::zeroed() }
-                        }
-                    }
-                }
-                .to_string();
-                writeln!(f, "{wrapper}")?;
+            let name_ident = format_ident!("{name}");
+            let root = self.root(name);
+            if root == BASE_REF_COUNTED {
+                self.write_ref_counted_struct(f, s, root, &name_ident, &rust_name)?;
                 continue;
             }
 
-            if BASE_REF_COUNTED == s.name {
-                let wrapper = quote! {
-                    #[derive(Clone)]
-                    pub struct #rust_name(RefGuard<#name_ident>);
-
-                    impl #rust_name {
-                        fn get_raw(&self) -> *mut #name_ident {
-                            unsafe { RefGuard::as_raw(&self.0) }
-                        }
-                    }
-
-                    impl Rc for #rust_name {
-                        fn as_base(&self) -> &#name_ident {
-                            self.0.as_base()
-                        }
-                    }
-
-                    impl ConvertParam<*mut #name_ident> for &#rust_name {
-                        fn as_raw(self) -> *mut #name_ident {
-                            unsafe { (&self.0).as_raw() }
-                        }
-                    }
-
-                    impl ConvertParam<*mut #name_ident> for &mut #rust_name {
-                        fn as_raw(self) -> *mut #name_ident {
-                            unsafe { (&self.0).as_raw() }
-                        }
-                    }
-
-                    impl ConvertReturnValue<#rust_name> for *mut #name_ident {
-                        fn as_wrapper(self) -> #rust_name {
-                            #rust_name(unsafe { RefGuard::from_raw(self) })
-                        }
-                    }
-
-                    impl Into<*mut #name_ident> for #rust_name {
-                        fn into(self) -> *mut #name_ident {
-                            let object = self.get_raw();
-                            std::mem::forget(self);
-                            object
-                        }
-                    }
-
-                    impl Default for #rust_name {
-                        fn default() -> Self {
-                            unsafe { std::mem::zeroed() }
-                        }
-                    }
-                }
-                .to_string();
-                writeln!(f, "{wrapper}")?;
+            if root == BASE_SCOPED {
+                self.write_scoped_struct(f, s, root, &name_ident, &rust_name)?;
                 continue;
             }
 
