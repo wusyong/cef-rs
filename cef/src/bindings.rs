@@ -1516,6 +1516,23 @@ impl Default for BaseScoped {
 /// See [_cef_dev_tools_message_observer_t] for more documentation.
 #[derive(Clone)]
 pub struct DevToolsMessageObserver(RefGuard<_cef_dev_tools_message_observer_t>);
+impl DevToolsMessageObserver {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDevToolsMessageObserver,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDevToolsMessageObserver>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDevToolsMessageObserver>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_dev_tools_message_observer_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDevToolsMessageObserver: ImplDevToolsMessageObserver {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_dev_tools_message_observer_t, Self>);
+}
 pub trait ImplDevToolsMessageObserver: Clone + Sized + Rc {
     fn on_dev_tools_message(
         &self,
@@ -1877,6 +1894,23 @@ impl Default for DevToolsMessageObserver {
 /// See [_cef_value_t] for more documentation.
 #[derive(Clone)]
 pub struct Value(RefGuard<_cef_value_t>);
+impl Value {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapValue,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplValue>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapValue>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_value_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapValue: ImplValue {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_value_t, Self>);
+}
 pub trait ImplValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -2552,6 +2586,23 @@ impl Default for Value {
 /// See [_cef_binary_value_t] for more documentation.
 #[derive(Clone)]
 pub struct BinaryValue(RefGuard<_cef_binary_value_t>);
+impl BinaryValue {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapBinaryValue,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplBinaryValue>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapBinaryValue>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_binary_value_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapBinaryValue: ImplBinaryValue {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_binary_value_t, Self>);
+}
 pub trait ImplBinaryValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -2856,6 +2907,23 @@ impl Default for BinaryValue {
 /// See [_cef_dictionary_value_t] for more documentation.
 #[derive(Clone)]
 pub struct DictionaryValue(RefGuard<_cef_dictionary_value_t>);
+impl DictionaryValue {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDictionaryValue,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDictionaryValue>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDictionaryValue>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_dictionary_value_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDictionaryValue: ImplDictionaryValue {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_dictionary_value_t, Self>);
+}
 pub trait ImplDictionaryValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -3975,6 +4043,23 @@ impl Default for DictionaryValue {
 /// See [_cef_list_value_t] for more documentation.
 #[derive(Clone)]
 pub struct ListValue(RefGuard<_cef_list_value_t>);
+impl ListValue {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapListValue,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplListValue>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapListValue>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_list_value_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapListValue: ImplListValue {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_list_value_t, Self>);
+}
 pub trait ImplListValue: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -4916,6 +5001,23 @@ impl Default for ListValue {
 /// See [_cef_image_t] for more documentation.
 #[derive(Clone)]
 pub struct Image(RefGuard<_cef_image_t>);
+impl Image {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapImage,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplImage>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapImage>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_image_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapImage: ImplImage {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_image_t, Self>);
+}
 pub trait ImplImage: Clone + Sized + Rc {
     fn is_empty(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -5752,6 +5854,23 @@ impl Default for Image {
 /// See [_cef_read_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct ReadHandler(RefGuard<_cef_read_handler_t>);
+impl ReadHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapReadHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplReadHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapReadHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_read_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapReadHandler: ImplReadHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_read_handler_t, Self>);
+}
 pub trait ImplReadHandler: Clone + Sized + Rc {
     fn read(&self, ptr: *mut u8, size: usize, n: usize) -> usize {
         Default::default()
@@ -5944,6 +6063,23 @@ impl Default for ReadHandler {
 /// See [_cef_stream_reader_t] for more documentation.
 #[derive(Clone)]
 pub struct StreamReader(RefGuard<_cef_stream_reader_t>);
+impl StreamReader {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapStreamReader,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplStreamReader>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapStreamReader>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_stream_reader_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapStreamReader: ImplStreamReader {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_stream_reader_t, Self>);
+}
 pub trait ImplStreamReader: Clone + Sized + Rc {
     fn read(&self, ptr: *mut u8, size: usize, n: usize) -> usize {
         Default::default()
@@ -6136,6 +6272,23 @@ impl Default for StreamReader {
 /// See [_cef_write_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct WriteHandler(RefGuard<_cef_write_handler_t>);
+impl WriteHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapWriteHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplWriteHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapWriteHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_write_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapWriteHandler: ImplWriteHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_write_handler_t, Self>);
+}
 pub trait ImplWriteHandler: Clone + Sized + Rc {
     fn write(&self, ptr: *const u8, size: usize, n: usize) -> usize {
         Default::default()
@@ -6328,6 +6481,23 @@ impl Default for WriteHandler {
 /// See [_cef_stream_writer_t] for more documentation.
 #[derive(Clone)]
 pub struct StreamWriter(RefGuard<_cef_stream_writer_t>);
+impl StreamWriter {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapStreamWriter,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplStreamWriter>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapStreamWriter>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_stream_writer_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapStreamWriter: ImplStreamWriter {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_stream_writer_t, Self>);
+}
 pub trait ImplStreamWriter: Clone + Sized + Rc {
     fn write(&self, ptr: *const u8, size: usize, n: usize) -> usize {
         Default::default()
@@ -6520,6 +6690,23 @@ impl Default for StreamWriter {
 /// See [_cef_drag_data_t] for more documentation.
 #[derive(Clone)]
 pub struct DragData(RefGuard<_cef_drag_data_t>);
+impl DragData {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDragData,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDragData>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDragData>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_drag_data_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDragData: ImplDragData {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_drag_data_t, Self>);
+}
 pub trait ImplDragData: Clone + Sized + Rc {
     fn clone(&self) -> Option<DragData> {
         Default::default()
@@ -7348,6 +7535,23 @@ impl Default for DragData {
 /// See [_cef_domvisitor_t] for more documentation.
 #[derive(Clone)]
 pub struct Domvisitor(RefGuard<_cef_domvisitor_t>);
+impl Domvisitor {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDomvisitor,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDomvisitor>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDomvisitor>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_domvisitor_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDomvisitor: ImplDomvisitor {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_domvisitor_t, Self>);
+}
 pub trait ImplDomvisitor: Clone + Sized + Rc {
     fn visit(&self, document: Option<&mut impl ImplDomdocument>) {}
     fn init_methods(object: &mut _cef_domvisitor_t) {
@@ -7437,6 +7641,23 @@ impl Default for Domvisitor {
 /// See [_cef_domdocument_t] for more documentation.
 #[derive(Clone)]
 pub struct Domdocument(RefGuard<_cef_domdocument_t>);
+impl Domdocument {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDomdocument,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDomdocument>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDomdocument>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_domdocument_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDomdocument: ImplDomdocument {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_domdocument_t, Self>);
+}
 pub trait ImplDomdocument: Clone + Sized + Rc {
     fn get_type(&self) -> DomDocumentType {
         Default::default()
@@ -7910,6 +8131,23 @@ impl Default for Domdocument {
 /// See [_cef_domnode_t] for more documentation.
 #[derive(Clone)]
 pub struct Domnode(RefGuard<_cef_domnode_t>);
+impl Domnode {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDomnode,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDomnode>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDomnode>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_domnode_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDomnode: ImplDomnode {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_domnode_t, Self>);
+}
 pub trait ImplDomnode: Clone + Sized + Rc {
     fn get_type(&self) -> DomNodeType {
         Default::default()
@@ -8731,6 +8969,23 @@ impl Default for Domnode {
 /// See [_cef_shared_memory_region_t] for more documentation.
 #[derive(Clone)]
 pub struct SharedMemoryRegion(RefGuard<_cef_shared_memory_region_t>);
+impl SharedMemoryRegion {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapSharedMemoryRegion,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplSharedMemoryRegion>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapSharedMemoryRegion>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_shared_memory_region_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapSharedMemoryRegion: ImplSharedMemoryRegion {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_shared_memory_region_t, Self>);
+}
 pub trait ImplSharedMemoryRegion: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -8860,6 +9115,23 @@ impl Default for SharedMemoryRegion {
 /// See [_cef_process_message_t] for more documentation.
 #[derive(Clone)]
 pub struct ProcessMessage(RefGuard<_cef_process_message_t>);
+impl ProcessMessage {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapProcessMessage,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplProcessMessage>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapProcessMessage>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_process_message_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapProcessMessage: ImplProcessMessage {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_process_message_t, Self>);
+}
 pub trait ImplProcessMessage: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -9085,6 +9357,23 @@ impl Default for ProcessMessage {
 /// See [_cef_request_t] for more documentation.
 #[derive(Clone)]
 pub struct Request(RefGuard<_cef_request_t>);
+impl Request {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRequest,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRequest>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRequest>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_request_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRequest: ImplRequest {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_request_t, Self>);
+}
 pub trait ImplRequest: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -9863,6 +10152,23 @@ impl Default for Request {
 /// See [_cef_post_data_t] for more documentation.
 #[derive(Clone)]
 pub struct PostData(RefGuard<_cef_post_data_t>);
+impl PostData {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPostData,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPostData>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPostData>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_post_data_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPostData: ImplPostData {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_post_data_t, Self>);
+}
 pub trait ImplPostData: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -10180,6 +10486,23 @@ impl Default for PostData {
 /// See [_cef_post_data_element_t] for more documentation.
 #[derive(Clone)]
 pub struct PostDataElement(RefGuard<_cef_post_data_element_t>);
+impl PostDataElement {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPostDataElement,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPostDataElement>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPostDataElement>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_post_data_element_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPostDataElement: ImplPostDataElement {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_post_data_element_t, Self>);
+}
 pub trait ImplPostDataElement: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -10449,6 +10772,23 @@ impl Default for PostDataElement {
 /// See [_cef_string_visitor_t] for more documentation.
 #[derive(Clone)]
 pub struct CefStringVisitor(RefGuard<_cef_string_visitor_t>);
+impl CefStringVisitor {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapCefStringVisitor,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplCefStringVisitor>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapCefStringVisitor>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_string_visitor_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapCefStringVisitor: ImplCefStringVisitor {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_string_visitor_t, Self>);
+}
 pub trait ImplCefStringVisitor: Clone + Sized + Rc {
     fn visit(&self, string: Option<&CefStringUtf16>) {}
     fn init_methods(object: &mut _cef_string_visitor_t) {
@@ -10538,6 +10878,23 @@ impl Default for CefStringVisitor {
 /// See [_cef_frame_t] for more documentation.
 #[derive(Clone)]
 pub struct Frame(RefGuard<_cef_frame_t>);
+impl Frame {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapFrame,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplFrame>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapFrame>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_frame_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapFrame: ImplFrame {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_frame_t, Self>);
+}
 pub trait ImplFrame: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -11324,6 +11681,23 @@ impl Default for Frame {
 /// See [_cef_x509cert_principal_t] for more documentation.
 #[derive(Clone)]
 pub struct X509certPrincipal(RefGuard<_cef_x509cert_principal_t>);
+impl X509certPrincipal {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapX509certPrincipal,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplX509certPrincipal>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapX509certPrincipal>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_x509cert_principal_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapX509certPrincipal: ImplX509certPrincipal {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_x509cert_principal_t, Self>);
+}
 pub trait ImplX509certPrincipal: Clone + Sized + Rc {
     fn get_display_name(&self) -> Option<CefStringUtf16> {
         Default::default()
@@ -11596,6 +11970,23 @@ impl Default for X509certPrincipal {
 /// See [_cef_x509certificate_t] for more documentation.
 #[derive(Clone)]
 pub struct X509certificate(RefGuard<_cef_x509certificate_t>);
+impl X509certificate {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapX509certificate,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplX509certificate>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapX509certificate>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_x509certificate_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapX509certificate: ImplX509certificate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_x509certificate_t, Self>);
+}
 pub trait ImplX509certificate: Clone + Sized + Rc {
     fn get_subject(&self) -> Option<X509certPrincipal> {
         Default::default()
@@ -12057,6 +12448,23 @@ impl Default for X509certificate {
 /// See [_cef_sslstatus_t] for more documentation.
 #[derive(Clone)]
 pub struct Sslstatus(RefGuard<_cef_sslstatus_t>);
+impl Sslstatus {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapSslstatus,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplSslstatus>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapSslstatus>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_sslstatus_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapSslstatus: ImplSslstatus {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_sslstatus_t, Self>);
+}
 pub trait ImplSslstatus: Clone + Sized + Rc {
     fn is_secure_connection(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -12240,6 +12648,23 @@ impl Default for Sslstatus {
 /// See [_cef_navigation_entry_t] for more documentation.
 #[derive(Clone)]
 pub struct NavigationEntry(RefGuard<_cef_navigation_entry_t>);
+impl NavigationEntry {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapNavigationEntry,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplNavigationEntry>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapNavigationEntry>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_navigation_entry_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapNavigationEntry: ImplNavigationEntry {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_navigation_entry_t, Self>);
+}
 pub trait ImplNavigationEntry: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -12567,6 +12992,23 @@ impl Default for NavigationEntry {
 /// See [_cef_registration_t] for more documentation.
 #[derive(Clone)]
 pub struct Registration(RefGuard<_cef_registration_t>);
+impl Registration {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRegistration,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRegistration>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRegistration>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_registration_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRegistration: ImplRegistration {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_registration_t, Self>);
+}
 pub trait ImplRegistration: Clone + Sized + Rc {
     fn init_methods(object: &mut _cef_registration_t) {
         impl_cef_registration_t::init_methods::<Self>(object);
@@ -12623,6 +13065,23 @@ impl Default for Registration {
 /// See [_cef_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct Callback(RefGuard<_cef_callback_t>);
+impl Callback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapCallback: ImplCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_callback_t, Self>);
+}
 pub trait ImplCallback: Clone + Sized + Rc {
     fn cont(&self) {}
     fn cancel(&self) {}
@@ -12718,6 +13177,23 @@ impl Default for Callback {
 /// See [_cef_completion_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct CompletionCallback(RefGuard<_cef_completion_callback_t>);
+impl CompletionCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapCompletionCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplCompletionCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapCompletionCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_completion_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapCompletionCallback: ImplCompletionCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_completion_callback_t, Self>);
+}
 pub trait ImplCompletionCallback: Clone + Sized + Rc {
     fn on_complete(&self) {}
     fn init_methods(object: &mut _cef_completion_callback_t) {
@@ -12794,6 +13270,23 @@ impl Default for CompletionCallback {
 /// See [_cef_cookie_manager_t] for more documentation.
 #[derive(Clone)]
 pub struct CookieManager(RefGuard<_cef_cookie_manager_t>);
+impl CookieManager {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapCookieManager,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplCookieManager>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapCookieManager>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_cookie_manager_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapCookieManager: ImplCookieManager {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_cookie_manager_t, Self>);
+}
 pub trait ImplCookieManager: Clone + Sized + Rc {
     fn visit_all_cookies(
         &self,
@@ -13131,6 +13624,23 @@ impl Default for CookieManager {
 /// See [_cef_cookie_visitor_t] for more documentation.
 #[derive(Clone)]
 pub struct CookieVisitor(RefGuard<_cef_cookie_visitor_t>);
+impl CookieVisitor {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapCookieVisitor,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplCookieVisitor>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapCookieVisitor>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_cookie_visitor_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapCookieVisitor: ImplCookieVisitor {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_cookie_visitor_t, Self>);
+}
 pub trait ImplCookieVisitor: Clone + Sized + Rc {
     fn visit(
         &self,
@@ -13269,6 +13779,23 @@ impl Default for CookieVisitor {
 /// See [_cef_set_cookie_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct SetCookieCallback(RefGuard<_cef_set_cookie_callback_t>);
+impl SetCookieCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapSetCookieCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplSetCookieCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapSetCookieCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_set_cookie_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapSetCookieCallback: ImplSetCookieCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_set_cookie_callback_t, Self>);
+}
 pub trait ImplSetCookieCallback: Clone + Sized + Rc {
     fn on_complete(&self, success: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_set_cookie_callback_t) {
@@ -13351,6 +13878,23 @@ impl Default for SetCookieCallback {
 /// See [_cef_delete_cookies_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct DeleteCookiesCallback(RefGuard<_cef_delete_cookies_callback_t>);
+impl DeleteCookiesCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDeleteCookiesCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDeleteCookiesCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDeleteCookiesCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_delete_cookies_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDeleteCookiesCallback: ImplDeleteCookiesCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_delete_cookies_callback_t, Self>);
+}
 pub trait ImplDeleteCookiesCallback: Clone + Sized + Rc {
     fn on_complete(&self, num_deleted: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_delete_cookies_callback_t) {
@@ -13433,6 +13977,23 @@ impl Default for DeleteCookiesCallback {
 /// See [_cef_media_router_t] for more documentation.
 #[derive(Clone)]
 pub struct MediaRouter(RefGuard<_cef_media_router_t>);
+impl MediaRouter {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMediaRouter,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMediaRouter>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMediaRouter>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_media_router_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMediaRouter: ImplMediaRouter {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_media_router_t, Self>);
+}
 pub trait ImplMediaRouter: Clone + Sized + Rc {
     fn add_observer(&self, observer: Option<&mut impl ImplMediaObserver>) -> Option<Registration> {
         Default::default()
@@ -13672,6 +14233,23 @@ impl Default for MediaRouter {
 /// See [_cef_media_observer_t] for more documentation.
 #[derive(Clone)]
 pub struct MediaObserver(RefGuard<_cef_media_observer_t>);
+impl MediaObserver {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMediaObserver,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMediaObserver>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMediaObserver>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_media_observer_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMediaObserver: ImplMediaObserver {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_media_observer_t, Self>);
+}
 pub trait ImplMediaObserver: Clone + Sized + Rc {
     fn on_sinks(&self, sinks: Option<&[Option<impl ImplMediaSink>]>) {}
     fn on_routes(&self, routes: Option<&[Option<impl ImplMediaRoute>]>) {}
@@ -13959,6 +14537,23 @@ impl Default for MediaObserver {
 /// See [_cef_media_route_t] for more documentation.
 #[derive(Clone)]
 pub struct MediaRoute(RefGuard<_cef_media_route_t>);
+impl MediaRoute {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMediaRoute,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMediaRoute>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMediaRoute>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_media_route_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMediaRoute: ImplMediaRoute {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_media_route_t, Self>);
+}
 pub trait ImplMediaRoute: Clone + Sized + Rc {
     fn get_id(&self) -> Option<CefStringUtf16> {
         Default::default()
@@ -14166,6 +14761,23 @@ impl Default for MediaRoute {
 /// See [_cef_media_route_create_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct MediaRouteCreateCallback(RefGuard<_cef_media_route_create_callback_t>);
+impl MediaRouteCreateCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMediaRouteCreateCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMediaRouteCreateCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMediaRouteCreateCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_media_route_create_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMediaRouteCreateCallback: ImplMediaRouteCreateCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_media_route_create_callback_t, Self>);
+}
 pub trait ImplMediaRouteCreateCallback: Clone + Sized + Rc {
     fn on_media_route_create_finished(
         &self,
@@ -14286,6 +14898,23 @@ impl Default for MediaRouteCreateCallback {
 /// See [_cef_media_sink_t] for more documentation.
 #[derive(Clone)]
 pub struct MediaSink(RefGuard<_cef_media_sink_t>);
+impl MediaSink {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMediaSink,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMediaSink>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMediaSink>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_media_sink_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMediaSink: ImplMediaSink {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_media_sink_t, Self>);
+}
 pub trait ImplMediaSink: Clone + Sized + Rc {
     fn get_id(&self) -> Option<CefStringUtf16> {
         Default::default()
@@ -14548,6 +15177,23 @@ impl Default for MediaSink {
 /// See [_cef_media_sink_device_info_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct MediaSinkDeviceInfoCallback(RefGuard<_cef_media_sink_device_info_callback_t>);
+impl MediaSinkDeviceInfoCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMediaSinkDeviceInfoCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMediaSinkDeviceInfoCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMediaSinkDeviceInfoCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_media_sink_device_info_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMediaSinkDeviceInfoCallback: ImplMediaSinkDeviceInfoCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_media_sink_device_info_callback_t, Self>);
+}
 pub trait ImplMediaSinkDeviceInfoCallback: Clone + Sized + Rc {
     fn on_media_sink_device_info(&self, device_info: Option<&MediaSinkDeviceInfo>) {}
     fn init_methods(object: &mut _cef_media_sink_device_info_callback_t) {
@@ -14648,6 +15294,23 @@ impl Default for MediaSinkDeviceInfoCallback {
 /// See [_cef_media_source_t] for more documentation.
 #[derive(Clone)]
 pub struct MediaSource(RefGuard<_cef_media_source_t>);
+impl MediaSource {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMediaSource,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMediaSource>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMediaSource>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_media_source_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMediaSource: ImplMediaSource {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_media_source_t, Self>);
+}
 pub trait ImplMediaSource: Clone + Sized + Rc {
     fn get_id(&self) -> Option<CefStringUtf16> {
         Default::default()
@@ -14882,6 +15545,23 @@ impl Default for PreferenceRegistrar {
 /// See [_cef_preference_manager_t] for more documentation.
 #[derive(Clone)]
 pub struct PreferenceManager(RefGuard<_cef_preference_manager_t>);
+impl PreferenceManager {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPreferenceManager,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPreferenceManager>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPreferenceManager>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_preference_manager_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPreferenceManager: ImplPreferenceManager {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_preference_manager_t, Self>);
+}
 pub trait ImplPreferenceManager: Clone + Sized + Rc {
     fn has_preference(&self, name: Option<&CefStringUtf16>) -> ::std::os::raw::c_int {
         Default::default()
@@ -15153,6 +15833,23 @@ impl Default for PreferenceManager {
 /// See [_cef_resolve_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct ResolveCallback(RefGuard<_cef_resolve_callback_t>);
+impl ResolveCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapResolveCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplResolveCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapResolveCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_resolve_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapResolveCallback: ImplResolveCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_resolve_callback_t, Self>);
+}
 pub trait ImplResolveCallback: Clone + Sized + Rc {
     fn on_resolve_completed(&self, result: Errorcode, resolved_ips: Option<&mut CefStringList>) {}
     fn init_methods(object: &mut _cef_resolve_callback_t) {
@@ -15249,6 +15946,23 @@ impl Default for ResolveCallback {
 /// See [_cef_request_context_t] for more documentation.
 #[derive(Clone)]
 pub struct RequestContext(RefGuard<_cef_request_context_t>);
+impl RequestContext {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRequestContext,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRequestContext>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRequestContext>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_request_context_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRequestContext: ImplRequestContext {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_request_context_t, Self>);
+}
 pub trait ImplRequestContext: ImplPreferenceManager {
     fn is_same(&self, other: Option<&mut impl ImplRequestContext>) -> ::std::os::raw::c_int {
         Default::default()
@@ -16259,6 +16973,23 @@ impl Default for RequestContext {
 /// See [_cef_browser_t] for more documentation.
 #[derive(Clone)]
 pub struct Browser(RefGuard<_cef_browser_t>);
+impl Browser {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapBrowser,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplBrowser>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapBrowser>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_browser_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapBrowser: ImplBrowser {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_browser_t, Self>);
+}
 pub trait ImplBrowser: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -16858,6 +17589,23 @@ impl Default for Browser {
 /// See [_cef_run_file_dialog_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct RunFileDialogCallback(RefGuard<_cef_run_file_dialog_callback_t>);
+impl RunFileDialogCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRunFileDialogCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRunFileDialogCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRunFileDialogCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_run_file_dialog_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRunFileDialogCallback: ImplRunFileDialogCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_run_file_dialog_callback_t, Self>);
+}
 pub trait ImplRunFileDialogCallback: Clone + Sized + Rc {
     fn on_file_dialog_dismissed(&self, file_paths: Option<&mut CefStringList>) {}
     fn init_methods(object: &mut _cef_run_file_dialog_callback_t) {
@@ -16952,6 +17700,23 @@ impl Default for RunFileDialogCallback {
 /// See [_cef_navigation_entry_visitor_t] for more documentation.
 #[derive(Clone)]
 pub struct NavigationEntryVisitor(RefGuard<_cef_navigation_entry_visitor_t>);
+impl NavigationEntryVisitor {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapNavigationEntryVisitor,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplNavigationEntryVisitor>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapNavigationEntryVisitor>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_navigation_entry_visitor_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapNavigationEntryVisitor: ImplNavigationEntryVisitor {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_navigation_entry_visitor_t, Self>);
+}
 pub trait ImplNavigationEntryVisitor: Clone + Sized + Rc {
     fn visit(
         &self,
@@ -17075,6 +17840,23 @@ impl Default for NavigationEntryVisitor {
 /// See [_cef_pdf_print_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct PdfPrintCallback(RefGuard<_cef_pdf_print_callback_t>);
+impl PdfPrintCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPdfPrintCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPdfPrintCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPdfPrintCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_pdf_print_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPdfPrintCallback: ImplPdfPrintCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_pdf_print_callback_t, Self>);
+}
 pub trait ImplPdfPrintCallback: Clone + Sized + Rc {
     fn on_pdf_print_finished(&self, path: Option<&CefStringUtf16>, ok: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_pdf_print_callback_t) {
@@ -17166,6 +17948,23 @@ impl Default for PdfPrintCallback {
 /// See [_cef_download_image_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct DownloadImageCallback(RefGuard<_cef_download_image_callback_t>);
+impl DownloadImageCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDownloadImageCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDownloadImageCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDownloadImageCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_download_image_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDownloadImageCallback: ImplDownloadImageCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_download_image_callback_t, Self>);
+}
 pub trait ImplDownloadImageCallback: Clone + Sized + Rc {
     fn on_download_image_finished(
         &self,
@@ -17286,6 +18085,23 @@ impl Default for DownloadImageCallback {
 /// See [_cef_browser_host_t] for more documentation.
 #[derive(Clone)]
 pub struct BrowserHost(RefGuard<_cef_browser_host_t>);
+impl BrowserHost {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapBrowserHost,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplBrowserHost>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapBrowserHost>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_browser_host_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapBrowserHost: ImplBrowserHost {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_browser_host_t, Self>);
+}
 pub trait ImplBrowserHost: Clone + Sized + Rc {
     fn get_browser(&self) -> Option<Browser> {
         Default::default()
@@ -19855,6 +20671,23 @@ impl Default for BrowserHost {
 /// See [_cef_audio_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct AudioHandler(RefGuard<_cef_audio_handler_t>);
+impl AudioHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapAudioHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplAudioHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapAudioHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_audio_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapAudioHandler: ImplAudioHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_audio_handler_t, Self>);
+}
 pub trait ImplAudioHandler: Clone + Sized + Rc {
     fn get_audio_parameters(
         &self,
@@ -20176,6 +21009,23 @@ impl Default for AudioHandler {
 /// See [_cef_command_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct CommandHandler(RefGuard<_cef_command_handler_t>);
+impl CommandHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapCommandHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplCommandHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapCommandHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_command_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapCommandHandler: ImplCommandHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_command_handler_t, Self>);
+}
 pub trait ImplCommandHandler: Clone + Sized + Rc {
     fn on_chrome_command(
         &self,
@@ -20465,6 +21315,23 @@ impl Default for CommandHandler {
 /// See [_cef_menu_model_delegate_t] for more documentation.
 #[derive(Clone)]
 pub struct MenuModelDelegate(RefGuard<_cef_menu_model_delegate_t>);
+impl MenuModelDelegate {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMenuModelDelegate,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMenuModelDelegate>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMenuModelDelegate>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_menu_model_delegate_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMenuModelDelegate: ImplMenuModelDelegate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_menu_model_delegate_t, Self>);
+}
 pub trait ImplMenuModelDelegate: Clone + Sized + Rc {
     fn execute_command(
         &self,
@@ -20849,6 +21716,23 @@ impl Default for MenuModelDelegate {
 /// See [_cef_menu_model_t] for more documentation.
 #[derive(Clone)]
 pub struct MenuModel(RefGuard<_cef_menu_model_t>);
+impl MenuModel {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMenuModel,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMenuModel>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMenuModel>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_menu_model_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMenuModel: ImplMenuModel {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_menu_model_t, Self>);
+}
 pub trait ImplMenuModel: Clone + Sized + Rc {
     fn is_sub_menu(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -23276,6 +24160,23 @@ impl Default for MenuModel {
 /// See [_cef_run_context_menu_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct RunContextMenuCallback(RefGuard<_cef_run_context_menu_callback_t>);
+impl RunContextMenuCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRunContextMenuCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRunContextMenuCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRunContextMenuCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_run_context_menu_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRunContextMenuCallback: ImplRunContextMenuCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_run_context_menu_callback_t, Self>);
+}
 pub trait ImplRunContextMenuCallback: Clone + Sized + Rc {
     fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {}
     fn cancel(&self) {}
@@ -23385,6 +24286,23 @@ impl Default for RunContextMenuCallback {
 /// See [_cef_run_quick_menu_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct RunQuickMenuCallback(RefGuard<_cef_run_quick_menu_callback_t>);
+impl RunQuickMenuCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRunQuickMenuCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRunQuickMenuCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRunQuickMenuCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_run_quick_menu_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRunQuickMenuCallback: ImplRunQuickMenuCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_run_quick_menu_callback_t, Self>);
+}
 pub trait ImplRunQuickMenuCallback: Clone + Sized + Rc {
     fn cont(&self, command_id: ::std::os::raw::c_int, event_flags: EventFlags) {}
     fn cancel(&self) {}
@@ -23490,6 +24408,23 @@ impl Default for RunQuickMenuCallback {
 /// See [_cef_context_menu_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct ContextMenuHandler(RefGuard<_cef_context_menu_handler_t>);
+impl ContextMenuHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapContextMenuHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplContextMenuHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapContextMenuHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_context_menu_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapContextMenuHandler: ImplContextMenuHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_context_menu_handler_t, Self>);
+}
 pub trait ImplContextMenuHandler: Clone + Sized + Rc {
     fn on_before_context_menu(
         &self,
@@ -24150,6 +25085,23 @@ impl Default for ContextMenuHandler {
 /// See [_cef_context_menu_params_t] for more documentation.
 #[derive(Clone)]
 pub struct ContextMenuParams(RefGuard<_cef_context_menu_params_t>);
+impl ContextMenuParams {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapContextMenuParams,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplContextMenuParams>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapContextMenuParams>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_context_menu_params_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapContextMenuParams: ImplContextMenuParams {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_context_menu_params_t, Self>);
+}
 pub trait ImplContextMenuParams: Clone + Sized + Rc {
     fn get_xcoord(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -24761,6 +25713,23 @@ impl Default for ContextMenuParams {
 /// See [_cef_file_dialog_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct FileDialogCallback(RefGuard<_cef_file_dialog_callback_t>);
+impl FileDialogCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapFileDialogCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplFileDialogCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapFileDialogCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_file_dialog_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapFileDialogCallback: ImplFileDialogCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_file_dialog_callback_t, Self>);
+}
 pub trait ImplFileDialogCallback: Clone + Sized + Rc {
     fn cont(&self, file_paths: Option<&mut CefStringList>) {}
     fn cancel(&self) {}
@@ -24869,6 +25838,23 @@ impl Default for FileDialogCallback {
 /// See [_cef_dialog_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct DialogHandler(RefGuard<_cef_dialog_handler_t>);
+impl DialogHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDialogHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDialogHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDialogHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_dialog_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDialogHandler: ImplDialogHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_dialog_handler_t, Self>);
+}
 pub trait ImplDialogHandler: Clone + Sized + Rc {
     fn on_file_dialog(
         &self,
@@ -25102,6 +26088,23 @@ impl Default for DialogHandler {
 /// See [_cef_display_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct DisplayHandler(RefGuard<_cef_display_handler_t>);
+impl DisplayHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDisplayHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDisplayHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDisplayHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_display_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDisplayHandler: ImplDisplayHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_display_handler_t, Self>);
+}
 pub trait ImplDisplayHandler: Clone + Sized + Rc {
     fn on_address_change(
         &self,
@@ -25812,6 +26815,23 @@ impl Default for DisplayHandler {
 /// See [_cef_download_item_t] for more documentation.
 #[derive(Clone)]
 pub struct DownloadItem(RefGuard<_cef_download_item_t>);
+impl DownloadItem {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDownloadItem,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDownloadItem>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDownloadItem>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_download_item_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDownloadItem: ImplDownloadItem {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_download_item_t, Self>);
+}
 pub trait ImplDownloadItem: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -26353,6 +27373,23 @@ impl Default for DownloadItem {
 /// See [_cef_before_download_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct BeforeDownloadCallback(RefGuard<_cef_before_download_callback_t>);
+impl BeforeDownloadCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapBeforeDownloadCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplBeforeDownloadCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapBeforeDownloadCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_before_download_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapBeforeDownloadCallback: ImplBeforeDownloadCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_before_download_callback_t, Self>);
+}
 pub trait ImplBeforeDownloadCallback: Clone + Sized + Rc {
     fn cont(&self, download_path: Option<&CefStringUtf16>, show_dialog: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_before_download_callback_t) {
@@ -26451,6 +27488,23 @@ impl Default for BeforeDownloadCallback {
 /// See [_cef_download_item_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct DownloadItemCallback(RefGuard<_cef_download_item_callback_t>);
+impl DownloadItemCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDownloadItemCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDownloadItemCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDownloadItemCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_download_item_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDownloadItemCallback: ImplDownloadItemCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_download_item_callback_t, Self>);
+}
 pub trait ImplDownloadItemCallback: Clone + Sized + Rc {
     fn cancel(&self) {}
     fn pause(&self) {}
@@ -26565,6 +27619,23 @@ impl Default for DownloadItemCallback {
 /// See [_cef_download_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct DownloadHandler(RefGuard<_cef_download_handler_t>);
+impl DownloadHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDownloadHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDownloadHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDownloadHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_download_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDownloadHandler: ImplDownloadHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_download_handler_t, Self>);
+}
 pub trait ImplDownloadHandler: Clone + Sized + Rc {
     fn can_download(
         &self,
@@ -26852,6 +27923,23 @@ impl Default for DownloadHandler {
 /// See [_cef_drag_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct DragHandler(RefGuard<_cef_drag_handler_t>);
+impl DragHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDragHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDragHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDragHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_drag_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDragHandler: ImplDragHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_drag_handler_t, Self>);
+}
 pub trait ImplDragHandler: Clone + Sized + Rc {
     fn on_drag_enter(
         &self,
@@ -27056,6 +28144,23 @@ impl Default for DragHandler {
 /// See [_cef_find_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct FindHandler(RefGuard<_cef_find_handler_t>);
+impl FindHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapFindHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplFindHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapFindHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_find_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapFindHandler: ImplFindHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_find_handler_t, Self>);
+}
 pub trait ImplFindHandler: Clone + Sized + Rc {
     fn on_find_result(
         &self,
@@ -27232,6 +28337,23 @@ impl Default for FindHandler {
 /// See [_cef_focus_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct FocusHandler(RefGuard<_cef_focus_handler_t>);
+impl FocusHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapFocusHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplFocusHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapFocusHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_focus_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapFocusHandler: ImplFocusHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_focus_handler_t, Self>);
+}
 pub trait ImplFocusHandler: Clone + Sized + Rc {
     fn on_take_focus(&self, browser: Option<&mut impl ImplBrowser>, next: ::std::os::raw::c_int) {}
     fn on_set_focus(
@@ -27402,6 +28524,23 @@ impl Default for FocusHandler {
 /// See [_cef_frame_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct FrameHandler(RefGuard<_cef_frame_handler_t>);
+impl FrameHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapFrameHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplFrameHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapFrameHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_frame_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapFrameHandler: ImplFrameHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_frame_handler_t, Self>);
+}
 pub trait ImplFrameHandler: Clone + Sized + Rc {
     fn on_frame_created(
         &self,
@@ -27747,6 +28886,23 @@ impl Default for FrameHandler {
 /// See [_cef_jsdialog_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct JsdialogCallback(RefGuard<_cef_jsdialog_callback_t>);
+impl JsdialogCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapJsdialogCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplJsdialogCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapJsdialogCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_jsdialog_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapJsdialogCallback: ImplJsdialogCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_jsdialog_callback_t, Self>);
+}
 pub trait ImplJsdialogCallback: Clone + Sized + Rc {
     fn cont(&self, success: ::std::os::raw::c_int, user_input: Option<&CefStringUtf16>) {}
     fn init_methods(object: &mut _cef_jsdialog_callback_t) {
@@ -27839,6 +28995,23 @@ impl Default for JsdialogCallback {
 /// See [_cef_jsdialog_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct JsdialogHandler(RefGuard<_cef_jsdialog_handler_t>);
+impl JsdialogHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapJsdialogHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplJsdialogHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapJsdialogHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_jsdialog_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapJsdialogHandler: ImplJsdialogHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_jsdialog_handler_t, Self>);
+}
 pub trait ImplJsdialogHandler: Clone + Sized + Rc {
     fn on_jsdialog(
         &self,
@@ -28204,6 +29377,23 @@ impl Default for JsdialogHandler {
 /// See [_cef_keyboard_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct KeyboardHandler(RefGuard<_cef_keyboard_handler_t>);
+impl KeyboardHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapKeyboardHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplKeyboardHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapKeyboardHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_keyboard_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapKeyboardHandler: ImplKeyboardHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_keyboard_handler_t, Self>);
+}
 pub trait ImplKeyboardHandler: Clone + Sized + Rc {
     fn on_pre_key_event(
         &self,
@@ -28428,6 +29618,23 @@ impl Default for KeyboardHandler {
 /// See [_cef_life_span_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct LifeSpanHandler(RefGuard<_cef_life_span_handler_t>);
+impl LifeSpanHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapLifeSpanHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplLifeSpanHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapLifeSpanHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_life_span_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapLifeSpanHandler: ImplLifeSpanHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_life_span_handler_t, Self>);
+}
 pub trait ImplLifeSpanHandler: Clone + Sized + Rc {
     fn on_before_popup(
         &self,
@@ -29071,6 +30278,23 @@ impl Default for LifeSpanHandler {
 /// See [_cef_load_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct LoadHandler(RefGuard<_cef_load_handler_t>);
+impl LoadHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapLoadHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplLoadHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapLoadHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_load_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapLoadHandler: ImplLoadHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_load_handler_t, Self>);
+}
 pub trait ImplLoadHandler: Clone + Sized + Rc {
     fn on_loading_state_change(
         &self,
@@ -29418,6 +30642,23 @@ impl Default for LoadHandler {
 /// See [_cef_media_access_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct MediaAccessCallback(RefGuard<_cef_media_access_callback_t>);
+impl MediaAccessCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMediaAccessCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMediaAccessCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMediaAccessCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_media_access_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMediaAccessCallback: ImplMediaAccessCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_media_access_callback_t, Self>);
+}
 pub trait ImplMediaAccessCallback: Clone + Sized + Rc {
     fn cont(&self, allowed_permissions: u32) {}
     fn cancel(&self) {}
@@ -29519,6 +30760,23 @@ impl Default for MediaAccessCallback {
 /// See [_cef_permission_prompt_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct PermissionPromptCallback(RefGuard<_cef_permission_prompt_callback_t>);
+impl PermissionPromptCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPermissionPromptCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPermissionPromptCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPermissionPromptCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_permission_prompt_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPermissionPromptCallback: ImplPermissionPromptCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_permission_prompt_callback_t, Self>);
+}
 pub trait ImplPermissionPromptCallback: Clone + Sized + Rc {
     fn cont(&self, result: PermissionRequestResult) {}
     fn init_methods(object: &mut _cef_permission_prompt_callback_t) {
@@ -29603,6 +30861,23 @@ impl Default for PermissionPromptCallback {
 /// See [_cef_permission_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct PermissionHandler(RefGuard<_cef_permission_handler_t>);
+impl PermissionHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPermissionHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPermissionHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPermissionHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_permission_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPermissionHandler: ImplPermissionHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_permission_handler_t, Self>);
+}
 pub trait ImplPermissionHandler: Clone + Sized + Rc {
     fn on_request_media_access_permission(
         &self,
@@ -29952,6 +31227,23 @@ impl Default for PermissionHandler {
 /// See [_cef_print_settings_t] for more documentation.
 #[derive(Clone)]
 pub struct PrintSettings(RefGuard<_cef_print_settings_t>);
+impl PrintSettings {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPrintSettings,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPrintSettings>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPrintSettings>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_print_settings_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPrintSettings: ImplPrintSettings {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_print_settings_t, Self>);
+}
 pub trait ImplPrintSettings: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -30664,6 +31956,23 @@ impl Default for PrintSettings {
 /// See [_cef_print_dialog_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct PrintDialogCallback(RefGuard<_cef_print_dialog_callback_t>);
+impl PrintDialogCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPrintDialogCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPrintDialogCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPrintDialogCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_print_dialog_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPrintDialogCallback: ImplPrintDialogCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_print_dialog_callback_t, Self>);
+}
 pub trait ImplPrintDialogCallback: Clone + Sized + Rc {
     fn cont(&self, settings: Option<&mut impl ImplPrintSettings>) {}
     fn cancel(&self) {}
@@ -30772,6 +32081,23 @@ impl Default for PrintDialogCallback {
 /// See [_cef_print_job_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct PrintJobCallback(RefGuard<_cef_print_job_callback_t>);
+impl PrintJobCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPrintJobCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPrintJobCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPrintJobCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_print_job_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPrintJobCallback: ImplPrintJobCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_print_job_callback_t, Self>);
+}
 pub trait ImplPrintJobCallback: Clone + Sized + Rc {
     fn cont(&self) {}
     fn init_methods(object: &mut _cef_print_job_callback_t) {
@@ -30848,6 +32174,23 @@ impl Default for PrintJobCallback {
 /// See [_cef_print_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct PrintHandler(RefGuard<_cef_print_handler_t>);
+impl PrintHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPrintHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPrintHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPrintHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_print_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPrintHandler: ImplPrintHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_print_handler_t, Self>);
+}
 pub trait ImplPrintHandler: Clone + Sized + Rc {
     fn on_print_start(&self, browser: Option<&mut impl ImplBrowser>) {}
     fn on_print_settings(
@@ -31239,6 +32582,23 @@ impl Default for PrintHandler {
 /// See [_cef_accessibility_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct AccessibilityHandler(RefGuard<_cef_accessibility_handler_t>);
+impl AccessibilityHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapAccessibilityHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplAccessibilityHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapAccessibilityHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_accessibility_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapAccessibilityHandler: ImplAccessibilityHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_accessibility_handler_t, Self>);
+}
 pub trait ImplAccessibilityHandler: Clone + Sized + Rc {
     fn on_accessibility_tree_change(&self, value: Option<&mut impl ImplValue>) {}
     fn on_accessibility_location_change(&self, value: Option<&mut impl ImplValue>) {}
@@ -31364,6 +32724,23 @@ impl Default for AccessibilityHandler {
 /// See [_cef_render_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct RenderHandler(RefGuard<_cef_render_handler_t>);
+impl RenderHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRenderHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRenderHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRenderHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_render_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRenderHandler: ImplRenderHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_render_handler_t, Self>);
+}
 pub trait ImplRenderHandler: Clone + Sized + Rc {
     fn get_accessibility_handler(&self) -> Option<AccessibilityHandler> {
         Default::default()
@@ -32524,6 +33901,23 @@ impl Default for RenderHandler {
 /// See [_cef_auth_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct AuthCallback(RefGuard<_cef_auth_callback_t>);
+impl AuthCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapAuthCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplAuthCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapAuthCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_auth_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapAuthCallback: ImplAuthCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_auth_callback_t, Self>);
+}
 pub trait ImplAuthCallback: Clone + Sized + Rc {
     fn cont(&self, username: Option<&CefStringUtf16>, password: Option<&CefStringUtf16>) {}
     fn cancel(&self) {}
@@ -32642,6 +34036,23 @@ impl Default for AuthCallback {
 /// See [_cef_response_t] for more documentation.
 #[derive(Clone)]
 pub struct Response(RefGuard<_cef_response_t>);
+impl Response {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapResponse,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplResponse>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapResponse>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_response_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapResponse: ImplResponse {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_response_t, Self>);
+}
 pub trait ImplResponse: Clone + Sized + Rc {
     fn is_read_only(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -33224,6 +34635,23 @@ impl Default for Response {
 /// See [_cef_resource_skip_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct ResourceSkipCallback(RefGuard<_cef_resource_skip_callback_t>);
+impl ResourceSkipCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapResourceSkipCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplResourceSkipCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapResourceSkipCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_resource_skip_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapResourceSkipCallback: ImplResourceSkipCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_resource_skip_callback_t, Self>);
+}
 pub trait ImplResourceSkipCallback: Clone + Sized + Rc {
     fn cont(&self, bytes_skipped: i64) {}
     fn init_methods(object: &mut _cef_resource_skip_callback_t) {
@@ -33306,6 +34734,23 @@ impl Default for ResourceSkipCallback {
 /// See [_cef_resource_read_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct ResourceReadCallback(RefGuard<_cef_resource_read_callback_t>);
+impl ResourceReadCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapResourceReadCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplResourceReadCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapResourceReadCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_resource_read_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapResourceReadCallback: ImplResourceReadCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_resource_read_callback_t, Self>);
+}
 pub trait ImplResourceReadCallback: Clone + Sized + Rc {
     fn cont(&self, bytes_read: ::std::os::raw::c_int) {}
     fn init_methods(object: &mut _cef_resource_read_callback_t) {
@@ -33388,6 +34833,23 @@ impl Default for ResourceReadCallback {
 /// See [_cef_resource_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct ResourceHandler(RefGuard<_cef_resource_handler_t>);
+impl ResourceHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapResourceHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplResourceHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapResourceHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_resource_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapResourceHandler: ImplResourceHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_resource_handler_t, Self>);
+}
 pub trait ImplResourceHandler: Clone + Sized + Rc {
     fn open(
         &self,
@@ -33891,6 +35353,23 @@ impl Default for ResourceHandler {
 /// See [_cef_response_filter_t] for more documentation.
 #[derive(Clone)]
 pub struct ResponseFilter(RefGuard<_cef_response_filter_t>);
+impl ResponseFilter {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapResponseFilter,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplResponseFilter>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapResponseFilter>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_response_filter_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapResponseFilter: ImplResponseFilter {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_response_filter_t, Self>);
+}
 pub trait ImplResponseFilter: Clone + Sized + Rc {
     fn init_filter(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -34112,6 +35591,23 @@ impl Default for ResponseFilter {
 /// See [_cef_resource_request_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct ResourceRequestHandler(RefGuard<_cef_resource_request_handler_t>);
+impl ResourceRequestHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapResourceRequestHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplResourceRequestHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapResourceRequestHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_resource_request_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapResourceRequestHandler: ImplResourceRequestHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_resource_request_handler_t, Self>);
+}
 pub trait ImplResourceRequestHandler: Clone + Sized + Rc {
     fn get_cookie_access_filter(
         &self,
@@ -34909,6 +36405,23 @@ impl Default for ResourceRequestHandler {
 /// See [_cef_cookie_access_filter_t] for more documentation.
 #[derive(Clone)]
 pub struct CookieAccessFilter(RefGuard<_cef_cookie_access_filter_t>);
+impl CookieAccessFilter {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapCookieAccessFilter,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplCookieAccessFilter>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapCookieAccessFilter>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_cookie_access_filter_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapCookieAccessFilter: ImplCookieAccessFilter {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_cookie_access_filter_t, Self>);
+}
 pub trait ImplCookieAccessFilter: Clone + Sized + Rc {
     fn can_send_cookie(
         &self,
@@ -35160,6 +36673,23 @@ impl Default for CookieAccessFilter {
 /// See [_cef_sslinfo_t] for more documentation.
 #[derive(Clone)]
 pub struct Sslinfo(RefGuard<_cef_sslinfo_t>);
+impl Sslinfo {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapSslinfo,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplSslinfo>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapSslinfo>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_sslinfo_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapSslinfo: ImplSslinfo {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_sslinfo_t, Self>);
+}
 pub trait ImplSslinfo: Clone + Sized + Rc {
     fn get_cert_status(&self) -> CertStatus {
         Default::default()
@@ -35269,6 +36799,23 @@ impl Default for Sslinfo {
 /// See [_cef_unresponsive_process_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct UnresponsiveProcessCallback(RefGuard<_cef_unresponsive_process_callback_t>);
+impl UnresponsiveProcessCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapUnresponsiveProcessCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplUnresponsiveProcessCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapUnresponsiveProcessCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_unresponsive_process_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapUnresponsiveProcessCallback: ImplUnresponsiveProcessCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_unresponsive_process_callback_t, Self>);
+}
 pub trait ImplUnresponsiveProcessCallback: Clone + Sized + Rc {
     fn wait(&self) {}
     fn terminate(&self) {}
@@ -35370,6 +36917,23 @@ impl Default for UnresponsiveProcessCallback {
 /// See [_cef_select_client_certificate_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct SelectClientCertificateCallback(RefGuard<_cef_select_client_certificate_callback_t>);
+impl SelectClientCertificateCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapSelectClientCertificateCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplSelectClientCertificateCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapSelectClientCertificateCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_select_client_certificate_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapSelectClientCertificateCallback: ImplSelectClientCertificateCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_select_client_certificate_callback_t, Self>);
+}
 pub trait ImplSelectClientCertificateCallback: Clone + Sized + Rc {
     fn select(&self, cert: Option<&mut impl ImplX509certificate>) {}
     fn init_methods(object: &mut _cef_select_client_certificate_callback_t) {
@@ -35467,6 +37031,23 @@ impl Default for SelectClientCertificateCallback {
 /// See [_cef_request_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct RequestHandler(RefGuard<_cef_request_handler_t>);
+impl RequestHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRequestHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRequestHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRequestHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_request_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRequestHandler: ImplRequestHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_request_handler_t, Self>);
+}
 pub trait ImplRequestHandler: Clone + Sized + Rc {
     fn on_before_browse(
         &self,
@@ -36525,6 +38106,23 @@ impl Default for RequestHandler {
 /// See [_cef_client_t] for more documentation.
 #[derive(Clone)]
 pub struct Client(RefGuard<_cef_client_t>);
+impl Client {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapClient,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplClient>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapClient>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_client_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapClient: ImplClient {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_client_t, Self>);
+}
 pub trait ImplClient: Clone + Sized + Rc {
     fn get_audio_handler(&self) -> Option<AudioHandler> {
         Default::default()
@@ -37206,6 +38804,23 @@ impl Default for Client {
 /// See [_cef_command_line_t] for more documentation.
 #[derive(Clone)]
 pub struct CommandLine(RefGuard<_cef_command_line_t>);
+impl CommandLine {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapCommandLine,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplCommandLine>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapCommandLine>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_command_line_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapCommandLine: ImplCommandLine {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_command_line_t, Self>);
+}
 pub trait ImplCommandLine: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -37881,6 +39496,23 @@ impl Default for CommandLine {
 /// See [_cef_request_context_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct RequestContextHandler(RefGuard<_cef_request_context_handler_t>);
+impl RequestContextHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRequestContextHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRequestContextHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRequestContextHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_request_context_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRequestContextHandler: ImplRequestContextHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_request_context_handler_t, Self>);
+}
 pub trait ImplRequestContextHandler: Clone + Sized + Rc {
     fn on_request_context_initialized(
         &self,
@@ -38141,6 +39773,23 @@ impl Default for RequestContextHandler {
 /// See [_cef_browser_process_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct BrowserProcessHandler(RefGuard<_cef_browser_process_handler_t>);
+impl BrowserProcessHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapBrowserProcessHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplBrowserProcessHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapBrowserProcessHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_browser_process_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapBrowserProcessHandler: ImplBrowserProcessHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_browser_process_handler_t, Self>);
+}
 pub trait ImplBrowserProcessHandler: Clone + Sized + Rc {
     fn on_register_custom_preferences(
         &self,
@@ -38450,6 +40099,23 @@ impl Default for BrowserProcessHandler {
 /// See [_cef_task_t] for more documentation.
 #[derive(Clone)]
 pub struct Task(RefGuard<_cef_task_t>);
+impl Task {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapTask,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplTask>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapTask>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_task_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapTask: ImplTask {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_task_t, Self>);
+}
 pub trait ImplTask: Clone + Sized + Rc {
     fn execute(&self) {}
     fn init_methods(object: &mut _cef_task_t) {
@@ -38526,6 +40192,23 @@ impl Default for Task {
 /// See [_cef_task_runner_t] for more documentation.
 #[derive(Clone)]
 pub struct TaskRunner(RefGuard<_cef_task_runner_t>);
+impl TaskRunner {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapTaskRunner,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplTaskRunner>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapTaskRunner>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_task_runner_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapTaskRunner: ImplTaskRunner {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_task_runner_t, Self>);
+}
 pub trait ImplTaskRunner: Clone + Sized + Rc {
     fn is_same(&self, that: Option<&mut impl ImplTaskRunner>) -> ::std::os::raw::c_int {
         Default::default()
@@ -38752,6 +40435,23 @@ impl Default for TaskRunner {
 /// See [_cef_v8context_t] for more documentation.
 #[derive(Clone)]
 pub struct V8context(RefGuard<_cef_v8context_t>);
+impl V8context {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapV8context,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplV8context>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapV8context>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_v8context_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapV8context: ImplV8context {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_v8context_t, Self>);
+}
 pub trait ImplV8context: Clone + Sized + Rc {
     fn get_task_runner(&self) -> Option<TaskRunner> {
         Default::default()
@@ -39140,6 +40840,23 @@ impl Default for V8context {
 /// See [_cef_v8handler_t] for more documentation.
 #[derive(Clone)]
 pub struct V8handler(RefGuard<_cef_v8handler_t>);
+impl V8handler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapV8handler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplV8handler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapV8handler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_v8handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapV8handler: ImplV8handler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_v8handler_t, Self>);
+}
 pub trait ImplV8handler: Clone + Sized + Rc {
     fn execute(
         &self,
@@ -39353,6 +41070,23 @@ impl Default for V8handler {
 /// See [_cef_v8accessor_t] for more documentation.
 #[derive(Clone)]
 pub struct V8accessor(RefGuard<_cef_v8accessor_t>);
+impl V8accessor {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapV8accessor,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplV8accessor>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapV8accessor>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_v8accessor_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapV8accessor: ImplV8accessor {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_v8accessor_t, Self>);
+}
 pub trait ImplV8accessor: Clone + Sized + Rc {
     fn get(
         &self,
@@ -39583,6 +41317,23 @@ impl Default for V8accessor {
 /// See [_cef_v8interceptor_t] for more documentation.
 #[derive(Clone)]
 pub struct V8interceptor(RefGuard<_cef_v8interceptor_t>);
+impl V8interceptor {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapV8interceptor,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplV8interceptor>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapV8interceptor>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_v8interceptor_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapV8interceptor: ImplV8interceptor {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_v8interceptor_t, Self>);
+}
 pub trait ImplV8interceptor: Clone + Sized + Rc {
     fn get_byname(
         &self,
@@ -39976,6 +41727,23 @@ impl Default for V8interceptor {
 /// See [_cef_v8exception_t] for more documentation.
 #[derive(Clone)]
 pub struct V8exception(RefGuard<_cef_v8exception_t>);
+impl V8exception {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapV8exception,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplV8exception>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapV8exception>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_v8exception_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapV8exception: ImplV8exception {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_v8exception_t, Self>);
+}
 pub trait ImplV8exception: Clone + Sized + Rc {
     fn get_message(&self) -> Option<CefStringUtf16> {
         Default::default()
@@ -40243,6 +42011,23 @@ impl Default for V8exception {
 /// See [_cef_v8array_buffer_release_callback_t] for more documentation.
 #[derive(Clone)]
 pub struct V8arrayBufferReleaseCallback(RefGuard<_cef_v8array_buffer_release_callback_t>);
+impl V8arrayBufferReleaseCallback {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapV8arrayBufferReleaseCallback,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplV8arrayBufferReleaseCallback>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapV8arrayBufferReleaseCallback>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_v8array_buffer_release_callback_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapV8arrayBufferReleaseCallback: ImplV8arrayBufferReleaseCallback {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_v8array_buffer_release_callback_t, Self>);
+}
 pub trait ImplV8arrayBufferReleaseCallback: Clone + Sized + Rc {
     fn release_buffer(&self, buffer: *mut u8) {}
     fn init_methods(object: &mut _cef_v8array_buffer_release_callback_t) {
@@ -40332,6 +42117,23 @@ impl Default for V8arrayBufferReleaseCallback {
 /// See [_cef_v8value_t] for more documentation.
 #[derive(Clone)]
 pub struct V8value(RefGuard<_cef_v8value_t>);
+impl V8value {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapV8value,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplV8value>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapV8value>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_v8value_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapV8value: ImplV8value {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_v8value_t, Self>);
+}
 pub trait ImplV8value: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -41995,6 +43797,23 @@ impl Default for V8value {
 /// See [_cef_v8stack_trace_t] for more documentation.
 #[derive(Clone)]
 pub struct V8stackTrace(RefGuard<_cef_v8stack_trace_t>);
+impl V8stackTrace {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapV8stackTrace,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplV8stackTrace>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapV8stackTrace>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_v8stack_trace_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapV8stackTrace: ImplV8stackTrace {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_v8stack_trace_t, Self>);
+}
 pub trait ImplV8stackTrace: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -42134,6 +43953,23 @@ impl Default for V8stackTrace {
 /// See [_cef_v8stack_frame_t] for more documentation.
 #[derive(Clone)]
 pub struct V8stackFrame(RefGuard<_cef_v8stack_frame_t>);
+impl V8stackFrame {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapV8stackFrame,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplV8stackFrame>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapV8stackFrame>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_v8stack_frame_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapV8stackFrame: ImplV8stackFrame {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_v8stack_frame_t, Self>);
+}
 pub trait ImplV8stackFrame: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -42401,6 +44237,23 @@ impl Default for V8stackFrame {
 /// See [_cef_render_process_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct RenderProcessHandler(RefGuard<_cef_render_process_handler_t>);
+impl RenderProcessHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapRenderProcessHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplRenderProcessHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapRenderProcessHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_render_process_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapRenderProcessHandler: ImplRenderProcessHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_render_process_handler_t, Self>);
+}
 pub trait ImplRenderProcessHandler: Clone + Sized + Rc {
     fn on_web_kit_initialized(&self) {}
     fn on_browser_created(
@@ -42988,6 +44841,23 @@ impl Default for RenderProcessHandler {
 /// See [_cef_resource_bundle_handler_t] for more documentation.
 #[derive(Clone)]
 pub struct ResourceBundleHandler(RefGuard<_cef_resource_bundle_handler_t>);
+impl ResourceBundleHandler {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapResourceBundleHandler,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplResourceBundleHandler>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapResourceBundleHandler>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_resource_bundle_handler_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapResourceBundleHandler: ImplResourceBundleHandler {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_resource_bundle_handler_t, Self>);
+}
 pub trait ImplResourceBundleHandler: Clone + Sized + Rc {
     fn get_localized_string(
         &self,
@@ -43352,6 +45222,23 @@ impl Default for SchemeRegistrar {
 /// See [_cef_scheme_handler_factory_t] for more documentation.
 #[derive(Clone)]
 pub struct SchemeHandlerFactory(RefGuard<_cef_scheme_handler_factory_t>);
+impl SchemeHandlerFactory {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapSchemeHandlerFactory,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplSchemeHandlerFactory>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapSchemeHandlerFactory>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_scheme_handler_factory_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapSchemeHandlerFactory: ImplSchemeHandlerFactory {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_scheme_handler_factory_t, Self>);
+}
 pub trait ImplSchemeHandlerFactory: Clone + Sized + Rc {
     fn create(
         &self,
@@ -43506,6 +45393,23 @@ impl Default for SchemeHandlerFactory {
 /// See [_cef_app_t] for more documentation.
 #[derive(Clone)]
 pub struct App(RefGuard<_cef_app_t>);
+impl App {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapApp,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplApp>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapApp>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_app_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapApp: ImplApp {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_app_t, Self>);
+}
 pub trait ImplApp: Clone + Sized + Rc {
     fn on_before_command_line_processing(
         &self,
@@ -43740,6 +45644,23 @@ impl Default for App {
 /// See [_cef_urlrequest_t] for more documentation.
 #[derive(Clone)]
 pub struct Urlrequest(RefGuard<_cef_urlrequest_t>);
+impl Urlrequest {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapUrlrequest,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplUrlrequest>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapUrlrequest>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_urlrequest_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapUrlrequest: ImplUrlrequest {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_urlrequest_t, Self>);
+}
 pub trait ImplUrlrequest: Clone + Sized + Rc {
     fn get_request(&self) -> Option<Request> {
         Default::default()
@@ -43978,6 +45899,23 @@ impl Default for Urlrequest {
 /// See [_cef_urlrequest_client_t] for more documentation.
 #[derive(Clone)]
 pub struct UrlrequestClient(RefGuard<_cef_urlrequest_client_t>);
+impl UrlrequestClient {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapUrlrequestClient,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplUrlrequestClient>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapUrlrequestClient>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_urlrequest_client_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapUrlrequestClient: ImplUrlrequestClient {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_urlrequest_client_t, Self>);
+}
 pub trait ImplUrlrequestClient: Clone + Sized + Rc {
     fn on_request_complete(&self, request: Option<&mut impl ImplUrlrequest>) {}
     fn on_upload_progress(
@@ -44333,6 +46271,23 @@ impl Default for UrlrequestClient {
 /// See [_cef_layout_t] for more documentation.
 #[derive(Clone)]
 pub struct Layout(RefGuard<_cef_layout_t>);
+impl Layout {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapLayout,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplLayout>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapLayout>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_layout_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapLayout: ImplLayout {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_layout_t, Self>);
+}
 pub trait ImplLayout: Clone + Sized + Rc {
     fn as_box_layout(&self) -> Option<BoxLayout> {
         Default::default()
@@ -44472,6 +46427,23 @@ impl Default for Layout {
 /// See [_cef_box_layout_t] for more documentation.
 #[derive(Clone)]
 pub struct BoxLayout(RefGuard<_cef_box_layout_t>);
+impl BoxLayout {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapBoxLayout,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplBoxLayout>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapBoxLayout>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_box_layout_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapBoxLayout: ImplBoxLayout {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_box_layout_t, Self>);
+}
 pub trait ImplBoxLayout: ImplLayout {
     fn set_flex_for_view(&self, view: Option<&mut impl ImplView>, flex: ::std::os::raw::c_int) {}
     fn clear_flex_for_view(&self, view: Option<&mut impl ImplView>) {}
@@ -44616,6 +46588,23 @@ impl Default for BoxLayout {
 /// See [_cef_fill_layout_t] for more documentation.
 #[derive(Clone)]
 pub struct FillLayout(RefGuard<_cef_fill_layout_t>);
+impl FillLayout {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapFillLayout,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplFillLayout>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapFillLayout>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_fill_layout_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapFillLayout: ImplFillLayout {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_fill_layout_t, Self>);
+}
 pub trait ImplFillLayout: ImplLayout {
     fn init_methods(object: &mut _cef_fill_layout_t) {
         impl_cef_layout_t::init_methods::<Self>(&mut object.base);
@@ -44692,6 +46681,23 @@ impl Default for FillLayout {
 /// See [_cef_view_delegate_t] for more documentation.
 #[derive(Clone)]
 pub struct ViewDelegate(RefGuard<_cef_view_delegate_t>);
+impl ViewDelegate {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapViewDelegate,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplViewDelegate>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapViewDelegate>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_view_delegate_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapViewDelegate: ImplViewDelegate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_view_delegate_t, Self>);
+}
 pub trait ImplViewDelegate: Clone + Sized + Rc {
     fn get_preferred_size(&self, view: Option<&mut impl ImplView>) -> Size {
         Default::default()
@@ -45199,6 +47205,23 @@ impl Default for ViewDelegate {
 /// See [_cef_view_t] for more documentation.
 #[derive(Clone)]
 pub struct View(RefGuard<_cef_view_t>);
+impl View {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapView,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplView>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapView>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_view_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapView: ImplView {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_view_t, Self>);
+}
 pub trait ImplView: Clone + Sized + Rc {
     fn as_browser_view(&self) -> Option<BrowserView> {
         Default::default()
@@ -46677,6 +48700,23 @@ impl Default for View {
 /// See [_cef_button_t] for more documentation.
 #[derive(Clone)]
 pub struct Button(RefGuard<_cef_button_t>);
+impl Button {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapButton,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplButton>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapButton>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_button_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapButton: ImplButton {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_button_t, Self>);
+}
 pub trait ImplButton: ImplView {
     fn as_label_button(&self) -> Option<LabelButton> {
         Default::default()
@@ -47111,6 +49151,23 @@ impl Default for Button {
 /// See [_cef_button_delegate_t] for more documentation.
 #[derive(Clone)]
 pub struct ButtonDelegate(RefGuard<_cef_button_delegate_t>);
+impl ButtonDelegate {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapButtonDelegate,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplButtonDelegate>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapButtonDelegate>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_button_delegate_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapButtonDelegate: ImplButtonDelegate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_button_delegate_t, Self>);
+}
 pub trait ImplButtonDelegate: ImplViewDelegate {
     fn on_button_pressed(&self, button: Option<&mut impl ImplButton>) {}
     fn on_button_state_changed(&self, button: Option<&mut impl ImplButton>) {}
@@ -47298,6 +49355,23 @@ impl Default for ButtonDelegate {
 /// See [_cef_label_button_t] for more documentation.
 #[derive(Clone)]
 pub struct LabelButton(RefGuard<_cef_label_button_t>);
+impl LabelButton {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapLabelButton,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplLabelButton>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapLabelButton>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_label_button_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapLabelButton: ImplLabelButton {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_label_button_t, Self>);
+}
 pub trait ImplLabelButton: ImplButton {
     fn as_menu_button(&self) -> Option<MenuButton> {
         Default::default()
@@ -47939,6 +50013,23 @@ impl Default for LabelButton {
 /// See [_cef_menu_button_pressed_lock_t] for more documentation.
 #[derive(Clone)]
 pub struct MenuButtonPressedLock(RefGuard<_cef_menu_button_pressed_lock_t>);
+impl MenuButtonPressedLock {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMenuButtonPressedLock,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMenuButtonPressedLock>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMenuButtonPressedLock>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_menu_button_pressed_lock_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMenuButtonPressedLock: ImplMenuButtonPressedLock {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_menu_button_pressed_lock_t, Self>);
+}
 pub trait ImplMenuButtonPressedLock: Clone + Sized + Rc {
     fn init_methods(object: &mut _cef_menu_button_pressed_lock_t) {
         impl_cef_menu_button_pressed_lock_t::init_methods::<Self>(object);
@@ -47998,6 +50089,23 @@ impl Default for MenuButtonPressedLock {
 /// See [_cef_menu_button_delegate_t] for more documentation.
 #[derive(Clone)]
 pub struct MenuButtonDelegate(RefGuard<_cef_menu_button_delegate_t>);
+impl MenuButtonDelegate {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMenuButtonDelegate,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMenuButtonDelegate>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMenuButtonDelegate>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_menu_button_delegate_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMenuButtonDelegate: ImplMenuButtonDelegate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_menu_button_delegate_t, Self>);
+}
 pub trait ImplMenuButtonDelegate: ImplButtonDelegate {
     fn on_menu_button_pressed(
         &self,
@@ -48212,6 +50320,23 @@ impl Default for MenuButtonDelegate {
 /// See [_cef_menu_button_t] for more documentation.
 #[derive(Clone)]
 pub struct MenuButton(RefGuard<_cef_menu_button_t>);
+impl MenuButton {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapMenuButton,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplMenuButton>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapMenuButton>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_menu_button_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapMenuButton: ImplMenuButton {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_menu_button_t, Self>);
+}
 pub trait ImplMenuButton: ImplLabelButton {
     fn show_menu(
         &self,
@@ -48654,6 +50779,23 @@ impl Default for MenuButton {
 /// See [_cef_textfield_delegate_t] for more documentation.
 #[derive(Clone)]
 pub struct TextfieldDelegate(RefGuard<_cef_textfield_delegate_t>);
+impl TextfieldDelegate {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapTextfieldDelegate,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplTextfieldDelegate>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapTextfieldDelegate>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_textfield_delegate_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapTextfieldDelegate: ImplTextfieldDelegate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_textfield_delegate_t, Self>);
+}
 pub trait ImplTextfieldDelegate: ImplViewDelegate {
     fn on_key_event(
         &self,
@@ -48866,6 +51008,23 @@ impl Default for TextfieldDelegate {
 /// See [_cef_textfield_t] for more documentation.
 #[derive(Clone)]
 pub struct Textfield(RefGuard<_cef_textfield_t>);
+impl Textfield {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapTextfield,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplTextfield>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapTextfield>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_textfield_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapTextfield: ImplTextfield {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_textfield_t, Self>);
+}
 pub trait ImplTextfield: ImplView {
     fn set_password_input(&self, password_input: ::std::os::raw::c_int) {}
     fn is_password_input(&self) -> ::std::os::raw::c_int {
@@ -49983,6 +52142,23 @@ impl Default for Textfield {
 /// See [_cef_browser_view_delegate_t] for more documentation.
 #[derive(Clone)]
 pub struct BrowserViewDelegate(RefGuard<_cef_browser_view_delegate_t>);
+impl BrowserViewDelegate {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapBrowserViewDelegate,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplBrowserViewDelegate>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapBrowserViewDelegate>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_browser_view_delegate_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapBrowserViewDelegate: ImplBrowserViewDelegate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_browser_view_delegate_t, Self>);
+}
 pub trait ImplBrowserViewDelegate: ImplViewDelegate {
     fn on_browser_created(
         &self,
@@ -50542,6 +52718,23 @@ impl Default for BrowserViewDelegate {
 /// See [_cef_browser_view_t] for more documentation.
 #[derive(Clone)]
 pub struct BrowserView(RefGuard<_cef_browser_view_t>);
+impl BrowserView {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapBrowserView,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplBrowserView>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapBrowserView>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_browser_view_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapBrowserView: ImplBrowserView {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_browser_view_t, Self>);
+}
 pub trait ImplBrowserView: ImplView {
     fn get_browser(&self) -> Option<Browser> {
         Default::default()
@@ -50925,6 +53118,23 @@ impl Default for BrowserView {
 /// See [_cef_scroll_view_t] for more documentation.
 #[derive(Clone)]
 pub struct ScrollView(RefGuard<_cef_scroll_view_t>);
+impl ScrollView {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapScrollView,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplScrollView>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapScrollView>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_scroll_view_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapScrollView: ImplScrollView {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_scroll_view_t, Self>);
+}
 pub trait ImplScrollView: ImplView {
     fn set_content_view(&self, view: Option<&mut impl ImplView>) {}
     fn get_content_view(&self) -> Option<View> {
@@ -51380,6 +53590,23 @@ impl Default for ScrollView {
 /// See [_cef_display_t] for more documentation.
 #[derive(Clone)]
 pub struct Display(RefGuard<_cef_display_t>);
+impl Display {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapDisplay,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplDisplay>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapDisplay>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_display_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapDisplay: ImplDisplay {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_display_t, Self>);
+}
 pub trait ImplDisplay: Clone + Sized + Rc {
     fn get_id(&self) -> i64 {
         Default::default()
@@ -51617,6 +53844,23 @@ impl Default for Display {
 /// See [_cef_overlay_controller_t] for more documentation.
 #[derive(Clone)]
 pub struct OverlayController(RefGuard<_cef_overlay_controller_t>);
+impl OverlayController {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapOverlayController,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplOverlayController>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapOverlayController>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_overlay_controller_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapOverlayController: ImplOverlayController {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_overlay_controller_t, Self>);
+}
 pub trait ImplOverlayController: Clone + Sized + Rc {
     fn is_valid(&self) -> ::std::os::raw::c_int {
         Default::default()
@@ -52186,6 +54430,23 @@ impl Default for OverlayController {
 /// See [_cef_panel_delegate_t] for more documentation.
 #[derive(Clone)]
 pub struct PanelDelegate(RefGuard<_cef_panel_delegate_t>);
+impl PanelDelegate {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPanelDelegate,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPanelDelegate>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPanelDelegate>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_panel_delegate_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPanelDelegate: ImplPanelDelegate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_panel_delegate_t, Self>);
+}
 pub trait ImplPanelDelegate: ImplViewDelegate {
     fn init_methods(object: &mut _cef_panel_delegate_t) {
         impl_cef_view_delegate_t::init_methods::<Self>(&mut object.base);
@@ -52308,6 +54569,23 @@ impl Default for PanelDelegate {
 /// See [_cef_panel_t] for more documentation.
 #[derive(Clone)]
 pub struct Panel(RefGuard<_cef_panel_t>);
+impl Panel {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapPanel,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplPanel>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapPanel>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_panel_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapPanel: ImplPanel {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_panel_t, Self>);
+}
 pub trait ImplPanel: ImplView {
     fn as_window(&self) -> Option<Window> {
         Default::default()
@@ -52935,6 +55213,23 @@ impl Default for Panel {
 /// See [_cef_window_delegate_t] for more documentation.
 #[derive(Clone)]
 pub struct WindowDelegate(RefGuard<_cef_window_delegate_t>);
+impl WindowDelegate {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapWindowDelegate,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplWindowDelegate>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapWindowDelegate>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_window_delegate_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapWindowDelegate: ImplWindowDelegate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_window_delegate_t, Self>);
+}
 pub trait ImplWindowDelegate: ImplPanelDelegate {
     fn on_window_created(&self, window: Option<&mut impl ImplWindow>) {}
     fn on_window_closing(&self, window: Option<&mut impl ImplWindow>) {}
@@ -54046,6 +56341,23 @@ impl Default for WindowDelegate {
 /// See [_cef_window_t] for more documentation.
 #[derive(Clone)]
 pub struct Window(RefGuard<_cef_window_t>);
+impl Window {
+    pub fn new<T>(interface: T) -> Self
+    where
+        T: WrapWindow,
+    {
+        unsafe {
+            let mut cef_object = std::mem::zeroed();
+            <T as ImplWindow>::init_methods(&mut cef_object);
+            let object = RcImpl::new(cef_object, interface);
+            <T as WrapWindow>::wrap_rc(&mut (*object).interface, object);
+            (object as *mut _cef_window_t).as_wrapper()
+        }
+    }
+}
+pub trait WrapWindow: ImplWindow {
+    fn wrap_rc(&mut self, object: *mut RcImpl<_cef_window_t, Self>);
+}
 pub trait ImplWindow: ImplPanel {
     fn show(&self) {}
     fn show_as_browser_modal_dialog(&self, browser_view: Option<&mut impl ImplBrowserView>) {}

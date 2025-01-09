@@ -1803,6 +1803,7 @@ impl<'a> ParseTree<'a> {
 
         let base_name = self.base(name);
         let impl_trait = format_ident!("Impl{rust_name}");
+        let wrap_trait = format_ident!("Wrap{rust_name}");
         let impl_base_name = base_name
             .filter(|base| *base != BASE_REF_COUNTED)
             .and_then(|base| self.cef_name_map.get(base))
@@ -1874,8 +1875,8 @@ impl<'a> ParseTree<'a> {
             .into_iter()
             .filter_map(|base_struct| {
                 self.cef_name_map.get(&base_struct.name).map(|entry| {
-                    let name = &base_struct.name;
-                    let name_ident = format_ident!("{name}");
+                    let base = &base_struct.name;
+                    let base_ident = format_ident!("{base}");
                     let base = &entry.name;
                     let base_trait = format_ident!("Impl{base}");
                     let base = format_ident!("{base}");
@@ -1909,7 +1910,7 @@ impl<'a> ParseTree<'a> {
                         impl #base_trait for #rust_name {
                             #(#base_methods)*
 
-                            fn get_raw(&self) -> *mut #name_ident {
+                            fn get_raw(&self) -> *mut #base_ident {
                                 unsafe { RefGuard::as_raw(&self.0) as *mut _ }
                             }
                         }
@@ -1997,6 +1998,25 @@ impl<'a> ParseTree<'a> {
         let wrapper = quote! {
             #[derive(Clone)]
             pub struct #rust_name(RefGuard<#name_ident>);
+
+            impl #rust_name {
+                pub fn new<T>(interface: T) -> Self
+                where
+                    T: #wrap_trait
+                {
+                    unsafe {
+                        let mut cef_object = std::mem::zeroed();
+                        <T as #impl_trait>::init_methods(&mut cef_object);
+                        let object = RcImpl::new(cef_object, interface);
+                        <T as #wrap_trait>::wrap_rc(&mut (*object).interface, object);
+                        (object as *mut #name_ident).as_wrapper()
+                    }
+                }
+            }
+            
+            pub trait #wrap_trait : #impl_trait {
+                fn wrap_rc(&mut self, object: *mut RcImpl<#name_ident, Self>);
+            }
 
             pub trait #impl_trait : #impl_base_name {
                 #(#impl_methods)*

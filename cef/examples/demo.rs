@@ -1,17 +1,16 @@
 use cef::{args::Args, rc::*, *};
 
-struct DemoApp(*mut RcImpl<cef_sys::_cef_app_t, DemoApp>);
+struct DemoApp(*mut RcImpl<cef_sys::_cef_app_t, Self>);
 
 impl DemoApp {
     fn new() -> App {
-        unsafe {
-            let mut cef_object = std::mem::zeroed();
-            <Self as ImplApp>::init_methods(&mut cef_object);
-            let interface = Self(std::ptr::null_mut());
-            let object = RcImpl::new(cef_object, interface);
-            (*object).interface.0 = object;
-            (object as *mut cef_sys::_cef_app_t).as_wrapper()
-        }
+        App::new(Self(std::ptr::null_mut()))
+    }
+}
+
+impl WrapApp for DemoApp {
+    fn wrap_rc(&mut self, object: *mut RcImpl<cef_sys::_cef_app_t, Self>) {
+        self.0 = object;
     }
 }
 
@@ -41,18 +40,17 @@ impl ImplApp for DemoApp {
     }
 }
 
-struct DemoClient(*mut RcImpl<cef_sys::_cef_client_t, DemoClient>);
+struct DemoClient(*mut RcImpl<cef_sys::_cef_client_t, Self>);
 
 impl DemoClient {
     fn new() -> Client {
-        unsafe {
-            let mut cef_object = std::mem::zeroed();
-            <Self as ImplClient>::init_methods(&mut cef_object);
-            let interface = Self(std::ptr::null_mut());
-            let object = RcImpl::new(cef_object, interface);
-            (*object).interface.0 = object;
-            (object as *mut cef_sys::_cef_client_t).as_wrapper()
-        }
+        Client::new(Self(std::ptr::null_mut()))
+    }
+}
+
+impl WrapClient for DemoClient {
+    fn wrap_rc(&mut self, object: *mut RcImpl<cef_sys::_cef_client_t, Self>) {
+        self.0 = object;
     }
 }
 
@@ -83,23 +81,22 @@ impl ImplClient for DemoClient {
 }
 
 struct DemoWindowDelegate {
-    base: *mut RcImpl<cef_sys::_cef_window_delegate_t, DemoWindowDelegate>,
+    base: *mut RcImpl<cef_sys::_cef_window_delegate_t, Self>,
     browser_view: BrowserView,
 }
 
 impl DemoWindowDelegate {
     fn new(browser_view: BrowserView) -> WindowDelegate {
-        unsafe {
-            let mut cef_object: cef_sys::_cef_window_delegate_t = std::mem::zeroed();
-            <Self as ImplWindowDelegate>::init_methods(&mut cef_object);
-            let interface = Self {
-                base: std::ptr::null_mut(),
-                browser_view,
-            };
-            let object = RcImpl::new(cef_object, interface);
-            (*object).interface.base = object;
-            (object as *mut cef_sys::_cef_window_delegate_t).as_wrapper()
-        }
+        WindowDelegate::new(Self {
+            base: std::ptr::null_mut(),
+            browser_view,
+        })
+    }
+}
+
+impl WrapWindowDelegate for DemoWindowDelegate {
+    fn wrap_rc(&mut self, object: *mut RcImpl<cef_sys::_cef_window_delegate_t, Self>) {
+        self.base = object;
     }
 }
 
