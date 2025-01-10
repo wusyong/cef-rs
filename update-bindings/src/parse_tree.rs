@@ -648,7 +648,6 @@ impl SignatureRef<'_> {
                             .as_ref()
                             .map(|arg| arg.len())
                             .unwrap_or_default();
-                        let #out_name = #arg_name;
                         let #arg_name = #arg_name.and_then(|arg| {
                             if arg.is_empty() {
                                 None

@@ -1703,7 +1703,6 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                         .as_ref()
                         .map(|arg| arg.len())
                         .unwrap_or_default();
-                    let out_message = arg_message;
                     let arg_message = arg_message
                         .and_then(|arg| {
                             if arg.is_empty() {
@@ -1743,7 +1742,6 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                     let arg_success = arg_success;
                     let arg_result_size =
                         arg_result.as_ref().map(|arg| arg.len()).unwrap_or_default();
-                    let out_result = arg_result;
                     let arg_result = arg_result
                         .and_then(|arg| {
                             if arg.is_empty() {
@@ -1789,7 +1787,6 @@ impl ImplDevToolsMessageObserver for DevToolsMessageObserver {
                         .unwrap_or(std::ptr::null());
                     let arg_params_size =
                         arg_params.as_ref().map(|arg| arg.len()).unwrap_or_default();
-                    let out_params = arg_params;
                     let arg_params = arg_params
                         .and_then(|arg| {
                             if arg.is_empty() {
@@ -5499,7 +5496,6 @@ impl ImplImage for Image {
                         .as_ref()
                         .map(|arg| arg.len())
                         .unwrap_or_default();
-                    let out_pixel_data = arg_pixel_data;
                     let arg_pixel_data = arg_pixel_data
                         .and_then(|arg| {
                             if arg.is_empty() {
@@ -5536,7 +5532,6 @@ impl ImplImage for Image {
                         .as_ref()
                         .map(|arg| arg.len())
                         .unwrap_or_default();
-                    let out_png_data = arg_png_data;
                     let arg_png_data = arg_png_data
                         .and_then(|arg| {
                             if arg.is_empty() {
@@ -5564,7 +5559,6 @@ impl ImplImage for Image {
                         .as_ref()
                         .map(|arg| arg.len())
                         .unwrap_or_default();
-                    let out_jpeg_data = arg_jpeg_data;
                     let arg_jpeg_data = arg_jpeg_data
                         .and_then(|arg| {
                             if arg.is_empty() {
@@ -14476,7 +14470,6 @@ impl ImplMediaObserver for MediaObserver {
                         .as_ref()
                         .map(|arg| arg.len())
                         .unwrap_or_default();
-                    let out_message = arg_message;
                     let arg_message = arg_message
                         .and_then(|arg| {
                             if arg.is_empty() {
@@ -14688,7 +14681,6 @@ impl ImplMediaRoute for MediaRoute {
                         .as_ref()
                         .map(|arg| arg.len())
                         .unwrap_or_default();
-                    let out_message = arg_message;
                     let arg_message = arg_message
                         .and_then(|arg| {
                             if arg.is_empty() {
@@ -19861,7 +19853,6 @@ impl ImplBrowserHost for BrowserHost {
                         .as_ref()
                         .map(|arg| arg.len())
                         .unwrap_or_default();
-                    let out_message = arg_message;
                     let arg_message = arg_message
                         .and_then(|arg| {
                             if arg.is_empty() {
@@ -60725,7 +60716,6 @@ pub fn string_wide_set(
     unsafe {
         let (arg_src, arg_output, arg_copy) = (src, output, copy);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -60753,7 +60743,6 @@ pub fn string_utf8_set(
     unsafe {
         let (arg_src, arg_output, arg_copy) = (src, output, copy);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -60781,7 +60770,6 @@ pub fn string_utf16_set(
     unsafe {
         let (arg_src, arg_output, arg_copy) = (src, output, copy);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -60898,7 +60886,6 @@ pub fn string_wide_to_utf8(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -60924,7 +60911,6 @@ pub fn string_utf8_to_wide(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -60950,7 +60936,6 @@ pub fn string_wide_to_utf16(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -60976,7 +60961,6 @@ pub fn string_utf16_to_wide(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -61002,7 +60986,6 @@ pub fn string_utf8_to_utf16(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -61028,7 +61011,6 @@ pub fn string_utf16_to_utf8(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -61054,7 +61036,6 @@ pub fn string_ascii_to_wide(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -61080,7 +61061,6 @@ pub fn string_ascii_to_utf16(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -61178,7 +61158,6 @@ pub fn string_utf16_to_lower(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -61204,7 +61183,6 @@ pub fn string_utf16_to_upper(
     unsafe {
         let (arg_src, arg_output) = (src, output);
         let arg_src_len = arg_src.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_src = arg_src;
         let arg_src = arg_src
             .and_then(|arg| {
                 if arg.is_empty() {
@@ -61765,7 +61743,6 @@ pub fn binary_value_create(data: Option<&[u8]>) -> Option<BinaryValue> {
     unsafe {
         let arg_data = data;
         let arg_data_size = arg_data.as_ref().map(|arg| arg.len()).unwrap_or_default();
-        let out_data = arg_data;
         let arg_data = arg_data
             .and_then(|arg| {
                 if arg.is_empty() {
