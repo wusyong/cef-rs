@@ -4,4 +4,4 @@ bindgen wrapper.h -o src/bindings.rs \
     --allowlist-type cef_.* \
     --allowlist-function cef_.* \
     --bitfield-enum .*_mask_t \
-    -- -I /path/to/header/files
+    -- -I $HOME/.local/share/cef/

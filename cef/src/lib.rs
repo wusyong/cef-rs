@@ -18,14 +18,14 @@ Use CEF in Rust.
 
 - Copy files to `.local`:
 
-```
+```cmd
 cp -r Resources ~/.local/share/cef
 cp -r Release ~/.local/share/cef
 ```
 
 - Build and run the application with `LD_LIBRARY_PATH` (or you can also add rpath to your cargo config or build script):
 
-```
+```cmd
 LD_LIBRARY_PATH=~/.local/share/cef cargo r --example demo
 ```
 
@@ -33,7 +33,7 @@ LD_LIBRARY_PATH=~/.local/share/cef cargo r --example demo
 
 - Install flatpak runtime & sdk:
 
-```
+```cmd
 flatpak install flathub dev.crabnebula.Platform
 flatpak install flathub dev.crabnebula.Sdk
 ```
@@ -44,7 +44,7 @@ flatpak install flathub dev.crabnebula.Sdk
 
 - Build the flatpak application and run:
 
-```
+```cmd
 cargo b --example demo
 python3 ./flatpak-cargo-generator.py ./Cargo.lock -o cargo-sources.json
 touch run.sh
@@ -76,29 +76,11 @@ But please understand that some requests might result into not planned.
 - Provide tools to bundle and distribute application.
 */
 
-mod app;
 pub mod args;
-mod browser;
-pub mod client;
-mod command_line;
-mod panel;
 pub mod rc;
-mod settings;
 pub mod string;
-mod view;
-mod window;
+
+mod bindings;
+pub use bindings::*;
 
 pub use cef_sys as sys;
-
-pub use app::*;
-pub use browser::*;
-pub use command_line::*;
-pub use panel::*;
-pub use settings::*;
-pub use view::*;
-pub use window::*;
-
-pub type LogSeverity = cef_sys::cef_log_severity_t;
-pub type LogItems = cef_sys::cef_log_items_t;
-pub type Rect = cef_sys::cef_rect_t;
-pub type State = cef_sys::cef_state_t;

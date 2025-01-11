@@ -9,7 +9,7 @@
 //!  
 //! ## If raw cef type is a simple struct with basic fields
 //! For example like [`cef_settings_t`], just create a struct like [`Settings`] and define a method
-//! `get_raw` that can create the raw cef type.
+//! `as_raw` that can create the raw cef type.
 //!
 //! ## If raw cef type has [`cef_base_ref_counted_t`]...
 //!
@@ -41,6 +41,8 @@
 //! [`Window`]: crate::Window
 
 use std::{
+    fmt::Debug,
+    mem,
     ops::Deref,
     sync::atomic::{fence, AtomicUsize, Ordering},
 };
@@ -117,78 +119,103 @@ impl Rc for cef_base_ref_counted_t {
     }
 }
 
-#[macro_export]
-macro_rules! gen_fn {
-    ($visibility:vis fn $method:ident(
-        $($arg:ident: $t:ty)*)
-    $(-> $($n:ident)?$value:ty)?) => {
-        $visibility fn $method(&self $(,$a: $t)*) $(-> $value)? {
-            unsafe {
-                let _result = self.0.$method.map(|f|
-                    f(self.0.get_raw() $(,crate::gen_fn!($c $arg))*)
-                );
+pub trait ConvertParam<T: Sized> {
+    fn as_raw(self) -> T;
+}
 
-                $(crate::gen_fn!(return $($n)? _result))?
-            }
-        }
-    };
-    (into $arg:ident) => {
-        $arg.0.into_raw()
-    };
-    (return $result:ident) => {
-        $result
-            .filter(|p| p.is_null())
-            .map(|p| BrowserView(RefGuard::from_raw(p)))
+impl<T, U> ConvertParam<U> for T
+where
+    T: Sized + Into<U>,
+    U: Sized,
+{
+    fn as_raw(self) -> U {
+        self.into()
     }
 }
 
-#[macro_export]
-macro_rules! wrapper {
-    (
-    $(#[$attr:meta])*
-    pub struct $name:ident($sys:ident);
-    $($visibility:vis fn $method:ident(
-        &self
-        $(,$arg:ident: [$ref:ident] $type:ty)*)
-    $(->$value:ty)?;)*
-    ) => {
-        $(#[$attr])*
-        pub struct $name(pub(crate) crate::rc::RefGuard<$sys>);
-
-        impl crate::rc::Rc for $sys {
-            fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
-                &self.base.as_base()
-            }
-        }
-
-        impl crate::rc::Rc for $name {
-            fn as_base(&self) -> &cef_sys::cef_base_ref_counted_t {
-                self.0.as_base()
-            }
-        }
-
-        impl $name {
-            pub unsafe fn from_raw(ptr: *mut $sys) -> Self {
-                Self(RefGuard::from_raw(ptr))
-            }
-
-            pub unsafe fn into_raw(self) -> *mut $sys {
-                self.0.into_raw()
-            }
-
-            $(crate::gen_fn!($visibility fn $method(
-                $($arg: $ref $type)*
-            )$(-> $value)?);)*
-        }
-    };
+impl<T> ConvertParam<*mut T> for &RefGuard<T>
+where
+    T: Sized + Rc,
+{
+    /// Access the [RefGuard] and return the raw pointer without decreasing the reference count.
+    ///
+    /// # Safety
+    ///
+    /// This should be used when you need to pass wrapper type to the FFI function as **parameter**, and it is **not**
+    /// the `self` type (usually the first parameter). This means we pass the ownership of the
+    /// value to the function call. Using this method elsewehre may cause incorrect reference count
+    /// and memory safety issues.
+    fn as_raw(self) -> *mut T {
+        unsafe { self.as_raw() }
+    }
 }
-pub use gen_fn;
-pub use wrapper;
+
+pub struct WrapParamRef<T>(mem::ManuallyDrop<T>);
+
+impl<T, U> From<*mut T> for WrapParamRef<U>
+where
+    T: Sized + Copy + Into<U>,
+    U: Sized,
+{
+    fn from(value: *mut T) -> Self {
+        let value = unsafe { value.as_ref() }
+            .map(|value| (*value).into())
+            .unwrap_or_else(|| unsafe { mem::zeroed() });
+
+        WrapParamRef(mem::ManuallyDrop::new(value))
+    }
+}
+
+impl<T, U> From<*const T> for WrapParamRef<U>
+where
+    T: Sized + Copy + Into<U>,
+    U: Sized,
+{
+    fn from(value: *const T) -> Self {
+        let value = unsafe { value.as_ref() }
+            .map(|value| (*value).into())
+            .unwrap_or_else(|| unsafe { mem::zeroed() });
+
+        WrapParamRef(mem::ManuallyDrop::new(value))
+    }
+}
+
+impl<T> AsMut<T> for WrapParamRef<T> {
+    fn as_mut(&mut self) -> &mut T {
+        &mut *self.0
+    }
+}
+
+impl<T> AsRef<T> for WrapParamRef<T> {
+    fn as_ref(&self) -> &T {
+        &*self.0
+    }
+}
+
+pub trait ConvertReturnValue<T: Sized> {
+    fn as_wrapper(self) -> T;
+}
+
+impl<T, U> ConvertReturnValue<U> for T
+where
+    T: Sized + Into<U>,
+    U: Sized,
+{
+    fn as_wrapper(self) -> U {
+        self.into()
+    }
+}
 
 /// A smart pointer for types from cef library.
-#[derive(Debug)]
 pub struct RefGuard<T: Rc> {
     object: *mut T,
+}
+
+impl<T: Debug + Rc> Debug for RefGuard<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let object_ref = unsafe { self.object.as_ref() };
+        write!(f, "RefGuard({object_ref:#?})")
+    }
 }
 
 impl<T: Rc> RefGuard<T> {
@@ -199,7 +226,7 @@ impl<T: Rc> RefGuard<T> {
     /// This should be used to get the **return value** of the FFI function. This means we get the
     /// ownership of the value. The reference count of the return value is already increased when
     /// you get it. So we don't need to increase it again manually. Using this method elsewhere may
-    /// cause incorrect reference count and memory safty issues.
+    /// cause incorrect reference count and memory safety issues.
     pub unsafe fn from_raw(ptr: *mut T) -> RefGuard<T> {
         RefGuard { object: ptr }
     }
@@ -210,7 +237,7 @@ impl<T: Rc> RefGuard<T> {
     /// # Safety
     ///
     /// THis should be used when you want to manually increase the reference count upon getting the
-    /// raw pointer. Using this method elsewehre may cause incorrect reference count and memory
+    /// raw pointer. Using this method elsewhere may cause incorrect reference count and memory
     /// safety issues.
     pub unsafe fn from_raw_add_ref(ptr: *mut T) -> RefGuard<T> {
         let guard = RefGuard { object: ptr };
@@ -226,9 +253,9 @@ impl<T: Rc> RefGuard<T> {
     ///
     /// This should be used when you need to pass wrapper type to the FFI function as **parameter**, and it **is**
     /// the `self` type (usually the first parameter). This means we pass the ownership of the
-    /// value to the function call. Using this method elsewehre may cause incorrect reference count
+    /// value to the function call. Using this method elsewhere may cause incorrect reference count
     /// and memory safety issues.
-    pub unsafe fn get_raw(&self) -> *mut T {
+    pub unsafe fn as_raw(&self) -> *mut T {
         self.object
     }
 
@@ -238,12 +265,10 @@ impl<T: Rc> RefGuard<T> {
     ///
     /// This should be used when you need to pass wrapper type to the FFI function as **parameter**, and it is **not**
     /// the `self` type (usually the first parameter). This means we pass the ownership of the
-    /// value to the function call. Using this method elsewehre may cause incorrect reference count
+    /// value to the function call. Using this method elsewhere may cause incorrect reference count
     /// and memory safety issues.
     pub unsafe fn into_raw(self) -> *mut T {
-        let ptr = unsafe { self.get_raw() };
-        std::mem::forget(self);
-        ptr
+        mem::ManuallyDrop::new(self).object
     }
 
     /// Convert the value to another value that is also reference counted.
@@ -253,7 +278,7 @@ impl<T: Rc> RefGuard<T> {
     /// This should be used when the type has type `U` as its base type. Using this method
     /// elsewhere may cause memory safety issues.
     pub unsafe fn convert<U: Rc>(&self) -> RefGuard<U> {
-        RefGuard::from_raw_add_ref(self.get_raw() as *mut _)
+        RefGuard::from_raw_add_ref(self.as_raw() as *mut _)
     }
 }
 
